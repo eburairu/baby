@@ -106,6 +106,9 @@ export default function Dashboard() {
                 <Button onClick={() => handleAddRecord("sleep")} className="h-24 text-lg" variant="secondary">💤 Sleep</Button>
                 <Button onClick={() => handleAddRecord("diaper")} className="h-24 text-lg" variant="secondary">💩 Diaper</Button>
                 <Button onClick={() => handleAddRecord("growth")} className="h-24 text-lg" variant="secondary">📏 Growth</Button>
+                <a href="/contraction" className="col-span-2 md:col-span-4">
+                    <Button className="h-24 text-lg w-full bg-red-500 hover:bg-red-600 text-white" variant="default">🤰 陣痛タイマー</Button>
+                </a>
             </div>
 
             <Card>
