@@ -52,16 +52,22 @@ export function InviteCodeCard({ inviteCode, isAdmin, onRegenerated }: Props) {
                 <div className="flex-1 bg-violet-50 rounded-lg px-4 py-2 font-mono text-gray-800 text-sm">
                     {inviteCode}
                 </div>
-                <Button variant="outline" size="icon" onClick={handleCopy}>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopy}
+                    aria-label={copied ? "コピー完了" : "招待コードをコピー"}
+                    title="招待コードをコピー"
+                >
                     {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                 </Button>
             </div>
-            {copied && <p className="text-green-600 text-xs mt-1">コピーしました ✓</p>}
+            {copied && <p className="text-green-600 text-xs mt-1" role="status">コピーしました ✓</p>}
             {isAdmin && (
                 <div className="mt-3">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={regenerating}>
+                            <Button variant="outline" size="sm" loading={regenerating}>
                                 <RefreshCw className="h-4 w-4 mr-1" />
                                 再生成
                             </Button>

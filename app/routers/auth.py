@@ -17,7 +17,7 @@ from app.services.auth import verify_password, get_password_hash
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 SESSION_EXPIRE_DAYS = 7
-COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 
 
 def _create_session(db: Session, user_id: int) -> str:

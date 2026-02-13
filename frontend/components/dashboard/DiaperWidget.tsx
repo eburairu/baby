@@ -49,7 +49,13 @@ export function DiaperWidget({ babyId }: Props) {
                     👶 おむつ
                 </CardTitle>
                 <Link href={`/diaper?baby_id=${babyId}`}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-amber-500">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-amber-500"
+                        aria-label="おむつ詳細"
+                        title="詳細を見る"
+                    >
                         <ArrowRight className="h-4 w-4" />
                     </Button>
                 </Link>
@@ -68,19 +74,21 @@ export function DiaperWidget({ babyId }: Props) {
                 <div className="flex gap-2">
                     <Button
                         size="sm"
-                        disabled={loading}
+                        loading={loading}
                         onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
                         className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
                         variant="outline"
+                        aria-label="おしっこ"
                     >
                         💧
                     </Button>
                     <Button
                         size="sm"
-                        disabled={loading}
+                        loading={loading}
                         onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
                         className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
                         variant="outline"
+                        aria-label="うんち"
                     >
                         💩
                     </Button>
