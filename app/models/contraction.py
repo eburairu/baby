@@ -12,4 +12,4 @@ class Contraction(Base):
     duration_seconds = Column(Integer, nullable=True)
     interval_seconds = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
-    baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
+    baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False, index=True)
