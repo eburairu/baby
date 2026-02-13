@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Pencil, Trash2 } from "lucide-react"
+import { calcAge } from "@/lib/ageUtils"
 
 interface Baby {
     id: number
@@ -16,27 +17,13 @@ interface Props {
     onDelete: (baby: Baby) => void
 }
 
-function calcAge(birthday: string | null): string {
-    if (!birthday) return ""
-    const birth = new Date(birthday)
-    const now = new Date()
-    const diffMs = now.getTime() - birth.getTime()
-    if (diffMs < 0) return ""
-    const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    const months = Math.floor(totalDays / 30.4375)
-    const days = totalDays - Math.floor(months * 30.4375)
-    if (months === 0) return `生後 ${days}日`
-    if (days === 0) return `生後 ${months}ヶ月`
-    return `生後 ${months}ヶ月 ${days}日`
-}
-
 function formatDate(dateStr: string | null): string {
     if (!dateStr) return ""
     return dateStr.replace(/-/g, "/")
 }
 
 export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
-    const age = calcAge(baby.birthday)
+    const age = baby.birthday ? calcAge(baby.birthday).label : ""
 
     return (
         <div className="bg-white rounded-2xl shadow-sm p-4">
