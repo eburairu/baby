@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, func
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, func, Index
 from .base import Base
 
 
@@ -13,3 +13,7 @@ class Schedule(Base):
     is_completed = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
+
+    __table_args__ = (
+        Index("idx_schedule_baby_scheduled_time", "baby_id", "scheduled_time"),
+    )
