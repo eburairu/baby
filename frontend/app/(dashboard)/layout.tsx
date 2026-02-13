@@ -4,13 +4,20 @@ import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { api } from "@/lib/api"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Settings } from "lucide-react"
+import { useBabies } from "@/hooks/useData"
+import { useBabyStore } from "@/stores/babyStore"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, isLoading, mutate } = useUser()
     const router = useRouter()
     const pathname = usePathname()
+    const { babies } = useBabies()
+    const { selectedBabyId } = useBabyStore()
+    const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    const selectedBaby = babies?.find((b: any) => String(b.id) === effectiveId)
 
     useEffect(() => {
         if (!isLoading && !user) {
@@ -51,9 +58,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </Link>
                     </div>
                     <div className="flex items-center gap-4">
+                        {selectedBaby && (
+                            <Badge variant="secondary" className="text-xs">
+                                🍼 {selectedBaby.name}
+                            </Badge>
+                        )}
                         <span className="text-sm text-gray-500 hidden sm:inline-block">
                             Welcome, {user.username}
                         </span>
+                        <Link href="/settings">
+                            <Button variant="ghost" size="icon" className="text-gray-500">
+                                <Settings className="h-5 w-5" />
+                            </Button>
+                        </Link>
                         <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-500">Logout</Button>
                     </div>
                 </div>

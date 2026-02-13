@@ -13,6 +13,12 @@ class BabyCreate(BabyBase):
     pass
 
 
+class BabyUpdate(BaseModel):
+    name: Optional[str] = None
+    birthday: Optional[date] = None
+    due_date: Optional[date] = None
+
+
 class BabyResponse(BabyBase):
     id: int
     family_id: int

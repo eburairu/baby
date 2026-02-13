@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useBabies, useContractions } from "@/hooks/useData"
+import { useBabyStore } from "@/stores/babyStore"
 import ContractionTimer from "@/components/ContractionTimer"
 import ContractionStats from "@/components/ContractionStats"
 import ContractionHistory from "@/components/ContractionHistory"
@@ -14,16 +14,11 @@ import Link from "next/link"
 
 export default function ContractionPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
-    const [selectedBabyId, setSelectedBabyId] = useState<number | null>(null)
+    const { selectedBabyId: storedBabyId, setSelectedBabyId: setStoredBabyId } = useBabyStore()
 
-    // 最初の赤ちゃんを自動選択（React anti-patternをuseEffectで修正）
-    useEffect(() => {
-        if (babies && babies.length > 0 && selectedBabyId === null) {
-            setSelectedBabyId(babies[0].id)
-        }
-        // selectedBabyIdは意図的に除外（初回のみ実行）
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [babies])
+    // ストアの文字列IDを数値に変換、未選択時は最初の赤ちゃんをフォールバック
+    const effectiveIdStr = storedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    const selectedBabyId = effectiveIdStr ? parseInt(effectiveIdStr, 10) : null
 
     const { contractions, isLoading: contractionsLoading, mutate } = useContractions(selectedBabyId)
 
@@ -72,7 +67,7 @@ export default function ContractionPage() {
                                 key={baby.id}
                                 variant={selectedBabyId === baby.id ? "default" : "outline"}
                                 size="sm"
-                                onClick={() => setSelectedBabyId(baby.id)}
+                                onClick={() => setStoredBabyId(String(baby.id))}
                             >
                                 {baby.name}
                             </Button>
