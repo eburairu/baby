@@ -31,22 +31,16 @@ export default function FeedingPage() {
     }
 
     if (!babyId) {
-        return (
-            <div className="p-4 text-center">
-                <p className="mb-4">赤ちゃんが登録されていません。</p>
-                <Button onClick={() => router.push("/")}>ダッシュボードへ戻る</Button>
-            </div>
-        )
+        <div className="p-4 text-center">
+            <p>赤ちゃんが登録されていません。</p>
+        </div>
     }
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
             <div className="bg-white border-b sticky top-0 z-10">
                 <div className="max-w-2xl mx-auto px-4 h-14 flex items-center">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()} className="-ml-2">
-                        <ArrowLeft className="w-5 h-5" />
-                    </Button>
-                    <h1 className="text-lg font-bold ml-2">授乳記録</h1>
+                    <h1 className="text-lg font-bold">授乳記録</h1>
                 </div>
             </div>
 

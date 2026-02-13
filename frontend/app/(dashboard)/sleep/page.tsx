@@ -24,9 +24,6 @@ export default function SleepPage() {
     return (
         <div className="container mx-auto max-w-2xl p-4 space-y-6 pb-24">
             <div className="flex items-center gap-2 mb-4">
-                <Link href="/" className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
-                    <ArrowLeft className="w-5 h-5" />
-                </Link>
                 <h1 className="text-xl font-bold text-gray-800">睡眠記録</h1>
             </div>
 

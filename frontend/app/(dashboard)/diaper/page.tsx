@@ -27,10 +27,7 @@ export default function DiaperPage() {
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
             {/* Header */}
-            <header className="bg-white px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-sm">
-                <Button variant="ghost" size="icon" onClick={() => router.push("/")} className="-ml-2">
-                    <ArrowLeft className="h-5 w-5 text-gray-600" />
-                </Button>
+            <header className="bg-white px-4 py-3 sticky top-0 z-10 shadow-sm">
                 <h1 className="text-lg font-bold text-gray-800">おむつ交換</h1>
             </header>
 
