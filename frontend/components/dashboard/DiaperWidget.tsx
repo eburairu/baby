@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { useDiapers } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
+import { useRouter } from "next/navigation"
+import { Diaper, DiaperType } from "@/types/diaper"
 
 interface Props {
     babyId: string
@@ -13,21 +15,23 @@ interface Props {
 export function DiaperWidget({ babyId }: Props) {
     const { diapers, mutate } = useDiapers(babyId)
     const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
-    const todayDiapers = diapers?.filter((d) => isToday(d.changed_at)) ?? []
-    const wetCount = todayDiapers.filter((d) => d.diaper_type === "wet" || d.diaper_type === "both").length
-    const dirtyCount = todayDiapers.filter((d) => d.diaper_type === "dirty" || d.diaper_type === "both").length
+    const todayDiapers = (diapers as unknown as Diaper[])?.filter((d) => isToday(d.change_time)) ?? []
+    const wetCount = todayDiapers.filter((d) => d.diaper_type === DiaperType.WET || d.diaper_type === DiaperType.BOTH).length
+    const dirtyCount = todayDiapers.filter((d) => d.diaper_type === DiaperType.DIRTY || d.diaper_type === DiaperType.BOTH).length
 
-    const lastDiaper = diapers?.[0]
-    const elapsed = lastDiaper ? formatElapsed(lastDiaper.changed_at) : null
+    const lastDiaper = (diapers as unknown as Diaper[])?.[0]
+    const elapsed = lastDiaper ? formatElapsed(lastDiaper.change_time) : null
 
-    const handleQuickRecord = async (diaperType: string) => {
+    const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
+        e.stopPropagation() // Prevent card click
         setLoading(true)
         try {
             await api.post("/diapers/", {
                 baby_id: Number(babyId),
                 diaper_type: diaperType,
-                changed_at: new Date().toISOString(),
+                change_time: new Date().toISOString(),
             })
             mutate()
         } catch (e) {
@@ -37,11 +41,19 @@ export function DiaperWidget({ babyId }: Props) {
         }
     }
 
+    const handleCardClick = () => {
+        router.push(`/diaper?baby_id=${babyId}`)
+    }
+
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
+        <Card
+            className="bg-white rounded-2xl shadow-sm border-0 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={handleCardClick}
+        >
             <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-amber-500 flex items-center gap-1">
-                    👶 おむつ
+                <CardTitle className="text-sm font-medium text-amber-500 flex items-center justify-between">
+                    <span>👶 おむつ</span>
+                    <span className="text-xs text-gray-400 font-normal">詳細 &gt;</span>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -52,27 +64,27 @@ export function DiaperWidget({ babyId }: Props) {
                         <p className="text-sm text-gray-400">記録なし</p>
                     )}
                     <p className="text-xs text-gray-500 mt-1">
-                        今日: おしっこ{wetCount}回 / うんち{dirtyCount}回
+                        今日: 💧{wetCount} / 💩{dirtyCount}
                     </p>
                 </div>
                 <div className="flex gap-2">
                     <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleQuickRecord("wet")}
+                        onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
                         className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
                         variant="outline"
                     >
-                        おしっこ
+                        💧
                     </Button>
                     <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleQuickRecord("dirty")}
+                        onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
                         className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
                         variant="outline"
                     >
-                        うんち
+                        💩
                     </Button>
                 </div>
             </CardContent>
