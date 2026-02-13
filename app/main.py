@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import os
 
 app = FastAPI(title="Baby-App API")
@@ -31,9 +32,24 @@ app.include_router(schedule.router)
 frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/out")
 
 if os.path.exists(frontend_build_path):
-    app.mount("/", StaticFiles(directory=frontend_build_path, html=True), name="static")
+    next_static_path = os.path.join(frontend_build_path, "_next")
+    if os.path.exists(next_static_path):
+        app.mount("/_next", StaticFiles(directory=next_static_path), name="next-static")
 
 
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok"}
+
+
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    if not os.path.exists(frontend_build_path):
+        return {"error": "Frontend not built"}
+    file_path = os.path.join(frontend_build_path, full_path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    html_path = file_path + ".html"
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
+    return FileResponse(os.path.join(frontend_build_path, "index.html"))
