@@ -42,7 +42,7 @@ async def health_check():
     return {"status": "ok"}
 
 
-@app.get("/{full_path:path}")
+@app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
 async def serve_frontend(full_path: str):
     if not os.path.exists(frontend_build_path):
         return {"error": "Frontend not built"}
