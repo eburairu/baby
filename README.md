@@ -61,7 +61,7 @@ cp .env.example .env
 
 - `DATABASE_URL`（必須）
 - `CORS_ORIGINS`（任意。例: `http://localhost:3000,http://localhost:8000`）
-- `COOKIE_SECURE`（任意。ローカルでは通常 `false`）
+- `COOKIE_SECURE`（任意。デフォルトは `true`。ローカル開発で HTTP を使用する場合は `false` に設定してください）
 
 ### 3. Backend セットアップ
 
