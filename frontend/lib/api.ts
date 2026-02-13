@@ -1,5 +1,17 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '') + '/api';
 
+export class ApiError extends Error {
+    info: any;
+    status: number;
+
+    constructor(message: string, info: any, status: number) {
+        super(message);
+        this.name = 'ApiError';
+        this.info = info;
+        this.status = status;
+    }
+}
+
 async function parseErrorBody(res: Response): Promise<unknown> {
     const text = await res.text();
     try {
@@ -9,21 +21,22 @@ async function parseErrorBody(res: Response): Promise<unknown> {
     }
 }
 
-export const fetcher = async (url: string) => {
+export const fetcher = async <T = any>(url: string): Promise<T> => {
     const res = await fetch(`${API_BASE}${url}`, {
         credentials: 'include',
     });
     if (!res.ok) {
-        const error: any = new Error('An error occurred while fetching the data.');
-        error.info = await parseErrorBody(res);
-        error.status = res.status;
-        throw error;
+        throw new ApiError(
+            'An error occurred while fetching the data.',
+            await parseErrorBody(res),
+            res.status
+        );
     }
-    return res.json();
+    return res.json() as Promise<T>;
 };
 
 export const api = {
-    post: async (url: string, body: any) => {
+    post: async <TRes = any, TReq = any>(url: string, body: TReq): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'POST',
             headers: {
@@ -33,14 +46,11 @@ export const api = {
             credentials: 'include',
         });
         if (!res.ok) {
-            const error: any = new Error('API Error');
-            error.info = await parseErrorBody(res);
-            error.status = res.status;
-            throw error;
+            throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
-        return res.json();
+        return res.json() as Promise<TRes>;
     },
-    put: async (url: string, body: any) => {
+    put: async <TRes = any, TReq = any>(url: string, body: TReq): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'PUT',
             headers: {
@@ -50,14 +60,11 @@ export const api = {
             credentials: 'include',
         });
         if (!res.ok) {
-            const error: any = new Error('API Error');
-            error.info = await parseErrorBody(res);
-            error.status = res.status;
-            throw error;
+            throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
-        return res.json();
+        return res.json() as Promise<TRes>;
     },
-    patch: async (url: string, body: any) => {
+    patch: async <TRes = any, TReq = any>(url: string, body: TReq): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'PATCH',
             headers: {
@@ -67,25 +74,19 @@ export const api = {
             credentials: 'include',
         });
         if (!res.ok) {
-            const error: any = new Error('API Error');
-            error.info = await parseErrorBody(res);
-            error.status = res.status;
-            throw error;
+            throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
-        return res.json();
+        return res.json() as Promise<TRes>;
     },
-    delete: async (url: string) => {
+    delete: async <TRes = any>(url: string): Promise<TRes | null> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'DELETE',
             credentials: 'include',
         });
         if (!res.ok) {
-            const error: any = new Error('API Error');
-            error.info = await parseErrorBody(res);
-            error.status = res.status;
-            throw error;
+            throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
         if (res.status === 204) return null;
-        return res.json();
+        return res.json() as Promise<TRes>;
     },
 };
