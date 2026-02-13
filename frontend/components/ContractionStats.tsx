@@ -41,13 +41,19 @@ export default function ContractionStats({ contractions }: ContractionStatsProps
             ? Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length)
             : null
 
-        // 5-1-1ルール: 間隔5分以下 & 持続1分以上 & 1時間以上継続
+        // 5-1-1ルール（正確な判定）:
+        // qualifying = 間隔≤5分 かつ 持続≥1分 の陣痛（APIは降順: [0]が最新）
+        const qualifying = contractions.filter(
+            (c) => c.interval_seconds != null && c.duration_seconds != null
+                && c.interval_seconds <= 300 && c.duration_seconds >= 60
+        )
+        const now = Date.now()
         const shouldAlert =
-            avgInterval != null &&
-            avgDuration != null &&
-            avgInterval <= 300 &&
-            avgDuration >= 60 &&
-            recent.length >= 3
+            qualifying.length >= 3 &&
+            // 最古のqualifying陣痛が1時間以上前（パターンが1時間継続）
+            new Date(qualifying[qualifying.length - 1].start_time).getTime() <= now - 3600_000 &&
+            // 最新のqualifying陣痛が30分以内（まだ継続中）
+            new Date(qualifying[0].start_time).getTime() >= now - 1800_000
 
         return { count: recent.length, avgDuration, avgInterval, shouldAlert }
     }, [contractions])
