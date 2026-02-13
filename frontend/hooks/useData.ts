@@ -20,3 +20,16 @@ export function useRecords(babyId: string | null) {
         mutate,
     };
 }
+
+export function useContractions(babyId: number | null) {
+    const { data, error, isLoading, mutate } = useSWR(
+        babyId ? `/contractions/?baby_id=${babyId}` : null,
+        fetcher
+    );
+    return {
+        contractions: data,
+        isLoading,
+        isError: error,
+        mutate,
+    };
+}
