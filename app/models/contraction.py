@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Index
 from .base import Base
 
 
@@ -13,3 +13,7 @@ class Contraction(Base):
     interval_seconds = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
+
+    __table_args__ = (
+        Index("idx_contraction_baby_start_time", "baby_id", "start_time"),
+    )

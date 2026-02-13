@@ -4,7 +4,7 @@
 
 Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 家族に登録されている赤ちゃんの一覧表示、情報編集、削除、および新規追加を行う管理画面。
-エントリポイントはダッシュボードヘッダーの Settings アイコン。
+エントリポイントはダッシュボードヘッダーの Settings アイコン。（現在は `/settings` への暫定リンク）
 
 ## デザインコンセプト
 
@@ -176,8 +176,8 @@ const babySchema = z.object({
 |---------|--------------|---------|------|
 | GET | `/api/babies/` | ✅ 実装済み | 赤ちゃん一覧取得 |
 | POST | `/api/babies/` | ✅ 実装済み（admin のみ） | 赤ちゃん新規追加 |
-| PATCH | `/api/babies/{baby_id}` | ❌ 新規実装が必要 | 赤ちゃん情報更新 |
-| DELETE | `/api/babies/{baby_id}` | ❌ 新規実装が必要 | 赤ちゃん削除（関連記録含む） |
+| PATCH | `/api/babies/{baby_id}` | ✅ 実装済み | 赤ちゃん情報更新 |
+| DELETE | `/api/babies/{baby_id}` | ✅ 実装済み | 赤ちゃん削除（関連記録含む） |
 
 #### 新規スキーマ（追加が必要）
 
@@ -232,24 +232,24 @@ class BabyUpdate(BaseModel):
 
 ### バックエンド
 
-- [ ] `PATCH /api/babies/{baby_id}` エンドポイント実装（admin のみ）
-- [ ] `DELETE /api/babies/{baby_id}` エンドポイント実装（admin のみ、関連記録カスケード削除）
+- [x] `PATCH /api/babies/{baby_id}` エンドポイント実装（admin のみ）
+- [x] `DELETE /api/babies/{baby_id}` エンドポイント実装（admin のみ、関連記録カスケード削除）
 - [ ] 各子テーブルの `ondelete="CASCADE"` 設定確認・必要に応じてマイグレーション追加
-- [ ] `BabyUpdate` スキーマ追加（`app/schemas/baby.py`）
+- [x] `BabyUpdate` スキーマ追加（`app/schemas/baby.py`）
 
 ### フロントエンド
 
-- [ ] `frontend/app/(dashboard)/settings/babies/page.tsx` 作成
-- [ ] `BabyCard.tsx` 作成（名前・月齢・日付表示、編集・削除ボタン付き）
-- [ ] `BabyEditDialog.tsx` 作成（react-hook-form + zod、shadcn Dialog）
-- [ ] `AddBabyDialog.tsx` 作成（ダッシュボードの追加ロジックを移植・共通化）
-- [ ] `BabyDeleteDialog.tsx` 作成（名前入力による削除確認）
-- [ ] 月齢計算ユーティリティ関数を実装（`birthday` → "生後 N ヶ月 M 日"）
+- [x] `frontend/app/(dashboard)/settings/babies/page.tsx` 作成
+- [x] `BabyCard.tsx` 作成（名前・月齢・日付表示、編集・削除ボタン付き）
+- [x] `BabyEditDialog.tsx` 作成（react-hook-form + zod、shadcn Dialog）
+- [x] `AddBabyDialog.tsx` 作成（ダッシュボードの追加ロジックを移植・共通化）
+- [x] `BabyDeleteDialog.tsx` 作成（名前入力による削除確認）
+- [x] 月齢計算ユーティリティ関数を実装（`birthday` → "生後 N ヶ月 M 日"）
 - [ ] ダッシュボードから `AddBabyDialog` を共通コンポーネントとして利用するようリファクタリング
 - [ ] ダッシュボードヘッダーに Settings アイコン追加 → `/settings/babies` へのリンク
 - [ ] `npm run build` でビルド確認
 
 ### ナビゲーション
 
-- [ ] `/settings/babies` ページヘッダーに「← ダッシュボードへ」戻るボタンを実装
+- [x] `/settings/babies` ページヘッダーに「← ダッシュボードへ」戻るボタンを実装
 - [ ] ダッシュボードと Settings 画面間のシームレスな遷移を確認

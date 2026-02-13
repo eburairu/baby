@@ -86,7 +86,7 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full">Login</Button>
+                        <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>Login</Button>
                     </form>
                 </Form>
             </CardContent>
