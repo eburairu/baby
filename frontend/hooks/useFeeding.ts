@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { fetcher, api } from '@/lib/api';
-import { Feeding, FeedingCreate, FeedingSummary, FeedingType } from '@/types/feeding';
+import { Feeding, FeedingCreate, FeedingSummary } from '@/types/feeding';
 import { useMemo } from 'react';
 
 export function useFeeding(babyId: number | null) {
@@ -12,7 +12,7 @@ export function useFeeding(babyId: number | null) {
     const loading = !feedings && !error;
 
     const summary: FeedingSummary = useMemo(() => {
-        if (!feedings) {
+        if (!feedings || feedings.length === 0) {
             return {
                 today_count: 0,
                 today_duration: 0,
@@ -22,33 +22,36 @@ export function useFeeding(babyId: number | null) {
             };
         }
 
-        const today = new Date().toDateString();
-        const todayFeedings = feedings.filter(
-            (f) => new Date(f.feeding_time).toDateString() === today
-        );
+        const now = new Date();
+        const todayYear = now.getFullYear();
+        const todayMonth = now.getMonth();
+        const todayDate = now.getDate();
 
-        const breastFeedings = todayFeedings.filter(
-            (f) => f.feeding_type === 'BREAST' || f.feeding_type === 'MIXED'
-        );
-        const bottleFeedings = todayFeedings.filter(
-            (f) => f.feeding_type === 'BOTTLE' || f.feeding_type === 'MIXED'
-        );
+        let todayCount = 0;
+        let todayDuration = 0;
+        let todayAmount = 0;
 
-        const totalDuration = breastFeedings.reduce(
-            (sum, f) => sum + (f.duration_minutes || 0),
-            0
-        );
-        const totalAmount = bottleFeedings.reduce(
-            (sum, f) => sum + (f.amount_ml || 0),
-            0
-        );
+        for (const f of feedings) {
+            const d = new Date(f.feeding_time);
+            if (d.getDate() === todayDate && d.getMonth() === todayMonth && d.getFullYear() === todayYear) {
+                todayCount++;
 
-        const lastFeeding = feedings.length > 0 ? feedings[0] : null;
+                const type = f.feeding_type;
+                if (type === 'BREAST' || type === 'MIXED') {
+                    todayDuration += (f.duration_minutes || 0);
+                }
+                if (type === 'BOTTLE' || type === 'MIXED') {
+                    todayAmount += (f.amount_ml || 0);
+                }
+            }
+        }
+
+        const lastFeeding = feedings[0];
 
         return {
-            today_count: todayFeedings.length,
-            today_duration: totalDuration,
-            today_amount: totalAmount,
+            today_count: todayCount,
+            today_duration: todayDuration,
+            today_amount: todayAmount,
             last_feeding_time: lastFeeding?.feeding_time ?? null,
             last_feeding_type: lastFeeding?.feeding_type ?? null,
         };
