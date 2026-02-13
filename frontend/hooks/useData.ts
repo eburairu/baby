@@ -51,7 +51,7 @@ function useBabyResource<T>(endpoint: string, babyId: string | number | null) {
 }
 
 export function useRecords(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(babyId ? `/babies/${babyId}/records` : null, fetcher);
+    const { data, error, isLoading, mutate } = useSWR<any[]>(babyId ? `/babies/${babyId}/records` : null, fetcher);
     return {
         records: data,
         isLoading,
