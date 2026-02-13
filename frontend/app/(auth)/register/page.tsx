@@ -23,15 +23,13 @@ import { useUser } from "@/hooks/useAuth"
 
 const createFamilySchema = z.object({
     name: z.string().min(1, "Family name is required"),
-    user_name: z.string().min(1, "Your name is required"),
-    user_email: z.string().email(),
-    user_password: z.string().min(6, "Password must be at least 6 characters"),
+    username: z.string().min(1, "Your name is required"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
 const joinFamilySchema = z.object({
-    invitation_code: z.string().min(1, "Invitation code is required"),
-    name: z.string().min(1, "Your name is required"),
-    email: z.string().email(),
+    invite_code: z.string().min(1, "Invitation code is required"),
+    username: z.string().min(1, "Your name is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
@@ -44,18 +42,16 @@ export default function RegisterPage() {
         resolver: zodResolver(createFamilySchema),
         defaultValues: {
             name: "",
-            user_name: "",
-            user_email: "",
-            user_password: "",
+            username: "",
+            password: "",
         },
     })
 
     const joinForm = useForm<z.infer<typeof joinFamilySchema>>({
         resolver: zodResolver(joinFamilySchema),
         defaultValues: {
-            invitation_code: "",
-            name: "",
-            email: "",
+            invite_code: "",
+            username: "",
             password: "",
         },
     })
@@ -75,7 +71,8 @@ export default function RegisterPage() {
     async function onJoinSubmit(values: z.infer<typeof joinFamilySchema>) {
         try {
             setError(null)
-            await api.post("/auth/register/join", values)
+            const { invite_code, ...userIn } = values
+            await api.post(`/auth/register/join?invite_code=${invite_code}`, userIn)
             await mutate()
             router.push("/")
         } catch (err: any) {
@@ -116,7 +113,7 @@ export default function RegisterPage() {
                                 />
                                 <FormField
                                     control={createForm.control}
-                                    name="user_name"
+                                    name="username"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Your Name</FormLabel>
@@ -129,20 +126,7 @@ export default function RegisterPage() {
                                 />
                                 <FormField
                                     control={createForm.control}
-                                    name="user_email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Email</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="taro@example.com" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={createForm.control}
-                                    name="user_password"
+                                    name="password"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
@@ -180,7 +164,7 @@ export default function RegisterPage() {
                                 {error && <div className="text-red-500 text-sm">{error}</div>}
                                 <FormField
                                     control={joinForm.control}
-                                    name="invitation_code"
+                                    name="invite_code"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Invitation Code</FormLabel>
@@ -193,25 +177,12 @@ export default function RegisterPage() {
                                 />
                                 <FormField
                                     control={joinForm.control}
-                                    name="name"
+                                    name="username"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Your Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Hanako" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={joinForm.control}
-                                    name="email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Email</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="hanako@example.com" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
