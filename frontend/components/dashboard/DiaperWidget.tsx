@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { useDiapers } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { Diaper, DiaperType } from "@/types/diaper"
 
 interface Props {
@@ -15,7 +16,6 @@ interface Props {
 export function DiaperWidget({ babyId }: Props) {
     const { diapers, mutate } = useDiapers(babyId)
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
 
     const todayDiapers = (diapers as unknown as Diaper[])?.filter((d) => isToday(d.change_time)) ?? []
     const wetCount = todayDiapers.filter((d) => d.diaper_type === DiaperType.WET || d.diaper_type === DiaperType.BOTH).length
@@ -25,7 +25,8 @@ export function DiaperWidget({ babyId }: Props) {
     const elapsed = lastDiaper ? formatElapsed(lastDiaper.change_time) : null
 
     const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
-        e.stopPropagation() // Prevent card click
+        e.preventDefault()
+        e.stopPropagation()
         setLoading(true)
         try {
             await api.post("/diapers/", {
@@ -41,20 +42,17 @@ export function DiaperWidget({ babyId }: Props) {
         }
     }
 
-    const handleCardClick = () => {
-        router.push(`/diaper?baby_id=${babyId}`)
-    }
-
     return (
-        <Card
-            className="bg-white rounded-2xl shadow-sm border-0 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={handleCardClick}
-        >
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-amber-500 flex items-center justify-between">
-                    <span>👶 おむつ</span>
-                    <span className="text-xs text-gray-400 font-normal">詳細 &gt;</span>
+        <Card className="bg-white rounded-2xl shadow-sm border-0">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-sm font-medium text-amber-500 flex items-center gap-1">
+                    👶 おむつ
                 </CardTitle>
+                <Link href={`/diaper?baby_id=${babyId}`}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-amber-500">
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </Link>
             </CardHeader>
             <CardContent className="space-y-3">
                 <div>

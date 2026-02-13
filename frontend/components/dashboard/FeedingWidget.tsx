@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { useFeedings } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
 interface Props {
     babyId: string
@@ -18,13 +20,15 @@ export function FeedingWidget({ babyId }: Props) {
     const lastFeeding = feedings?.[0]
     const elapsed = lastFeeding ? formatElapsed(lastFeeding.start_time) : null
 
-    const handleQuickRecord = async (feedingType: string) => {
+    const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
         setLoading(true)
         try {
             await api.post("/feedings/", {
                 baby_id: Number(babyId),
-                feeding_type: feedingType,
-                start_time: new Date().toISOString(),
+                feeding_type: feedingType.toUpperCase(),
+                feeding_time: new Date().toISOString(),
             })
             mutate()
         } catch (e) {
@@ -36,10 +40,15 @@ export function FeedingWidget({ babyId }: Props) {
 
     return (
         <Card className="bg-white rounded-2xl shadow-sm border-0">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium text-rose-500 flex items-center gap-1">
                     🍼 授乳
                 </CardTitle>
+                <Link href={`/feeding?baby_id=${babyId}`}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-rose-500">
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </Link>
             </CardHeader>
             <CardContent className="space-y-3">
                 <div>
@@ -54,7 +63,7 @@ export function FeedingWidget({ babyId }: Props) {
                     <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleQuickRecord("bottle")}
+                        onClick={(e) => handleQuickRecord("bottle", e)}
                         className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
                         variant="outline"
                     >
@@ -63,7 +72,7 @@ export function FeedingWidget({ babyId }: Props) {
                     <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleQuickRecord("breast")}
+                        onClick={(e) => handleQuickRecord("breast", e)}
                         className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
                         variant="outline"
                     >
