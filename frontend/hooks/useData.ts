@@ -50,8 +50,19 @@ function useBabyResource<T>(endpoint: string, babyId: string | number | null) {
     };
 }
 
+
+export interface BabyRecord {
+    id: number;
+    baby_id: number;
+    type: 'feeding' | 'sleep' | 'diaper' | 'growth' | 'contraction';
+    timestamp: string;
+    notes?: string;
+    // Add other common fields or union types if necessary
+    [key: string]: any;
+}
+
 export function useRecords(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(babyId ? `/babies/${babyId}/records` : null, fetcher);
+    const { data, error, isLoading, mutate } = useSWR<BabyRecord[]>(babyId ? `/babies/${babyId}/records` : null, fetcher);
     return {
         records: data,
         isLoading,
