@@ -10,35 +10,72 @@ Baby-App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 
 - **Backend**: FastAPI, SQLAlchemy 2.0, Pydantic v2, Alembic
 - **Frontend**: Next.js (App Router, Static Export), TypeScript (strict), Tailwind CSS v4, SWR, Zustand, shadcn/ui
-- **Database**: PostgreSQL (本番: Neon / ローカル: Docker) + Alembic マイグレーション
+- **Database**: PostgreSQL (本番: Neon production ブランチ / ローカル: Neon develop ブランチ) + Alembic マイグレーション
 - **Deployment**: Docker マルチステージビルド → Render
 
-## コマンド
+## ローカル開発環境のセットアップ
 
-### Backend
+### 前提
+
+- **Docker 不要**。DB は Neon のブランチを使用する。
+- `.env` に `DATABASE_URL` を設定することで接続先を切り替える。
+- `.env` は `.gitignore` で除外済み（コミット不可）。
+
+### DB 環境（Neon ブランチ構成）
+
+| ブランチ名 | 用途 | ブランチ ID |
+| ---------- | ---- | ----------- |
+| `production` | 本番（Render から参照） | `br-restless-thunder-a1jvbo69` |
+| `develop` | ローカル開発用（production のスナップショット） | `br-super-tooth-a1z3r2p7` |
+
+接続文字列は Neon MCP で取得する:
+
+```text
+mcp__Neon__get_connection_string(projectId="still-feather-79533302", branchId="br-super-tooth-a1z3r2p7")
+```
+
+### `.env` の設定
+
+```env
+DATABASE_URL="postgresql://neondb_owner:<password>@<endpoint>.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
+```
+
+> **注意**: URL に `&` が含まれるため、シェルで `source .env` する場合は値をダブルクォートで囲む。
+
+### ローカル起動手順
 
 ```bash
+# 1. 仮想環境を有効化
 source .venv/bin/activate
+
+# 2. 環境変数を読み込む
+set -a && source .env && set +a
+
+# 3. DB マイグレーションを適用（初回・スキーマ変更時）
+alembic upgrade head
+
+# 4. バックエンドを起動
 uvicorn app.main:app --reload
 
+# 5. フロントエンドを起動（別ターミナル）
+cd frontend && npm run dev
+```
+
+起動後:
+
+- API: `http://localhost:8000/api`
+- フロントエンド dev server: `http://localhost:3000`
+
+### コマンドリファレンス
+
+```bash
 # DB マイグレーション
 alembic revision --autogenerate -m "description"
 alembic upgrade head
-```
 
-### Frontend
-
-```bash
-cd frontend
-npm run dev
-npm run build   # 変更後は必ず実行（型チェック含む）
-npm run lint
-```
-
-### ローカル DB 起動
-
-```bash
-docker-compose up   # PostgreSQL on port 5434
+# フロントエンドビルド（変更後は必ず実行・型チェック含む）
+cd frontend && npm run build
+cd frontend && npm run lint
 ```
 
 ## アーキテクチャ
