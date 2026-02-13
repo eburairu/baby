@@ -8,6 +8,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useBabies } from "@/hooks/useData"
 import { useFeeding } from "@/hooks/useFeeding"
+import { useBabyStore } from "@/stores/babyStore"
 import { FeedingStats } from "@/components/feeding/feeding-stats"
 import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
@@ -16,9 +17,11 @@ import { PageLoading } from "@/components/ui/page-loading"
 export default function FeedingPage() {
     const router = useRouter()
     const { babies, isLoading: babiesLoading } = useBabies()
+    const { selectedBabyId } = useBabyStore()
 
-    // Default to first baby
-    const babyId = babies && babies.length > 0 ? babies[0].id : null
+    // Default to first baby, prefer store selection
+    const effectiveBabyIdStr = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    const babyId = effectiveBabyIdStr ? parseInt(effectiveBabyIdStr, 10) : null
 
     const {
         feedings,

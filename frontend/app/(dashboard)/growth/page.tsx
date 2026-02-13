@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { useGrowths } from "@/hooks/useData"
+import { useGrowths, useBabies } from "@/hooks/useData"
+import { useBabyStore } from "@/stores/babyStore"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { GrowthChart } from "@/components/growth/GrowthChart"
@@ -15,7 +16,12 @@ import Link from "next/link"
 
 export default function GrowthPage() {
     const searchParams = useSearchParams()
-    const babyId = searchParams.get("baby_id")
+    const paramBabyId = searchParams.get("baby_id")
+    const { babies } = useBabies()
+    const { selectedBabyId } = useBabyStore()
+
+    // Priority: URL param > store selection > first baby
+    const babyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const { growths, isLoading, mutate } = useGrowths(babyId)
 
     const [isFormOpen, setIsFormOpen] = useState(false)
