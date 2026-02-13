@@ -46,7 +46,7 @@ Baby-App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 
 ### Infrastructure & Database
 
-- **Database**: PostgreSQL (Neon Serverless) / SQLite (Local Dev)
+- **Database**: PostgreSQL (Neon Serverless)
 - **Container**: Docker (Multi-stage Build)
 - **Deployment**: Render (Web Service)
 
