@@ -14,8 +14,8 @@ export function GrowthWidget({ babyId }: Props) {
 
     const latest = growths?.[0] ?? null
 
-    const measureDate = latest?.measured_at
-        ? new Date(latest.measured_at).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })
+    const measureDate = latest?.date
+        ? new Date(latest.date).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })
         : null
 
     return (
@@ -33,14 +33,14 @@ export function GrowthWidget({ babyId }: Props) {
             <CardContent className="space-y-3">
                 {latest ? (
                     <div className="space-y-1">
-                        {latest.weight_kg != null && (
+                        {latest.weight != null && (
                             <p className="text-2xl font-bold text-gray-800">
-                                {latest.weight_kg} <span className="text-sm font-normal text-gray-500">kg</span>
+                                {latest.weight} <span className="text-sm font-normal text-gray-500">g</span>
                             </p>
                         )}
-                        {latest.height_cm != null && (
+                        {latest.height != null && (
                             <p className="text-sm text-gray-600">
-                                身長 {latest.height_cm} cm
+                                身長 {latest.height} cm
                             </p>
                         )}
                         {measureDate && (
