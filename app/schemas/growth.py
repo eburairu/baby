@@ -5,10 +5,18 @@ from datetime import date, datetime
 
 class GrowthCreate(BaseModel):
     baby_id: int
-    measurement_date: date
-    weight_kg: Optional[float] = None
-    height_cm: Optional[float] = None
-    head_circumference_cm: Optional[float] = None
+    date: date
+    weight: Optional[int] = None  # in grams
+    height: Optional[float] = None  # in cm
+    head_circumference: Optional[float] = None  # in cm
+    notes: Optional[str] = None
+
+
+class GrowthUpdate(BaseModel):
+    date: Optional[date] = None
+    weight: Optional[int] = None
+    height: Optional[float] = None
+    head_circumference: Optional[float] = None
     notes: Optional[str] = None
 
 

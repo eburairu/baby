@@ -25,7 +25,7 @@ def _create_session(db: Session, user_id: int) -> str:
     session = UserSession(
         token=token,
         user_id=user_id,
-        expires_at=datetime.utcnow() + timedelta(days=SESSION_EXPIRE_DAYS),
+        expires_at=datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS),
     )
     db.add(session)
     db.commit()

@@ -40,6 +40,23 @@ export const api = {
         }
         return res.json();
     },
+    put: async (url: string, body: any) => {
+        const res = await fetch(`${API_BASE}${url}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            const error: any = new Error('API Error');
+            error.info = await parseErrorBody(res);
+            error.status = res.status;
+            throw error;
+        }
+        return res.json();
+    },
     patch: async (url: string, body: any) => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'PATCH',

@@ -12,3 +12,5 @@ services:
         value: "true"
       - key: CORS_ORIGINS
         value: "https://baby-app-next.onrender.com"
+      - key: TZ
+        value: "Asia/Tokyo"
