@@ -10,6 +10,11 @@ class SleepCreate(BaseModel):
     notes: Optional[str] = None
 
 
+class SleepUpdate(BaseModel):
+    end_time: Optional[datetime] = None
+    notes: Optional[str] = None
+
+
 class SleepResponse(SleepCreate):
     id: int
     user_id: int

@@ -1,141 +1,137 @@
 "use client"
 import { useState } from "react"
-import { useBabies, useRecords } from "@/hooks/useData"
+import { useBabies } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
+import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
+import { SleepWidget } from "@/components/dashboard/SleepWidget"
+import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
+import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
+import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed"
 
 export default function Dashboard() {
     const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
     const [selectedBabyId, setSelectedBabyId] = useState<string | null>(null)
 
-    // Set first baby as default when loaded
-    if (babies && babies.length > 0 && !selectedBabyId) {
-        setSelectedBabyId(babies[0].id)
-    }
-
-    const { records, isLoading: recordsLoading, mutate: mutateRecords } = useRecords(selectedBabyId)
-
     const [newBabyName, setNewBabyName] = useState("")
+    const [newBabyBirthday, setNewBabyBirthday] = useState("")
     const [error, setError] = useState<string | null>(null)
+    const [submitting, setSubmitting] = useState(false)
+
+    // 最初の赤ちゃんをデフォルト選択
+    const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
     const handleAddBaby = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!newBabyName) return
+        setSubmitting(true)
         try {
             setError(null)
-            await api.post("/babies/", { name: newBabyName })
+            const body: Record<string, string> = { name: newBabyName }
+            if (newBabyBirthday) body.birthday = newBabyBirthday
+            await api.post("/babies/", body)
             setNewBabyName("")
+            setNewBabyBirthday("")
             mutateBabies()
         } catch (err: any) {
-            console.error("Failed to add baby", err)
-            setError(err.info?.detail || "Failed to add baby")
+            console.error("赤ちゃんの追加に失敗しました", err)
+            setError(err.info?.detail || "赤ちゃんの追加に失敗しました")
+        } finally {
+            setSubmitting(false)
         }
     }
 
-    const handleAddRecord = async (type: string) => {
-        if (!selectedBabyId) return
-        try {
-            setError(null)
-            await api.post(`/babies/${selectedBabyId}/records`, {
-                type,
-                timestamp: new Date().toISOString(),
-            })
-            mutateRecords()
-        } catch (err: any) {
-            console.error("Failed to add record", err)
-            setError(err.info?.detail || "Failed to add record")
-        }
-    }
-
-    if (babiesLoading) return <div>Loading dashboard...</div>
-
-    if (!babies || babies.length === 0) {
+    if (babiesLoading) {
         return (
-            <Card className="max-w-md mx-auto mt-10">
-                <CardHeader>
-                    <CardTitle>Welcome! Let's get started.</CardTitle>
-                    <CardDescription>First, verify your baby's name so we can start tracking.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleAddBaby} className="space-y-4">
-                        {error && <div className="text-red-500 text-sm">{error}</div>}
-                        <div>
-                            <Label htmlFor="babyName">Baby Name</Label>
-                            <Input
-                                id="babyName"
-                                value={newBabyName}
-                                onChange={(e) => setNewBabyName(e.target.value)}
-                                placeholder="e.g. Ren"
-                            />
-                        </div>
-                        <Button type="submit" className="w-full">Add Baby</Button>
-                    </form>
-                </CardContent>
-            </Card>
+            <div className="flex items-center justify-center min-h-64 text-gray-400">
+                読み込み中...
+            </div>
         )
     }
 
-    return (
-        <div className="space-y-6">
-            {error && <div className="text-red-500 text-sm p-2 bg-red-50 rounded">{error}</div>}
-            <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">
-                    {babies.find((b: any) => b.id === selectedBabyId)?.name}'s Dashboard
-                </h2>
-                {babies.length > 1 && (
-                    <div className="flex gap-2">
-                        {babies.map((baby: any) => (
+    // オンボーディング: 赤ちゃん未登録
+    if (!babies || babies.length === 0) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                <Card className="w-full max-w-md rounded-2xl shadow-sm border-0">
+                    <CardHeader>
+                        <CardTitle className="text-xl">ようこそ！</CardTitle>
+                        <CardDescription>
+                            赤ちゃんの情報を登録して、育児記録を始めましょう。
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleAddBaby} className="space-y-4">
+                            {error && <div className="text-red-500 text-sm">{error}</div>}
+                            <div className="space-y-2">
+                                <Label htmlFor="babyName">赤ちゃんの名前 <span className="text-red-500">*</span></Label>
+                                <Input
+                                    id="babyName"
+                                    value={newBabyName}
+                                    onChange={(e) => setNewBabyName(e.target.value)}
+                                    placeholder="例: れん"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="babyBirthday">誕生日（任意）</Label>
+                                <Input
+                                    id="babyBirthday"
+                                    type="date"
+                                    value={newBabyBirthday}
+                                    onChange={(e) => setNewBabyBirthday(e.target.value)}
+                                />
+                            </div>
                             <Button
-                                key={baby.id}
-                                variant={selectedBabyId === baby.id ? "default" : "outline"}
-                                onClick={() => setSelectedBabyId(baby.id)}
+                                type="submit"
+                                className="w-full"
+                                disabled={submitting}
                             >
-                                {baby.name}
+                                登録する
                             </Button>
-                        ))}
-                    </div>
-                )}
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
+        )
+    }
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button onClick={() => handleAddRecord("feeding")} className="h-24 text-lg" variant="secondary">🍼 Feeding</Button>
-                <Button onClick={() => handleAddRecord("sleep")} className="h-24 text-lg" variant="secondary">💤 Sleep</Button>
-                <Button onClick={() => handleAddRecord("diaper")} className="h-24 text-lg" variant="secondary">💩 Diaper</Button>
-                <Button onClick={() => handleAddRecord("growth")} className="h-24 text-lg" variant="secondary">📏 Growth</Button>
-                <a href="/contraction" className="col-span-2 md:col-span-4">
-                    <Button className="h-24 text-lg w-full bg-red-500 hover:bg-red-600 text-white" variant="default">🤰 陣痛タイマー</Button>
+    if (!effectiveId) return null
+
+    const babiesWithStrId = babies.map((b: any) => ({ ...b, id: String(b.id) }))
+
+    return (
+        <div className="min-h-screen bg-slate-50">
+            <div className="max-w-2xl mx-auto p-4 space-y-4">
+                {/* プロフィールカード & 赤ちゃん切替 */}
+                <BabyProfileCard
+                    babies={babiesWithStrId}
+                    selectedBabyId={effectiveId}
+                    onSelect={(id) => setSelectedBabyId(id)}
+                />
+
+                {/* ウィジェットグリッド */}
+                <div className="grid grid-cols-2 gap-4">
+                    <FeedingWidget babyId={effectiveId} />
+                    <SleepWidget babyId={effectiveId} />
+                    <DiaperWidget babyId={effectiveId} />
+                    <GrowthWidget babyId={effectiveId} />
+                </div>
+
+                {/* 陣痛タイマーへのリンク */}
+                <a href="/contraction" className="block">
+                    <button className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors">
+                        🤰 陣痛タイマー
+                    </button>
                 </a>
-            </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {recordsLoading ? (
-                        <div>Loading records...</div>
-                    ) : records && records.length > 0 ? (
-                        <ul className="space-y-4">
-                            {records.map((record: any) => (
-                                <li key={record.id} className="flex justify-between items-center border-b pb-2 last:border-0">
-                                    <div>
-                                        <span className="font-semibold capitalize">{record.type}</span>
-                                        <span className="text-gray-500 text-sm ml-2">
-                                            {new Date(record.timestamp).toLocaleString()}
-                                        </span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-gray-500">No records yet.</p>
-                    )}
-                </CardContent>
-            </Card>
+                {/* Recent Activity */}
+                <RecentActivityFeed babyId={effectiveId} />
+            </div>
         </div>
     )
 }
