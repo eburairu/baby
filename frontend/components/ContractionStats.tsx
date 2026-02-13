@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ContractionRecord } from "@/types/contraction"
-import { calculateShouldAlert } from "@/lib/contractionUtils"
+import { calculateShouldAlert, calculateStats } from "@/lib/contractionUtils"
 
 function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60)
@@ -17,35 +17,7 @@ interface ContractionStatsProps {
 }
 
 export default function ContractionStats({ contractions }: ContractionStatsProps) {
-    const stats = useMemo(() => {
-        const oneHourAgo = Date.now() - 60 * 60 * 1000
-        const recent = contractions.filter(
-            (c) => new Date(c.start_time).getTime() >= oneHourAgo && c.duration_seconds != null
-        )
-
-        if (recent.length === 0) {
-            return { count: 0, avgDuration: null, avgInterval: null, shouldAlert: false }
-        }
-
-        const durations = recent
-            .map((c) => c.duration_seconds)
-            .filter((d): d is number => d != null)
-        const intervals = recent
-            .map((c) => c.interval_seconds)
-            .filter((i): i is number => i != null)
-
-        const avgDuration = durations.length > 0
-            ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
-            : null
-
-        const avgInterval = intervals.length > 0
-            ? Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length)
-            : null
-
-        const shouldAlert = calculateShouldAlert(contractions)
-
-        return { count: recent.length, avgDuration, avgInterval, shouldAlert }
-    }, [contractions])
+    const stats = useMemo(() => calculateStats(contractions), [contractions])
 
     return (
         <div className="space-y-3">

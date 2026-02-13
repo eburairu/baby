@@ -210,3 +210,79 @@ describe("prepareGraphData", () => {
         expect(prepareGraphData([])).toEqual([])
     })
 })
+
+// ──────────────────────────────────────────
+// calculateStats
+// ──────────────────────────────────────────
+import { calculateStats } from "@/lib/contractionUtils"
+
+describe("calculateStats", () => {
+    it("直近1時間以内の記録数をカウントする", () => {
+        const contractions: ContractionRecord[] = [
+            makeRecord({ id: 3, start_time: secsAgo(100), duration_seconds: 60 }), // 1分前
+            makeRecord({ id: 2, start_time: secsAgo(3000), duration_seconds: 60 }), // 50分前
+            makeRecord({ id: 1, start_time: secsAgo(4000), duration_seconds: 60 }), // 66分前（対象外）
+        ]
+        const result = calculateStats(contractions)
+        expect(result.count).toBe(2)
+    })
+
+    it("duration_seconds が null の記録はカウントしない", () => {
+        const contractions: ContractionRecord[] = [
+            makeRecord({ id: 2, start_time: secsAgo(100), duration_seconds: null }), // 計測中など
+            makeRecord({ id: 1, start_time: secsAgo(200), duration_seconds: 60 }),
+        ]
+        const result = calculateStats(contractions)
+        expect(result.count).toBe(1)
+    })
+
+    it("平均持続・間隔は1時間以上前の記録も含めて計算する（直近10件）", () => {
+        // 全て1時間以上前
+        const contractions: ContractionRecord[] = [
+            makeRecord({ id: 2, start_time: secsAgo(4000), duration_seconds: 60, interval_seconds: 300 }),
+            makeRecord({ id: 1, start_time: secsAgo(4300), duration_seconds: 40, interval_seconds: 320 }),
+        ]
+        const result = calculateStats(contractions)
+
+        // 平均持続: (60+40)/2 = 50
+        expect(result.avgDuration).toBe(50)
+        // 平均間隔: (300+320)/2 = 310
+        expect(result.avgInterval).toBe(310)
+
+        // カウントは0（1時間以内ではないため）
+        expect(result.count).toBe(0)
+    })
+
+    it("直近10件のみで平均を計算する", () => {
+        // 11件作成（全て有効）
+        const contractions: ContractionRecord[] = Array.from({ length: 11 }, (_, i) =>
+            makeRecord({
+                id: 11 - i,
+                start_time: secsAgo(100 + i * 100),
+                duration_seconds: 100, // 平均100になるはず
+                interval_seconds: 200
+            })
+        )
+        // 11件目に異常値を入れる（API降順なので末尾が最古）
+        // id:1 (最古) にduration=1000を入れる
+        contractions[10].duration_seconds = 1000
+        contractions[10].interval_seconds = 2000
+
+        const result = calculateStats(contractions)
+
+        // 最新10件（id 11〜2）はすべて duration=100, interval=200
+        // id 1 (1000, 2000) は除外されるはず
+        expect(result.avgDuration).toBe(100)
+        expect(result.avgInterval).toBe(200)
+    })
+
+    it("有効なデータがない場合は null を返す", () => {
+        const contractions: ContractionRecord[] = [
+            makeRecord({ id: 1, start_time: secsAgo(100), duration_seconds: null }),
+        ]
+        const result = calculateStats(contractions)
+        expect(result.avgDuration).toBeNull()
+        expect(result.avgInterval).toBeNull()
+        expect(result.count).toBe(0)
+    })
+})
