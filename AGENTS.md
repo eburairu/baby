@@ -13,7 +13,7 @@ Baby-App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 
 - **Frontend**: Next.js (React), TypeScript, Tailwind CSS v4, Zustand, SWR
 - **Backend**: FastAPI, SQLAlchemy 2.0, Pydantic v2
-- **Database**: PostgreSQL (Neon) / SQLite, Alembic (Migration)
+- **Database**: PostgreSQL (Neon), Alembic (Migration)
 - **Deployment**: Docker (Single Service Deployment), Render
 
 ## ディレクトリ構造
