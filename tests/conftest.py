@@ -19,6 +19,14 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+@pytest.fixture(autouse=True)
+def mock_cookie_secure(monkeypatch):
+    """テスト環境ではSecure Cookieを無効化する"""
+    monkeypatch.setenv("COOKIE_SECURE", "false")
+    import app.routers.auth
+    monkeypatch.setattr(app.routers.auth, "COOKIE_SECURE", False)
+
+
 @pytest.fixture(scope="function")
 def db():
     Base.metadata.create_all(bind=engine)
@@ -49,7 +57,7 @@ def auth_client(client):
     """認証済みクライアントを作成するためのヘルパー"""
     def _auth(username="testuser", password="testpassword", family_name="Test Family"):
         # 家族とユーザーを登録
-        client.post(
+        res = client.post(
             "/api/auth/register/family",
             json={
                 "name": family_name,
@@ -57,13 +65,16 @@ def auth_client(client):
                 "password": password
             }
         )
+        assert res.status_code == 200, f"Registration failed: {res.text}"
         # ログインしてクッキーを保持したクライアントを返す
-        client.post(
+        login_res = client.post(
             "/api/auth/login",
             json={
                 "username": username,
                 "password": password
             }
         )
+        assert login_res.status_code == 200, f"Login failed: {login_res.text}"
+        assert "access_token" in client.cookies, "No access token in cookies after login"
         return client
     return _auth

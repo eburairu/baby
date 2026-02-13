@@ -26,7 +26,7 @@ def test_feeding_record(auth_client):
         json={
             "baby_id": baby_id,
             "feeding_time": datetime.now().isoformat(),
-            "feeding_type": "breast",
+            "feeding_type": "BREAST",
             "amount_ml": 100
         }
     )
