@@ -31,7 +31,7 @@ export function SleepWidget({ babyId }: Props) {
 
     const elapsed = activeSleep ? formatElapsed(activeSleep.start_time) : null
     const lastSleep = sleeps?.find((s) => s.end_time)
-    const lastElapsed = lastSleep ? formatElapsed(lastSleep.end_time) : null
+    const lastElapsed = lastSleep ? formatElapsed(lastSleep.end_time!) : null
 
     const handleStart = async () => {
         setLoading(true)
@@ -73,7 +73,13 @@ export function SleepWidget({ babyId }: Props) {
                     )}
                 </CardTitle>
                 <Link href={`/sleep?baby_id=${babyId}`}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-indigo-500">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-indigo-500"
+                        aria-label="睡眠詳細"
+                        title="詳細を見る"
+                    >
                         <ArrowRight className="h-4 w-4" />
                     </Button>
                 </Link>
@@ -96,7 +102,7 @@ export function SleepWidget({ babyId }: Props) {
                 </div>
                 <Button
                     size="sm"
-                    disabled={loading}
+                    loading={loading}
                     onClick={isSleeping ? handleEnd : handleStart}
                     className={`w-full text-xs h-8 border-0 ${isSleeping
                             ? "bg-indigo-500 text-white hover:bg-indigo-600"

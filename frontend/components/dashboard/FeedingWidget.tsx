@@ -16,9 +16,9 @@ export function FeedingWidget({ babyId }: Props) {
     const { feedings, mutate } = useFeedings(babyId)
     const [loading, setLoading] = useState(false)
 
-    const todayCount = feedings?.filter((f) => isToday(f.start_time)).length ?? 0
+    const todayCount = feedings?.filter((f) => isToday(f.feeding_time)).length ?? 0
     const lastFeeding = feedings?.[0]
-    const elapsed = lastFeeding ? formatElapsed(lastFeeding.start_time) : null
+    const elapsed = lastFeeding ? formatElapsed(lastFeeding.feeding_time) : null
 
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
         e.preventDefault()
@@ -45,7 +45,13 @@ export function FeedingWidget({ babyId }: Props) {
                     🍼 授乳
                 </CardTitle>
                 <Link href={`/feeding?baby_id=${babyId}`}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-rose-500">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-rose-500"
+                        aria-label="授乳詳細"
+                        title="詳細を見る"
+                    >
                         <ArrowRight className="h-4 w-4" />
                     </Button>
                 </Link>
@@ -62,7 +68,7 @@ export function FeedingWidget({ babyId }: Props) {
                 <div className="flex gap-2">
                     <Button
                         size="sm"
-                        disabled={loading}
+                        loading={loading}
                         onClick={(e) => handleQuickRecord("bottle", e)}
                         className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
                         variant="outline"
@@ -71,7 +77,7 @@ export function FeedingWidget({ babyId }: Props) {
                     </Button>
                     <Button
                         size="sm"
-                        disabled={loading}
+                        loading={loading}
                         onClick={(e) => handleQuickRecord("breast", e)}
                         className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
                         variant="outline"
