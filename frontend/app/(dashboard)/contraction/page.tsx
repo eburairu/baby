@@ -8,6 +8,9 @@ import ContractionHistory from "@/components/ContractionHistory"
 import ContractionGraph from "@/components/ContractionGraph"
 import { Button } from "@/components/ui/button"
 import type { ContractionRecord } from "@/types/contraction"
+import { PageLoading } from "@/components/ui/page-loading"
+import { ChevronLeft, Timer } from "lucide-react"
+import Link from "next/link"
 
 export default function ContractionPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
@@ -18,8 +21,8 @@ export default function ContractionPage() {
         if (babies && babies.length > 0 && selectedBabyId === null) {
             setSelectedBabyId(babies[0].id)
         }
-    // selectedBabyIdは意図的に除外（初回のみ実行）
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // selectedBabyIdは意図的に除外（初回のみ実行）
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [babies])
 
     const { contractions, isLoading: contractionsLoading, mutate } = useContractions(selectedBabyId)
@@ -28,7 +31,7 @@ export default function ContractionPage() {
     const handleDeleted = () => mutate()
 
     if (babiesLoading) {
-        return <div className="flex justify-center py-12 text-muted-foreground">読み込み中...</div>
+        return <PageLoading />
     }
 
     if (!babies || babies.length === 0) {
@@ -42,53 +45,64 @@ export default function ContractionPage() {
     const typedContractions: ContractionRecord[] = contractions ?? []
 
     return (
-        <div className="space-y-6">
-            {/* ヘッダー */}
-            <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">🤰 陣痛タイマー</h2>
-                <a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    ← ダッシュボード
-                </a>
-            </div>
-
-            {/* Baby選択 */}
-            {babies.length > 1 && (
-                <div className="flex gap-2">
-                    {babies.map((baby: { id: number; name: string }) => (
-                        <Button
-                            key={baby.id}
-                            variant={selectedBabyId === baby.id ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSelectedBabyId(baby.id)}
-                        >
-                            {baby.name}
+        <div className="min-h-screen bg-slate-50">
+            <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between h-14 px-4 max-w-2xl mx-auto">
+                    <Link href="/">
+                        <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2 rounded-lg">
+                            <ChevronLeft className="h-4 w-4" />
+                            <span className="text-sm">ダッシュボード</span>
                         </Button>
-                    ))}
+                    </Link>
+                    <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
+                        <Timer className="h-4 w-4 text-red-500" />
+                        陣痛タイマー
+                    </h1>
+                    <div className="w-16" />
                 </div>
-            )}
+            </header>
 
-            {/* 統計 */}
-            <ContractionStats contractions={typedContractions} />
+            <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
 
-            {/* タイマー */}
-            {selectedBabyId && (
-                <ContractionTimer
-                    babyId={selectedBabyId}
-                    onRecorded={handleRecorded}
-                />
-            )}
+                {/* Baby選択 */}
+                {babies.length > 1 && (
+                    <div className="flex gap-2">
+                        {babies.map((baby: { id: number; name: string }) => (
+                            <Button
+                                key={baby.id}
+                                variant={selectedBabyId === baby.id ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setSelectedBabyId(baby.id)}
+                            >
+                                {baby.name}
+                            </Button>
+                        ))}
+                    </div>
+                )}
 
-            {/* グラフ（2件以上の記録がある場合のみ表示） */}
-            {typedContractions.length >= 2 && (
-                <ContractionGraph contractions={typedContractions} />
-            )}
+                {/* 統計 */}
+                <ContractionStats contractions={typedContractions} />
 
-            {/* 履歴 */}
-            {contractionsLoading ? (
-                <div className="text-center py-4 text-muted-foreground">記録を読み込み中...</div>
-            ) : (
-                <ContractionHistory contractions={typedContractions} onDeleted={handleDeleted} />
-            )}
+                {/* タイマー */}
+                {selectedBabyId && (
+                    <ContractionTimer
+                        babyId={selectedBabyId}
+                        onRecorded={handleRecorded}
+                    />
+                )}
+
+                {/* グラフ（2件以上の記録がある場合のみ表示） */}
+                {typedContractions.length >= 2 && (
+                    <ContractionGraph contractions={typedContractions} />
+                )}
+
+                {/* 履歴 */}
+                {contractionsLoading ? (
+                    <div className="text-center py-4 text-muted-foreground">記録を読み込み中...</div>
+                ) : (
+                    <ContractionHistory contractions={typedContractions} onDeleted={handleDeleted} />
+                )}
+            </main>
         </div>
     )
 }
