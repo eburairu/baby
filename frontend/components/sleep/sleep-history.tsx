@@ -8,6 +8,16 @@ import { ja } from "date-fns/locale"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Pencil, Trash2, Moon, Sun } from "lucide-react"
@@ -21,21 +31,19 @@ export function SleepHistory({ babyId }: Props) {
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<any>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
+    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
-    // Filter out records that are currently active (handled by SleepTimer)
-    // or keep them but mark them. The spec says "SleepHistory" usually implies past records.
-    // But displaying the active one might be confusing if it's also in the Timer.
-    // Let's filter out active sleep (end_time is null) for history, or display them differently.
-    // Usually history lists completed sleeps.
     const history = sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("本当に削除しますか？")) return
+    const handleDelete = async () => {
+        if (deleteTargetId === null) return
         try {
-            await api.delete(`/sleeps/${id}`)
+            await api.delete(`/sleeps/${deleteTargetId}`)
             mutate()
         } catch (e) {
             console.error(e)
+        } finally {
+            setDeleteTargetId(null)
         }
     }
 
@@ -116,7 +124,7 @@ export function SleepHistory({ babyId }: Props) {
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8 text-gray-400 hover:text-red-500"
-                                        onClick={() => handleDelete(sleep.id)}
+                                        onClick={() => setDeleteTargetId(sleep.id)}
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </Button>
@@ -127,6 +135,25 @@ export function SleepHistory({ babyId }: Props) {
                 })}
             </div>
 
+            {/* 削除確認ダイアログ */}
+            <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>記録の削除</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            この睡眠記録を削除しますか？この操作は取り消せません。
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                            削除
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* 編集ダイアログ */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogContent>
                     <DialogHeader>
