@@ -21,7 +21,7 @@ export default function SleepPage() {
     if (isLoading) return <PageLoading />
     if (!effectiveId) return <div className="p-8 text-center text-gray-500">赤ちゃんが登録されていません</div>
 
-    const babiesWithStrId = babies.map((b: any) => ({ ...b, id: String(b.id) }))
+    const babiesWithStrId = babies ? babies.map((b: any) => ({ ...b, id: String(b.id) })) : []
 
     return (
         <div className="min-h-screen bg-slate-50">
