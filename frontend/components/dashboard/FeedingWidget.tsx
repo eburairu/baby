@@ -6,6 +6,8 @@ import { useFeedings } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 
+import { useRouter } from "next/navigation"
+
 interface Props {
     babyId: string
 }
@@ -13,18 +15,20 @@ interface Props {
 export function FeedingWidget({ babyId }: Props) {
     const { feedings, mutate } = useFeedings(babyId)
     const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
     const todayCount = feedings?.filter((f) => isToday(f.start_time)).length ?? 0
     const lastFeeding = feedings?.[0]
     const elapsed = lastFeeding ? formatElapsed(lastFeeding.start_time) : null
 
-    const handleQuickRecord = async (feedingType: string) => {
+    const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
+        e.stopPropagation()
         setLoading(true)
         try {
             await api.post("/feedings/", {
                 baby_id: Number(babyId),
-                feeding_type: feedingType,
-                start_time: new Date().toISOString(),
+                feeding_type: feedingType.toUpperCase(),
+                feeding_time: new Date().toISOString(),
             })
             mutate()
         } catch (e) {
@@ -34,11 +38,19 @@ export function FeedingWidget({ babyId }: Props) {
         }
     }
 
+    const handleCardClick = () => {
+        router.push(`/feeding?baby_id=${babyId}`)
+    }
+
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
+        <Card
+            className="bg-white rounded-2xl shadow-sm border-0 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={handleCardClick}
+        >
             <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-rose-500 flex items-center gap-1">
-                    🍼 授乳
+                <CardTitle className="text-sm font-medium text-rose-500 flex items-center justify-between">
+                    <span className="flex items-center gap-1">🍼 授乳</span>
+                    <span className="text-xs text-gray-400 font-normal">詳細 &gt;</span>
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -54,7 +66,7 @@ export function FeedingWidget({ babyId }: Props) {
                     <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleQuickRecord("bottle")}
+                        onClick={(e) => handleQuickRecord("bottle", e)}
                         className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
                         variant="outline"
                     >
@@ -63,7 +75,7 @@ export function FeedingWidget({ babyId }: Props) {
                     <Button
                         size="sm"
                         disabled={loading}
-                        onClick={() => handleQuickRecord("breast")}
+                        onClick={(e) => handleQuickRecord("breast", e)}
                         className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
                         variant="outline"
                     >
