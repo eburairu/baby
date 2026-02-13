@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useBabies } from "@/hooks/useData"
+import { useBabyStore } from "@/stores/babyStore"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,7 +16,7 @@ import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed"
 
 export default function Dashboard() {
     const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
-    const [selectedBabyId, setSelectedBabyId] = useState<string | null>(null)
+    const { selectedBabyId, setSelectedBabyId } = useBabyStore()
 
     const [newBabyName, setNewBabyName] = useState("")
     const [newBabyBirthday, setNewBabyBirthday] = useState("")

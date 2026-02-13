@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
 import { useBabies } from "@/hooks/useData"
+import { useBabyStore } from "@/stores/babyStore"
 import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
 import { SleepStats } from "@/components/sleep/sleep-stats"
@@ -14,7 +14,7 @@ import { ChevronLeft, Moon as MoonIcon } from "lucide-react"
 
 export default function SleepPage() {
     const { babies, isLoading } = useBabies()
-    const [selectedBabyId, setSelectedBabyId] = useState<string | null>(null)
+    const { selectedBabyId, setSelectedBabyId } = useBabyStore()
 
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
