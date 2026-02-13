@@ -9,12 +9,12 @@ Baby-App は、家族単位で赤ちゃんの育児記録を共同管理する W
 - Cookie セッション認証（ログイン / ログアウト / 現在ユーザー取得）
 - 赤ちゃん管理（一覧・作成）
 - 記録管理
-  - 授乳
-  - 睡眠
-  - おむつ
-  - 成長
-  - 陣痛
-  - スケジュール
+    - 授乳
+    - 睡眠
+    - おむつ
+    - 成長
+    - 陣痛
+    - スケジュール
 - ダッシュボード表示（フロントエンド）
 
 ## 技術スタック
@@ -131,20 +131,20 @@ uvicorn app.main:app --reload
 ## 主要 API（抜粋）
 
 - Auth: `/api/auth/*`
-  - `POST /register/family`
-  - `POST /register/join`
-  - `POST /login`
-  - `POST /logout`
-  - `GET /me`
+    - `POST /register/family`
+    - `POST /register/join`
+    - `POST /login`
+    - `POST /logout`
+    - `GET /me`
 - Family: `GET /api/family/`
 - Babies: `GET/POST /api/babies/`, `GET/POST /api/babies/{baby_id}/records`
 - Records
-  - Feedings: `GET/POST/DELETE /api/feedings/*`
-  - Sleeps: `GET/POST/PATCH/DELETE /api/sleeps/*`
-  - Diapers: `GET/POST/DELETE /api/diapers/*`
-  - Growths: `GET/POST/DELETE /api/growths/*`
-  - Contractions: `GET/POST/DELETE /api/contractions/*`
-  - Schedules: `GET/POST/DELETE /api/schedules/*`
+    - Feedings: `GET/POST/DELETE /api/feedings/*`
+    - Sleeps: `GET/POST/PATCH/DELETE /api/sleeps/*`
+    - Diapers: `GET/POST/DELETE /api/diapers/*`
+    - Growths: `GET/POST/DELETE /api/growths/*`
+    - Contractions: `GET/POST/DELETE /api/contractions/*`
+    - Schedules: `GET/POST/DELETE /api/schedules/*`
 
 ## デプロイ
 
