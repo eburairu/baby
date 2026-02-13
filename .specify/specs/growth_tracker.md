@@ -1,0 +1,119 @@
+# 成長記録 仕様書 (Growth Tracker Specification)
+
+## 概要
+
+赤ちゃんの成長（身長、体重、頭囲）を記録し、その推移をグラフやリストで確認できる機能。
+定期的な検診や日々の成長を記録することで、発育状況を可視化する。
+
+## ユーザーストーリー
+
+- 親として、定期健診などで計測した身長や体重を日付とともに記録したい。
+- 成長の過程をグラフで見て、順調に育っているかを確認したい。
+- 過去の記録を振り返ったり、間違えた記録を修正・削除したい。
+- 複数の項目（身長、体重、頭囲）をまとめて、あるいは個別に記録したい。
+
+## 機能要件
+
+### F1: 成長記録入力
+
+- **入力項目**:
+    - **計測日**: デフォルトは現在日付 (Datepicker等で選択可)。
+    - **身長 (Height)**: cm単位 (小数点第1位まで)。必須ではない。
+    - **体重 (Weight)**: g または kg単位。画面上は入力しやすい単位を選択可能にするが、DB保存は統一（例: g）。必須ではない。
+    - **頭囲 (Head Circumference)**: cm単位 (小数点第1位まで)。必須ではない。
+    - **メモ**: 自由記述。
+- **入力ルール**:
+    - 少なくとも1つの計測値（身長、体重、頭囲のいずれか）が入力されていること。
+- **保存**: API に POST/PUT して保存する。
+
+### F2: 成長記録一覧 (History)
+
+- 過去の記録を時系列（新しい順）でリスト表示。
+- 各行に計測日、身長、体重、頭囲、メモを表示。
+- 編集ボタン、削除ボタンを配置。
+
+### F3: 成長曲線グラフ (Growth Chart)
+
+- 身長・体重・頭囲の推移を折れ線グラフで表示。
+- X軸: 月齢 (または日付)
+- Y軸: 値 (cm / g)
+- (将来的な拡張: WHOなどの標準成長曲線を背景に表示する機能も考慮するが、初期リリースでは必須としない)
+
+## 画面構成
+
+### 成長記録ページ (`/growth`)
+
+ダッシュボード内のサブページ。
+
+```
+┌─────────────────────────────────┐
+[ 成長記録 (Growth Tracker) ]
+
+[ + 新しい記録を追加 (Modal or Form) ]
+
+[ グラフエリア (Tabs: 身長 / 体重 / 頭囲) ]
+┌─────────────────────────────────┐
+│                                 │
+│      📈 (Line Chart)            │
+│                                 │
+└─────────────────────────────────┘
+
+[ 履歴リスト ]
+┌───────────────────────────────────────────────┐
+│ 日付       │ 身長    │ 体重    │ 頭囲    │ 操作 │
+├───────────────────────────────────────────────┤
+│ 2026/02/10 │ 50.5 cm │ 3200 g  │ 34.0 cm │ ✎ 🗑️│
+│ 2026/01/15 │ 48.0 cm │ 2900 g  │ 33.5 cm │ ✎ 🗑️│
+└───────────────────────────────────────────────┘
+```
+
+## データモデル
+
+### モデル (`GrowthRecord`)
+
+- `id`: Integer (PK)
+- `baby_id`: Integer (FK -> babies.id)
+- `date`: Date (計測日)
+- `height`: Float (cm, Nullable)
+- `weight`: Integer (g, Nullable) ※g単位で保存
+- `head_circumference`: Float (cm, Nullable)
+- `notes`: String (Nullable)
+- `created_at`: DateTime
+
+## API
+
+- `GET /api/growth_records/?baby_id={id}`
+    - 指定した赤ちゃんの全記録を日付順（降順または昇順）で取得。
+- `POST /api/growth_records/`
+    - 新規作成。
+- `PUT /api/growth_records/{id}`
+    - 編集更新。
+- `DELETE /api/growth_records/{id}`
+    - 削除。
+
+## 技術設計
+
+### フロントエンド
+
+- **ライブラリ**: `Recharts` (グラフ描画)
+- **コンポーネント**:
+    - `GrowthPage`: メインページ
+    - `GrowthChart`: グラフ表示コンポーネント (Tabsで切り替え)
+    - `GrowthRecordForm`: 入力モーダル/フォーム (React Hook Form + Zod)
+    - `GrowthHistoryList`: テーブルまたはリスト表示
+- **状態管理**:
+    - SWR (`useSWR`) でデータ取得・キャッシュ管理。
+
+### バリデーション (Zod Schema)
+
+```typescript
+const growthRecordSchema = z.object({
+  date: z.date(),
+  height: z.number().min(0).max(100).optional(), // 妥当な範囲
+  weight: z.number().min(0).max(20000).optional(), // g単位, 20kgまでなど
+  head_circumference: z.number().min(0).max(60).optional(),
+  notes: z.string().optional(),
+}).refine(data => data.height || data.weight || data.head_circumference, {
+  message: "少なくとも1つの値を入力してください",
+});
+```
