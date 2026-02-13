@@ -12,7 +12,9 @@ from app.models.feeding import Feeding
 from app.models.sleep import Sleep
 from app.models.diaper import Diaper
 from app.models.growth import Growth
-from app.schemas.baby import BabyCreate, BabyResponse
+from app.models.contraction import Contraction
+from app.models.schedule import Schedule
+from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
 
@@ -58,6 +60,52 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
     db.commit()
     db.refresh(new_baby)
     return new_baby
+
+
+@router.patch("/{baby_id}", response_model=BabyResponse)
+def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    if not family_user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+    if family_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
+
+    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
+    if not baby:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
+
+    if baby_in.name is not None:
+        baby.name = baby_in.name
+    if baby_in.birthday is not None:
+        baby.birthday = baby_in.birthday
+    if baby_in.due_date is not None:
+        baby.due_date = baby_in.due_date
+
+    db.commit()
+    db.refresh(baby)
+    return baby
+
+
+@router.delete("/{baby_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    if not family_user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+    if family_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
+
+    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
+    if not baby:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
+
+    db.query(Feeding).filter(Feeding.baby_id == baby_id).delete()
+    db.query(Sleep).filter(Sleep.baby_id == baby_id).delete()
+    db.query(Diaper).filter(Diaper.baby_id == baby_id).delete()
+    db.query(Growth).filter(Growth.baby_id == baby_id).delete()
+    db.query(Contraction).filter(Contraction.baby_id == baby_id).delete()
+    db.query(Schedule).filter(Schedule.baby_id == baby_id).delete()
+    db.delete(baby)
+    db.commit()
 
 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])

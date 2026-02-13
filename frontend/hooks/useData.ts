@@ -1,6 +1,26 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/api';
 
+export function useFamilySettings() {
+    const { data, error, isLoading, mutate } = useSWR('/family/', fetcher);
+    return {
+        family: data as { id: number; name: string; invite_code: string; created_at: string } | undefined,
+        isLoading,
+        isError: error,
+        mutate,
+    };
+}
+
+export function useFamilyMembers() {
+    const { data, error, isLoading, mutate } = useSWR('/family/members', fetcher);
+    return {
+        members: data as { user_id: number; username: string; role: string; joined_at: string }[] | undefined,
+        isLoading,
+        isError: error,
+        mutate,
+    };
+}
+
 export function useBabies() {
     const { data, error, isLoading, mutate } = useSWR('/babies/', fetcher);
     return {

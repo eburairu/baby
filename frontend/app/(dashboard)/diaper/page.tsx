@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { useBabies, useDiapers } from "@/hooks/useData"
+import { useBabyStore } from "@/stores/babyStore"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
 import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
@@ -17,10 +18,11 @@ export default function DiaperPage() {
     const paramBabyId = searchParams.get("baby_id")
 
     const { babies, isLoading: babiesLoading } = useBabies()
+    const { selectedBabyId } = useBabyStore()
 
     // Determine effective baby ID
-    // If param exists, use it. Otherwise use first baby.
-    const effectiveBabyId = paramBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    // Priority: URL param > store selection > first baby
+    const effectiveBabyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
     const { diapers, isLoading: diapersLoading, mutate } = useDiapers(effectiveBabyId)
 
