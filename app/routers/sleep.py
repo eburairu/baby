@@ -5,7 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.sleep import Sleep
-from app.schemas.sleep import SleepCreate, SleepResponse
+from app.schemas.sleep import SleepCreate, SleepUpdate, SleepResponse
 
 router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
@@ -30,6 +30,21 @@ def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_u
     db.commit()
     db.refresh(new_sleep)
     return new_sleep
+
+
+@router.patch("/{sleep_id}", response_model=SleepResponse)
+def update_sleep(sleep_id: int, sleep_update: SleepUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    sleep = db.query(Sleep).filter(Sleep.id == sleep_id).first()
+    if not sleep:
+        raise HTTPException(status_code=404, detail="Sleep record not found")
+    verify_baby_access(db, sleep.baby_id, current_user.id)
+    if sleep_update.end_time is not None:
+        sleep.end_time = sleep_update.end_time
+    if sleep_update.notes is not None:
+        sleep.notes = sleep_update.notes
+    db.commit()
+    db.refresh(sleep)
+    return sleep
 
 
 @router.delete("/{sleep_id}")
