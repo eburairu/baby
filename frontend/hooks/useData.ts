@@ -12,7 +12,7 @@ export function useBabies() {
 }
 
 export function useRecords(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(babyId ? `/api/babies/${babyId}/records` : null, fetcher);
+    const { data, error, isLoading, mutate } = useSWR(babyId ? `/babies/${babyId}/records` : null, fetcher);
     return {
         records: data,
         isLoading,
