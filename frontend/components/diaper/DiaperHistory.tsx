@@ -6,6 +6,16 @@ import { Trash2, Pencil } from "lucide-react"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DiaperEditDialog } from "./DiaperEditDialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Minimal date formatter if date-fns is missing, or use Intl.DateTimeFormat
 const formatDate = (isoString: string) => {
@@ -26,15 +36,18 @@ interface Props {
 export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
+    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
-    const handleDelete = async (id: number) => {
-        if (!confirm("この記録を削除しますか？")) return
+    const handleDelete = async () => {
+        if (deleteTargetId === null) return
         try {
-            await api.delete(`/diapers/${id}`)
+            await api.delete(`/diapers/${deleteTargetId}`)
             onDeleteSuccess()
         } catch (e) {
             console.error(e)
             alert("削除に失敗しました")
+        } finally {
+            setDeleteTargetId(null)
         }
     }
 
@@ -123,7 +136,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-transparent"
-                                        onClick={() => handleDelete(diaper.id)}
+                                        onClick={() => setDeleteTargetId(diaper.id)}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -133,6 +146,24 @@ export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
                     })}
                 </CardContent>
             </Card>
+
+            {/* 削除確認ダイアログ */}
+            <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>記録の削除</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            このおむつ記録を削除しますか？この操作は取り消せません。
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                            削除
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <DiaperEditDialog
                 diaper={editingDiaper}
