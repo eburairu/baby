@@ -5,7 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.diaper import Diaper
-from app.schemas.diaper import DiaperCreate, DiaperResponse
+from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
 
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
@@ -41,3 +41,22 @@ def delete_diaper(diaper_id: int, db: Session = Depends(get_db), current_user: U
     db.delete(diaper)
     db.commit()
     return {"message": "Deleted"}
+
+
+@router.put("/{diaper_id}", response_model=DiaperResponse)
+def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    diaper = db.query(Diaper).filter(Diaper.id == diaper_id).first()
+    if not diaper:
+        raise HTTPException(status_code=404, detail="Diaper record not found")
+    verify_baby_access(db, diaper.baby_id, current_user.id)
+
+    if diaper_in.change_time:
+        diaper.change_time = diaper_in.change_time
+    if diaper_in.diaper_type:
+        diaper.diaper_type = diaper_in.diaper_type
+    if diaper_in.notes is not None:
+        diaper.notes = diaper_in.notes
+
+    db.commit()
+    db.refresh(diaper)
+    return diaper

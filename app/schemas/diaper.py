@@ -11,6 +11,13 @@ class DiaperCreate(BaseModel):
     notes: Optional[str] = None
 
 
+class DiaperUpdate(BaseModel):
+    change_time: Optional[datetime] = None
+    diaper_type: Optional[DiaperType] = None
+    notes: Optional[str] = None
+
+
+
 class DiaperResponse(DiaperCreate):
     id: int
     user_id: int
