@@ -14,12 +14,12 @@ Baby-App の家族設定画面（`/settings/family`）の仕様。
 - **カード**: `rounded-2xl shadow-sm border-0 bg-white`
 - **ヘッダー**: sticky、`h-14 py-3 px-4`、戻るボタン付き
 - **アクションカラー**:
-  - プライマリボタン: `bg-indigo-600 hover:bg-indigo-700 text-white`
-  - 危険操作（削除）: `bg-red-500 hover:bg-red-600 text-white`
-  - キャンセル: shadcn `variant="outline"`
+    - プライマリボタン: `bg-indigo-600 hover:bg-indigo-700 text-white`
+    - 危険操作（削除）: `bg-red-500 hover:bg-red-600 text-white`
+    - キャンセル: shadcn `variant="outline"`
 - **設定画面カテゴリーカラー**: `violet` 系（設定・管理を示す）
-  - タイトル色: `text-violet-600`
-  - ライトBG: `bg-violet-50`
+    - タイトル色: `text-violet-600`
+    - ライトBG: `bg-violet-50`
 
 ## ユーザーストーリー
 
@@ -56,9 +56,9 @@ Baby-App の家族設定画面（`/settings/family`）の仕様。
 
 - 現在の家族メンバーを一覧表示する。
 - 各メンバーに表示する情報:
-  - ユーザー名
-  - ロール（`admin` / `member`）バッジ
-  - 参加日（`joined_at`、`YYYY/MM/DD` 形式）
+    - ユーザー名
+    - ロール（`admin` / `member`）バッジ
+    - 参加日（`joined_at`、`YYYY/MM/DD` 形式）
 - 全員（admin / member）が閲覧できる。
 
 ### FF5: メンバーのロール変更
@@ -139,11 +139,11 @@ useFamilyMembers()     // GET /api/family/members → メンバー一覧
 | メソッド | エンドポイント | 実装状況 | 用途 |
 |---------|--------------|---------|------|
 | GET | `/api/family/` | ✅ 実装済み | 家族名・招待コード取得 |
-| PATCH | `/api/family/` | ❌ 新規実装が必要 | 家族名更新 |
-| POST | `/api/family/invite_code/regenerate` | ❌ 新規実装が必要 | 招待コード再生成 |
-| GET | `/api/family/members` | ❌ 新規実装が必要 | メンバー一覧取得 |
-| PATCH | `/api/family/members/{user_id}/role` | ❌ 新規実装が必要 | ロール変更 |
-| DELETE | `/api/family/members/{user_id}` | ❌ 新規実装が必要 | メンバー削除 |
+| PATCH | `/api/family/` | ✅ 実装済み | 家族名更新 |
+| POST | `/api/family/invite_code/regenerate` | ✅ 実装済み | 招待コード再生成 |
+| GET | `/api/family/members` | ✅ 実装済み | メンバー一覧取得 |
+| PATCH | `/api/family/members/{user_id}/role` | ✅ 実装済み | ロール変更 |
+| DELETE | `/api/family/members/{user_id}` | ✅ 実装済み | メンバー削除 |
 
 #### 新規スキーマ（追加が必要）
 
