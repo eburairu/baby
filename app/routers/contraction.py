@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import timezone
+from datetime import timezone, timedelta
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -10,6 +10,7 @@ from app.schemas.contraction import ContractionCreate, ContractionResponse
 
 router = APIRouter(prefix="/api/contractions", tags=["contractions"])
 
+JST = timezone(timedelta(hours=9))
 _MAX_INTERVAL_SECONDS = 3600  # 1時間超は新セッションとして扱わない
 
 
@@ -23,7 +24,7 @@ def _calculate_interval_seconds(current_start: object, last_start: object) -> in
     """前回の start_time から今回の start_time までの秒数を計算する（start-to-start）。"""
     # DB から取得した timezone-naive datetime に合わせて比較
     if hasattr(current_start, "tzinfo") and current_start.tzinfo is not None:
-        current_start = current_start.astimezone(timezone.utc).replace(tzinfo=None)
+        current_start = current_start.astimezone(JST).replace(tzinfo=None)
     diff = round((current_start - last_start).total_seconds())
     if diff <= 0 or diff >= _MAX_INTERVAL_SECONDS:
         return None

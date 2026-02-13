@@ -27,7 +27,7 @@ async def get_current_user(request: Request, db: db_dependency):
 
     session = db.query(UserSession).filter(
         UserSession.token == token,
-        UserSession.expires_at > datetime.utcnow()
+        UserSession.expires_at > datetime.now()
     ).first()
     if not session:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
