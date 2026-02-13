@@ -1,0 +1,19 @@
+# 環境変数（シークレット含む）
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# フロントエンドビルド成果物
+frontend/out/
+frontend/.next/
+frontend/node_modules/
+
+# SQLite（ローカルテスト用）
+*.db
+
+# その他
+.DS_Store
