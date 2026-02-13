@@ -5,8 +5,6 @@ import { useContractionTimer } from "@/stores/contractionStore"
 import { api } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import type { ContractionRecord } from "@/types/contraction"
-import { calculateIntervalSeconds } from "@/lib/contractionUtils"
 
 function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60)
@@ -17,10 +15,9 @@ function formatTime(seconds: number): string {
 interface ContractionTimerProps {
     babyId: number
     onRecorded: () => void
-    lastContraction?: ContractionRecord | null
 }
 
-export default function ContractionTimer({ babyId, onRecorded, lastContraction }: ContractionTimerProps) {
+export default function ContractionTimer({ babyId, onRecorded }: ContractionTimerProps) {
     const { status, elapsedSeconds, start, stop, tick } = useContractionTimer()
 
     // 毎秒のtick更新
@@ -37,13 +34,11 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
             const result = stop()
             if (result) {
                 try {
-                    const intervalSeconds = calculateIntervalSeconds(lastContraction, result.startTime)
                     await api.post("/contractions/", {
                         baby_id: babyId,
                         start_time: result.startTime.toISOString(),
                         end_time: result.endTime.toISOString(),
                         duration_seconds: result.durationSeconds,
-                        ...(intervalSeconds !== undefined && { interval_seconds: intervalSeconds }),
                     })
                     onRecorded()
                 } catch (err) {
@@ -51,7 +46,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
                 }
             }
         }
-    }, [status, babyId, start, stop, onRecorded, lastContraction])
+    }, [status, babyId, start, stop, onRecorded])
 
     const isTiming = status === "timing"
 

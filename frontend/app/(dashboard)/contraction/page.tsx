@@ -40,8 +40,6 @@ export default function ContractionPage() {
     }
 
     const typedContractions: ContractionRecord[] = contractions ?? []
-    // APIは降順（新しい順）なので[0]が最新
-    const lastContraction = typedContractions[0] ?? null
 
     return (
         <div className="space-y-6">
@@ -77,7 +75,6 @@ export default function ContractionPage() {
                 <ContractionTimer
                     babyId={selectedBabyId}
                     onRecorded={handleRecorded}
-                    lastContraction={lastContraction}
                 />
             )}
 
