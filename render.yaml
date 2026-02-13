@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: baby-app-next
+    runtime: docker
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false  # Neon の接続文字列を Render Dashboard で手動設定
+      - key: SECRET_KEY
+        generateValue: true
