@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { isToday, formatElapsed } from "@/lib/ageUtils"
+import { Droplets, Trash2, Smile } from "lucide-react"
 
 interface Props {
     diapers: Diaper[]
@@ -29,27 +30,31 @@ export function DiaperStats({ diapers }: Props) {
     )
 
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-4">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 flex items-center justify-between">
-                    <span>今日の記録</span>
-                    <span className="text-xs font-normal bg-gray-100 px-2 py-1 rounded-full">{totalCount}回</span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-6">
+            <CardContent className="pt-6">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 rounded-xl p-3">
-                        <div className="text-sm text-blue-600 font-medium mb-1">おしっこ 💧</div>
-                        <div className="text-2xl font-bold text-blue-700">{wetCount}<span className="text-sm font-normal ml-1">回</span></div>
-                        <div className="text-xs text-blue-400 mt-1">
-                            前回: {lastWet ? formatElapsed(lastWet.change_time) : 'なし'}
+                    <div className="bg-amber-50 rounded-xl p-4 flex items-center gap-3">
+                        <div className="bg-white rounded-full p-2 shadow-sm">
+                            <Droplets className="h-4 w-4 text-amber-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">おしっこ</p>
+                            <p className="text-lg font-bold text-gray-800">{wetCount}回</p>
+                            <p className="text-[10px] text-gray-500">
+                                {lastWet ? formatElapsed(lastWet.change_time) : 'なし'}
+                            </p>
                         </div>
                     </div>
-                    <div className="bg-amber-50 rounded-xl p-3">
-                        <div className="text-sm text-amber-600 font-medium mb-1">うんち 💩</div>
-                        <div className="text-2xl font-bold text-amber-700">{dirtyCount}<span className="text-sm font-normal ml-1">回</span></div>
-                        <div className="text-xs text-amber-400 mt-1">
-                            前回: {lastDirty ? formatElapsed(lastDirty.change_time) : 'なし'}
+                    <div className="bg-amber-50 rounded-xl p-4 flex items-center gap-3">
+                        <div className="bg-white rounded-full p-2 shadow-sm">
+                            <Trash2 className="h-4 w-4 text-amber-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">うんち</p>
+                            <p className="text-lg font-bold text-gray-800">{dirtyCount}回</p>
+                            <p className="text-[10px] text-gray-500">
+                                {lastDirty ? formatElapsed(lastDirty.change_time) : 'なし'}
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -157,8 +157,8 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
 
                             <TabsContent value="BREAST" className="space-y-4 mt-0">
                                 {/* Timer Section */}
-                                <div className="bg-pink-50 p-4 rounded-lg text-center space-y-3">
-                                    <div className="text-4xl font-mono font-bold text-pink-600">
+                                <div className="bg-rose-50 p-4 rounded-lg text-center space-y-3">
+                                    <div className="text-4xl font-mono font-bold text-rose-600">
                                         {formatTimer(timerSeconds)}
                                     </div>
                                     <div className="flex justify-center gap-2">
@@ -166,7 +166,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                             type="button"
                                             size="lg"
                                             variant={timerRunning ? "outline" : "default"}
-                                            className={timerRunning ? "bg-white border-pink-200 text-pink-600 hover:bg-pink-50" : "bg-pink-500 hover:bg-pink-600"}
+                                            className={timerRunning ? "bg-white border-rose-200 text-rose-600 hover:bg-rose-50" : "bg-rose-500 hover:bg-rose-600"}
                                             onClick={toggleTimer}
                                         >
                                             {timerRunning ? <Pause className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}

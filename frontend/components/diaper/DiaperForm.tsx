@@ -1,9 +1,35 @@
 "use client"
+
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { format } from "date-fns"
+import { Save } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
+import { cn } from "@/lib/utils"
+import { ErrorMessage } from "@/components/ui/error-message"
+
+const diaperSchema = z.object({
+    diaper_type: z.nativeEnum(DiaperType),
+    change_time: z.string(),
+    notes: z.string().optional(),
+})
+
+type DiaperFormValues = z.infer<typeof diaperSchema>
 
 interface Props {
     babyId: string
@@ -11,89 +37,130 @@ interface Props {
 }
 
 export function DiaperForm({ babyId, onSuccess }: Props) {
-    const [loading, setLoading] = useState(false)
-    const [note, setNote] = useState("")
-    const [changeTime, setChangeTime] = useState("") // Empty means "now"
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-    const handleSubmit = async (type: DiaperType) => {
-        setLoading(true)
+    const form = useForm<DiaperFormValues>({
+        resolver: zodResolver(diaperSchema),
+        defaultValues: {
+            diaper_type: DiaperType.WET,
+            change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+            notes: "",
+        },
+    })
+
+    const selectedType = form.watch("diaper_type")
+
+    const onSubmit = async (values: DiaperFormValues) => {
+        setIsSubmitting(true)
+        setError(null)
         try {
             await api.post("/diapers/", {
                 baby_id: Number(babyId),
-                diaper_type: type,
-                change_time: changeTime ? new Date(changeTime).toISOString() : new Date().toISOString(),
-                notes: note || undefined,
+                diaper_type: values.diaper_type,
+                change_time: new Date(values.change_time).toISOString(),
+                notes: values.notes || undefined,
             })
-            setNote("")
-            setChangeTime("")
+            form.reset({
+                diaper_type: DiaperType.WET,
+                change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                notes: "",
+            })
             onSuccess()
         } catch (e) {
             console.error(e)
-            alert("エラーが発生しました")
+            setError("エラーが発生しました。もう一度お試しください。")
         } finally {
-            setLoading(false)
+            setIsSubmitting(false)
         }
     }
 
-    // Helper for datetime-local input (YYYY-MM-DDThh:mm)
-    const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setChangeTime(e.target.value)
-    }
-
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-4">
-            <CardContent className="pt-6 space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                    <Button
-                        disabled={loading}
-                        onClick={() => handleSubmit(DiaperType.WET)}
-                        className="h-20 flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 border-0 rounded-xl"
-                        variant="outline"
-                    >
-                        <span className="text-2xl mb-1">💧</span>
-                        <span className="text-xs font-bold">おしっこ</span>
-                    </Button>
-                    <Button
-                        disabled={loading}
-                        onClick={() => handleSubmit(DiaperType.DIRTY)}
-                        className="h-20 flex flex-col items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-600 border-0 rounded-xl"
-                        variant="outline"
-                    >
-                        <span className="text-2xl mb-1">💩</span>
-                        <span className="text-xs font-bold">うんち</span>
-                    </Button>
-                    <Button
-                        disabled={loading}
-                        onClick={() => handleSubmit(DiaperType.BOTH)}
-                        className="h-20 flex flex-col items-center justify-center bg-purple-50 hover:bg-purple-100 text-purple-600 border-0 rounded-xl"
-                        variant="outline"
-                    >
-                        <span className="text-2xl mb-1">💧💩</span>
-                        <span className="text-xs font-bold">両方</span>
-                    </Button>
-                </div>
+        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-6">
+            <CardContent className="pt-6">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="grid grid-cols-3 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => form.setValue("diaper_type", DiaperType.WET)}
+                                className={cn(
+                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
+                                    selectedType === DiaperType.WET
+                                        ? "border-amber-400 bg-amber-50 text-amber-700"
+                                        : "border-gray-100 bg-white text-gray-500 hover:bg-amber-50 hover:border-amber-200"
+                                )}
+                            >
+                                <span className="text-2xl">💧</span>
+                                <span className="text-xs font-medium">おしっこ</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => form.setValue("diaper_type", DiaperType.DIRTY)}
+                                className={cn(
+                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
+                                    selectedType === DiaperType.DIRTY
+                                        ? "border-amber-400 bg-amber-50 text-amber-700"
+                                        : "border-gray-100 bg-white text-gray-500 hover:bg-amber-50 hover:border-amber-200"
+                                )}
+                            >
+                                <span className="text-2xl">💩</span>
+                                <span className="text-xs font-medium">うんち</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => form.setValue("diaper_type", DiaperType.BOTH)}
+                                className={cn(
+                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
+                                    selectedType === DiaperType.BOTH
+                                        ? "border-amber-400 bg-amber-50 text-amber-700"
+                                        : "border-gray-100 bg-white text-gray-500 hover:bg-amber-50 hover:border-amber-200"
+                                )}
+                            >
+                                <span className="text-2xl">💧💩</span>
+                                <span className="text-xs font-medium">両方</span>
+                            </button>
+                        </div>
 
-                <div className="space-y-3 pt-2 border-t border-gray-100">
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs text-gray-500">時刻 (指定しない場合は現在時刻)</label>
-                        <input
-                            type="datetime-local"
-                            value={changeTime}
-                            onChange={handleTimeChange}
-                            className="text-sm p-2 border border-gray-200 rounded-lg w-full"
+                        <FormField
+                            control={form.control}
+                            name="change_time"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs text-gray-500">記録日時</FormLabel>
+                                    <FormControl>
+                                        <Input type="datetime-local" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs text-gray-500">メモ</label>
-                        <input
-                            type="text"
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            placeholder="色や量など..."
-                            className="text-sm p-2 border border-gray-200 rounded-lg w-full"
+
+                        <FormField
+                            control={form.control}
+                            name="notes"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-xs text-gray-500">メモ</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="色や量など..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                </div>
+
+                        {error && <ErrorMessage message={error} />}
+
+                        <Button
+                            type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? "保存中..." : "保存する"}
+                        </Button>
+                    </form>
+                </Form>
             </CardContent>
         </Card>
     )
