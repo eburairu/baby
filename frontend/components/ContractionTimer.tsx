@@ -6,6 +6,7 @@ import { api } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ContractionRecord } from "@/types/contraction"
+import { calculateIntervalSeconds } from "@/lib/contractionUtils"
 
 function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60)
@@ -36,13 +37,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
             const result = stop()
             if (result) {
                 try {
-                    let intervalSeconds: number | undefined = undefined
-                    if (lastContraction?.end_time) {
-                        const diff = Math.round(
-                            (result.startTime.getTime() - new Date(lastContraction.end_time).getTime()) / 1000
-                        )
-                        if (diff > 0) intervalSeconds = diff
-                    }
+                    const intervalSeconds = calculateIntervalSeconds(lastContraction, result.startTime)
                     await api.post("/contractions/", {
                         baby_id: babyId,
                         start_time: result.startTime.toISOString(),
