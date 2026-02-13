@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { useFeedings } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-
-import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
 interface Props {
     babyId: string
@@ -15,13 +15,13 @@ interface Props {
 export function FeedingWidget({ babyId }: Props) {
     const { feedings, mutate } = useFeedings(babyId)
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
 
     const todayCount = feedings?.filter((f) => isToday(f.start_time)).length ?? 0
     const lastFeeding = feedings?.[0]
     const elapsed = lastFeeding ? formatElapsed(lastFeeding.start_time) : null
 
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
+        e.preventDefault()
         e.stopPropagation()
         setLoading(true)
         try {
@@ -38,20 +38,17 @@ export function FeedingWidget({ babyId }: Props) {
         }
     }
 
-    const handleCardClick = () => {
-        router.push(`/feeding?baby_id=${babyId}`)
-    }
-
     return (
-        <Card
-            className="bg-white rounded-2xl shadow-sm border-0 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={handleCardClick}
-        >
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-rose-500 flex items-center justify-between">
-                    <span className="flex items-center gap-1">🍼 授乳</span>
-                    <span className="text-xs text-gray-400 font-normal">詳細 &gt;</span>
+        <Card className="bg-white rounded-2xl shadow-sm border-0">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-sm font-medium text-rose-500 flex items-center gap-1">
+                    🍼 授乳
                 </CardTitle>
+                <Link href={`/feeding?baby_id=${babyId}`}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-rose-500">
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </Link>
             </CardHeader>
             <CardContent className="space-y-3">
                 <div>
