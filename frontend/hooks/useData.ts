@@ -1,5 +1,10 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/api';
+import type { ContractionRecord } from '@/types/contraction';
+import type { Feeding } from '@/types/feeding';
+import type { Diaper } from '@/types/diaper';
+import type { Sleep } from '@/types/sleep';
+import type { Growth } from '@/types/growth';
 
 export function useFamilySettings() {
     const { data, error, isLoading, mutate } = useSWR('/family/', fetcher);
@@ -31,6 +36,19 @@ export function useBabies() {
     };
 }
 
+function useBabyResource<T>(endpoint: string, babyId: string | number | null) {
+    const { data, error, isLoading, mutate } = useSWR<T[]>(
+        babyId ? `/${endpoint}/?baby_id=${babyId}` : null,
+        fetcher
+    );
+    return {
+        data,
+        isLoading,
+        isError: error,
+        mutate,
+    };
+}
+
 export function useRecords(babyId: string | null) {
     const { data, error, isLoading, mutate } = useSWR(babyId ? `/babies/${babyId}/records` : null, fetcher);
     return {
@@ -41,67 +59,52 @@ export function useRecords(babyId: string | null) {
     };
 }
 
-export function useContractions(babyId: number | null) {
-    const { data, error, isLoading, mutate } = useSWR(
-        babyId ? `/contractions/?baby_id=${babyId}` : null,
-        fetcher
-    );
+export function useContractions(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<ContractionRecord>('contractions', babyId);
     return {
         contractions: data,
         isLoading,
-        isError: error,
+        isError,
         mutate,
     };
 }
 
-export function useFeedings(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(
-        babyId ? `/feedings/?baby_id=${babyId}` : null,
-        fetcher
-    );
+export function useFeedings(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<Feeding>('feedings', babyId);
     return {
-        feedings: data as any[] | undefined,
+        feedings: data,
         isLoading,
-        isError: error,
+        isError,
         mutate,
     };
 }
 
-export function useSleeps(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(
-        babyId ? `/sleeps/?baby_id=${babyId}` : null,
-        fetcher
-    );
+export function useSleeps(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<Sleep>('sleeps', babyId);
     return {
-        sleeps: data as any[] | undefined,
+        sleeps: data,
         isLoading,
-        isError: error,
+        isError,
         mutate,
     };
 }
 
-export function useDiapers(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(
-        babyId ? `/diapers/?baby_id=${babyId}` : null,
-        fetcher
-    );
+export function useDiapers(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<Diaper>('diapers', babyId);
     return {
-        diapers: data as any[] | undefined,
+        diapers: data,
         isLoading,
-        isError: error,
+        isError,
         mutate,
     };
 }
 
-export function useGrowths(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR(
-        babyId ? `/growths/?baby_id=${babyId}` : null,
-        fetcher
-    );
+export function useGrowths(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<Growth>('growths', babyId);
     return {
-        growths: data as any[] | undefined,
+        growths: data,
         isLoading,
-        isError: error,
+        isError,
         mutate,
     };
 }
