@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/api';
+import { User } from '@/lib/types';
 
 
 export interface User {
