@@ -18,6 +18,10 @@
 - **停止ボタン**: 陣痛の終了時刻を記録し、持続時間を自動算出する
 - **リアルタイム表示**: 経過秒数を `MM:SS` 形式でリアルタイム表示する
 - **状態管理**: タイマーの状態（idle / timing）を Zustand ストアで管理する
+- **`interval_seconds` 自動計算**: 停止時に前回記録の `end_time` と今回の `start_time` の差分から算出
+  - 計算式: `(今回のstart_time - 前回のend_time) / 1000`（ミリ秒→秒、Math.round）
+  - diff > 0 の場合のみ送信（前回記録がない場合や差分が0以下の場合はフィールド自体を省略）
+- **ボタン仕様**: `h-20 w-full text-2xl rounded-2xl`（陣痛中の操作性を考慮して大型化）
 
 ### F2: 陣痛記録一覧
 - 直近の陣痛記録を一覧表示する（新しい順）
@@ -31,11 +35,24 @@
 - 直近1時間の陣痛回数
 - 平均持続時間
 - 平均間隔
-- 5-1-1ルール判定:
-  - 陣痛間隔が 5分以下
-  - 持続時間が 1分以上
-  - 上記が 1時間以上続く
+- 5-1-1ルール判定（正確なロジック）:
+  - qualifying = `interval_seconds ≤ 300` かつ `duration_seconds ≥ 60` の陣痛
+  - `shouldAlert = qualifying.length >= 3`
+    - かつ `qualifying[qualifying.length - 1].start_time <= now - 3600_000`（最古が1時間以上前）
+    - かつ `qualifying[0].start_time >= now - 1800_000`（最新が30分以内）
+  - APIは降順（新しい順）のため `qualifying[0]` が最新、`qualifying[qualifying.length - 1]` が最古
   → 条件を満たした場合、アラートバナーを表示
+
+### F4: 陣痛グラフ
+- 直近10件の陣痛を時系列順（古い→新しい）で表示するSVGバーチャート
+- 赤バー: `duration_seconds`（持続時間）
+- 青バー: `interval_seconds`（間隔）— 2件目以降から表示
+- X軸: `start_time` の HH:MM 形式
+- Y軸: 秒数（`maxValue` に応じた動的スケール、最低60秒）
+- `viewBox` ベースでレスポンシブ（`width="100%"`）
+- 外部ライブラリ不使用（純粋SVG実装）
+- レイアウト定数: `W=400, H=200, M={top:10, right:10, bottom:40, left:45}`
+- 2件以上の記録がある場合のみページで表示
 
 ## 画面構成
 
@@ -50,8 +67,11 @@
 │  ⚠️ 病院に連絡してください       │
 ├─────────────────────────────────┤
 │         ⏱ 00:45                 │
-│     [ 陣痛が終わった ]           │
+│  [ 陣痛が終わった（大型ボタン） ] │
 │     (計測中...)                  │
+├─────────────────────────────────┤
+│  [陣痛推移グラフ]                │
+│  赤=持続 青=間隔 （SVGバーチャート）│
 ├─────────────────────────────────┤
 │  陣痛記録                        │
 │  ─────────────────────          │
@@ -64,7 +84,7 @@
 
 ## バックエンド API (既存)
 以下の API は既に実装済み:
-- `GET /api/contractions/?baby_id={id}` - 陣痛記録一覧取得
+- `GET /api/contractions/?baby_id={id}` - 陣痛記録一覧取得（`order_by(start_time.desc())`で降順）
 - `POST /api/contractions/` - 陣痛記録作成
 - `DELETE /api/contractions/{id}` - 陣痛記録削除
 
@@ -110,5 +130,13 @@ interface ContractionTimerState {
 ### コンポーネント構成
 - `ContractionPage` - ページコンポーネント
 - `ContractionTimer` - タイマーUI（ストップウォッチ）
-- `ContractionStats` - 統計サマリー
+- `ContractionStats` - 統計サマリー（5-1-1ルール判定含む）
 - `ContractionHistory` - 記録一覧
+- `ContractionGraph` - 陣痛推移SVGグラフ（新規）
+
+## 改訂履歴
+
+| バージョン | 日付 | 内容 |
+|-----------|------|------|
+| 1.0 | 初版 | 基本機能仕様 |
+| 1.1 | 2026-02-13 | F1に`interval_seconds`自動計算仕様追記、ボタン大型化仕様追記、F3の5-1-1ルールロジック修正（正確な1時間継続判定）、F4「陣痛グラフ」新規追加、ContractionGraphコンポーネント追加 |
