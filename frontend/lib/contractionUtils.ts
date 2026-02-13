@@ -69,3 +69,64 @@ export function prepareGraphData(contractions: ContractionRecord[]): Contraction
     // 降順なので reverse して時系列順にし、末尾10件（最新10件）を取る
     return [...contractions].reverse().slice(-10)
 }
+
+// ──────────────────────────────────────────
+// 統計計算 (calculateStats)
+// ──────────────────────────────────────────
+export interface ContractionStatsResult {
+    count: number
+    avgDuration: number | null
+    avgInterval: number | null
+    shouldAlert: boolean
+}
+
+/**
+ * 統計情報を計算する。
+ *
+ * - count: 直近1時間（oneHourAgo 以降）の回数
+ * - avgDuration: 最新10件の平均持続時間
+ * - avgInterval: 最新10件の平均間隔
+ * - shouldAlert: 5-1-1ルール判定
+ */
+export function calculateStats(
+    contractions: ContractionRecord[],
+    now = Date.now()
+): ContractionStatsResult {
+    const oneHourAgo = now - 60 * 60 * 1000
+
+    // 直近1時間の回数（仕様 F3）
+    const recentCount = contractions.filter(
+        (c) => new Date(c.start_time).getTime() >= oneHourAgo && c.duration_seconds != null
+    ).length
+
+    // 平均値は「直近の傾向」を示すため、時間の制限ではなく件数（最新10件）で計算する
+    // これにより、1時間以上前の記録でも平均が表示され、「-」のままになるのを防ぐ
+    const validRecords = contractions
+        .filter((c) => c.duration_seconds != null) // 完了したもののみ
+        .slice(0, 10)
+
+    // 有効な記録がない場合
+    if (validRecords.length === 0) {
+        return { count: recentCount, avgDuration: null, avgInterval: null, shouldAlert: false }
+    }
+
+    const durations = validRecords
+        .map((c) => c.duration_seconds)
+        .filter((d): d is number => d != null)
+
+    const intervals = validRecords
+        .map((c) => c.interval_seconds)
+        .filter((i): i is number => i != null)
+
+    const avgDuration = durations.length > 0
+        ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+        : null
+
+    const avgInterval = intervals.length > 0
+        ? Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length)
+        : null
+
+    const shouldAlert = calculateShouldAlert(contractions)
+
+    return { count: recentCount, avgDuration, avgInterval, shouldAlert }
+}
