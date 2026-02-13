@@ -137,7 +137,7 @@ export default function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full">Create Family</Button>
+                                <Button type="submit" className="w-full" loading={createForm.formState.isSubmitting}>Create Family</Button>
                             </form>
                         </Form>
                     </CardContent>
@@ -201,7 +201,7 @@ export default function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full">Join Family</Button>
+                                <Button type="submit" className="w-full" loading={joinForm.formState.isSubmitting}>Join Family</Button>
                             </form>
                         </Form>
                     </CardContent>
