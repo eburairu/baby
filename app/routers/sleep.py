@@ -1,0 +1,40 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+
+from app.dependencies import get_db, get_current_user
+from app.models.user import User
+from app.models.sleep import Sleep
+from app.schemas.sleep import SleepCreate, SleepResponse
+
+router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
+
+
+@router.get("/", response_model=List[SleepResponse])
+def get_sleeps(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).all()
+
+
+@router.post("/", response_model=SleepResponse)
+def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    new_sleep = Sleep(
+        user_id=current_user.id,
+        baby_id=sleep_in.baby_id,
+        start_time=sleep_in.start_time,
+        end_time=sleep_in.end_time,
+        notes=sleep_in.notes,
+    )
+    db.add(new_sleep)
+    db.commit()
+    db.refresh(new_sleep)
+    return new_sleep
+
+
+@router.delete("/{sleep_id}")
+def delete_sleep(sleep_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    sleep = db.query(Sleep).filter(Sleep.id == sleep_id, Sleep.user_id == current_user.id).first()
+    if not sleep:
+        raise HTTPException(status_code=404, detail="Sleep record not found")
+    db.delete(sleep)
+    db.commit()
+    return {"message": "Deleted"}
