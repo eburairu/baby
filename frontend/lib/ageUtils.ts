@@ -13,21 +13,26 @@ export function calcAge(birthday: string): { months: number; days: number; label
         months -= 1;
     }
 
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), birth.getDate());
     if (dayOfMonth < 0) {
         // 前月の日数を使う
-        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-        var days = prevMonth.getDate() + dayOfMonth;
+        const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        // 誕生日の日が前月の末日より大きい場合（例：1月31日生まれで前月が28日まで）、
+        // 前月の末日を基準にする
+        const referenceDay = Math.min(birth.getDate(), prevMonthLastDay);
+        let days = now.getDate() + (prevMonthLastDay - referenceDay);
+        return { months, days, label: createLabel(months, days) };
     } else {
-        var days = dayOfMonth;
+        let days = dayOfMonth;
+        return { months, days, label: createLabel(months, days) };
     }
+}
 
-    const label = months > 0
+function createLabel(months: number, days: number): string {
+    return months > 0
         ? `生後 ${months}ヶ月${days > 0 ? `${days}日` : ''}`
         : `生後 ${days}日`;
-
-    return { months, days, label };
 }
+
 
 export function formatElapsed(isoDateStr: string): string {
     const date = new Date(isoDateStr);
