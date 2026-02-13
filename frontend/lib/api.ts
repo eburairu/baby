@@ -1,4 +1,13 @@
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '') + '/api';
+
+async function parseErrorBody(res: Response): Promise<unknown> {
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return { detail: text || res.statusText };
+    }
+}
 
 export const fetcher = async (url: string) => {
     const res = await fetch(`${API_BASE}${url}`, {
@@ -6,7 +15,7 @@ export const fetcher = async (url: string) => {
     });
     if (!res.ok) {
         const error: any = new Error('An error occurred while fetching the data.');
-        error.info = await res.json();
+        error.info = await parseErrorBody(res);
         error.status = res.status;
         throw error;
     }
@@ -25,11 +34,23 @@ export const api = {
         });
         if (!res.ok) {
             const error: any = new Error('API Error');
-            error.info = await res.json();
+            error.info = await parseErrorBody(res);
             error.status = res.status;
             throw error;
         }
         return res.json();
     },
-    // Add put, delete similarly
+    delete: async (url: string) => {
+        const res = await fetch(`${API_BASE}${url}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            const error: any = new Error('API Error');
+            error.info = await parseErrorBody(res);
+            error.status = res.status;
+            throw error;
+        }
+        return res.json();
+    },
 };

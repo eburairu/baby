@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Baby App</h1>
                     <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-500 hidden sm:inline-block">
-                            Welcome, {user.name}
+                            Welcome, {user.username}
                         </span>
                         <Button variant="outline" onClick={handleLogout}>Logout</Button>
                     </div>

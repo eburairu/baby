@@ -1,3 +1,4 @@
+import os
 import secrets
 from datetime import datetime, timedelta
 
@@ -16,6 +17,7 @@ from app.services.auth import verify_password, get_password_hash
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 SESSION_EXPIRE_DAYS = 7
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 
 
 def _create_session(db: Session, user_id: int) -> str:
@@ -57,7 +59,7 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     db.refresh(new_family)
 
     token = _create_session(db, new_user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=False)
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE)
     return new_family
 
 
@@ -84,19 +86,19 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     db.refresh(new_user)
 
     token = _create_session(db, new_user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=False)
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE)
     return new_user
 
 
-@router.post("/login")
+@router.post("/login", response_model=UserResponse)
 def login(login_request: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == login_request.username).first()
     if not user or not verify_password(login_request.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
     token = _create_session(db, user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=False)
-    return {"message": "Logged in"}
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE)
+    return user
 
 
 @router.post("/logout")
