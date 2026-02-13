@@ -8,3 +8,7 @@ services:
         sync: false  # Neon の接続文字列を Render Dashboard で手動設定
       - key: SECRET_KEY
         generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: CORS_ORIGINS
+        value: "https://baby-app-next.onrender.com"

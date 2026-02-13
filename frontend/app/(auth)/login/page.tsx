@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useUser } from "@/hooks/useAuth"
 
 const formSchema = z.object({
-    email: z.string().email(),
+    username: z.string().min(1, "Username is required"),
     password: z.string().min(1, "Password is required"),
 })
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            email: "",
+            username: "",
             password: "",
         },
     })
@@ -54,7 +54,7 @@ export default function LoginPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Login to Baby-App</CardTitle>
-                <CardDescription>Enter your email below to login to your account</CardDescription>
+                <CardDescription>Enter your username below to login to your account</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -62,12 +62,12 @@ export default function LoginPage() {
                         {error && <div className="text-red-500 text-sm">{error}</div>}
                         <FormField
                             control={form.control}
-                            name="email"
+                            name="username"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>Username</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="m@example.com" {...field} />
+                                        <Input placeholder="your-username" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

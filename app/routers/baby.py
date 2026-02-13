@@ -1,14 +1,35 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Any
+from datetime import datetime
+from pydantic import BaseModel
 
-from app.dependencies import get_db, get_current_user
+from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.family import FamilyUser
 from app.models.baby import Baby
+from app.models.feeding import Feeding
+from app.models.sleep import Sleep
+from app.models.diaper import Diaper
+from app.models.growth import Growth
 from app.schemas.baby import BabyCreate, BabyResponse
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
+
+
+class UnifiedRecord(BaseModel):
+    id: int
+    type: str
+    timestamp: datetime
+    details: dict
+
+    class Config:
+        from_attributes = True
+
+
+class RecordCreate(BaseModel):
+    type: str
+    timestamp: datetime
 
 
 @router.get("/", response_model=List[BabyResponse])
@@ -37,3 +58,140 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
     db.commit()
     db.refresh(new_baby)
     return new_baby
+
+
+@router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
+def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    verify_baby_access(db, baby_id, current_user.id)
+
+    records: List[UnifiedRecord] = []
+
+    for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).all():
+        records.append(UnifiedRecord(
+            id=feeding.id,
+            type="feeding",
+            timestamp=feeding.feeding_time,
+            details={
+                "feeding_type": feeding.feeding_type,
+                "amount_ml": feeding.amount_ml,
+                "duration_minutes": feeding.duration_minutes,
+                "notes": feeding.notes,
+            },
+        ))
+
+    for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).all():
+        records.append(UnifiedRecord(
+            id=sleep.id,
+            type="sleep",
+            timestamp=sleep.start_time,
+            details={
+                "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
+                "notes": sleep.notes,
+            },
+        ))
+
+    for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).all():
+        records.append(UnifiedRecord(
+            id=diaper.id,
+            type="diaper",
+            timestamp=diaper.change_time,
+            details={
+                "diaper_type": diaper.diaper_type,
+                "notes": diaper.notes,
+            },
+        ))
+
+    for growth in db.query(Growth).filter(Growth.baby_id == baby_id).all():
+        records.append(UnifiedRecord(
+            id=growth.id,
+            type="growth",
+            timestamp=datetime.combine(growth.measurement_date, datetime.min.time()),
+            details={
+                "weight_kg": growth.weight_kg,
+                "height_cm": growth.height_cm,
+                "head_circumference_cm": growth.head_circumference_cm,
+                "notes": growth.notes,
+            },
+        ))
+
+    records.sort(key=lambda r: r.timestamp, reverse=True)
+    return records
+
+
+@router.post("/{baby_id}/records", response_model=UnifiedRecord)
+def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    verify_baby_access(db, baby_id, current_user.id)
+
+    record_type = record_in.type
+    timestamp = record_in.timestamp
+
+    if record_type == "feeding":
+        from app.models.feeding import FeedingType
+        new_record = Feeding(
+            user_id=current_user.id,
+            baby_id=baby_id,
+            feeding_time=timestamp,
+            feeding_type=FeedingType.BOTTLE,
+        )
+        db.add(new_record)
+        db.commit()
+        db.refresh(new_record)
+        return UnifiedRecord(
+            id=new_record.id,
+            type="feeding",
+            timestamp=new_record.feeding_time,
+            details={"feeding_type": new_record.feeding_type, "amount_ml": None, "duration_minutes": None, "notes": None},
+        )
+
+    elif record_type == "sleep":
+        new_record = Sleep(
+            user_id=current_user.id,
+            baby_id=baby_id,
+            start_time=timestamp,
+        )
+        db.add(new_record)
+        db.commit()
+        db.refresh(new_record)
+        return UnifiedRecord(
+            id=new_record.id,
+            type="sleep",
+            timestamp=new_record.start_time,
+            details={"end_time": None, "notes": None},
+        )
+
+    elif record_type == "diaper":
+        from app.models.diaper import DiaperType
+        new_record = Diaper(
+            user_id=current_user.id,
+            baby_id=baby_id,
+            change_time=timestamp,
+            diaper_type=DiaperType.WET,
+        )
+        db.add(new_record)
+        db.commit()
+        db.refresh(new_record)
+        return UnifiedRecord(
+            id=new_record.id,
+            type="diaper",
+            timestamp=new_record.change_time,
+            details={"diaper_type": new_record.diaper_type, "notes": None},
+        )
+
+    elif record_type == "growth":
+        new_record = Growth(
+            user_id=current_user.id,
+            baby_id=baby_id,
+            measurement_date=timestamp.date(),
+        )
+        db.add(new_record)
+        db.commit()
+        db.refresh(new_record)
+        return UnifiedRecord(
+            id=new_record.id,
+            type="growth",
+            timestamp=datetime.combine(new_record.measurement_date, datetime.min.time()),
+            details={"weight_kg": None, "height_cm": None, "head_circumference_cm": None, "notes": None},
+        )
+
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown record type: {record_type}")

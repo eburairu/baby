@@ -20,30 +20,34 @@ export default function Dashboard() {
     const { records, isLoading: recordsLoading, mutate: mutateRecords } = useRecords(selectedBabyId)
 
     const [newBabyName, setNewBabyName] = useState("")
+    const [error, setError] = useState<string | null>(null)
 
     const handleAddBaby = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!newBabyName) return
         try {
+            setError(null)
             await api.post("/babies/", { name: newBabyName })
             setNewBabyName("")
             mutateBabies()
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to add baby", err)
+            setError(err.info?.detail || "Failed to add baby")
         }
     }
 
     const handleAddRecord = async (type: string) => {
         if (!selectedBabyId) return
         try {
+            setError(null)
             await api.post(`/babies/${selectedBabyId}/records`, {
                 type,
                 timestamp: new Date().toISOString(),
-                data: {}
             })
             mutateRecords()
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to add record", err)
+            setError(err.info?.detail || "Failed to add record")
         }
     }
 
@@ -58,6 +62,7 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleAddBaby} className="space-y-4">
+                        {error && <div className="text-red-500 text-sm">{error}</div>}
                         <div>
                             <Label htmlFor="babyName">Baby Name</Label>
                             <Input
@@ -76,6 +81,7 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-6">
+            {error && <div className="text-red-500 text-sm p-2 bg-red-50 rounded">{error}</div>}
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold">
                     {babies.find((b: any) => b.id === selectedBabyId)?.name}'s Dashboard

@@ -31,4 +31,4 @@ COPY --from=frontend-builder /app/frontend/out ./frontend/out
 EXPOSE 8000
 
 # Run Application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

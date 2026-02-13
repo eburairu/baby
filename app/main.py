@@ -5,10 +5,7 @@ import os
 
 app = FastAPI(title="Baby-App API")
 
-origins = [
-    "http://localhost:3000",
-    "http://localhost:8000",
-]
+origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
 
 app.add_middleware(
     CORSMiddleware,
