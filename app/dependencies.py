@@ -18,7 +18,7 @@ def get_db() -> Generator[Session, None, None]:
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
-async def get_current_user(request: Request, db: db_dependency):
+def get_current_user(request: Request, db: db_dependency):
     from app.models.user import User, UserSession
 
     token = request.cookies.get("access_token")
