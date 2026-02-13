@@ -50,10 +50,22 @@ async def health_check():
 async def serve_frontend(full_path: str):
     if not os.path.exists(frontend_build_path):
         return {"error": "Frontend not built"}
-    file_path = os.path.join(frontend_build_path, full_path)
-    if os.path.exists(file_path) and os.path.isfile(file_path):
-        return FileResponse(file_path)
-    html_path = file_path + ".html"
-    if os.path.exists(html_path):
+
+    # Secure path resolution to prevent traversal attacks
+    base_path = os.path.abspath(frontend_build_path)
+    # Join with base path and resolve absolute path (handles ..)
+    requested_path = os.path.abspath(os.path.join(base_path, full_path.lstrip("/")))
+
+    # Check if the resolved path starts with the base path
+    if not requested_path.startswith(base_path):
+        # Path traversal attempt - serve index.html (SPA routing handles 404)
+        return FileResponse(os.path.join(frontend_build_path, "index.html"))
+
+    if os.path.exists(requested_path) and os.path.isfile(requested_path):
+        return FileResponse(requested_path)
+
+    html_path = requested_path + ".html"
+    if os.path.exists(html_path) and os.path.isfile(html_path):
         return FileResponse(html_path)
+
     return FileResponse(os.path.join(frontend_build_path, "index.html"))
