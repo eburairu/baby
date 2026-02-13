@@ -37,7 +37,7 @@ export default function BabySettingsPage() {
 
     if (!user) return null
 
-    const currentMember = members?.find((m: any) => m.username === user.username)
+    const currentMember = members?.find((m) => m.username === user.username)
     const isAdmin = currentMember?.role === "admin"
 
     return (
