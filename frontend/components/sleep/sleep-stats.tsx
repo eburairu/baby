@@ -26,29 +26,29 @@ export function SleepStats({ babyId }: Props) {
     const count = todaySleeps.length
 
     return (
-        <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-indigo-50 border-0 shadow-sm">
-                <CardContent className="p-4 flex items-center gap-3">
-                    <div className="bg-white p-2 rounded-full text-indigo-500 shadow-sm">
-                        <Moon className="w-5 h-5" />
+        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-6">
+            <CardContent className="pt-6">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-indigo-50 rounded-xl p-4 flex items-center gap-3">
+                        <div className="bg-white rounded-full p-2 shadow-sm">
+                            <Moon className="h-4 w-4 text-indigo-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">今日の睡眠回数</p>
+                            <p className="text-lg font-bold text-gray-800">{count}回</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-xs text-indigo-600 font-medium">今日の睡眠回数</p>
-                        <p className="text-xl font-bold text-indigo-900">{count}回</p>
+                    <div className="bg-indigo-50 rounded-xl p-4 flex items-center gap-3">
+                        <div className="bg-white rounded-full p-2 shadow-sm">
+                            <Clock className="h-4 w-4 text-indigo-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500">合計時間</p>
+                            <p className="text-lg font-bold text-gray-800">{hours}h {minutes}m</p>
+                        </div>
                     </div>
-                </CardContent>
-            </Card>
-            <Card className="bg-indigo-50 border-0 shadow-sm">
-                <CardContent className="p-4 flex items-center gap-3">
-                    <div className="bg-white p-2 rounded-full text-indigo-500 shadow-sm">
-                        <Clock className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <p className="text-xs text-indigo-600 font-medium">合計時間</p>
-                        <p className="text-xl font-bold text-indigo-900">{hours}h {minutes}m</p>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
