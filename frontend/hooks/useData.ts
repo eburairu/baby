@@ -5,6 +5,7 @@ import type { Feeding } from '@/types/feeding';
 import type { Diaper } from '@/types/diaper';
 import type { Sleep } from '@/types/sleep';
 import type { Growth } from '@/types/growth';
+import type { Baby } from '@/types/baby';
 
 export function useFamilySettings() {
     const { data, error, isLoading, mutate } = useSWR('/family/', fetcher);
@@ -27,7 +28,7 @@ export function useFamilyMembers() {
 }
 
 export function useBabies() {
-    const { data, error, isLoading, mutate } = useSWR('/babies/', fetcher);
+    const { data, error, isLoading, mutate } = useSWR<Baby[]>('/babies/', fetcher);
     return {
         babies: data,
         isLoading,
