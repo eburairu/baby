@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float, Index
 from .base import Base
 
 
@@ -13,3 +13,7 @@ class Growth(Base):
     head_circumference = Column(Float, nullable=True)  # in cm
     notes = Column(String, nullable=True)
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
+
+    __table_args__ = (
+        Index("idx_growth_baby_date", "baby_id", "date"),
+    )

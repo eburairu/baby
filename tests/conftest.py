@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.main import app
-from app.database import Base
+from app.models.base import Base
 from app.dependencies import get_db
 
 # テスト用のインメモリ SQLite データベース
