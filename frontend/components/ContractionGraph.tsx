@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ContractionRecord } from "@/types/contraction"
+import { prepareGraphData } from "@/lib/contractionUtils"
 
 interface ContractionGraphProps {
     contractions: ContractionRecord[]
@@ -27,10 +28,7 @@ function formatSeconds(s: number): string {
 }
 
 export default function ContractionGraph({ contractions }: ContractionGraphProps) {
-    const data = useMemo(() => {
-        // APIは降順（新しい順）なのでreverseして時系列順にする
-        return [...contractions].reverse().slice(-10)
-    }, [contractions])
+    const data = useMemo(() => prepareGraphData(contractions), [contractions])
 
     const maxValue = useMemo(() => {
         let max = 60
