@@ -1,0 +1,106 @@
+"use client"
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { useSleeps } from "@/hooks/useData"
+import { api } from "@/lib/api"
+import { formatElapsed, formatDuration, isToday } from "@/lib/ageUtils"
+
+interface Props {
+    babyId: string
+}
+
+export function SleepWidget({ babyId }: Props) {
+    const { sleeps, mutate } = useSleeps(babyId)
+    const [loading, setLoading] = useState(false)
+
+    const activeSleep = sleeps?.find((s) => !s.end_time) ?? null
+    const isSleeping = !!activeSleep
+
+    const todayTotalMin = sleeps
+        ?.filter((s) => s.end_time && isToday(s.start_time))
+        .reduce((acc: number, s: any) => {
+            const ms = new Date(s.end_time).getTime() - new Date(s.start_time).getTime()
+            return acc + Math.floor(ms / 60000)
+        }, 0) ?? 0
+    const todayTotal = todayTotalMin > 0
+        ? `${Math.floor(todayTotalMin / 60)}時間${todayTotalMin % 60}分`
+        : "0分"
+
+    const elapsed = activeSleep ? formatElapsed(activeSleep.start_time) : null
+    const lastSleep = sleeps?.find((s) => s.end_time)
+    const lastElapsed = lastSleep ? formatElapsed(lastSleep.end_time) : null
+
+    const handleStart = async () => {
+        setLoading(true)
+        try {
+            await api.post("/sleeps/", {
+                baby_id: Number(babyId),
+                start_time: new Date().toISOString(),
+            })
+            mutate()
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleEnd = async () => {
+        if (!activeSleep) return
+        setLoading(true)
+        try {
+            await api.patch(`/sleeps/${activeSleep.id}`, {
+                end_time: new Date().toISOString(),
+            })
+            mutate()
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <Card className="bg-white rounded-2xl shadow-sm border-0">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-indigo-500 flex items-center gap-1">
+                    💤 睡眠
+                    {isSleeping && (
+                        <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                    )}
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+                <div>
+                    {isSleeping ? (
+                        <>
+                            <p className="text-lg font-bold text-indigo-600">睡眠中</p>
+                            <p className="text-2xl font-bold text-gray-800">{elapsed}</p>
+                        </>
+                    ) : (
+                        <>
+                            <p className="text-sm text-gray-500">
+                                {lastElapsed ? `${lastElapsed}に起床` : "記録なし"}
+                            </p>
+                        </>
+                    )}
+                    <p className="text-xs text-gray-500 mt-1">今日の合計: {todayTotal}</p>
+                </div>
+                <Button
+                    size="sm"
+                    disabled={loading}
+                    onClick={isSleeping ? handleEnd : handleStart}
+                    className={`w-full text-xs h-8 border-0 ${
+                        isSleeping
+                            ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                            : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                    }`}
+                    variant="outline"
+                >
+                    {isSleeping ? "睡眠終了" : "睡眠開始"}
+                </Button>
+            </CardContent>
+        </Card>
+    )
+}
