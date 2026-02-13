@@ -1,9 +1,11 @@
 "use client"
+import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
+import { Trash2, Pencil } from "lucide-react"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DiaperEditDialog } from "./DiaperEditDialog"
 
 // Minimal date formatter if date-fns is missing, or use Intl.DateTimeFormat
 const formatDate = (isoString: string) => {
@@ -22,6 +24,8 @@ interface Props {
 }
 
 export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
+    const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
+    const [editOpen, setEditOpen] = useState(false)
 
     const handleDelete = async (id: number) => {
         if (!confirm("この記録を削除しますか？")) return
@@ -32,6 +36,11 @@ export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
             console.error(e)
             alert("削除に失敗しました")
         }
+    }
+
+    const handleEdit = (diaper: Diaper) => {
+        setEditingDiaper(diaper)
+        setEditOpen(true)
     }
 
     const getStyles = (type: DiaperType) => {
@@ -72,46 +81,65 @@ export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
     }
 
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">最近の記録</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                {diapers.length === 0 && <p className="text-sm text-gray-400 text-center py-4">記録がありません</p>}
+        <>
+            <Card className="bg-white rounded-2xl shadow-sm border-0">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-500">最近の記録</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {diapers.length === 0 && <p className="text-sm text-gray-400 text-center py-4">記録がありません</p>}
 
-                {diapers.map((diaper) => {
-                    const style = getStyles(diaper.diaper_type)
-                    return (
-                        <div
-                            key={diaper.id}
-                            className={`flex items-center justify-between p-3 rounded-xl border ${style.bg} ${style.border}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-2xl">{style.icon}</span>
-                                <div>
-                                    <div className={`text-sm font-bold ${style.text}`}>
-                                        {style.label}
-                                        <span className="text-xs font-normal text-gray-500 ml-2">
-                                            {formatDate(diaper.change_time)}
-                                        </span>
+                    {diapers.map((diaper) => {
+                        const style = getStyles(diaper.diaper_type)
+                        return (
+                            <div
+                                key={diaper.id}
+                                className={`flex items-center justify-between p-3 rounded-xl border ${style.bg} ${style.border}`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="text-2xl">{style.icon}</span>
+                                    <div>
+                                        <div className={`text-sm font-bold ${style.text}`}>
+                                            {style.label}
+                                            <span className="text-xs font-normal text-gray-500 ml-2">
+                                                {formatDate(diaper.change_time)}
+                                            </span>
+                                        </div>
+                                        {diaper.notes && (
+                                            <div className="text-xs text-gray-600 mt-0.5">{diaper.notes}</div>
+                                        )}
                                     </div>
-                                    {diaper.notes && (
-                                        <div className="text-xs text-gray-600 mt-0.5">{diaper.notes}</div>
-                                    )}
+                                </div>
+                                <div className="flex gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-transparent"
+                                        onClick={() => handleEdit(diaper)}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-transparent"
+                                        onClick={() => handleDelete(diaper.id)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-transparent"
-                                onClick={() => handleDelete(diaper.id)}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    )
-                })}
-            </CardContent>
-        </Card>
+                        )
+                    })}
+                </CardContent>
+            </Card>
+
+            <DiaperEditDialog
+                diaper={editingDiaper}
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                onSuccess={onDeleteSuccess} // Re-use refresh callback
+            />
+        </>
     )
 }
