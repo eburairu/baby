@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
@@ -33,7 +33,9 @@ export function SleepHistory({ babyId }: Props) {
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
-    const history = sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
+    const history = useMemo(() => {
+        return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
+    }, [sleeps])
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return

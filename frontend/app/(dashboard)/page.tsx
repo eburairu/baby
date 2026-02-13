@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useBabies } from "@/hooks/useData"
+import Link from "next/link"
 import { useBabyStore } from "@/stores/babyStore"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -124,11 +125,9 @@ export default function Dashboard() {
                 </div>
 
                 {/* 陣痛タイマーへのリンク */}
-                <a href="/contraction" className="block">
-                    <button className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors">
+                <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors flex items-center justify-center">
                         🤰 陣痛タイマー
-                    </button>
-                </a>
+                    </Link>
 
                 {/* Recent Activity */}
                 <RecentActivityFeed babyId={effectiveId} />
