@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, formatDuration, isToday } from "@/lib/ageUtils"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
 interface Props {
     babyId: string
@@ -63,13 +65,18 @@ export function SleepWidget({ babyId }: Props) {
 
     return (
         <Card className="bg-white rounded-2xl shadow-sm border-0">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium text-indigo-500 flex items-center gap-1">
                     💤 睡眠
                     {isSleeping && (
                         <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
                     )}
                 </CardTitle>
+                <Link href={`/sleep?baby_id=${babyId}`}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-indigo-500">
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </Link>
             </CardHeader>
             <CardContent className="space-y-3">
                 <div>
@@ -91,11 +98,10 @@ export function SleepWidget({ babyId }: Props) {
                     size="sm"
                     disabled={loading}
                     onClick={isSleeping ? handleEnd : handleStart}
-                    className={`w-full text-xs h-8 border-0 ${
-                        isSleeping
+                    className={`w-full text-xs h-8 border-0 ${isSleeping
                             ? "bg-indigo-500 text-white hover:bg-indigo-600"
                             : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                    }`}
+                        }`}
                     variant="outline"
                 >
                     {isSleeping ? "睡眠終了" : "睡眠開始"}
