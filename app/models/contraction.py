@@ -12,7 +12,7 @@ class Contraction(Base):
     duration_seconds = Column(Integer, nullable=True)
     interval_seconds = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
-    baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
+    baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False, index=True)
 
     __table_args__ = (
         Index("idx_contraction_baby_start_time", "baby_id", "start_time"),
