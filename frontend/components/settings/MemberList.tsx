@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/alert-dialog"
 import { MemberRoleDialog } from "./MemberRoleDialog"
 import { api } from "@/lib/api"
+import { getDisplayName } from "@/lib/utils"
 
 interface Member {
     user_id: number
     username: string
+    display_name: string | null
     role: string
     joined_at: string
 }
@@ -67,7 +69,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                         <div key={member.user_id} className="py-3 flex items-center justify-between gap-2">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-medium text-gray-900">{member.username}</span>
+                                    <span className="font-medium text-gray-900">{getDisplayName(member)}</span>
                                     <Badge
                                         variant="secondary"
                                         className={member.role === "admin"
@@ -115,7 +117,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
             <AlertDialog open={!!deleteTarget} onOpenChange={(v) => { if (!v) setDeleteTarget(null) }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{deleteTarget?.username} を削除しますか？</AlertDialogTitle>
+                        <AlertDialogTitle>{deleteTarget ? getDisplayName(deleteTarget) : ""} を削除しますか？</AlertDialogTitle>
                         <AlertDialogDescription>
                             このメンバーを家族グループから削除します。この操作は元に戻せません。
                         </AlertDialogDescription>

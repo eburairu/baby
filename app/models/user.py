@@ -9,6 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    display_name = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     family_users = relationship("FamilyUser", back_populates="user")

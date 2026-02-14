@@ -88,6 +88,7 @@ def get_family_members(
             FamilyMemberResponse(
                 user_id=m.user_id,
                 username=m.user.username,
+                display_name=m.user.display_name,
                 role=m.role,
                 joined_at=m.joined_at,
             )
