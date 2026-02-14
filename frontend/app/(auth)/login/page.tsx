@@ -33,8 +33,8 @@ export default function LoginPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            username: process.env.NEXT_PUBLIC_TEST_USER_USERNAME || "",
-            password: process.env.NEXT_PUBLIC_TEST_USER_PASSWORD || "",
+            username: "",
+            password: "",
         },
     })
 
