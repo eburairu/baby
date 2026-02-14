@@ -12,13 +12,13 @@ router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
 @router.get("/", response_model=List[SleepResponse])
 def get_sleeps(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, baby_id, current_user.id)
+    verify_baby_access(db, baby_id, current_user.id, record_type="sleep")
     return db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).all()
 
 
 @router.post("/", response_model=SleepResponse)
 def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, sleep_in.baby_id, current_user.id)
+    verify_baby_access(db, sleep_in.baby_id, current_user.id, record_type="sleep")
     new_sleep = Sleep(
         user_id=current_user.id,
         baby_id=sleep_in.baby_id,
@@ -37,7 +37,7 @@ def update_sleep(sleep_id: int, sleep_update: SleepUpdate, db: Session = Depends
     sleep = db.query(Sleep).filter(Sleep.id == sleep_id).first()
     if not sleep:
         raise HTTPException(status_code=404, detail="Sleep record not found")
-    verify_baby_access(db, sleep.baby_id, current_user.id)
+    verify_baby_access(db, sleep.baby_id, current_user.id, record_type="sleep")
     if sleep_update.end_time is not None:
         sleep.end_time = sleep_update.end_time
     if sleep_update.notes is not None:
@@ -52,7 +52,7 @@ def delete_sleep(sleep_id: int, db: Session = Depends(get_db), current_user: Use
     sleep = db.query(Sleep).filter(Sleep.id == sleep_id).first()
     if not sleep:
         raise HTTPException(status_code=404, detail="Sleep record not found")
-    verify_baby_access(db, sleep.baby_id, current_user.id)
+    verify_baby_access(db, sleep.baby_id, current_user.id, record_type="sleep")
     db.delete(sleep)
     db.commit()
     return {"message": "Deleted"}

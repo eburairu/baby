@@ -1,6 +1,6 @@
 "use client"
 
-import { useBabies } from "@/hooks/useData"
+import { useSleeps, useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
@@ -10,6 +10,7 @@ import { SleepForm } from "@/components/sleep/sleep-form"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PageLoading } from "@/components/ui/page-loading"
+import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, Moon as MoonIcon } from "lucide-react"
 
 export default function SleepPage() {
@@ -17,11 +18,13 @@ export default function SleepPage() {
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
 
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    const { isError: sleepError } = useSleeps(effectiveId)
 
     if (isLoading) return <PageLoading />
     if (!effectiveId) return <div className="p-8 text-center text-gray-500">赤ちゃんが登録されていません</div>
 
     const babiesWithStrId = babies?.map((b: any) => ({ ...b, id: String(b.id) })) ?? []
+    const isAccessDenied = (sleepError as any)?.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -48,13 +51,19 @@ export default function SleepPage() {
                     onSelect={(id) => setSelectedBabyId(id)}
                 />
 
-                <SleepStats babyId={effectiveId} />
+                {isAccessDenied ? (
+                    <AccessDenied />
+                ) : (
+                    <>
+                        <SleepStats babyId={effectiveId} />
 
-                <div className="grid gap-6">
-                    <SleepTimer babyId={effectiveId} />
-                    <SleepForm babyId={effectiveId} />
-                    <SleepHistory babyId={effectiveId} />
-                </div>
+                        <div className="grid gap-6">
+                            <SleepTimer babyId={effectiveId} />
+                            <SleepForm babyId={effectiveId} />
+                            <SleepHistory babyId={effectiveId} />
+                        </div>
+                    </>
+                )}
             </main>
         </div>
     )
