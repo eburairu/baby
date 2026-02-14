@@ -32,6 +32,17 @@ def get_current_user(request: Request, db: db_dependency):
     if not session:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
 
+    # Sliding session: extend expiration
+    from datetime import timedelta
+    # Assuming SESSION_EXPIRE_DAYS is defined somewhere common or I can import it, 
+    # but strictly following the file content I might need to redefine or import it.
+    # Let's import it from auth router if possible, or just use 7 as per spec.
+    # To avoid circular import, I'll use a constant or hardcode 7 for now as it's defined in auth.py
+    # Better yet, I will define it here or use a config.
+    # For now, I will use 7 days as per spec.
+    session.expires_at = datetime.now() + timedelta(days=7)
+    db.commit()
+
     user = db.query(User).filter(User.id == session.user_id).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

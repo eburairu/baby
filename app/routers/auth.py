@@ -59,7 +59,7 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     db.refresh(new_family)
 
     token = _create_session(db, new_user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE)
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
     return new_family
 
 
@@ -86,7 +86,7 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     db.refresh(new_user)
 
     token = _create_session(db, new_user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE)
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
     return new_user
 
 
@@ -97,7 +97,7 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
     token = _create_session(db, user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE)
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
     return user
 
 
