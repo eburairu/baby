@@ -69,6 +69,11 @@ cd frontend && npm run dev
 ### コマンドリファレンス
 
 ```bash
+# テスト実行
+npm test                   # バックエンド + フロントエンドの全テストを一括実行
+npm run test:backend       # バックエンドのみ（pytest）
+npm run test:frontend      # フロントエンドのみ（vitest）
+
 # DB マイグレーション
 alembic revision --autogenerate -m "description"
 alembic upgrade head
