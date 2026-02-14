@@ -9,7 +9,7 @@ from app.database import SessionLocal
 from app.dependencies import get_db, get_current_user
 from app.schemas.auth import LoginRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser
 from app.services.auth import verify_password, get_password_hash
@@ -30,6 +30,24 @@ def _create_session(db: Session, user_id: int) -> str:
     db.add(session)
     db.commit()
     return token
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_profile(
+    profile_in: UserProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Empty string is treated as null
+    new_display_name = profile_in.display_name
+    if new_display_name is not None and new_display_name.strip() == "":
+        new_display_name = None
+
+    current_user.display_name = new_display_name
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
 
 
 @router.post("/register/family", response_model=FamilyResponse)

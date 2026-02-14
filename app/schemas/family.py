@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 class FamilyCreate(BaseModel):
@@ -25,6 +26,7 @@ class FamilyUpdate(BaseModel):
 class FamilyMemberResponse(BaseModel):
     user_id: int
     username: str
+    display_name: Optional[str] = None
     role: str
     joined_at: datetime
 
