@@ -34,8 +34,8 @@ def build_daily_prompt(
     baby_id: int,
     baby_name: str,
     target_date: date,
-) -> Tuple[str, int]:
-    """プロンプト文字列と記録件数の合計を返す。"""
+) -> Tuple[str, int, str]:
+    """プロンプト文字列、記録件数の合計、記録テキスト自体を返す。"""
     # JST の日付範囲を UTC に変換して DateTime フィルタ用に使用
     JST = timezone(timedelta(hours=9))
     day_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=JST)
@@ -100,6 +100,8 @@ def build_daily_prompt(
                 detail += f" {int(f.amount_ml)}ml"
             if f.duration_minutes:
                 detail += f" {f.duration_minutes}分"
+            if f.notes:
+                detail += f" (メモ: {f.notes})"
             lines.append(detail)
         lines.append("")
 
@@ -111,9 +113,13 @@ def build_daily_prompt(
                 end = s.end_time.strftime("%H:%M")
                 diff = s.end_time - s.start_time
                 mins = int(diff.total_seconds() / 60)
-                lines.append(f"  {start}〜{end}（{mins}分）")
+                line = f"  {start}〜{end}（{mins}分）"
             else:
-                lines.append(f"  {start}〜（継続中）")
+                line = f"  {start}〜（継続中）"
+            
+            if s.notes:
+                line += f" (メモ: {s.notes})"
+            lines.append(line)
         lines.append("")
 
     if diapers:
@@ -123,7 +129,10 @@ def build_daily_prompt(
             kind = {"WET": "おしっこ", "DIRTY": "うんち", "BOTH": "両方"}.get(
                 str(d.diaper_type.value) if hasattr(d.diaper_type, "value") else str(d.diaper_type), str(d.diaper_type)
             )
-            lines.append(f"  {t} {kind}")
+            line = f"  {t} {kind}"
+            if d.notes:
+                line += f" (メモ: {d.notes})"
+            lines.append(line)
         lines.append("")
 
     if growths:
@@ -149,7 +158,61 @@ def build_daily_prompt(
 {records_text}
 育児日誌（100〜200字）:"""
 
-    return prompt, total_records
+    return prompt, total_records, records_text
+
+
+def update_baby_characteristics(
+    db: Session,
+    baby_id: int,
+    baby_name: str,
+    target_date: date,
+    current_characteristics: str,
+    daily_record_text: str,
+    generated_diary: str,
+    model_name: str
+) -> None:
+    """日誌生成後に赤ちゃんの特徴（characteristics）を更新する。"""
+    from app.models.baby import Baby
+
+    # プロンプト構築
+    update_prompt = (
+        f"以下は赤ちゃん（{baby_name}）の現在記録されている「特徴・傾向」と、"
+        f"本日（{target_date}）の育児記録、および生成された日記です。\n\n"
+        f"【現在の特徴】\n{current_characteristics or '（なし）'}\n\n"
+        f"【本日の記録】\n{daily_record_text}\n\n"
+        f"【生成された日記】\n{generated_diary}\n\n"
+        f"これらを踏まえて、赤ちゃんの特徴を更新してください。\n"
+        f"「最近うんちが緩い」「夜泣き気味」など、数日〜数週間のスパンで続く傾向があれば残し、"
+        f"解消されたものは削除するか「解消された」と更新してください。\n"
+        f"一時的な出来事（今日だけミルクをこぼした等）は特徴に含めないでください。\n"
+        f"出力は更新後の特徴テキストのみ（箇条書き推奨）にしてください。"
+    )
+
+    try:
+        client, _ = get_llm_client()
+        # 更新用モデルは軽量モデルでも良いが、指示順守のため生成と同じモデルまたは安定したモデルを使用
+        # ここでは generate と同じモデルを使うか、デフォルト設定に従う
+        
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {"role": "system", "content": "あなたは赤ちゃんの成長や体調の変化を長期的に観察するアシスタントです。"},
+                {"role": "user", "content": update_prompt},
+            ],
+            max_tokens=400,
+            temperature=0.5,
+        )
+        new_characteristics = response.choices[0].message.content.strip()
+
+        # DB更新
+        baby = db.query(Baby).filter(Baby.id == baby_id).first()
+        if baby:
+            baby.characteristics = new_characteristics
+            db.commit()
+
+    except Exception as e:
+        print(f"Failed to update characteristics: {e}")
+        # 特徴更新の失敗は日誌生成自体を失敗させない（ログ出力のみ）
 
 
 def generate_daily_summary(
@@ -162,10 +225,23 @@ def generate_daily_summary(
     記録が0件の場合は ValueError を raise。
     API障害時は openai.APIError を伝播。
     """
-    prompt, total_records = build_daily_prompt(db, baby_id, baby_name, target_date)
+    prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby_name, target_date)
 
     if total_records == 0:
         raise ValueError("この日の育児記録がありません。")
+
+    # 現在の特徴を取得してプロンプトに追加
+    from app.models.baby import Baby
+    baby = db.query(Baby).filter(Baby.id == baby_id).first()
+    current_characteristics = baby.characteristics if baby else None
+
+    if current_characteristics:
+        prompt = (
+            f"【これまでの赤ちゃんの様子・特徴】\n{current_characteristics}\n\n" 
+            + prompt
+            + "\n\n上記の特徴を踏まえつつ、本日の記録に矛盾があれば今日の記録を優先し、"
+            "「いつもは〜だが今日は〜だった」のように変化に触れてください。"
+        )
 
     client, model_name = get_llm_client()
 
@@ -183,4 +259,19 @@ def generate_daily_summary(
     )
 
     content = response.choices[0].message.content or ""
-    return content.strip(), model_name
+    content = response.choices[0].message.content or ""
+    generated_text = content.strip()
+
+    # 特徴を更新 (同期実行)
+    update_baby_characteristics(
+        db, 
+        baby_id, 
+        baby_name, 
+        target_date, 
+        current_characteristics, 
+        records_text, 
+        generated_text, 
+        model_name
+    )
+
+    return generated_text, model_name
