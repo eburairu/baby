@@ -5,12 +5,9 @@ import { Pencil, Trash2, ShieldCheck } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { BabyPermissionDialog } from "./BabyPermissionDialog"
 
-interface Baby {
-    id: number
-    name: string
-    birthday: string | null
-    due_date: string | null
-}
+import { Baby } from "@/types/baby"
+
+/* Removed local Baby interface */
 
 interface Props {
     baby: Baby
@@ -42,6 +39,12 @@ export function BabyCard({ baby, isAdmin, hasMemberUsers, onEdit, onDelete }: Pr
                     )}
                     {baby.due_date && (
                         <p className="text-xs text-gray-500">予定日: {formatDate(baby.due_date)}</p>
+                    )}
+                    {baby.characteristics && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-400 font-medium mb-1">特徴・傾向</p>
+                            <p className="text-xs text-gray-600 whitespace-pre-wrap">{baby.characteristics}</p>
+                        </div>
                     )}
                 </div>
                 {isAdmin && (
