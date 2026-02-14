@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import {
     Dialog,
@@ -24,11 +24,14 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave }: DiaryEd
     const [content, setContent] = useState("")
     const [saving, setSaving] = useState(false)
 
-    // ダイアログが開いたときに初期値をセット
-    const handleOpenChange = (isOpen: boolean) => {
-        if (isOpen && summary) {
+    // ダイアログが開いたときに AI 生成文（または編集済み内容）を初期値としてセット
+    useEffect(() => {
+        if (open && summary) {
             setContent(summary.edited_content ?? summary.generated_content)
         }
+    }, [open, summary])
+
+    const handleOpenChange = (isOpen: boolean) => {
         onOpenChange(isOpen)
     }
 
