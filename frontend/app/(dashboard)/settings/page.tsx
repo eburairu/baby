@@ -1,9 +1,17 @@
 "use client"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, Users, Baby } from "lucide-react"
+import { ChevronLeft, ChevronRight, Users, Baby, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const menuItems = [
+    {
+        href: "/settings/profile",
+        icon: User,
+        label: "プロフィール設定",
+        description: "表示名の変更",
+        color: "text-blue-500",
+        bg: "bg-blue-50",
+    },
     {
         href: "/settings/family",
         icon: Users,

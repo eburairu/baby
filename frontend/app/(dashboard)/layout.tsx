@@ -9,6 +9,7 @@ import { api } from "@/lib/api"
 import { ChevronLeft, Settings } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
+import { getDisplayName } from "@/lib/utils"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, isLoading, mutate } = useUser()
@@ -64,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </Badge>
                         )}
                         <span className="text-sm text-gray-500 hidden sm:inline-block">
-                            Welcome, {user.username}
+                            Welcome, {user && getDisplayName(user)}
                         </span>
                         <Link href="/settings">
                             <Button variant="ghost" size="icon" className="text-gray-500">
