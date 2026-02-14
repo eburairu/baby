@@ -11,12 +11,9 @@ import { BabyEditDialog } from "@/components/settings/BabyEditDialog"
 import { AddBabyDialog } from "@/components/settings/AddBabyDialog"
 import { BabyDeleteDialog } from "@/components/settings/BabyDeleteDialog"
 
-interface Baby {
-    id: number
-    name: string
-    birthday: string | null
-    due_date: string | null
-}
+import { Baby } from "@/types/baby"
+
+/* Removed local Baby interface */
 
 export default function BabySettingsPage() {
     const { user, isLoading: userLoading } = useUser()

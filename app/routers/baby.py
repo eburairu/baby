@@ -70,6 +70,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         name=baby_in.name,
         birthday=baby_in.birthday,
         due_date=baby_in.due_date,
+        characteristics=baby_in.characteristics,
     )
     db.add(new_baby)
     db.commit()
@@ -89,16 +90,10 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
-    if baby_in.name is not None:
-        baby.name = baby_in.name
-    if baby_in.birthday is not None:
-        baby.birthday = baby_in.birthday
-    if baby_in.due_date is not None:
-        baby.due_date = baby_in.due_date
-
-    db.commit()
-    db.refresh(baby)
-    return baby
+    from app.services.baby import update_baby as update_baby_service
+    
+    updated_baby = update_baby_service(db, baby, baby_in)
+    return updated_baby
 
 
 @router.delete("/{baby_id}", status_code=status.HTTP_204_NO_CONTENT)
