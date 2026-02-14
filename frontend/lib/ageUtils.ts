@@ -19,10 +19,10 @@ export function calcAge(birthday: string): { months: number; days: number; label
         // 誕生日の日が前月の末日より大きい場合（例：1月31日生まれで前月が28日まで）、
         // 前月の末日を基準にする
         const referenceDay = Math.min(birth.getDate(), prevMonthLastDay);
-        let days = now.getDate() + (prevMonthLastDay - referenceDay);
+        const days = now.getDate() + (prevMonthLastDay - referenceDay);
         return { months, days, label: createLabel(months, days) };
     } else {
-        let days = dayOfMonth;
+        const days = dayOfMonth;
         return { months, days, label: createLabel(months, days) };
     }
 }
