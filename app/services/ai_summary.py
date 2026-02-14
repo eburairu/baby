@@ -259,7 +259,6 @@ def generate_daily_summary(
     )
 
     content = response.choices[0].message.content or ""
-    content = response.choices[0].message.content or ""
     generated_text = content.strip()
 
     # 特徴を更新 (同期実行)
