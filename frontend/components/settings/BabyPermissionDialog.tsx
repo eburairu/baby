@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useBabyPermissions, updateBabyPermissions, BabyPermissionsData } from "@/hooks/useBabyPermissions"
+import { ErrorMessage } from "@/components/ui/error-message"
 
 interface Baby {
   id: number
@@ -25,7 +26,7 @@ interface Props {
 }
 
 export function BabyPermissionDialog({ baby, open, onOpenChange }: Props) {
-  const { data, isLoading, mutate } = useBabyPermissions(open ? baby.id : null)
+  const { data, error, isLoading, mutate } = useBabyPermissions(open ? baby.id : null)
   const [localData, setLocalData] = useState<BabyPermissionsData | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -83,9 +84,9 @@ export function BabyPermissionDialog({ baby, open, onOpenChange }: Props) {
       await updateBabyPermissions(baby.id, flattenedPermissions)
       await mutate()
       onOpenChange(false)
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert("権限の更新に失敗しました")
+      alert(err.message || "権限の更新に失敗しました")
     } finally {
       setIsSaving(false)
     }
@@ -113,7 +114,11 @@ export function BabyPermissionDialog({ baby, open, onOpenChange }: Props) {
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading || !localData ? (
+        {error ? (
+          <div className="py-8">
+            <ErrorMessage message="権限情報の取得に失敗しました" />
+          </div>
+        ) : isLoading || !localData ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-gray-300" />
           </div>
