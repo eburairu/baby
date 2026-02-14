@@ -12,9 +12,10 @@ import {
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Growth } from "@/types/growth"
 
 interface GrowthChartProps {
-    records: any[]
+    records: Growth[]
 }
 
 export function GrowthChart({ records }: GrowthChartProps) {
