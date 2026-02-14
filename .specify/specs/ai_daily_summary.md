@@ -241,9 +241,10 @@ class DailySummaryResponse(BaseModel):
 # app/services/ai_summary.py
 
 import os
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
+from typing import Tuple
 from sqlalchemy.orm import Session
-from openai import OpenAI, APIError
+from openai import OpenAI
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -251,100 +252,155 @@ from app.models.diaper import Diaper
 from app.models.growth import Growth
 
 
-def build_daily_prompt(db: Session, baby_id: int, baby_name: str, target_date: date) -> str:
-    """1日の記録を集計してプロンプト文字列を生成する。"""
-    from datetime import datetime, timedelta
+def get_llm_client() -> Tuple[OpenAI, str]:
+    """(client, model_name) を返す"""
+    provider = os.environ.get("LLM_PROVIDER", "openai").lower()
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    model = os.environ.get("LLM_MODEL")
 
-    day_start = datetime.combine(target_date, datetime.min.time())
-    day_end = day_start + timedelta(days=1)
+    if provider == "google":
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        )
+        model = model or "gemini-2.0-flash"
+    else:
+        client = OpenAI(api_key=api_key)
+        model = model or "gpt-4o-mini"
 
-    # 授乳記録
-    feedings = db.query(Feeding).filter(
-        Feeding.baby_id == baby_id,
-        Feeding.feeding_time >= day_start,
-        Feeding.feeding_time < day_end,
-    ).all()
+    return client, model
 
-    # 睡眠記録
-    sleeps = db.query(Sleep).filter(
-        Sleep.baby_id == baby_id,
-        Sleep.start_time >= day_start,
-        Sleep.start_time < day_end,
-    ).all()
 
-    # おむつ記録
-    diapers = db.query(Diaper).filter(
-        Diaper.baby_id == baby_id,
-        Diaper.diaper_time >= day_start,
-        Diaper.diaper_time < day_end,
-    ).all()
+def build_daily_prompt(
+    db: Session,
+    baby_id: int,
+    baby_name: str,
+    target_date: date,
+) -> Tuple[str, int, str]:
+    """プロンプト文字列、記録件数の合計、記録テキスト自体を返す。"""
+    # JST の日付範囲を UTC に変換して DateTime フィルタ用に使用
+    JST = timezone(timedelta(hours=9))
+    day_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=JST)
+    day_end = datetime(target_date.year, target_date.month, target_date.day, 23, 59, 59, tzinfo=JST)
 
-    # 成長記録
-    growths = db.query(Growth).filter(
-        Growth.baby_id == baby_id,
-        Growth.recorded_at >= day_start,
-        Growth.recorded_at < day_end,
-    ).all()
+    feedings = (
+        db.query(Feeding)
+        .filter(
+            Feeding.baby_id == baby_id,
+            Feeding.feeding_time >= day_start,
+            Feeding.feeding_time <= day_end,
+        )
+        .order_by(Feeding.feeding_time)
+        .all()
+    )
 
-    lines = [f"【{target_date}の{baby_name}の記録】"]
+    sleeps = (
+        db.query(Sleep)
+        .filter(
+            Sleep.baby_id == baby_id,
+            Sleep.start_time >= day_start,
+            Sleep.start_time <= day_end,
+        )
+        .order_by(Sleep.start_time)
+        .all()
+    )
 
-    # 授乳記録
+    diapers = (
+        db.query(Diaper)
+        .filter(
+            Diaper.baby_id == baby_id,
+            Diaper.change_time >= day_start,
+            Diaper.change_time <= day_end,
+        )
+        .order_by(Diaper.change_time)
+        .all()
+    )
+
+    growths = (
+        db.query(Growth)
+        .filter(
+            Growth.baby_id == baby_id,
+            Growth.date == target_date,
+        )
+        .all()
+    )
+
+    total_records = len(feedings) + len(sleeps) + len(diapers) + len(growths)
+
+    date_str = target_date.strftime("%Y年%m月%d日")
+    lines = [f"{baby_name}ちゃんの{date_str}の育児記録です。", ""]
+
     if feedings:
-        lines.append(f"授乳: {len(feedings)}回")
+        lines.append(f"【授乳】{len(feedings)}回")
         for f in feedings:
-            detail = f.feeding_time.strftime("%H:%M")
+            t = f.feeding_time.strftime("%H:%M")
+            kind = {"BREAST": "母乳", "BOTTLE": "ミルク", "MIXED": "混合"}.get(
+                str(f.feeding_type.value) if hasattr(f.feeding_type, "value") else str(f.feeding_type), str(f.feeding_type)
+            )
+            detail = f"  {t} {kind}"
             if f.amount_ml:
-                detail += f" {f.amount_ml}ml"
+                detail += f" {int(f.amount_ml)}ml"
             if f.duration_minutes:
                 detail += f" {f.duration_minutes}分"
             if f.notes:
                 detail += f" (メモ: {f.notes})"
-            lines.append(f"  - {detail} ({f.feeding_type})")
+            lines.append(detail)
+        lines.append("")
 
-    # 睡眠記録
     if sleeps:
-        total_min = sum(
-            int((s.end_time - s.start_time).total_seconds() / 60)
-            for s in sleeps if s.end_time
-        )
-        lines.append(f"睡眠: {len(sleeps)}回 合計{total_min}分")
+        lines.append(f"【睡眠】{len(sleeps)}回")
         for s in sleeps:
-            t = s.start_time.strftime("%H:%M")
+            start = s.start_time.strftime("%H:%M")
             if s.end_time:
-                t += f"〜{s.end_time.strftime('%H:%M')}"
-            if s.notes:
-                t += f" (メモ: {s.notes})"
-            lines.append(f"  - {t}")
+                end = s.end_time.strftime("%H:%M")
+                diff = s.end_time - s.start_time
+                mins = int(diff.total_seconds() / 60)
+                line = f"  {start}〜{end}（{mins}分）"
+            else:
+                line = f"  {start}〜（継続中）"
 
-    # おむつ記録
+            if s.notes:
+                line += f" (メモ: {s.notes})"
+            lines.append(line)
+        lines.append("")
+
     if diapers:
-        lines.append(f"おむつ: {len(diapers)}回")
+        lines.append(f"【おむつ】{len(diapers)}回")
         for d in diapers:
-            detail = ""
+            t = d.change_time.strftime("%H:%M")
+            kind = {"WET": "おしっこ", "DIRTY": "うんち", "BOTH": "両方"}.get(
+                str(d.diaper_type.value) if hasattr(d.diaper_type, "value") else str(d.diaper_type), str(d.diaper_type)
+            )
+            line = f"  {t} {kind}"
             if d.notes:
-                 detail = f" (メモ: {d.notes})"
-            lines.append(f"  - {d.change_time.strftime('%H:%M')} {d.diaper_type}{detail}")
+                line += f" (メモ: {d.notes})"
+            lines.append(line)
+        lines.append("")
 
     if growths:
+        lines.append("【成長記録】")
         for g in growths:
             parts = []
-            if g.weight_kg:
-                parts.append(f"体重 {g.weight_kg}kg")
-            if g.height_cm:
-                parts.append(f"身長 {g.height_cm}cm")
+            if g.weight is not None:
+                parts.append(f"体重 {g.weight / 1000:.3f}kg")
+            if g.height is not None:
+                parts.append(f"身長 {g.height}cm")
+            if g.head_circumference is not None:
+                parts.append(f"頭囲 {g.head_circumference}cm")
             if parts:
-                lines.append("成長記録: " + "、".join(parts))
+                lines.append(f"  {' / '.join(parts)}")
+        lines.append("")
 
-    record_text = "\n".join(lines)
+    records_text = "\n".join(lines)
 
-    prompt = (
-        f"以下は赤ちゃん（{baby_name}）の{target_date}の育児記録です。\n"
-        f"この記録をもとに、親が後で読み返して嬉しくなるような、"
-        f"温かみのある育児日記を100〜200文字の日本語で書いてください。\n"
-        f"数字の羅列ではなく、情景が伝わる文体にしてください。\n\n"
-        f"{record_text}"
-    )
-    return prompt
+    prompt = f"""以下は赤ちゃんの育児記録です。この記録をもとに、親が読んで温かい気持ちになれるような育児日誌を100〜200字程度で書いてください。
+
+記録の羅列ではなく、1日の流れを物語風にまとめ、赤ちゃんの様子や成長を感じられる文章にしてください。
+
+{records_text}
+育児日誌（100〜200字）:"""
+
+    return prompt, total_records, records_text
 
 
 def update_baby_characteristics(
@@ -375,7 +431,10 @@ def update_baby_characteristics(
     )
 
     try:
-        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        client, _ = get_llm_client()
+        # 更新用モデルは軽量モデルでも良いが、指示順守のため生成と同じモデルまたは安定したモデルを使用
+        # ここでは generate と同じモデルを使うか、デフォルト設定に従う
+
         response = client.chat.completions.create(
             model=model_name,
             messages=[
@@ -390,13 +449,12 @@ def update_baby_characteristics(
         # DB更新
         baby = db.query(Baby).filter(Baby.id == baby_id).first()
         if baby:
-            baby.characteristics = new_characteristics
-            db.commit()
+            from app.services.baby import update_baby
+            update_baby(db, baby, {"characteristics": new_characteristics})
 
     except Exception as e:
         print(f"Failed to update characteristics: {e}")
         # 特徴更新の失敗は日誌生成自体を失敗させない（ログ出力のみ）
-    return prompt
 
 
 def generate_daily_summary(
@@ -404,12 +462,16 @@ def generate_daily_summary(
     baby_id: int,
     baby_name: str,
     target_date: date,
-    model_name: str = "gpt-4o-mini",
-) -> str:
-    """OpenAI API を呼び出して日誌テキストを生成して返す。失敗時は例外を raise する。"""
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    prompt = build_daily_prompt(db, baby_id, baby_name, target_date)
-    
+) -> Tuple[str, str]:
+    """(generated_content, model_name) を返す。
+    記録が0件の場合は ValueError を raise。
+    API障害時は openai.APIError を伝播。
+    """
+    prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby_name, target_date)
+
+    if total_records == 0:
+        raise ValueError("この日の育児記録がありません。")
+
     # 現在の特徴を取得してプロンプトに追加
     from app.models.baby import Baby
     baby = db.query(Baby).filter(Baby.id == baby_id).first()
@@ -423,43 +485,37 @@ def generate_daily_summary(
             "「いつもは〜だが今日は〜だった」のように変化に触れてください。"
         )
 
-    try:
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {"role": "system", "content": "あなたは育児をサポートするアシスタントです。"},
-                {"role": "user",   "content": prompt},
-            ],
-            max_tokens=600,
-            temperature=0.8,
-        )
-        return response.choices[0].message.content.strip()
+    client, model_name = get_llm_client()
 
-        generated_text = response.choices[0].message.content.strip()
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[
+            {
+                "role": "system",
+                "content": "あなたは育児記録をもとに、温かみのある育児日誌を書くアシスタントです。",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        max_tokens=600,
+        temperature=0.7,
+    )
 
-        # 非同期的に特徴を更新（実際には同期的でも良いが、レスポンス速度への影響を考慮）
-        # 簡単のためここでは同期実行する
-        # 再生成のための record_text は build_daily_prompt 内で生成しているが、
-        # ここでは簡易的に prompt をそのまま使うか、再度生成ロジックを分離するか検討が必要。
-        # 今回は prompt 内に record_text が含まれているため、それを利用する形を想定。
-        
-        # NOTE: prompt変数には既に「これまでの...」が付与されているため、
-        # 純粋な記録テキストを取り直すか、update関数側で吸収する。
-        # ここでは update関数を呼び出す（promptの再構築はコストなので、prompt全体を渡す設計も可だが、
-        # update_baby_characteristics 側で record_text を明示的に渡す方が精度が良い）
-        
-        # 簡易実装: record_text を再取得（build_daily_promptの戻り値を (prompt, record_text) に変更するのが綺麗だが、
-        # 既存コードへの影響を最小限にするため、ここでは update 処理を呼び出す形のみ記述）
-        
-        # TODO: build_daily_prompt のリファクタリング（record_text を返すようにする）を推奨
-        # いったんここでは概念コードとして記述
-        
-        # record_text_only = ... (build_daily_prompt から取得 needs refactor)
-        # update_baby_characteristics(db, baby_id, baby_name, target_date, current_characteristics, record_text_only, generated_text, model_name)
-        
-        return generated_text
-    except APIError as e:
-        raise e  # router 側で 503 に変換する
+    content = response.choices[0].message.content or ""
+    generated_text = content.strip()
+
+    # 特徴を更新 (同期実行)
+    update_baby_characteristics(
+        db,
+        baby_id,
+        baby_name,
+        target_date,
+        current_characteristics,
+        records_text,
+        generated_text,
+        model_name
+    )
+
+    return generated_text, model_name
 ```
 
 ---
