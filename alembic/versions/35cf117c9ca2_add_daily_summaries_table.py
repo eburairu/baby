@@ -1,7 +1,7 @@
 """add daily_summaries table
 
 Revision ID: 35cf117c9ca2
-Revises: 5dc5a5d4af5c
+Revises: 86c007e59a68
 Create Date: 2026-02-14 15:48:50.281327+09:00
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '35cf117c9ca2'
-down_revision: Union[str, Sequence[str], None] = '5dc5a5d4af5c'
+down_revision: Union[str, Sequence[str], None] = '86c007e59a68'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

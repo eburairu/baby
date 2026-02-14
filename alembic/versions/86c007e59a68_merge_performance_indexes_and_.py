@@ -1,8 +1,8 @@
-"""merge performance and contraction index branches
+"""merge_performance_indexes_and_contraction_index
 
-Revision ID: 5dc5a5d4af5c
+Revision ID: 86c007e59a68
 Revises: 7556b37b9e78, f1e2d3c4b5a6
-Create Date: 2026-02-14 15:48:30.601440+09:00
+Create Date: 2026-02-14 09:16:38.873630+09:00
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '5dc5a5d4af5c'
+revision: str = '86c007e59a68'
 down_revision: Union[str, Sequence[str], None] = ('7556b37b9e78', 'f1e2d3c4b5a6')
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
