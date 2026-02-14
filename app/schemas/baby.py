@@ -7,6 +7,7 @@ class BabyBase(BaseModel):
     name: str
     birthday: Optional[date] = None
     due_date: Optional[date] = None
+    characteristics: Optional[str] = None
 
 
 class BabyCreate(BabyBase):
@@ -17,6 +18,7 @@ class BabyUpdate(BaseModel):
     name: Optional[str] = None
     birthday: Optional[date] = None
     due_date: Optional[date] = None
+    characteristics: Optional[str] = None
 
 
 class BabyResponse(BabyBase):

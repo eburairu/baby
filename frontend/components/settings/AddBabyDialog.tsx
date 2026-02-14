@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
 
@@ -18,6 +19,7 @@ const babySchema = z.object({
     name: z.string().min(1, "名前を入力してください"),
     birthday: z.string().optional(),
     due_date: z.string().optional(),
+    characteristics: z.string().optional(),
 })
 
 type BabyFormData = z.infer<typeof babySchema>
@@ -51,6 +53,7 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                 name: data.name,
                 birthday: data.birthday || null,
                 due_date: data.due_date || null,
+                characteristics: data.characteristics || null,
             })
             onAdded()
             reset()
@@ -79,6 +82,15 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                     <div className="space-y-1">
                         <Label htmlFor="add-due-date">出産予定日</Label>
                         <Input id="add-due-date" type="date" {...register("due_date")} />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="add-characteristics">特徴・傾向</Label>
+                        <Textarea
+                            id="add-characteristics"
+                            {...register("characteristics")}
+                            placeholder="赤ちゃんのペースや特徴があれば入力してください"
+                            className="min-h-[100px]"
+                        />
                     </div>
                     {errors.root && <p className="text-red-500 text-sm">{errors.root.message}</p>}
                     <DialogFooter>

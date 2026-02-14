@@ -31,6 +31,8 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 
 ## 機能要件
 
+## 機能要件
+
 ### BF1: 赤ちゃん一覧の表示
 
 - 家族に登録されているすべての赤ちゃんをカード形式で一覧表示する。
@@ -39,6 +41,7 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
     - 月齢（`birthday` から算出: 例 "生後 3ヶ月 12日"）
     - 生年月日（`birthday`、`YYYY/MM/DD` 形式）
     - 予定日（`due_date`、設定がある場合のみ）
+    - 特徴・傾向（`characteristics`、概要または全文）
 - 全員（admin / member）が閲覧できる。
 
 ### BF2: 赤ちゃん情報の編集
@@ -49,6 +52,8 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
     - 名前（必須、空文字不可）
     - 生年月日（`birthday`、任意）
     - 出産予定日（`due_date`、任意）
+    - 特徴・傾向（`characteristics`、任意、多行テキスト）
+        - AIが日誌生成時に自動更新するフィールドだが、親が手動で修正・追記できるようにする。
 - `react-hook-form` + `zod` によるバリデーションを使用する。
 - 保存後は一覧を即時更新し、成功トーストを表示する。
 
@@ -64,7 +69,7 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 
 - admin ユーザーのみページ上部（またはフローティングボタン）に「＋ 赤ちゃんを追加」ボタンを表示する。
 - タップするとダイアログが開く。
-- 入力フィールドは BF2 の編集フォームと同一。
+- 入力フィールドは BF2 の編集フォームと同一（特徴含む）。
 - 既存のダッシュボードの赤ちゃん追加ロジックを本コンポーネントに移植・リファクタリングする（ダッシュボードからも同一コンポーネントを利用可能にする）。
 - 追加後は一覧に即時反映し、成功トーストを表示する。
 
@@ -81,23 +86,15 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 │  生後 3ヶ月 12日                     │
 │  誕生日: 2025/10/31                  │
 │  予定日: 2025/11/05                  │
+│  ---------------------------------  │
+│  [特徴・傾向]                        │
+│  ・最近よく寝返りをするようになった。      │
+│  ・夜泣きが少し減ってきた。             │
+│                                     │
 │                      [編集] [削除]  │  ← admin のみボタン表示
 └─────────────────────────────────────┘
 
-┌─────────────────────────────────────┐
-│  👶 さくらちゃん                     │
-│  生後 1年 2ヶ月                      │
-│  誕生日: 2024/12/01                  │
-│                      [編集] [削除]  │
-└─────────────────────────────────────┘
-
-（赤ちゃんが 0 件の場合）
-┌─────────────────────────────────────┐
-│                                     │
-│      👶 まだ赤ちゃんが登録されていません    │
-│      [＋ 最初の赤ちゃんを追加]          │
-│                                     │
-└─────────────────────────────────────┘
+...
 
 --- BabyEditDialog ---
 ┌─────────────────────────────────────┐
@@ -115,23 +112,12 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 │  ┌───────────────────────────────┐  │
 │  │ 2025/11/05                    │  │
 │  └───────────────────────────────┘  │
-│              [キャンセル] [保存]     │
-└─────────────────────────────────────┘
-
---- BabyDeleteDialog (確認) ---
-┌─────────────────────────────────────┐
-│  ⚠️ 赤ちゃんを削除しますか？         │
-│                                     │
-│  「レンくん」に関するすべての記録    │
-│  （授乳・睡眠・おむつ・成長など）   │
-│  も削除されます。この操作は取り消せ  │
-│  ません。                           │
-│                                     │
-│  確認のため赤ちゃんの名前を入力:    │
+│  特徴・傾向                          │
 │  ┌───────────────────────────────┐  │
-│  │                               │  │
+│  │ 最近よく寝返りをするようになった  │  │
+│  │ 夜泣きが少し減ってきた           │  │
 │  └───────────────────────────────┘  │
-│              [キャンセル] [削除]    │
+│              [キャンセル] [保存]     │
 └─────────────────────────────────────┘
 ```
 
@@ -140,12 +126,12 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 ### コンポーネント構成
 
 ```
-frontend/app/(dashboard)/settings/babies/page.tsx   ← 新規作成
+frontend/app/(dashboard)/settings/babies/page.tsx
 frontend/components/settings/
-  BabyCard.tsx          ← 赤ちゃん情報カード（編集・削除ボタン付き）
-  BabyEditDialog.tsx    ← 赤ちゃん情報編集ダイアログ（react-hook-form + zod）
-  AddBabyDialog.tsx     ← 新規追加ダイアログ（ダッシュボードから移植・リファクタリング）
-  BabyDeleteDialog.tsx  ← 削除確認ダイアログ（名前入力による確認付き）
+  BabyCard.tsx          ← 赤ちゃん情報カード（編集・削除ボタン付き、特徴表示追加）
+  BabyEditDialog.tsx    ← 赤ちゃん情報編集ダイアログ（特徴フィールド追加）
+  AddBabyDialog.tsx     ← 新規追加ダイアログ
+  BabyDeleteDialog.tsx  ← 削除確認ダイアログ
 ```
 
 #### データ取得フック
@@ -167,6 +153,7 @@ const babySchema = z.object({
   name: z.string().min(1, "名前を入力してください"),
   birthday: z.string().optional(),   // "YYYY-MM-DD" or ""
   due_date: z.string().optional(),   // "YYYY-MM-DD" or ""
+  characteristics: z.string().optional(), // 多行テキスト
 });
 ```
 
@@ -188,6 +175,7 @@ class BabyUpdate(BaseModel):
     name: Optional[str] = None
     birthday: Optional[date] = None
     due_date: Optional[date] = None
+    characteristics: Optional[str] = None  # 追加
 ```
 
 #### 削除時のカスケード仕様
@@ -235,18 +223,16 @@ class BabyUpdate(BaseModel):
 - [x] `PATCH /api/babies/{baby_id}` エンドポイント実装（admin のみ）
 - [x] `DELETE /api/babies/{baby_id}` エンドポイント実装（admin のみ、関連記録カスケード削除）
 - [ ] 各子テーブルの `ondelete="CASCADE"` 設定確認・必要に応じてマイグレーション追加
-- [x] `BabyUpdate` スキーマ追加（`app/schemas/baby.py`）
+- [ ] `BabyUpdate` スキーマ修正（`characteristics` 対応）（`app/schemas/baby.py`）
+- [ ] `Baby` モデル修正（重複定義削除）（`app/models/baby.py`）
 
 ### フロントエンド
 
 - [x] `frontend/app/(dashboard)/settings/babies/page.tsx` 作成
-- [x] `BabyCard.tsx` 作成（名前・月齢・日付表示、編集・削除ボタン付き）
-- [x] `BabyEditDialog.tsx` 作成（react-hook-form + zod、shadcn Dialog）
-- [x] `AddBabyDialog.tsx` 作成（ダッシュボードの追加ロジックを移植・共通化）
-- [x] `BabyDeleteDialog.tsx` 作成（名前入力による削除確認）
-- [x] 月齢計算ユーティリティ関数を実装（`birthday` → "生後 N ヶ月 M 日"）
+- [ ] `BabyCard.tsx` 改修（特徴表示）
+- [ ] `BabyEditDialog.tsx` 改修（特徴フィールド追加）
+- [ ] `AddBabyDialog.tsx` 改修（特徴フィールド追加、ダッシュボードの追加ロジックを移植・共通化）
 - [ ] ダッシュボードから `AddBabyDialog` を共通コンポーネントとして利用するようリファクタリング
-- [ ] ダッシュボードヘッダーに Settings アイコン追加 → `/settings/babies` へのリンク
 - [ ] `npm run build` でビルド確認
 
 ### ナビゲーション
