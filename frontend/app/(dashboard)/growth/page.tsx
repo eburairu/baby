@@ -11,6 +11,7 @@ import { GrowthHistoryList } from "@/components/growth/GrowthHistoryList"
 import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageLoading } from "@/components/ui/page-loading"
+import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, TrendingUp } from "lucide-react"
 import Link from "next/link"
 
@@ -22,7 +23,7 @@ export default function GrowthPage() {
 
     // Priority: URL param > store selection > first baby
     const babyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-    const { growths, isLoading, mutate } = useGrowths(babyId)
+    const { growths, isLoading, isError: growthError, mutate } = useGrowths(babyId)
 
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingRecord, setEditingRecord] = useState<any>(null)
@@ -47,6 +48,8 @@ export default function GrowthPage() {
         )
     }
 
+    const isAccessDenied = (growthError as any)?.status === 403
+
     return (
         <div className="min-h-screen bg-slate-50">
             <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
@@ -66,42 +69,48 @@ export default function GrowthPage() {
             </header>
 
             <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-800">数値の推移</h2>
-                    <Button onClick={handleAdd} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
-                        <Plus className="h-4 w-4" />
-                        新しい記録
-                    </Button>
-                </div>
-
-                {isLoading ? (
-                    <div className="text-center py-12 text-muted-foreground">読み込み中...</div>
+                {isAccessDenied ? (
+                    <AccessDenied />
                 ) : (
                     <>
-                        <GrowthChart records={growths || []} />
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-bold text-gray-800">数値の推移</h2>
+                            <Button onClick={handleAdd} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                                <Plus className="h-4 w-4" />
+                                新しい記録
+                            </Button>
+                        </div>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg">履歴</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <GrowthHistoryList
-                                    records={growths || []}
-                                    onEdit={handleEdit}
-                                    onDeleteSuccess={() => mutate()}
-                                />
-                            </CardContent>
-                        </Card>
+                        {isLoading ? (
+                            <div className="text-center py-12 text-muted-foreground">読み込み中...</div>
+                        ) : (
+                            <>
+                                <GrowthChart records={growths || []} />
+
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">履歴</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <GrowthHistoryList
+                                            records={growths || []}
+                                            onEdit={handleEdit}
+                                            onDeleteSuccess={() => mutate()}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            </>
+                        )}
+
+                        <GrowthRecordForm
+                            babyId={parseInt(babyId)}
+                            record={editingRecord}
+                            isOpen={isFormOpen}
+                            onClose={() => setIsFormOpen(false)}
+                            onSuccess={() => mutate()}
+                        />
                     </>
                 )}
-
-                <GrowthRecordForm
-                    babyId={parseInt(babyId)}
-                    record={editingRecord}
-                    isOpen={isFormOpen}
-                    onClose={() => setIsFormOpen(false)}
-                    onSuccess={() => mutate()}
-                />
             </main>
         </div>
     )

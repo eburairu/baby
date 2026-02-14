@@ -9,6 +9,7 @@ import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
 import { Diaper } from "@/types/diaper"
 import { PageLoading } from "@/components/ui/page-loading"
+import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, Smile, Droplets } from "lucide-react"
 import Link from "next/link"
 
@@ -24,10 +25,12 @@ export default function DiaperPage() {
     // Priority: URL param > store selection > first baby
     const effectiveBabyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
-    const { diapers, isLoading: diapersLoading, mutate } = useDiapers(effectiveBabyId)
+    const { diapers, isLoading: diapersLoading, isError: diaperError, mutate } = useDiapers(effectiveBabyId)
 
     if (babiesLoading) return <PageLoading />
     if (!effectiveBabyId) return <div className="p-4 text-center mt-10">赤ちゃんが登録されていません</div>
+
+    const isAccessDenied = (diaperError as any)?.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
@@ -48,17 +51,23 @@ export default function DiaperPage() {
             </header>
 
             <main className="p-4 max-w-2xl mx-auto space-y-6">
-                <DiaperStats diapers={(diapers as unknown as Diaper[]) || []} />
+                {isAccessDenied ? (
+                    <AccessDenied />
+                ) : (
+                    <>
+                        <DiaperStats diapers={(diapers as unknown as Diaper[]) || []} />
 
-                <DiaperForm
-                    babyId={effectiveBabyId}
-                    onSuccess={() => mutate()}
-                />
+                        <DiaperForm
+                            babyId={effectiveBabyId}
+                            onSuccess={() => mutate()}
+                        />
 
-                <DiaperHistory
-                    diapers={(diapers as unknown as Diaper[]) || []}
-                    onDeleteSuccess={() => mutate()}
-                />
+                        <DiaperHistory
+                            diapers={(diapers as unknown as Diaper[]) || []}
+                            onDeleteSuccess={() => mutate()}
+                        />
+                    </>
+                )}
             </main>
         </div>
     )

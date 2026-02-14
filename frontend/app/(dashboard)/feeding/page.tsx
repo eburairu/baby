@@ -13,6 +13,7 @@ import { FeedingStats } from "@/components/feeding/feeding-stats"
 import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
 import { PageLoading } from "@/components/ui/page-loading"
+import { AccessDenied } from "@/components/ui/access-denied"
 
 export default function FeedingPage() {
     const router = useRouter()
@@ -26,6 +27,7 @@ export default function FeedingPage() {
     const {
         feedings,
         loading: feedingLoading,
+        error: feedingError,
         summary,
         addFeeding,
         deleteFeeding
@@ -42,6 +44,8 @@ export default function FeedingPage() {
             </div>
         )
     }
+
+    const isAccessDenied = (feedingError as any)?.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
@@ -62,14 +66,20 @@ export default function FeedingPage() {
             </header>
 
             <div className="max-w-2xl mx-auto p-4 space-y-6">
-                <FeedingStats summary={summary} />
+                {isAccessDenied ? (
+                    <AccessDenied />
+                ) : (
+                    <>
+                        <FeedingStats summary={summary} />
 
-                <FeedingForm babyId={babyId} onAdd={addFeeding} />
+                        <FeedingForm babyId={babyId} onAdd={addFeeding} />
 
-                <FeedingHistory
-                    feedings={feedings || []}
-                    onDelete={deleteFeeding}
-                />
+                        <FeedingHistory
+                            feedings={feedings || []}
+                            onDelete={deleteFeeding}
+                        />
+                    </>
+                )}
             </div>
         </div>
     )
