@@ -42,10 +42,15 @@ def create_or_get_daily_summary(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except openai.RateLimitError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI日誌生成の利用上限に達しました。しばらく時間をおいてから再試行してください。",
+        )
     except openai.APIError as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"AI サービスが利用できません: {str(e)}",
+            detail="AIサービスでエラーが発生しました。時間をおいて再試行してください。",
         )
 
     if existing:
