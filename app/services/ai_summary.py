@@ -147,7 +147,7 @@ def build_daily_prompt(
 記録の羅列ではなく、1日の流れを物語風にまとめ、赤ちゃんの様子や成長を感じられる文章にしてください。
 
 {records_text}
-育児日誌（300〜400字）:"""
+育児日誌（100〜200字）:"""
 
     return prompt, total_records
 
