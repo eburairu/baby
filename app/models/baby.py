@@ -11,7 +11,10 @@ class Baby(Base):
     name = Column(String, nullable=False)
     birthday = Column(Date, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
+    birthday = Column(Date, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
     due_date = Column(Date, nullable=True)
+    characteristics = Column(String, nullable=True)  # AIが生成・更新する「赤ちゃんの特徴・傾向」
 
     family = relationship("Family", backref="babies")
 
