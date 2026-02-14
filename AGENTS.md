@@ -56,6 +56,9 @@ npm install
 |---|---|
 | `uvicorn app.main:app --reload` | Backend 起動 |
 | `cd frontend && npm run dev` | Frontend 起動 |
+| `npm test` | 全テスト実行（バックエンド + フロントエンド） |
+| `npm run test:backend` | バックエンドのみテスト実行（pytest） |
+| `npm run test:frontend` | フロントエンドのみテスト実行（vitest） |
 | `alembic revision --autogenerate -m "description"` | マイグレーション作成 |
 | `alembic upgrade head` | マイグレーション適用 |
 | `cd frontend && npm run build` | ビルド確認 |
@@ -87,4 +90,4 @@ npm install
 - **検証の徹底**: 変更後は必ずビルド (`npm run build`) を実行し、型チェック・動作確認を完了させてから報告してください。
 - **セキュリティ**: API キーや秘密情報をコードに含めないでください。
 - **シングルサービス構成**: FastAPI がフロントエンドの静的ファイルも配信する構成であることを意識してください。
-- **DB**: ローカル・本番ともに PostgreSQL を使用します。ローカルは Docker で PostgreSQL を起動します（`docker-compose up` 等）。本番は Neon (PostgreSQL) を使用します。
+- **DB**: ローカル・本番ともに PostgreSQL (Neon) を使用します。ローカルは Neon の `develop` ブランチ、本番は `production` ブランチに接続します。Docker は不要です。
