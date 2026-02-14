@@ -15,8 +15,8 @@ services:
       - key: TZ
         value: "Asia/Tokyo"
       - key: LLM_PROVIDER
-        value: "openai"  # "openai" または "google"
+        value: "google"  # "openai" または "google"
       - key: LLM_API_KEY
         sync: false  # APIキーを Render Dashboard で手動設定
       - key: LLM_MODEL
-        sync: false  # 未設定時は provider に応じて自動選択（gpt-4o-mini / gemini-2.0-flash）
+        value: "gemini-2.0-flash"  # 未設定時は provider に応じて自動選択（gpt-4o-mini / gemini-2.0-flash）
