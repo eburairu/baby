@@ -207,8 +207,8 @@ def update_baby_characteristics(
         # DB更新
         baby = db.query(Baby).filter(Baby.id == baby_id).first()
         if baby:
-            baby.characteristics = new_characteristics
-            db.commit()
+            from app.services.baby import update_baby
+            update_baby(db, baby, {"characteristics": new_characteristics})
 
     except Exception as e:
         print(f"Failed to update characteristics: {e}")
