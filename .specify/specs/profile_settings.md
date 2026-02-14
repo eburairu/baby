@@ -450,9 +450,9 @@ Welcome, {getDisplayName(user)}
 
 | メソッド | エンドポイント | 実装状況 | 用途 |
 |---------|--------------|---------|------|
-| GET | `/api/auth/me` | ✅ 実装済み（`display_name` 追加対応が必要） | 自身のプロフィール取得 |
-| PATCH | `/api/auth/me` | ❌ 新規追加 | 表示名の更新 |
-| GET | `/api/family/members` | ✅ 実装済み（`display_name` 追加対応が必要） | メンバー一覧取得 |
+| GET | `/api/auth/me` | ✅ 実装済み（`display_name` 追加済み） | 自身のプロフィール取得 |
+| PATCH | `/api/auth/me` | ✅ 実装済み | 表示名の更新 |
+| GET | `/api/family/members` | ✅ 実装済み（`display_name` 追加済み） | メンバー一覧取得 |
 
 ---
 
@@ -460,31 +460,31 @@ Welcome, {getDisplayName(user)}
 
 ### バックエンド
 
-- [ ] `alembic revision --autogenerate -m "add display_name to users"` でマイグレーションファイル生成
-- [ ] マイグレーション内容確認（`display_name VARCHAR NULL` の追加のみであること）
-- [ ] `alembic upgrade head` でマイグレーション適用
-- [ ] `app/models/user.py` に `display_name` カラム追加
-- [ ] `app/schemas/user.py` に `UserProfileUpdate` スキーマ追加・`UserResponse` に `display_name` 追加
-- [ ] `app/schemas/family.py` の `FamilyMemberResponse` に `display_name` 追加
-- [ ] `app/routers/auth.py` に `PATCH /api/auth/me` エンドポイント追加
-  - [ ] 空文字を `null` に変換する処理
-  - [ ] 50文字制限の検証
-- [ ] `app/routers/family.py` の `GET /api/family/members` レスポンスに `display_name` を含める
+- [x] `alembic revision --autogenerate -m "add display_name to users"` でマイグレーションファイル生成
+- [x] マイグレーション内容確認（`display_name VARCHAR NULL` の追加のみであること）
+- [x] `alembic upgrade head` でマイグレーション適用
+- [x] `app/models/user.py` に `display_name` カラム追加
+- [x] `app/schemas/user.py` に `UserProfileUpdate` スキーマ追加・`UserResponse` に `display_name` 追加
+- [x] `app/schemas/family.py` の `FamilyMemberResponse` に `display_name` 追加
+- [x] `app/routers/auth.py` に `PATCH /api/auth/me` エンドポイント追加
+  - [x] 空文字を `null` に変換する処理
+  - [x] 50文字制限の検証
+- [x] `app/routers/family.py` の `GET /api/family/members` レスポンスに `display_name` を含める
 
 ### フロントエンド
 
-- [ ] `frontend/lib/types.ts` の `User` 型に `display_name: string | null` を追加
-- [ ] `frontend/lib/utils.ts`（または同等ファイル）に `getDisplayName()` ヘルパー関数を追加
-- [ ] `frontend/app/(dashboard)/settings/profile/page.tsx` 新規作成
-  - [ ] プロフィール表示（表示名 + ユーザー名）
-  - [ ] 編集ダイアログ（`react-hook-form` + `zod`、shadcn `Dialog`）
-  - [ ] `PATCH /api/auth/me` 呼び出し後に `mutate()` で SWR キャッシュ更新
-  - [ ] 成功トースト表示
-- [ ] `frontend/app/(dashboard)/settings/page.tsx` にプロフィールメニュー項目追加
-- [ ] `frontend/app/(dashboard)/layout.tsx` の `user.username` を `getDisplayName(user)` に置換
-- [ ] `frontend/components/settings/MemberList.tsx` の `member.username` を `getDisplayName(member)` に置換（ダイアログ内のタイトルも含む）
-- [ ] `MemberList` の `Member` インターフェースに `display_name: string | null` を追加
-- [ ] `cd frontend && npm run build` でビルド確認
+- [x] `frontend/lib/types.ts` の `User` 型に `display_name: string | null` を追加
+- [x] `frontend/lib/utils.ts`（または同等ファイル）に `getDisplayName()` ヘルパー関数を追加
+- [x] `frontend/app/(dashboard)/settings/profile/page.tsx` 新規作成
+  - [x] プロフィール表示（表示名 + ユーザー名）
+  - [x] 編集ダイアログ（`react-hook-form` + `zod`、shadcn `Dialog`）
+  - [x] `PATCH /api/auth/me` 呼び出し後に `mutate()` で SWR キャッシュ更新
+  - [x] 成功トースト表示
+- [x] `frontend/app/(dashboard)/settings/page.tsx` にプロフィールメニュー項目追加
+- [x] `frontend/app/(dashboard)/layout.tsx` の `user.username` を `getDisplayName(user)` に置換
+- [x] `frontend/components/settings/MemberList.tsx` の `member.username` を `getDisplayName(member)` に置換（ダイアログ内のタイトルも含む）
+- [x] `MemberList` の `Member` インターフェースに `display_name: string | null` を追加
+- [x] `cd frontend && npm run build` でビルド確認
 
 ---
 

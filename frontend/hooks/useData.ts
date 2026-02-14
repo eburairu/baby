@@ -20,7 +20,7 @@ export function useFamilySettings() {
 export function useFamilyMembers() {
     const { data, error, isLoading, mutate } = useSWR('/family/members', fetcher);
     return {
-        members: data as { user_id: number; username: string; role: string; joined_at: string }[] | undefined,
+        members: data as { user_id: number; username: string; display_name: string | null; role: string; joined_at: string }[] | undefined,
         isLoading,
         isError: error,
         mutate,
