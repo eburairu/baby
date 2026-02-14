@@ -2,13 +2,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/api';
 import { User } from '@/lib/types';
 
-
-export interface User {
-    id: number;
-    username: string;
-    family_id: number;
-    created_at: string;
-}
+export type { User };
 
 export function useUser() {
     const { data, error, isLoading, mutate } = useSWR<User>('/auth/me', fetcher, {
