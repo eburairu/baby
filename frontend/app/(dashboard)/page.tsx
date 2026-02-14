@@ -124,6 +124,11 @@ export default function Dashboard() {
                     <GrowthWidget babyId={effectiveId} />
                 </div>
 
+                {/* 育児日誌へのリンク */}
+                <Link href="/diary" className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors flex items-center justify-center">
+                    📔 育児日誌
+                </Link>
+
                 {/* 陣痛タイマーへのリンク */}
                 <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors flex items-center justify-center">
                         🤰 陣痛タイマー
