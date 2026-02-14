@@ -1,0 +1,23 @@
+from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index
+from sqlalchemy.sql import func
+from .base import Base
+
+
+class DailySummary(Base):
+    __tablename__ = "daily_summaries"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    summary_date = Column(Date, nullable=False)
+    generated_content = Column(Text, nullable=False)
+    edited_content = Column(Text, nullable=True)
+    is_edited = Column(Boolean, nullable=False, default=False)
+    model_name = Column(String, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("baby_id", "summary_date", name="uix_daily_summary_baby_date"),
+        Index("idx_daily_summary_baby_date", "baby_id", "summary_date"),
+    )
