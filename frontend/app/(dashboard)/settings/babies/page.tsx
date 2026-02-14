@@ -39,6 +39,7 @@ export default function BabySettingsPage() {
 
     const currentMember = members?.find((m) => m.username === user.username)
     const isAdmin = currentMember?.role === "admin"
+    const hasMemberUsers = members?.some((m) => m.role === "member") ?? false
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -84,6 +85,7 @@ export default function BabySettingsPage() {
                             key={baby.id}
                             baby={baby}
                             isAdmin={isAdmin}
+                            hasMemberUsers={hasMemberUsers}
                             onEdit={setEditTarget}
                             onDelete={setDeleteTarget}
                         />

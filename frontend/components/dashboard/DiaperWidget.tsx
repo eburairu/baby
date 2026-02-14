@@ -6,7 +6,7 @@ import { useDiapers } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ShieldOff } from "lucide-react"
 import { Diaper, DiaperType } from "@/types/diaper"
 
 interface Props {
@@ -14,8 +14,26 @@ interface Props {
 }
 
 export function DiaperWidget({ babyId }: Props) {
-    const { diapers, mutate } = useDiapers(babyId)
+    const { diapers, isError, mutate } = useDiapers(babyId)
     const [loading, setLoading] = useState(false)
+
+    const isAccessDenied = (isError as any)?.status === 403
+
+    if (isAccessDenied) {
+        return (
+            <Card className="bg-white rounded-2xl shadow-sm border-0 opacity-60">
+                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-1">
+                        👶 おむつ
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center py-6">
+                    <ShieldOff className="h-6 w-6 text-gray-300 mb-1" />
+                    <p className="text-[10px] text-gray-400">閲覧制限中</p>
+                </CardContent>
+            </Card>
+        )
+    }
 
     const todayDiapers = (diapers as unknown as Diaper[])?.filter((d) => isToday(d.change_time)) ?? []
     const wetCount = todayDiapers.filter((d) => d.diaper_type === DiaperType.WET || d.diaper_type === DiaperType.BOTH).length
