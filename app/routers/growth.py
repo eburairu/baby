@@ -12,13 +12,13 @@ router = APIRouter(prefix="/api/growths", tags=["growths"])
 
 @router.get("/", response_model=List[GrowthResponse])
 def get_growths(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, baby_id, current_user.id)
+    verify_baby_access(db, baby_id, current_user.id, record_type="growth")
     return db.query(Growth).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).all()
 
 
 @router.post("/", response_model=GrowthResponse)
 def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, growth_in.baby_id, current_user.id)
+    verify_baby_access(db, growth_in.baby_id, current_user.id, record_type="growth")
     new_growth = Growth(
         user_id=current_user.id,
         baby_id=growth_in.baby_id,
@@ -44,7 +44,7 @@ def update_growth(
     growth = db.query(Growth).filter(Growth.id == growth_id).first()
     if not growth:
         raise HTTPException(status_code=404, detail="Growth record not found")
-    verify_baby_access(db, growth.baby_id, current_user.id)
+    verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth")
 
     update_data = growth_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -60,7 +60,7 @@ def delete_growth(growth_id: int, db: Session = Depends(get_db), current_user: U
     growth = db.query(Growth).filter(Growth.id == growth_id).first()
     if not growth:
         raise HTTPException(status_code=404, detail="Growth record not found")
-    verify_baby_access(db, growth.baby_id, current_user.id)
+    verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth")
     db.delete(growth)
     db.commit()
     return {"message": "Deleted"}

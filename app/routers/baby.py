@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.family import FamilyUser
-from app.models.baby import Baby
+from app.models.baby import Baby, BabyPermission
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
 from app.models.diaper import Diaper
@@ -39,7 +39,22 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         return []
-    return db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
+
+    babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
+
+    # admin は全件返す
+    if family_user.role == "admin":
+        return babies
+
+    # member: BabyPermission で can_view=false の赤ちゃんを除外
+    hidden_baby_ids = set(
+        perm.baby_id for perm in db.query(BabyPermission).filter(
+            BabyPermission.user_id == current_user.id,
+            BabyPermission.record_type == "baby",
+            BabyPermission.can_view == False,
+        ).all()
+    )
+    return [b for b in babies if b.id not in hidden_baby_ids]
 
 
 @router.post("/", response_model=BabyResponse)
@@ -110,57 +125,75 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
 def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # "baby" レベルのアクセスチェック（record_type="baby" はデフォルトなので変更不要）
     verify_baby_access(db, baby_id, current_user.id)
+
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    is_admin = family_user and family_user.role == "admin"
+
+    def can_view_type(rt: str) -> bool:
+        if is_admin:
+            return True
+        perm = db.query(BabyPermission).filter(
+            BabyPermission.baby_id == baby_id,
+            BabyPermission.user_id == current_user.id,
+            BabyPermission.record_type == rt,
+        ).first()
+        return perm is None or perm.can_view
 
     records: List[UnifiedRecord] = []
 
-    for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).all():
-        records.append(UnifiedRecord(
-            id=feeding.id,
-            type="feeding",
-            timestamp=feeding.feeding_time,
-            details={
-                "feeding_type": feeding.feeding_type,
-                "amount_ml": feeding.amount_ml,
-                "duration_minutes": feeding.duration_minutes,
-                "notes": feeding.notes,
-            },
-        ))
+    if can_view_type("feeding"):
+        for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).all():
+            records.append(UnifiedRecord(
+                id=feeding.id,
+                type="feeding",
+                timestamp=feeding.feeding_time,
+                details={
+                    "feeding_type": feeding.feeding_type,
+                    "amount_ml": feeding.amount_ml,
+                    "duration_minutes": feeding.duration_minutes,
+                    "notes": feeding.notes,
+                },
+            ))
 
-    for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).all():
-        records.append(UnifiedRecord(
-            id=sleep.id,
-            type="sleep",
-            timestamp=sleep.start_time,
-            details={
-                "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
-                "notes": sleep.notes,
-            },
-        ))
+    if can_view_type("sleep"):
+        for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).all():
+            records.append(UnifiedRecord(
+                id=sleep.id,
+                type="sleep",
+                timestamp=sleep.start_time,
+                details={
+                    "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
+                    "notes": sleep.notes,
+                },
+            ))
 
-    for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).all():
-        records.append(UnifiedRecord(
-            id=diaper.id,
-            type="diaper",
-            timestamp=diaper.change_time,
-            details={
-                "diaper_type": diaper.diaper_type,
-                "notes": diaper.notes,
-            },
-        ))
+    if can_view_type("diaper"):
+        for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).all():
+            records.append(UnifiedRecord(
+                id=diaper.id,
+                type="diaper",
+                timestamp=diaper.change_time,
+                details={
+                    "diaper_type": diaper.diaper_type,
+                    "notes": diaper.notes,
+                },
+            ))
 
-    for growth in db.query(Growth).filter(Growth.baby_id == baby_id).all():
-        records.append(UnifiedRecord(
-            id=growth.id,
-            type="growth",
-            timestamp=datetime.combine(growth.measurement_date, datetime.min.time()),
-            details={
-                "weight_kg": growth.weight_kg,
-                "height_cm": growth.height_cm,
-                "head_circumference_cm": growth.head_circumference_cm,
-                "notes": growth.notes,
-            },
-        ))
+    if can_view_type("growth"):
+        for growth in db.query(Growth).filter(Growth.baby_id == baby_id).all():
+            records.append(UnifiedRecord(
+                id=growth.id,
+                type="growth",
+                timestamp=datetime.combine(growth.measurement_date, datetime.min.time()),
+                details={
+                    "weight_kg": growth.weight_kg,
+                    "height_cm": growth.height_cm,
+                    "head_circumference_cm": growth.head_circumference_cm,
+                    "notes": growth.notes,
+                },
+            ))
 
     records.sort(key=lambda r: r.timestamp, reverse=True)
     return records
@@ -168,9 +201,9 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
 
 @router.post("/{baby_id}/records", response_model=UnifiedRecord)
 def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, baby_id, current_user.id)
-
     record_type = record_in.type
+    verify_baby_access(db, baby_id, current_user.id, record_type=record_type)
+
     timestamp = record_in.timestamp
 
     if record_type == "feeding":

@@ -9,6 +9,7 @@ import ContractionGraph from "@/components/ContractionGraph"
 import { Button } from "@/components/ui/button"
 import type { ContractionRecord } from "@/types/contraction"
 import { PageLoading } from "@/components/ui/page-loading"
+import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, Timer } from "lucide-react"
 import Link from "next/link"
 
@@ -20,7 +21,7 @@ export default function ContractionPage() {
     const effectiveIdStr = storedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const selectedBabyId = effectiveIdStr ? parseInt(effectiveIdStr, 10) : null
 
-    const { contractions, isLoading: contractionsLoading, mutate } = useContractions(selectedBabyId)
+    const { contractions, isLoading: contractionsLoading, isError: contractionError, mutate } = useContractions(selectedBabyId)
 
     const handleRecorded = () => mutate()
     const handleDeleted = () => mutate()
@@ -37,6 +38,7 @@ export default function ContractionPage() {
         )
     }
 
+    const isAccessDenied = (contractionError as any)?.status === 403
     const typedContractions: ContractionRecord[] = contractions ?? []
 
     return (
@@ -58,44 +60,49 @@ export default function ContractionPage() {
             </header>
 
             <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
-
-                {/* Baby選択 */}
-                {babies.length > 1 && (
-                    <div className="flex gap-2">
-                        {babies.map((baby: { id: number; name: string }) => (
-                            <Button
-                                key={baby.id}
-                                variant={selectedBabyId === baby.id ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setStoredBabyId(String(baby.id))}
-                            >
-                                {baby.name}
-                            </Button>
-                        ))}
-                    </div>
-                )}
-
-                {/* 統計 */}
-                <ContractionStats contractions={typedContractions} />
-
-                {/* タイマー */}
-                {selectedBabyId && (
-                    <ContractionTimer
-                        babyId={selectedBabyId}
-                        onRecorded={handleRecorded}
-                    />
-                )}
-
-                {/* グラフ（2件以上の記録がある場合のみ表示） */}
-                {typedContractions.length >= 2 && (
-                    <ContractionGraph contractions={typedContractions} />
-                )}
-
-                {/* 履歴 */}
-                {contractionsLoading ? (
-                    <div className="text-center py-4 text-muted-foreground">記録を読み込み中...</div>
+                {isAccessDenied ? (
+                    <AccessDenied />
                 ) : (
-                    <ContractionHistory contractions={typedContractions} onDeleted={handleDeleted} />
+                    <>
+                        {/* Baby選択 */}
+                        {babies.length > 1 && (
+                            <div className="flex gap-2">
+                                {babies.map((baby: { id: number; name: string }) => (
+                                    <Button
+                                        key={baby.id}
+                                        variant={selectedBabyId === baby.id ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setStoredBabyId(String(baby.id))}
+                                    >
+                                        {baby.name}
+                                    </Button>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 統計 */}
+                        <ContractionStats contractions={typedContractions} />
+
+                        {/* タイマー */}
+                        {selectedBabyId && (
+                            <ContractionTimer
+                                babyId={selectedBabyId}
+                                onRecorded={handleRecorded}
+                            />
+                        )}
+
+                        {/* グラフ（2件以上の記録がある場合のみ表示） */}
+                        {typedContractions.length >= 2 && (
+                            <ContractionGraph contractions={typedContractions} />
+                        )}
+
+                        {/* 履歴 */}
+                        {contractionsLoading ? (
+                            <div className="text-center py-4 text-muted-foreground">記録を読み込み中...</div>
+                        ) : (
+                            <ContractionHistory contractions={typedContractions} onDeleted={handleDeleted} />
+                        )}
+                    </>
                 )}
             </main>
         </div>

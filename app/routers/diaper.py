@@ -12,13 +12,13 @@ router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
 @router.get("/", response_model=List[DiaperResponse])
 def get_diapers(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, baby_id, current_user.id)
+    verify_baby_access(db, baby_id, current_user.id, record_type="diaper")
     return db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).all()
 
 
 @router.post("/", response_model=DiaperResponse)
 def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, diaper_in.baby_id, current_user.id)
+    verify_baby_access(db, diaper_in.baby_id, current_user.id, record_type="diaper")
     new_diaper = Diaper(
         user_id=current_user.id,
         baby_id=diaper_in.baby_id,
@@ -37,7 +37,7 @@ def delete_diaper(diaper_id: int, db: Session = Depends(get_db), current_user: U
     diaper = db.query(Diaper).filter(Diaper.id == diaper_id).first()
     if not diaper:
         raise HTTPException(status_code=404, detail="Diaper record not found")
-    verify_baby_access(db, diaper.baby_id, current_user.id)
+    verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper")
     db.delete(diaper)
     db.commit()
     return {"message": "Deleted"}
@@ -48,7 +48,7 @@ def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends
     diaper = db.query(Diaper).filter(Diaper.id == diaper_id).first()
     if not diaper:
         raise HTTPException(status_code=404, detail="Diaper record not found")
-    verify_baby_access(db, diaper.baby_id, current_user.id)
+    verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper")
 
     if diaper_in.change_time:
         diaper.change_time = diaper_in.change_time
