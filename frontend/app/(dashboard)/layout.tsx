@@ -63,27 +63,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const isSettingsSubPage = pathname.startsWith("/settings/") && pathname !== "/settings"
 
     return (
-        <div className="min-h-screen bg-gray-100 font-sans">
-            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
+            <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-zinc-800">
                 <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         {isSettingsSubPage ? (
                             <Link href="/settings">
-                                <Button variant="ghost" size="icon" className="mr-1" aria-label="設定に戻る">
+                                <Button variant="ghost" size="icon" className="mr-1 dark:text-zinc-400" aria-label="設定に戻る">
                                     <ChevronLeft className="h-5 w-5" />
                                 </Button>
                             </Link>
                         ) : (
                             <Sheet>
                                 <SheetTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="mr-1" aria-label="メニューを開く">
+                                    <Button variant="ghost" size="icon" className="mr-1 dark:text-zinc-400" aria-label="メニューを開く">
                                         <Menu className="h-5 w-5" />
                                     </Button>
                                 </SheetTrigger>
-                                <SheetContent side="left">
+                                <SheetContent side="left" className="dark:bg-zinc-900 dark:border-zinc-800">
                                     <SheetHeader>
-                                        <SheetTitle>メニュー</SheetTitle>
-                                        <SheetDescription>
+                                        <SheetTitle className="dark:text-zinc-100">メニュー</SheetTitle>
+                                        <SheetDescription className="dark:text-zinc-400">
                                             機能を選択してください
                                         </SheetDescription>
                                     </SheetHeader>
@@ -91,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         {NAV_ITEMS.map((item) => (
                                             <SheetClose asChild key={item.href}>
                                                 <Link href={item.href} className="w-full">
-                                                    <Button variant="ghost" className="w-full justify-start text-lg h-12" aria-label={item.label}>
+                                                    <Button variant="ghost" className="w-full justify-start text-lg h-12 dark:text-zinc-300 dark:hover:bg-zinc-800" aria-label={item.label}>
                                                         <span className="mr-3 text-xl">{item.icon}</span>
                                                         {item.label}
                                                     </Button>
@@ -103,24 +103,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </Sheet>
                         )}
                         <Link href="/">
-                            <h1 className="text-xl font-bold tracking-tight text-gray-900">Baby App</h1>
+                            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-zinc-100">Baby App</h1>
                         </Link>
                     </div>
                     <div className="flex items-center gap-4">
                         {selectedBaby && (
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge variant="secondary" className="text-xs dark:bg-zinc-800 dark:text-zinc-300 border-0">
                                 🍼 {selectedBaby.name}
                             </Badge>
                         )}
-                        <span className="text-sm text-gray-500 hidden sm:inline-block">
+                        <span className="text-sm text-gray-500 dark:text-zinc-400 hidden sm:inline-block">
                             Welcome, {user && getDisplayName(user)}
                         </span>
                         <Link href="/settings">
-                            <Button variant="ghost" size="icon" className="text-gray-500" aria-label="設定">
+                            <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400" aria-label="設定">
                                 <Settings className="h-5 w-5" />
                             </Button>
                         </Link>
-                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-500" aria-label="ログアウト">Logout</Button>
+                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-500 dark:text-zinc-400" aria-label="ログアウト">Logout</Button>
                     </div>
                 </div>
             </header>

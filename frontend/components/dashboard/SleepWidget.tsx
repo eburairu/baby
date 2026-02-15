@@ -22,15 +22,15 @@ export function SleepWidget({ babyId }: Props) {
 
     if (isAccessDenied) {
         return (
-            <Card className="bg-white rounded-2xl shadow-sm border-0 opacity-60">
+            <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-1">
+                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
                         💤 睡眠
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center py-6">
-                    <ShieldOff className="h-6 w-6 text-gray-300 mb-1" />
-                    <p className="text-[10px] text-gray-400">閲覧制限中</p>
+                    <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
+                    <p className="text-[10px] text-gray-400 dark:text-zinc-600">閲覧制限中</p>
                 </CardContent>
             </Card>
         )
@@ -84,9 +84,9 @@ export function SleepWidget({ babyId }: Props) {
     }
 
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
+        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium text-indigo-500 flex items-center gap-1">
+                <CardTitle className="text-sm font-medium text-indigo-500 dark:text-indigo-400 flex items-center gap-1">
                     💤 睡眠
                     {isSleeping && (
                         <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
@@ -96,7 +96,7 @@ export function SleepWidget({ babyId }: Props) {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-indigo-500"
+                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 dark:text-zinc-600"
                         aria-label="睡眠詳細"
                         title="詳細を見る"
                     >
@@ -108,26 +108,26 @@ export function SleepWidget({ babyId }: Props) {
                 <div>
                     {isSleeping ? (
                         <>
-                            <p className="text-lg font-bold text-indigo-600">睡眠中</p>
-                            <p className="text-2xl font-bold text-gray-800">{elapsed}</p>
+                            <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">睡眠中</p>
+                            <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
                         </>
                     ) : (
                         <>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">
                                 {lastElapsed ? `${lastElapsed}に起床` : "記録なし"}
                             </p>
                         </>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">今日の合計: {todayTotal}</p>
+                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
                 </div>
                 {canWrite && (
                     <Button
                         size="sm"
                         loading={loading}
                         onClick={isSleeping ? handleEnd : handleStart}
-                        className={`w-full text-xs h-8 border-0 ${isSleeping
-                                ? "bg-indigo-500 text-white hover:bg-indigo-600"
-                                : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                        className={`w-full text-xs h-8 border-0 transition-colors ${isSleeping
+                                ? "bg-indigo-500 dark:bg-indigo-600 text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"
+                                : "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
                             }`}
                         variant="outline"
                     >
