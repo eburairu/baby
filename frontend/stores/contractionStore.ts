@@ -5,7 +5,7 @@ interface ContractionTimerState {
     status: TimerStatus
     startTime: Date | null
     elapsedSeconds: number
-    start: () => void
+    start: (offsetMs?: number) => void
     stop: () => { startTime: Date; endTime: Date; durationSeconds: number } | null
     tick: () => void
     reset: () => void
@@ -16,11 +16,13 @@ export const useContractionTimer = create<ContractionTimerState>((set, get) => (
     startTime: null,
     elapsedSeconds: 0,
 
-    start: () => {
+    start: (offsetMs = 0) => {
+        const startTime = new Date(Date.now() - offsetMs)
+        const elapsedSeconds = Math.round(offsetMs / 1000)
         set({
             status: 'timing',
-            startTime: new Date(),
-            elapsedSeconds: 0,
+            startTime,
+            elapsedSeconds,
         })
     },
 

@@ -28,6 +28,7 @@ export default function ContractionPage() {
 
     const handleRecorded = () => mutate()
     const handleDeleted = () => mutate()
+    const handleUpdated = () => mutate()
 
     if (babiesLoading) {
         return <PageLoading />
@@ -101,6 +102,7 @@ export default function ContractionPage() {
                             <ContractionHistory
                                 contractions={typedContractions}
                                 onDeleted={handleDeleted}
+                                onUpdated={handleUpdated}
                                 canWrite={canWrite}
                             />
                         )}
