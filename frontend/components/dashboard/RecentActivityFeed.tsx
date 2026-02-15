@@ -45,8 +45,8 @@ export function RecentActivityFeed({ babyId }: Props) {
                                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                                         {TYPE_LABELS[record.type] ?? record.type}
                                     </p>
-                                    {record.notes && (
-                                        <p className="text-xs text-gray-400 dark:text-zinc-500 truncate">{record.notes}</p>
+                                    {record.details.notes && (
+                                        <p className="text-xs text-gray-400 dark:text-zinc-500 truncate">{record.details.notes}</p>
                                     )}
                                 </div>
                                 <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">

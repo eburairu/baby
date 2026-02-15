@@ -53,12 +53,12 @@ function useBabyResource<T>(endpoint: string, babyId: string | number | null) {
 
 export interface BabyRecord {
     id: number;
-    baby_id: number;
-    type: 'feeding' | 'sleep' | 'diaper' | 'growth' | 'contraction';
+    type: 'feeding' | 'sleep' | 'diaper' | 'growth' | 'contraction' | 'note';
     timestamp: string;
-    notes?: string;
-    // Add other common fields or union types if necessary
-    [key: string]: any;
+    details: {
+        notes?: string;
+        [key: string]: any;
+    };
 }
 
 export function useRecords(babyId: string | null) {
