@@ -1,6 +1,6 @@
 # PWA (Progressive Web App) 対応仕様書
 
-本ドキュメントは、Baby-App を Progressive Web App (PWA) に対応させるための仕様と実装詳細を定義します。
+本ドキュメントは、Baby App を Progressive Web App (PWA) に対応させるための仕様と実装詳細を定義します。
 
 ## 1. 目的
 
@@ -22,8 +22,8 @@
 
 | 項目 | 設定値 | 備考 |
 | :--- | :--- | :--- |
-| `name` | Baby Log | アプリの完全名称 |
-| `short_name` | BabyLog | ホーム画面などに表示される短縮名 |
+| `name` | Baby App | アプリの完全名称 |
+| `short_name` | BabyApp | ホーム画面などに表示される短縮名 |
 | `description` | 家族で共有する育児記録アプリ | |
 | `start_url` | `/` | アプリ起動時のURL |
 | `display` | `standalone` | ブラウザUIを非表示にし、ネイティブアプリのように表示 |
@@ -93,13 +93,13 @@ export default withPWA(nextConfig);
 ```typescript
 // frontend/app/layout.tsx
 export const metadata: Metadata = {
-  title: "Baby Log",
+  title: "Baby App",
   description: "家族で共有する育児記録アプリ",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Baby Log",
+    title: "Baby App",
   },
   icons: {
     icon: "/favicon.ico", // または SVG
