@@ -11,6 +11,7 @@ __pycache__/
 frontend/out/
 frontend/.next/
 frontend/node_modules/
+node_modules/
 
 # SQLite（ローカルテスト用）
 *.db

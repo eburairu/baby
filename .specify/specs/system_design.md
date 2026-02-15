@@ -35,6 +35,7 @@ Baby-App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 - **State Management**: Zustand
 - **Data Fetching**: SWR
 - **Validation**: Zod + React Hook Form
+- **PWA**: @ducanh2912/next-pwa (Offline support, Installable)
 
 ### Backend
 
