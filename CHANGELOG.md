@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/eburairu/baby/compare/v1.6.2...v1.6.3) (2026-02-15)
+
+
+### Bug Fixes
+
+* switch to backend-proxied upload to avoid CORS issues with R2 ([1c16ea8](https://github.com/eburairu/baby/commit/1c16ea87aec2a1c952e3f8ba770842a757585edd))
+
 ## [1.6.2](https://github.com/eburairu/baby/compare/v1.6.1...v1.6.2) (2026-02-15)
 
 
