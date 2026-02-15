@@ -1,4 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#4F46E5" />
-  <text x="50%" y="50%" font-family="Arial" font-size="200" fill="white" text-anchor="middle" dy=".3em">BL</text>
+  <defs>
+    <linearGradient id="bottleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F8FAFC;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F1F5F9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="#4F46E5" />
+  
+  <!-- Nipple -->
+  <path d="M256 100c-20 0-35 15-35 35v25h70v-25c0-20-15-35-35-35z" fill="#FBCFE8" />
+  
+  <!-- Cap -->
+  <rect x="196" y="160" width="120" height="30" rx="8" fill="#94A3B8" />
+  
+  <!-- Bottle Body -->
+  <path d="M206 190h100c8 0 15 7 15 15v170c0 25-15 45-40 45H231c-25 0-40-20-40-45V205c0-8 7-15 15-15z" fill="url(#bottleGradient)" />
+  
+  <!-- Milk level -->
+  <path d="M191 280h130v80c0 25-15 45-40 45H231c-25 0-40-20-40-45V280z" fill="#FEF9C3" opacity="0.9" />
+  
+  <!-- Scale Lines -->
+  <rect x="275" y="225" width="20" height="5" rx="2" fill="#CBD5E1" />
+  <rect x="275" y="255" width="20" height="5" rx="2" fill="#CBD5E1" />
+  <rect x="275" y="285" width="20" height="5" rx="2" fill="#94A3B8" />
+  <rect x="275" y="315" width="20" height="5" rx="2" fill="#94A3B8" />
+  <rect x="275" y="345" width="20" height="5" rx="2" fill="#94A3B8" />
 </svg>
