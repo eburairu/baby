@@ -14,7 +14,8 @@ import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, TrendingUp } from "lucide-react"
 import Link from "next/link"
-import type { Growth } from "@/types/growth"
+import { Growth } from "@/types/growth"
+import { isApiError } from "@/lib/api"
 
 export default function GrowthPage() {
     const searchParams = useSearchParams()
@@ -49,7 +50,7 @@ export default function GrowthPage() {
         )
     }
 
-    const isAccessDenied = (growthError as any)?.status === 403
+    const isAccessDenied = isApiError(growthError) && growthError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50">

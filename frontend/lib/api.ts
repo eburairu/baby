@@ -12,6 +12,10 @@ export class ApiError extends Error {
     }
 }
 
+export function isApiError(error: unknown): error is ApiError {
+    return error instanceof ApiError;
+}
+
 async function parseErrorBody(res: Response): Promise<unknown> {
     const text = await res.text();
     try {
