@@ -70,6 +70,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         name=baby_in.name,
         birthday=baby_in.birthday,
         due_date=baby_in.due_date,
+        gender=baby_in.gender,
         characteristics=baby_in.characteristics,
     )
     db.add(new_baby)
@@ -126,15 +127,22 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     is_admin = family_user and family_user.role == "admin"
 
+    # Pre-fetch permissions ONLY if not admin
+    permissions = {}
+    if not is_admin:
+        permissions = {
+            perm.record_type: perm.can_view
+            for perm in db.query(BabyPermission).filter(
+                BabyPermission.baby_id == baby_id,
+                BabyPermission.user_id == current_user.id
+            ).all()
+        }
+
     def can_view_type(rt: str) -> bool:
         if is_admin:
             return True
-        perm = db.query(BabyPermission).filter(
-            BabyPermission.baby_id == baby_id,
-            BabyPermission.user_id == current_user.id,
-            BabyPermission.record_type == rt,
-        ).first()
-        return perm is None or perm.can_view
+        # If permission record exists, use its value. Otherwise default to True.
+        return permissions.get(rt, True)
 
     records: List[UnifiedRecord] = []
 
@@ -181,11 +189,11 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             records.append(UnifiedRecord(
                 id=growth.id,
                 type="growth",
-                timestamp=datetime.combine(growth.measurement_date, datetime.min.time()),
+                timestamp=datetime.combine(growth.date, datetime.min.time()),
                 details={
-                    "weight_kg": growth.weight_kg,
-                    "height_cm": growth.height_cm,
-                    "head_circumference_cm": growth.head_circumference_cm,
+                    "weight_kg": growth.weight / 1000.0 if growth.weight else None,
+                    "height_cm": growth.height,
+                    "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
                 },
             ))
@@ -257,7 +265,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
         new_record = Growth(
             user_id=current_user.id,
             baby_id=baby_id,
-            measurement_date=timestamp.date(),
+            date=timestamp.date(),
         )
         db.add(new_record)
         db.commit()
@@ -265,7 +273,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
         return UnifiedRecord(
             id=new_record.id,
             type="growth",
-            timestamp=datetime.combine(new_record.measurement_date, datetime.min.time()),
+            timestamp=datetime.combine(new_record.date, datetime.min.time()),
             details={"weight_kg": None, "height_cm": None, "head_circumference_cm": None, "notes": None},
         )
 
