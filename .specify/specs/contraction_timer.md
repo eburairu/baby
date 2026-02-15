@@ -18,6 +18,7 @@
 ### F1: 陣痛タイマー (ストップウォッチ)
 
 - **開始ボタン**: 陣痛の開始時刻を記録し、経過時間のカウントを開始する
+- **1分前から開始ボタン (New)**: 陣痛が既にはじまっている場合に、現在時刻の1分前を `start_time` として記録し計測を開始する（操作遅れをカバーする）
 - **停止ボタン**: 陣痛の終了時刻を記録し、持続時間を自動算出する
 - **リアルタイム表示**: 経過秒数を `MM:SS` 形式でリアルタイム表示する
 - **状態管理**: タイマーの状態（idle / timing）を Zustand ストアで管理する
@@ -33,6 +34,11 @@
     - 開始時刻
     - 持続時間（秒 → `M分S秒` 形式）
     - 前回からの間隔（秒 → `M分S秒` 形式）
+- **編集機能 (New)**: 記録済みの `start_time`, `end_time`（または `duration_seconds`）, `notes` を編集できる
+- **再計算ロジック**: 
+    - `start_time` を編集した場合、その記録の `interval_seconds` および **「直後の記録（時系列で次）」の `interval_seconds`** を再計算する。
+    - `end_time` を編集した場合、`duration_seconds` を再計算する。
+- **バリデーション**: `end_time` は必ず `start_time` より後でなければならない。
 - 個別の記録を削除できる
 
 ### F3: 統計サマリー
@@ -68,7 +74,7 @@
     - Recharts 標準のアニメーションに加え、計測中の最新データポイントを動的に追加し、リアルタイムで波が右端に描画される。
 - **技術スタック**: 
     - **Recharts** (`AreaChart`, `Area`, `XAxis`, `Tooltip`, `ResponsiveContainer`)
-    - **framer-motion** (コンテナの登場アニメーション等)
+    - **framer-motion** (コンテナ의登場アニメーション等)
 - **データ変換ロジック**:
     - 陣痛記録を Recharts 用の時系列配列（`{ time: string, value: number, duration?: number, ... }`）に変換する。
     - 1つの陣痛を複数のデータポイント（開始、ピーク、終了）で表現し、`monotone` 補間によって滑らかな山を作る。
@@ -105,12 +111,13 @@
 └─────────────────────────────────┘
 ```
 
-## バックエンド API (既存)
+## バックエンド API (既存 & 拡張)
 
-以下の API は既に実装済み:
+以下の API を使用:
 
-- `GET /api/contractions/?baby_id={id}` - 陣痛記録一覧取得（`order_by(start_time.desc())`で降順）
+- `GET /api/contractions/?baby_id={id}` - 陣痛記録一覧取得
 - `POST /api/contractions/` - 陣痛記録作成
+- `PATCH /api/contractions/{id}` - 陣痛記録更新 (New)
 - `DELETE /api/contractions/{id}` - 陣痛記録削除
 
 ### リクエスト/レスポンス スキーマ
@@ -123,6 +130,14 @@ interface ContractionCreate {
   end_time?: string     // ISO 8601
   duration_seconds?: number
   interval_seconds?: number
+  notes?: string
+}
+
+// PATCH リクエスト (New)
+interface ContractionUpdate {
+  start_time?: string
+  end_time?: string
+  duration_seconds?: number
   notes?: string
 }
 
@@ -143,7 +158,7 @@ interface ContractionTimerState {
   startTime: Date | null
   elapsedSeconds: number
   // actions
-  start: () => void
+  start: (offsetMs?: number) => void // offsetMs: 過去に遡って開始する場合（例: 1分前なら 60000）
   stop: () => { startTime: Date; endTime: Date; durationSeconds: number }
   reset: () => void
   tick: () => void
@@ -171,3 +186,4 @@ interface ContractionTimerState {
 | 1.1 | 2026-02-13 | F1に`interval_seconds`自動計算仕様追記、ボタン大型化仕様追記、F3の5-1-1ルールロジック修正、F4「陣痛グラフ」新規追加 |
 | 1.2 | 2026-02-15 | 陣痛グラフを「波形UI (Waveform UI)」に一新。ベジェ曲線を用いた滑らかな描画とアニメーション要件を追加。 |
 | 1.3 | 2026-02-15 | 波形UIを Recharts ベースにアップグレード。インタラクティブなツールチップ、精緻な曲線補間、レスポンシブ対応を強化。 |
+| 1.4 | 2026-02-16 | 「1分前からの計測開始ボタン」および「記録の編集機能」を追加。PATCH API仕様を定義。 |
