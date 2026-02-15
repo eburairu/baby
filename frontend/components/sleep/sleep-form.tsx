@@ -60,7 +60,7 @@ export function SleepForm({ babyId }: Props) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="w-full bg-white text-indigo-600 border-indigo-100 hover:bg-indigo-50 hover:text-indigo-700 h-12 rounded-xl shadow-sm">
+                <Button variant="outline" className="w-full bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-zinc-800 hover:bg-indigo-50 dark:hover:bg-zinc-800 hover:text-indigo-700 dark:hover:text-indigo-300 h-12 rounded-xl shadow-sm transition-colors">
                     <Plus className="mr-2 h-4 w-4" />
                     手動で記録を追加
                 </Button>
@@ -77,9 +77,9 @@ export function SleepForm({ babyId }: Props) {
                                 name="start_time"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>開始日時</FormLabel>
+                                        <FormLabel className="dark:text-zinc-300">開始日時</FormLabel>
                                         <FormControl>
-                                            <Input type="datetime-local" {...field} />
+                                            <Input type="datetime-local" {...field} className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -90,9 +90,9 @@ export function SleepForm({ babyId }: Props) {
                                 name="end_time"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>終了日時 (任意)</FormLabel>
+                                        <FormLabel className="dark:text-zinc-300">終了日時 (任意)</FormLabel>
                                         <FormControl>
-                                            <Input type="datetime-local" {...field} />
+                                            <Input type="datetime-local" {...field} className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -104,15 +104,15 @@ export function SleepForm({ babyId }: Props) {
                             name="notes"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>メモ</FormLabel>
+                                    <FormLabel className="dark:text-zinc-300">メモ</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="例: 抱っこで寝落ち" {...field} />
+                                        <Textarea placeholder="例: 抱っこで寝落ち" {...field} className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={form.formState.isSubmitting}>
+                        <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white shadow-none" disabled={form.formState.isSubmitting}>
                             {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             記録する
                         </Button>

@@ -17,7 +17,7 @@ export function GrowthWidget({ babyId }: Props) {
 
     if (isAccessDenied) {
         return (
-            <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
+            <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                     <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
                         📏 成長
@@ -38,7 +38,7 @@ export function GrowthWidget({ babyId }: Props) {
         : null
 
     return (
-        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
+        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium text-emerald-500 dark:text-emerald-400 flex items-center gap-1">
                     📏 成長
