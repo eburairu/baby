@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useGrowths } from "@/hooks/useData"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
+import { isApiError } from "@/lib/api"
 
 interface Props {
     babyId: string
@@ -12,7 +13,7 @@ interface Props {
 export function GrowthWidget({ babyId }: Props) {
     const { growths, isError } = useGrowths(babyId)
 
-    const isAccessDenied = (isError as any)?.status === 403
+    const isAccessDenied = isApiError(isError) && isError.status === 403
 
     if (isAccessDenied) {
         return (

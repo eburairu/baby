@@ -11,6 +11,7 @@ import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { Smile, Droplets } from "lucide-react"
 import Link from "next/link"
+import { isApiError } from "@/lib/api"
 
 export default function DiaperPage() {
     const router = useRouter()
@@ -29,7 +30,7 @@ export default function DiaperPage() {
     if (babiesLoading) return <PageLoading />
     if (!effectiveBabyId) return <div className="p-4 text-center mt-10">赤ちゃんが登録されていません</div>
 
-    const isAccessDenied = (diaperError as any)?.status === 403
+    const isAccessDenied = isApiError(diaperError) && diaperError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
@@ -47,7 +48,7 @@ export default function DiaperPage() {
                     <AccessDenied />
                 ) : (
                     <>
-                        <DiaperStats diapers={(diapers as unknown as Diaper[]) || []} />
+                        <DiaperStats diapers={diapers || []} />
 
                         <DiaperForm
                             babyId={effectiveBabyId}
@@ -55,7 +56,7 @@ export default function DiaperPage() {
                         />
 
                         <DiaperHistory
-                            diapers={(diapers as unknown as Diaper[]) || []}
+                            diapers={diapers || []}
                             onDeleteSuccess={() => mutate()}
                         />
                     </>

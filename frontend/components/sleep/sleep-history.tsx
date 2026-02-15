@@ -5,9 +5,9 @@ import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,8 +20,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Pencil, Trash2, Moon, Sun } from "lucide-react"
+import { Pencil, Trash2, Moon } from "lucide-react"
 import { formatDuration } from "@/lib/ageUtils"
+import { Sleep } from "@/types/sleep"
 
 interface Props {
     babyId: string
@@ -29,7 +30,7 @@ interface Props {
 
 export function SleepHistory({ babyId }: Props) {
     const { sleeps, mutate } = useSleeps(babyId)
-    const [editingSleep, setEditingSleep] = useState<any>(null)
+    const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
