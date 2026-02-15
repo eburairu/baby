@@ -1,6 +1,6 @@
 {
   "name": "baby-app",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "test:backend": "./.venv/bin/python -m pytest",
     "test:frontend": "cd frontend && npm run test",
