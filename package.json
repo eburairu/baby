@@ -8,5 +8,13 @@
     "build:frontend": "cd frontend && npm run build",
     "start:backend": "./.venv/bin/python -m uvicorn app.main:app --reload",
     "migrate": "./.venv/bin/python -m alembic upgrade head"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/npm": "^13.1.4",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "semantic-release": "^25.0.3"
   }
 }
