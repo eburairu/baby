@@ -1,4 +1,4 @@
-import os
+
 import secrets
 from datetime import datetime, timedelta
 
@@ -13,11 +13,10 @@ from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser
 from app.services.auth import verify_password, get_password_hash
+from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-SESSION_EXPIRE_DAYS = 7
-COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 
 
 def _create_session(db: Session, user_id: int) -> str:
