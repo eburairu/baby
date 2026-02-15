@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronLeft, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/hooks/useAuth"
 import { useBabies } from "@/hooks/useData"
@@ -43,11 +43,6 @@ export default function BabySettingsPage() {
             {/* sticky header */}
             <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm h-14 flex items-center justify-between px-4">
                 <div className="flex items-center">
-                    <Link href="/">
-                        <Button variant="ghost" size="icon" className="mr-2">
-                            <ChevronLeft className="h-5 w-5" />
-                        </Button>
-                    </Link>
                     <h1 className="text-base font-semibold text-gray-900">赤ちゃん管理</h1>
                 </div>
                 {isAdmin && (
