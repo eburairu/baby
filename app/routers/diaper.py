@@ -11,9 +11,15 @@ router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
 
 @router.get("/", response_model=List[DiaperResponse])
-def get_diapers(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_diapers(
+    baby_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     verify_baby_access(db, baby_id, current_user.id, record_type="diaper")
-    return db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).all()
+    return db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).offset(skip).limit(limit).all()
 
 
 @router.post("/", response_model=DiaperResponse)
