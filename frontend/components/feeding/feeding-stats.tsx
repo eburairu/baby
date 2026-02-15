@@ -17,7 +17,7 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
         : "記録なし";
 
     return (
-        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 mb-6 transition-colors">
+        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 mb-6 transition-colors">
             <CardContent className="pt-6">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-rose-50 dark:bg-rose-950/30 rounded-xl p-4 flex items-center gap-3">

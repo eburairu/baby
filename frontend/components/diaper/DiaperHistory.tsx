@@ -61,33 +61,33 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
         switch (type) {
             case DiaperType.WET:
                 return {
-                    bg: "bg-blue-50",
-                    border: "border-blue-100",
-                    text: "text-blue-700",
+                    bg: "bg-blue-50 dark:bg-blue-950/30",
+                    border: "border-blue-100 dark:border-blue-900/50",
+                    text: "text-blue-700 dark:text-blue-400",
                     icon: "💧",
                     label: "おしっこ"
                 }
             case DiaperType.DIRTY:
                 return {
-                    bg: "bg-amber-50",
-                    border: "border-amber-100",
-                    text: "text-amber-700",
+                    bg: "bg-amber-50 dark:bg-amber-950/30",
+                    border: "border-amber-100 dark:border-amber-900/50",
+                    text: "text-amber-700 dark:text-amber-400",
                     icon: "💩",
                     label: "うんち"
                 }
             case DiaperType.BOTH:
                 return {
-                    bg: "bg-purple-50",
-                    border: "border-purple-100",
-                    text: "text-purple-700",
+                    bg: "bg-purple-50 dark:bg-purple-950/30",
+                    border: "border-purple-100 dark:border-purple-900/50",
+                    text: "text-purple-700 dark:text-purple-400",
                     icon: "💧💩",
                     label: "両方"
                 }
             default:
                 return {
-                    bg: "bg-gray-50",
-                    border: "border-gray-100",
-                    text: "text-gray-700",
+                    bg: "bg-gray-50 dark:bg-zinc-800/50",
+                    border: "border-gray-100 dark:border-zinc-700",
+                    text: "text-gray-700 dark:text-zinc-400",
                     icon: "?",
                     label: "不明"
                 }
@@ -96,31 +96,31 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
 
     return (
         <>
-            <Card className="bg-white rounded-2xl shadow-sm border-0">
+            <Card className="rounded-2xl shadow-sm border-0 transition-colors">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-500">最近の記録</CardTitle>
+                    <CardTitle className="text-sm font-medium text-gray-500 dark:text-zinc-500">最近の記録</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {diapers.length === 0 && <p className="text-sm text-gray-400 text-center py-4">記録がありません</p>}
+                    {diapers.length === 0 && <p className="text-sm text-gray-400 dark:text-zinc-500 text-center py-4">記録がありません</p>}
 
                     {diapers.map((diaper) => {
                         const style = getStyles(diaper.diaper_type)
                         return (
                             <div
                                 key={diaper.id}
-                                className={`flex items-center justify-between p-3 rounded-xl border ${style.bg} ${style.border}`}
+                                className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${style.bg} ${style.border}`}
                             >
                                 <div className="flex items-center gap-3">
                                     <span className="text-2xl">{style.icon}</span>
                                     <div>
                                         <div className={`text-sm font-bold ${style.text}`}>
                                             {style.label}
-                                            <span className="text-xs font-normal text-gray-500 ml-2">
+                                            <span className="text-xs font-normal text-gray-500 dark:text-zinc-500 ml-2">
                                                 {formatDate(diaper.change_time)}
                                             </span>
                                         </div>
                                         {diaper.notes && (
-                                            <div className="text-xs text-gray-600 mt-0.5">{diaper.notes}</div>
+                                            <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{diaper.notes}</div>
                                         )}
                                     </div>
                                 </div>
@@ -129,7 +129,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-transparent"
+                                            className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-transparent"
                                             onClick={() => handleEdit(diaper)}
                                         >
                                             <Pencil className="h-4 w-4" />
@@ -137,7 +137,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-transparent"
+                                            className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-transparent"
                                             onClick={() => setDeleteTargetId(diaper.id)}
                                         >
                                             <Trash2 className="h-4 w-4" />

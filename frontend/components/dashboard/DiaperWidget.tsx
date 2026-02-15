@@ -23,7 +23,7 @@ export function DiaperWidget({ babyId }: Props) {
 
     if (isAccessDenied) {
         return (
-            <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
+            <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                     <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
                         👶 おむつ
@@ -63,7 +63,7 @@ export function DiaperWidget({ babyId }: Props) {
     }
 
     return (
-        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
+        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium text-amber-500 dark:text-amber-400 flex items-center gap-1">
                     👶 おむつ

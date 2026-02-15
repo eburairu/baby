@@ -27,7 +27,7 @@ export function RecentActivityFeed({ babyId }: Props) {
     const recent = records?.slice(0, 10) ?? []
 
     return (
-        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
+        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-700 dark:text-zinc-300">最近の記録</CardTitle>
             </CardHeader>
