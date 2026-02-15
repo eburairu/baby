@@ -39,14 +39,23 @@ def get_baby_permissions(
 
     record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule"]
     
+    # 3. 全メンバーの BabyPermission を一括取得（N+1 の解消）
+    member_user_ids = [u.id for _, u in members]
+    all_perms = db.query(BabyPermission).filter(
+        BabyPermission.baby_id == baby_id,
+        BabyPermission.user_id.in_(member_user_ids)
+    ).all()
+
+    # ユーザーごとの権限マップを作成 {user_id: {record_type: can_view}}
+    perms_by_user = {}
+    for p in all_perms:
+        if p.user_id not in perms_by_user:
+            perms_by_user[p.user_id] = {}
+        perms_by_user[p.user_id][p.record_type] = p.can_view
+
     response_members = []
     for fu, u in members:
-        # 3. 各ユーザーについて BabyPermission を検索
-        perms = db.query(BabyPermission).filter(
-            BabyPermission.baby_id == baby_id,
-            BabyPermission.user_id == u.id
-        ).all()
-        perm_dict = {p.record_type: p.can_view for p in perms}
+        perm_dict = perms_by_user.get(u.id, {})
         
         user_perms = []
         for rt in record_types:

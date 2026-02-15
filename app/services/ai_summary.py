@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import date, datetime, timedelta, timezone
 from typing import Tuple
 from sqlalchemy.orm import Session
@@ -8,6 +9,8 @@ from app.models.feeding import Feeding
 from app.models.sleep import Sleep
 from app.models.diaper import Diaper
 from app.models.growth import Growth
+
+logger = logging.getLogger(__name__)
 
 
 def get_llm_client() -> Tuple[OpenAI, str]:
@@ -211,7 +214,7 @@ def update_baby_characteristics(
             update_baby(db, baby, {"characteristics": new_characteristics})
 
     except Exception as e:
-        print(f"Failed to update characteristics: {e}")
+        logger.error(f"Failed to update characteristics: {e}")
         # 特徴更新の失敗は日誌生成自体を失敗させない（ログ出力のみ）
 
 
@@ -258,7 +261,6 @@ def generate_daily_summary(
         temperature=0.7,
     )
 
-    content = response.choices[0].message.content or ""
     content = response.choices[0].message.content or ""
     generated_text = content.strip()
 

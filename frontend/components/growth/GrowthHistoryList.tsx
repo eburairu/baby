@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
 import { Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
@@ -15,10 +14,11 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import type { Growth } from "@/types/growth"
 
 interface GrowthHistoryListProps {
-    records: any[]
-    onEdit: (record: any) => void
+    records: Growth[]
+    onEdit: (record: Growth) => void
     onDeleteSuccess: () => void
 }
 
