@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Loader2 } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Loader2, ImagePlus, X } from "lucide-react"
+import Image from "next/image"
 import {
     Dialog,
     DialogContent,
@@ -12,35 +13,88 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { DailySummary } from "@/types/dailySummary"
+import { compressImage, ImageTooLargeError } from "@/lib/imageCompression"
+import { uploadImage } from "@/lib/uploadImage"
+
+const MAX_IMAGES = 10
 
 interface DiaryEditDialogProps {
     summary: DailySummary | null
     open: boolean
     onOpenChange: (open: boolean) => void
-    onSave: (summaryDate: string, editedContent: string | null) => Promise<void>
+    onSave: (summaryDate: string, editedContent: string | null, imageUrls: string[]) => Promise<void>
+    canWrite?: boolean
 }
 
-export function DiaryEditDialog({ summary, open, onOpenChange, onSave }: DiaryEditDialogProps) {
+export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite = true }: DiaryEditDialogProps) {
     const [content, setContent] = useState("")
+    const [pendingImages, setPendingImages] = useState<string[]>([])
+    const [isUploading, setIsUploading] = useState(false)
+    const [uploadError, setUploadError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
-    // ダイアログが開いたときに AI 生成文（または編集済み内容）を初期値としてセット
     useEffect(() => {
         if (open && summary) {
             setContent(summary.edited_content ?? summary.generated_content)
+            setPendingImages(summary.image_urls ?? [])
+            setUploadError(null)
         }
     }, [open, summary])
 
-    const handleOpenChange = (isOpen: boolean) => {
-        onOpenChange(isOpen)
+    const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files ?? [])
+        if (files.length === 0) return
+
+        // ファイル形式チェック
+        const nonImages = files.filter((f) => !f.type.startsWith("image/"))
+        if (nonImages.length > 0) {
+            setUploadError("画像ファイルを選択してください")
+            e.target.value = ""
+            return
+        }
+
+        // 枚数上限チェック
+        if (pendingImages.length + files.length > MAX_IMAGES) {
+            setUploadError(`写真は最大 ${MAX_IMAGES} 枚まで添付できます`)
+            e.target.value = ""
+            return
+        }
+
+        setUploadError(null)
+        setIsUploading(true)
+        const newUrls: string[] = []
+
+        try {
+            for (const file of files) {
+                const compressed = await compressImage(file)
+                const url = await uploadImage(compressed)
+                newUrls.push(url)
+            }
+            setPendingImages((prev) => [...prev, ...newUrls])
+        } catch (err) {
+            if (err instanceof ImageTooLargeError) {
+                setUploadError(err.message)
+            } else if (err instanceof Error) {
+                setUploadError(err.message)
+            } else {
+                setUploadError("写真のアップロードに失敗しました。再度お試しください")
+            }
+        } finally {
+            setIsUploading(false)
+            e.target.value = ""
+        }
+    }
+
+    const handleRemoveImage = (url: string) => {
+        setPendingImages((prev) => prev.filter((u) => u !== url))
     }
 
     const handleSave = async () => {
         if (!summary) return
         setSaving(true)
         try {
-            // 空欄の場合は null（リセット）
-            await onSave(summary.summary_date, content.trim() || null)
+            await onSave(summary.summary_date, content.trim() || null, pendingImages)
             onOpenChange(false)
         } finally {
             setSaving(false)
@@ -48,31 +102,93 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave }: DiaryEd
     }
 
     return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-lg rounded-2xl">
                 <DialogHeader>
                     <DialogTitle className="text-base">育児日誌を編集</DialogTitle>
                 </DialogHeader>
+
                 <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    rows={10}
+                    rows={8}
                     className="resize-none rounded-xl text-sm"
                     placeholder="育児日誌の内容を入力..."
                 />
                 <p className="text-xs text-gray-400">空欄で保存すると AI 生成文に戻ります。</p>
+
+                {/* 画像セクション */}
+                {canWrite && (
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500">写真（最大 {MAX_IMAGES} 枚）</span>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-8 rounded-xl text-xs gap-1"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading || pendingImages.length >= MAX_IMAGES}
+                            >
+                                {isUploading ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                    <ImagePlus className="h-3.5 w-3.5" />
+                                )}
+                                {isUploading ? "アップロード中..." : "写真を追加"}
+                            </Button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={handleImageSelect}
+                            />
+                        </div>
+
+                        {uploadError && (
+                            <p className="text-xs text-red-500">{uploadError}</p>
+                        )}
+
+                        {pendingImages.length > 0 && (
+                            <div className="flex gap-2 overflow-x-auto pb-1">
+                                {pendingImages.map((url) => (
+                                    <div key={url} className="relative flex-shrink-0 w-20 h-20">
+                                        <Image
+                                            src={url}
+                                            alt="添付写真"
+                                            fill
+                                            className="object-cover rounded-lg"
+                                            sizes="80px"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveImage(url)}
+                                            className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                                            aria-label="写真を削除"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <DialogFooter className="gap-2">
                     <Button
                         variant="outline"
                         onClick={() => onOpenChange(false)}
-                        disabled={saving}
+                        disabled={saving || isUploading}
                         className="rounded-xl"
                     >
                         キャンセル
                     </Button>
                     <Button
                         onClick={handleSave}
-                        disabled={saving}
+                        disabled={saving || isUploading}
                         className="rounded-xl"
                     >
                         {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}

@@ -32,10 +32,12 @@ export async function generateDailySummary(
 export async function editDailySummary(
     babyId: number,
     summaryDate: string,
-    editedContent: string | null
+    editedContent: string | null,
+    imageUrls: string[]
 ): Promise<DailySummary> {
     return api.patch<DailySummary>(`/babies/${babyId}/daily-summary/${summaryDate}`, {
         edited_content: editedContent,
+        image_urls: imageUrls,
     });
 }
 

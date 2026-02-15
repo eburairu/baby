@@ -68,9 +68,9 @@ export default function DiaryPage() {
         setEditOpen(true)
     }
 
-    const handleEditSave = async (summaryDate: string, editedContent: string | null) => {
+    const handleEditSave = async (summaryDate: string, editedContent: string | null, imageUrls: string[]) => {
         if (!babyId) return
-        await editDailySummary(babyId, summaryDate, editedContent)
+        await editDailySummary(babyId, summaryDate, editedContent, imageUrls)
         await mutate()
     }
 
@@ -169,6 +169,7 @@ export default function DiaryPage() {
                 open={editOpen}
                 onOpenChange={setEditOpen}
                 onSave={handleEditSave}
+                canWrite={canWrite}
             />
             <DiaryDeleteDialog
                 summary={deleteTarget}

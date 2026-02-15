@@ -137,6 +137,8 @@ def edit_daily_summary(
 
     summary.edited_content = body.edited_content
     summary.is_edited = body.edited_content is not None
+    if body.image_urls is not None:
+        summary.image_urls = body.image_urls
     db.commit()
     db.refresh(summary)
     return summary
