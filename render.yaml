@@ -2,6 +2,7 @@ services:
   - type: web
     name: baby-app-next
     runtime: docker
+    autoDeploy: false
     plan: free
     envVars:
       - key: DATABASE_URL

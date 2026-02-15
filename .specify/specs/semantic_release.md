@@ -41,6 +41,11 @@
 - 環境変数: `GITHUB_TOKEN`。
 - 権限: `contents: write`, `issues: write`, `pull-requests: write`。
 
+### 4. デプロイ制御 (Render)
+`semantic-release` によるコミットとマージ時の重複デプロイを避けるため、以下の設定を行います。
+- `render.yaml`: `autoDeploy: false` を設定。
+- `.github/workflows/release.yml`: リリース成功後に Render の `DEPLOY_HOOK_URL` を呼び出してデプロイをトリガーする。
+
 ## 検証
 - ローカルで `npx semantic-release --dry-run` を実行し（GITHUB_TOKENを設定した状態で）、設定が正しいか検証する。
 - dry-run の出力で changelog が生成されるか確認する。

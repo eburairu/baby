@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Baby Log",
+  title: "Baby App",
   description: "家族で共有する育児記録アプリ",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Baby Log",
+    title: "Baby App",
   },
   icons: {
     icon: "/favicon.svg",
