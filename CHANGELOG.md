@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/eburairu/baby/compare/v1.1.0...v1.1.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** remove duplicate Growth type import in GrowthHistoryList ([2a547f2](https://github.com/eburairu/baby/commit/2a547f27805f89eeba35ed2acde70feb71418865))
+
 # [1.1.0](https://github.com/eburairu/baby/compare/v1.0.0...v1.1.0) (2026-02-15)
 
 
