@@ -1,10 +1,10 @@
 # システム設計書 (System Design)
 
-Baby-App の全体アーキテクチャと技術スタックを定義します。
+Baby App の全体アーキテクチャと技術スタックを定義します。
 
 ## 概要
 
-Baby-App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、おむつ、成長、陣痛、スケジュール）を共同管理するための Web アプリケーションです。
+Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、おむつ、成長、陣痛、スケジュール）を共同管理するための Web アプリケーションです。
 招待制を採用し、セキュアな家族共有環境を提供します。
 
 ## アーキテクチャ構成
@@ -93,4 +93,9 @@ baby-app/
 - **Version Control**: GitHub
 - **Automation**: GitHub Actions
 - **Release Strategy**: Semantic Versioning (SemVer)
-- **Release Tool**: python-semantic-release
+- **Release Tool**: semantic-release (Node.js)
+- **Deployment Flow**:
+  - `main` ブランチへのマージにより GitHub Actions が起動。
+  - `semantic-release` がバージョンを決定し、GitHub Release と Tag を作成。
+  - リリース完了後、GitHub Actions から Render の Deploy Hook を呼び出し、デプロイを実行。
+  - Render 側の `autoDeploy` は無効化 (`false`) されており、重複デプロイを防止している。
