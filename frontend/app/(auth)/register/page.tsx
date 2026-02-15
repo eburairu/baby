@@ -84,7 +84,7 @@ export default function RegisterPage() {
 
     return (
         <Tabs defaultValue="create" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-gray-100 p-1 rounded-xl">
+            <TabsList className="grid w-full grid-cols-2 mb-4 p-1 rounded-xl">
                 <TabsTrigger value="create" className="rounded-lg">家族を新規作成</TabsTrigger>
                 <TabsTrigger value="join" className="rounded-lg">家族に参加</TabsTrigger>
             </TabsList>
