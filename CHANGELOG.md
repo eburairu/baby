@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/eburairu/baby/compare/v1.9.0...v1.10.0) (2026-02-15)
+
+
+### Features
+
+* **contraction:** upgrade waveform UI to rich Recharts version with interactive tooltips ([13df0fc](https://github.com/eburairu/baby/commit/13df0fcf5119a33fffd5ab11a2fb4929fb1e960a))
+
 # [1.9.0](https://github.com/eburairu/baby/compare/v1.8.0...v1.9.0) (2026-02-15)
 
 
