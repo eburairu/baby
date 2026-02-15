@@ -55,7 +55,7 @@ def client(db):
 @pytest.fixture
 def auth_client(client):
     """認証済みクライアントを作成するためのヘルパー"""
-    def _auth(username="testuser", password="testpassword1", family_name="Test Family"):
+    def _auth(username="testuser", password="testpassword123", family_name="Test Family"):
         # 家族とユーザーを登録
         res = client.post(
             "/api/auth/register/family",

@@ -1,7 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
-import re
 
 
 class UserCreate(BaseModel):
@@ -10,9 +9,11 @@ class UserCreate(BaseModel):
 
     @field_validator('password')
     @classmethod
-    def validate_password(cls, v):
-        if not re.match(r"^(?=.*[a-zA-Z])(?=.*\d).+$", v):
-            raise ValueError('Password must contain at least one letter and one number')
+    def password_complexity(cls, v: str) -> str:
+        if not any(c.isalpha() for c in v):
+            raise ValueError('Password must contain at least one letter')
+        if not any(c.isdigit() for c in v):
+            raise ValueError('Password must contain at least one digit')
         return v
 
 

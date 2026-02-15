@@ -20,17 +20,18 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/hooks/useAuth"
+import { ErrorMessage } from "@/components/ui/error-message"
 
 const createFamilySchema = z.object({
-    name: z.string().min(1, "Family name is required"),
-    username: z.string().min(1, "Your name is required"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    name: z.string().min(1, "家族名を入力してください"),
+    username: z.string().min(1, "お名前を入力してください"),
+    password: z.string().min(6, "パスワードは6文字以上で入力してください"),
 })
 
 const joinFamilySchema = z.object({
-    invite_code: z.string().min(1, "Invitation code is required"),
-    username: z.string().min(1, "Your name is required"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    invite_code: z.string().min(1, "招待コードを入力してください"),
+    username: z.string().min(1, "お名前を入力してください"),
+    password: z.string().min(6, "パスワードは6文字以上で入力してください"),
 })
 
 export default function RegisterPage() {
@@ -64,7 +65,7 @@ export default function RegisterPage() {
             router.push("/")
         } catch (err: any) {
             console.error("Registration failed", err)
-            setError(err.info?.detail || "Registration failed")
+            setError(err.info?.detail || "登録に失敗しました")
         }
     }
 
@@ -77,35 +78,35 @@ export default function RegisterPage() {
             router.push("/")
         } catch (err: any) {
             console.error("Join failed", err)
-            setError(err.info?.detail || "Join failed")
+            setError(err.info?.detail || "家族への参加に失敗しました")
         }
     }
 
     return (
         <Tabs defaultValue="create" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="create">Create Family</TabsTrigger>
-                <TabsTrigger value="join">Join Family</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-gray-100 p-1 rounded-xl">
+                <TabsTrigger value="create" className="rounded-lg">家族を新規作成</TabsTrigger>
+                <TabsTrigger value="join" className="rounded-lg">家族に参加</TabsTrigger>
             </TabsList>
 
             <TabsContent value="create">
-                <Card>
+                <Card className="rounded-2xl shadow-sm border-0">
                     <CardHeader>
-                        <CardTitle>Create a New Family</CardTitle>
-                        <CardDescription>Start managing your baby&apos;s records together.</CardDescription>
+                        <CardTitle>家族の新規作成</CardTitle>
+                        <CardDescription>家族で赤ちゃんの記録を共有しましょう。</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                         <Form {...createForm}>
                             <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
-                                {error && <div className="text-red-500 text-sm">{error}</div>}
+                                {error && <ErrorMessage message={error} />}
                                 <FormField
                                     control={createForm.control}
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Family Name</FormLabel>
+                                            <FormLabel>家族名</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Suzuki Family" {...field} />
+                                                <Input placeholder="例: 鈴木家" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -116,9 +117,9 @@ export default function RegisterPage() {
                                     name="username"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Your Name</FormLabel>
+                                            <FormLabel>お名前</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Taro" {...field} />
+                                                <Input placeholder="例: 太郎" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -129,7 +130,7 @@ export default function RegisterPage() {
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Password</FormLabel>
+                                            <FormLabel>パスワード</FormLabel>
                                             <FormControl>
                                                 <Input type="password" {...field} />
                                             </FormControl>
@@ -137,15 +138,21 @@ export default function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full" loading={createForm.formState.isSubmitting}>Create Family</Button>
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                                    loading={createForm.formState.isSubmitting}
+                                >
+                                    家族を作成して登録
+                                </Button>
                             </form>
                         </Form>
                     </CardContent>
                     <CardFooter className="justify-center">
-                        <p className="text-sm text-gray-600">
-                            Already have an account?{" "}
-                            <Link href="/login" className="text-blue-600 hover:underline">
-                                Login
+                        <p className="text-sm text-muted-foreground">
+                            すでにアカウントをお持ちですか？{" "}
+                            <Link href="/login" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
+                                ログイン
                             </Link>
                         </p>
                     </CardFooter>
@@ -153,21 +160,21 @@ export default function RegisterPage() {
             </TabsContent>
 
             <TabsContent value="join">
-                <Card>
+                <Card className="rounded-2xl shadow-sm border-0">
                     <CardHeader>
-                        <CardTitle>Join an Existing Family</CardTitle>
-                        <CardDescription>Enter the invitation code from your family member.</CardDescription>
+                        <CardTitle>既存の家族に参加</CardTitle>
+                        <CardDescription>家族から共有された招待コードを入力してください。</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                         <Form {...joinForm}>
                             <form onSubmit={joinForm.handleSubmit(onJoinSubmit)} className="space-y-4">
-                                {error && <div className="text-red-500 text-sm">{error}</div>}
+                                {error && <ErrorMessage message={error} />}
                                 <FormField
                                     control={joinForm.control}
                                     name="invite_code"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Invitation Code</FormLabel>
+                                            <FormLabel>招待コード</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="XXXX" {...field} />
                                             </FormControl>
@@ -180,9 +187,9 @@ export default function RegisterPage() {
                                     name="username"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Your Name</FormLabel>
+                                            <FormLabel>お名前</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Hanako" {...field} />
+                                                <Input placeholder="例: 花子" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -193,7 +200,7 @@ export default function RegisterPage() {
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Password</FormLabel>
+                                            <FormLabel>パスワード</FormLabel>
                                             <FormControl>
                                                 <Input type="password" {...field} />
                                             </FormControl>
@@ -201,15 +208,21 @@ export default function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button type="submit" className="w-full" loading={joinForm.formState.isSubmitting}>Join Family</Button>
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                                    loading={joinForm.formState.isSubmitting}
+                                >
+                                    家族に参加して登録
+                                </Button>
                             </form>
                         </Form>
                     </CardContent>
                     <CardFooter className="justify-center">
-                        <p className="text-sm text-gray-600">
-                            Already have an account?{" "}
-                            <Link href="/login" className="text-blue-600 hover:underline">
-                                Login
+                        <p className="text-sm text-muted-foreground">
+                            すでにアカウントをお持ちですか？{" "}
+                            <Link href="/login" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
+                                ログイン
                             </Link>
                         </p>
                     </CardFooter>

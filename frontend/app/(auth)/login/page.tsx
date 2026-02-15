@@ -19,10 +19,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useUser } from "@/hooks/useAuth"
+import { ErrorMessage } from "@/components/ui/error-message"
 
 const formSchema = z.object({
-    username: z.string().min(1, "Username is required"),
-    password: z.string().min(1, "Password is required"),
+    username: z.string().min(1, "ユーザー名を入力してください"),
+    password: z.string().min(1, "パスワードを入力してください"),
 })
 
 export default function LoginPage() {
@@ -46,28 +47,28 @@ export default function LoginPage() {
             router.push("/")
         } catch (err: any) {
             console.error("Login failed", err)
-            setError(err.info?.detail || "Login failed")
+            setError(err.info?.detail || "ログインに失敗しました")
         }
     }
 
     return (
-        <Card>
+        <Card className="rounded-2xl shadow-sm border-0">
             <CardHeader>
-                <CardTitle>Login to Baby App</CardTitle>
-                <CardDescription>Enter your username below to login to your account</CardDescription>
+                <CardTitle>Baby App にログイン</CardTitle>
+                <CardDescription>ユーザー名を入力してログインしてください</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        {error && <div className="text-red-500 text-sm">{error}</div>}
+                        {error && <ErrorMessage message={error} />}
                         <FormField
                             control={form.control}
                             name="username"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Username</FormLabel>
+                                    <FormLabel>ユーザー名</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="your-username" {...field} />
+                                        <Input placeholder="ユーザー名を入力" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -78,7 +79,7 @@ export default function LoginPage() {
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Password</FormLabel>
+                                    <FormLabel>パスワード</FormLabel>
                                     <FormControl>
                                         <Input type="password" {...field} />
                                     </FormControl>
@@ -86,15 +87,21 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>Login</Button>
+                        <Button
+                            type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                            loading={form.formState.isSubmitting}
+                        >
+                            ログイン
+                        </Button>
                     </form>
                 </Form>
             </CardContent>
             <CardFooter className="justify-center">
                 <p className="text-sm text-muted-foreground">
-                    Don&apos;t have an account?{" "}
+                    アカウントをお持ちでないですか？{" "}
                     <Link href="/register" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-                        Register
+                        新規登録
                     </Link>
                 </p>
             </CardFooter>

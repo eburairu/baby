@@ -40,6 +40,59 @@
 - ブラウザのCookie管理に任せるため、特別な実装は不要。
 - APIリクエスト時に自動的にCookieが送信される。
 
-## 4. エラーハンドリング
+## 5. UI 仕様 (多言語対応: 日本語)
+
+ログインおよび登録画面は、日本のユーザー向けに以下のラベルとメッセージを使用して日本語化する。
+
+### 5.1 ログイン画面 (`/login`)
+
+| 項目 | 英語 (現状) | 日本語 (規定) |
+| :--- | :--- | :--- |
+| タイトル | Login to Baby App | Baby App にログイン |
+| 説明 | Enter your username below to login to your account | ユーザー名を入力してログインしてください |
+| ユーザー名ラベル | Username | ユーザー名 |
+| パスワードラベル | Password | パスワード |
+| プレースホルダー (ユーザー名) | your-username | ユーザー名を入力 |
+| ログインボタン | Login | ログイン |
+| フッターテキスト | Don't have an account? | アカウントをお持ちでないですか？ |
+| 登録リンク | Register | 新規登録 |
+| エラー (必須) | Username is required | ユーザー名を入力してください |
+| エラー (必須) | Password is required | パスワードを入力してください |
+| エラー (失敗) | Login failed | ログインに失敗しました |
+
+### 5.2 登録画面 (`/register`)
+
+#### 共通・タブ
+| 項目 | 英語 (現状) | 日本語 (規定) |
+| :--- | :--- | :--- |
+| タブ (作成) | Create Family | 家族を新規作成 |
+| タブ (参加) | Join Family | 家族に参加 |
+| フッターテキスト | Already have an account? | すでにアカウントをお持ちですか？ |
+| ログインリンク | Login | ログイン |
+
+#### 家族を新規作成
+| 項目 | 英語 (現状) | 日本語 (規定) |
+| :--- | :--- | :--- |
+| タイトル | Create a New Family | 家族の新規作成 |
+| 説明 | Start managing your baby's records together. | 家族で赤ちゃんの記録を共有しましょう。 |
+| 家族名ラベル | Family Name | 家族名 |
+| ユーザー名ラベル | Your Name | お名前 |
+| パスワードラベル | Password | パスワード |
+| 作成ボタン | Create Family | 家族を作成して登録 |
+| エラー (家族名必須) | Family name is required | 家族名を入力してください |
+| エラー (パスワード) | Password must be at least 6 characters | パスワードは6文字以上で入力してください |
+
+#### 家族に参加
+| 項目 | 英語 (現状) | 日本語 (規定) |
+| :--- | :--- | :--- |
+| タイトル | Join an Existing Family | 既存の家族に参加 |
+| 説明 | Enter the invitation code from your family member. | 家族から共有された招待コードを入力してください。 |
+| 招待コードラベル | Invitation Code | 招待コード |
+| ユーザー名ラベル | Your Name | お名前 |
+| パスワードラベル | Password | パスワード |
+| 参加ボタン | Join Family | 家族に参加して登録 |
+| エラー (招待コード必須) | Invitation code is required | 招待コードを入力してください |
+
+## 6. エラーハンドリング
 - セッション切れ、不正なトークンの場合は `401 Unauthorized` を返す。
 - フロントエンドは `401` を検知した場合、ログイン画面へリダイレクトする。

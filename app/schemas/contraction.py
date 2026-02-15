@@ -12,6 +12,13 @@ class ContractionCreate(BaseModel):
     notes: Optional[str] = None
 
 
+class ContractionUpdate(BaseModel):
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    duration_seconds: Optional[int] = None
+    notes: Optional[str] = None
+
+
 class ContractionResponse(ContractionCreate):
     id: int
     user_id: int

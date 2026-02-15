@@ -6,7 +6,7 @@ from datetime import timezone, timedelta
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.contraction import Contraction
-from app.schemas.contraction import ContractionCreate, ContractionResponse
+from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
 
 router = APIRouter(prefix="/api/contractions", tags=["contractions"])
 
@@ -57,6 +57,59 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
     db.commit()
     db.refresh(new_contraction)
     return new_contraction
+
+
+@router.patch("/{contraction_id}", response_model=ContractionResponse)
+def update_contraction(
+    contraction_id: int,
+    contraction_in: ContractionUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    contraction = db.query(Contraction).filter(Contraction.id == contraction_id).first()
+    if not contraction:
+        raise HTTPException(status_code=404, detail="Contraction record not found")
+    verify_baby_access(db, contraction.baby_id, current_user.id, record_type="contraction", require_write=True)
+
+    update_data = contraction_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(contraction, field, value)
+
+    # start_time または end_time が変更された場合に duration_seconds を再計算
+    if contraction.start_time and contraction.end_time:
+        if "start_time" in update_data or "end_time" in update_data:
+            duration = round((contraction.end_time - contraction.start_time).total_seconds())
+            contraction.duration_seconds = max(0, duration)
+
+    # start_time が変更された場合に interval_seconds を再計算
+    if "start_time" in update_data:
+        # 1. 自身の interval_seconds (前の記録との差)
+        prev_record = (
+            db.query(Contraction)
+            .filter(Contraction.baby_id == contraction.baby_id, Contraction.start_time < contraction.start_time)
+            .order_by(Contraction.start_time.desc())
+            .first()
+        )
+        contraction.interval_seconds = (
+            _calculate_interval_seconds(contraction.start_time, prev_record.start_time)
+            if prev_record
+            else None
+        )
+
+        # 2. 次の記録の interval_seconds (自身との差)
+        next_record = (
+            db.query(Contraction)
+            .filter(Contraction.baby_id == contraction.baby_id, Contraction.start_time > contraction.start_time)
+            .filter(Contraction.id != contraction.id) # 自身を除外
+            .order_by(Contraction.start_time.asc())
+            .first()
+        )
+        if next_record:
+            next_record.interval_seconds = _calculate_interval_seconds(next_record.start_time, contraction.start_time)
+
+    db.commit()
+    db.refresh(contraction)
+    return contraction
 
 
 @router.delete("/{contraction_id}")

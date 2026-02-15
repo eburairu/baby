@@ -1,3 +1,124 @@
+# [1.12.0](https://github.com/eburairu/baby/compare/v1.11.0...v1.12.0) (2026-02-15)
+
+
+### Features
+
+* **auth:** translate login and register screens to Japanese and align with UI design system ([a1608ab](https://github.com/eburairu/baby/commit/a1608ab24e604a3c537eb43f2d7a62dedb05beda))
+
+# [1.11.0](https://github.com/eburairu/baby/compare/v1.10.1...v1.11.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* **backend:** replace unsupported look-ahead regex with Pydantic field_validator ([57a3e29](https://github.com/eburairu/baby/commit/57a3e29a81cd1c7a891ea14872d08eeb130357d2))
+
+
+### Features
+
+* **contraction:** add 1-min offset start button and edit functionality ([98dadcc](https://github.com/eburairu/baby/commit/98dadccbd95f693c2c238e5f79dd14d02ddd94b1))
+* **contraction:** upgrade waveform UI to rich Recharts version with interactive tooltips ([d130cad](https://github.com/eburairu/baby/commit/d130cad37fe257a7cf0dbc30521e9be0e3d28cf7))
+
+## [1.10.1](https://github.com/eburairu/baby/compare/v1.10.0...v1.10.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* **backend:** replace unsupported look-ahead regex with Pydantic field_validator ([a7ffe2f](https://github.com/eburairu/baby/commit/a7ffe2f4d1474fcc73678b34aeaacd8e63fab99f))
+
+# [1.10.0](https://github.com/eburairu/baby/compare/v1.9.0...v1.10.0) (2026-02-15)
+
+
+### Features
+
+* **contraction:** upgrade waveform UI to rich Recharts version with interactive tooltips ([13df0fc](https://github.com/eburairu/baby/commit/13df0fcf5119a33fffd5ab11a2fb4929fb1e960a))
+
+# [1.9.0](https://github.com/eburairu/baby/compare/v1.8.0...v1.9.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** refine dark mode styles for diaper history, baby selector and dashboard widgets ([f8d9c0f](https://github.com/eburairu/baby/commit/f8d9c0fb61248f92361791ded1885b8ea9167986))
+
+
+### Features
+
+* **contraction:** implement waveform UI and real-time visualization for contraction timer ([e1dc522](https://github.com/eburairu/baby/commit/e1dc52224f41398c96499462c09d3a139f9d9c04))
+
+
+### Performance Improvements
+
+* add pagination to diaper records endpoint ([e0bda10](https://github.com/eburairu/baby/commit/e0bda10145b24783d522ea161e6c27c36ee3aaf4))
+
+# [1.8.0](https://github.com/eburairu/baby/compare/v1.7.2...v1.8.0) (2026-02-15)
+
+
+### Features
+
+* **contraction:** implement waveform UI and real-time visualization for contraction timer ([a69a7fa](https://github.com/eburairu/baby/commit/a69a7fa85d54f935e4dad311f8eb576e0ac3bf6b))
+
+## [1.7.2](https://github.com/eburairu/baby/compare/v1.7.1...v1.7.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** refine dark mode styles for diaper history, baby selector and dashboard widgets ([f424d60](https://github.com/eburairu/baby/commit/f424d60435a54b1f7dff75d75a6a194482528dc6))
+
+## [1.7.1](https://github.com/eburairu/baby/compare/v1.7.0...v1.7.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** implement dark mode support for login, settings, and tracker screens ([de2100b](https://github.com/eburairu/baby/commit/de2100b5e5fddf64cae5061f25f48ab9b1222091))
+
+# [1.7.0](https://github.com/eburairu/baby/compare/v1.6.4...v1.7.0) (2026-02-15)
+
+
+### Features
+
+* implement dark mode support across all pages and components ([eb91fbd](https://github.com/eburairu/baby/commit/eb91fbde9c7bf6b5447032554edbf8b2df541271))
+
+## [1.6.4](https://github.com/eburairu/baby/compare/v1.6.3...v1.6.4) (2026-02-15)
+
+
+### Bug Fixes
+
+* add detailed R2 error logging for upload failures ([14e984d](https://github.com/eburairu/baby/commit/14e984df74e18b26b3c2028f750bf8a06f6010eb))
+
+## [1.6.3](https://github.com/eburairu/baby/compare/v1.6.2...v1.6.3) (2026-02-15)
+
+
+### Bug Fixes
+
+* switch to backend-proxied upload to avoid CORS issues with R2 ([1c16ea8](https://github.com/eburairu/baby/commit/1c16ea87aec2a1c952e3f8ba770842a757585edd))
+
+## [1.6.2](https://github.com/eburairu/baby/compare/v1.6.1...v1.6.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* remove ContentType from presigned URL signature to fix R2 upload ([fc7e02f](https://github.com/eburairu/baby/commit/fc7e02f151b2703276420a3789080da5bd419095))
+
+## [1.6.1](https://github.com/eburairu/baby/compare/v1.6.0...v1.6.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* show detailed error message for presigned URL failure ([ba5bbbb](https://github.com/eburairu/baby/commit/ba5bbbb757f3ab71d498fb13d0fc9214d3b371c4))
+
+# [1.6.0](https://github.com/eburairu/baby/compare/v1.5.0...v1.6.0) (2026-02-15)
+
+
+### Features
+
+* add image upload to diary using Cloudflare R2 ([a430102](https://github.com/eburairu/baby/commit/a43010221c61e8731c4f663124d3e0a008ac3c2c))
+
+# [1.5.0](https://github.com/eburairu/baby/compare/v1.4.0...v1.5.0) (2026-02-15)
+
+
+### Features
+
+* add baby bottle favicon and update PWA icons ([4044e08](https://github.com/eburairu/baby/commit/4044e0895f538e8d5b03b4d58b3fe56253011615))
+
 # [1.4.0](https://github.com/eburairu/baby/compare/v1.3.1...v1.4.0) (2026-02-15)
 
 
