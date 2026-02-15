@@ -21,9 +21,10 @@ import {
 interface FeedingHistoryProps {
     feedings: Feeding[];
     onDelete: (id: number) => Promise<void>;
+    canWrite?: boolean;
 }
 
-export function FeedingHistory({ feedings, onDelete }: FeedingHistoryProps) {
+export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingHistoryProps) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
     const handleDelete = async () => {
@@ -78,14 +79,16 @@ export function FeedingHistory({ feedings, onDelete }: FeedingHistoryProps) {
                                     </div>
                                 </div>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-gray-400 hover:text-red-500"
-                                onClick={() => setDeleteTargetId(feeding.id)}
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {canWrite && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-gray-400 hover:text-red-500"
+                                    onClick={() => setDeleteTargetId(feeding.id)}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            )}
                         </div>
                     ))}
                 </CardContent>

@@ -18,7 +18,7 @@ def get_growths(baby_id: int, db: Session = Depends(get_db), current_user: User 
 
 @router.post("/", response_model=GrowthResponse)
 def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, growth_in.baby_id, current_user.id, record_type="growth")
+    verify_baby_access(db, growth_in.baby_id, current_user.id, record_type="growth", require_write=True)
     new_growth = Growth(
         user_id=current_user.id,
         baby_id=growth_in.baby_id,
@@ -44,7 +44,7 @@ def update_growth(
     growth = db.query(Growth).filter(Growth.id == growth_id).first()
     if not growth:
         raise HTTPException(status_code=404, detail="Growth record not found")
-    verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth")
+    verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth", require_write=True)
 
     update_data = growth_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -60,7 +60,7 @@ def delete_growth(growth_id: int, db: Session = Depends(get_db), current_user: U
     growth = db.query(Growth).filter(Growth.id == growth_id).first()
     if not growth:
         raise HTTPException(status_code=404, detail="Growth record not found")
-    verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth")
+    verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth", require_write=True)
     db.delete(growth)
     db.commit()
     return {"message": "Deleted"}

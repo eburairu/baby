@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useFeedings } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { api, isApiError } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
@@ -14,6 +15,7 @@ interface Props {
 
 export function FeedingWidget({ babyId }: Props) {
     const { feedings, isError, mutate } = useFeedings(babyId)
+    const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
@@ -83,26 +85,28 @@ export function FeedingWidget({ babyId }: Props) {
                     )}
                     <p className="text-xs text-gray-500 mt-1">今日: {todayCount}回</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button
-                        size="sm"
-                        loading={loading}
-                        onClick={(e) => handleQuickRecord("bottle", e)}
-                        className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
-                        variant="outline"
-                    >
-                        ミルク
-                    </Button>
-                    <Button
-                        size="sm"
-                        loading={loading}
-                        onClick={(e) => handleQuickRecord("breast", e)}
-                        className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
-                        variant="outline"
-                    >
-                        母乳
-                    </Button>
-                </div>
+                {canWrite && (
+                    <div className="flex gap-2">
+                        <Button
+                            size="sm"
+                            loading={loading}
+                            onClick={(e) => handleQuickRecord("bottle", e)}
+                            className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
+                            variant="outline"
+                        >
+                            ミルク
+                        </Button>
+                        <Button
+                            size="sm"
+                            loading={loading}
+                            onClick={(e) => handleQuickRecord("breast", e)}
+                            className="flex-1 bg-rose-50 text-rose-600 hover:bg-rose-100 border-0 text-xs h-8"
+                            variant="outline"
+                        >
+                            母乳
+                        </Button>
+                    </div>
+                )}
             </CardContent>
         </Card>
     )

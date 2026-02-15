@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useDiapers } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { api, isApiError } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
@@ -15,6 +16,7 @@ interface Props {
 
 export function DiaperWidget({ babyId }: Props) {
     const { diapers, isError, mutate } = useDiapers(babyId)
+    const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
@@ -89,28 +91,30 @@ export function DiaperWidget({ babyId }: Props) {
                         今日: 💧{wetCount} / 💩{dirtyCount}
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button
-                        size="sm"
-                        loading={loading}
-                        onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
-                        className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
-                        variant="outline"
-                        aria-label="おしっこ"
-                    >
-                        💧
-                    </Button>
-                    <Button
-                        size="sm"
-                        loading={loading}
-                        onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
-                        className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
-                        variant="outline"
-                        aria-label="うんち"
-                    >
-                        💩
-                    </Button>
-                </div>
+                {canWrite && (
+                    <div className="flex gap-2">
+                        <Button
+                            size="sm"
+                            loading={loading}
+                            onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
+                            className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
+                            variant="outline"
+                            aria-label="おしっこ"
+                        >
+                            💧
+                        </Button>
+                        <Button
+                            size="sm"
+                            loading={loading}
+                            onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
+                            className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
+                            variant="outline"
+                            aria-label="うんち"
+                        >
+                            💩
+                        </Button>
+                    </div>
+                )}
             </CardContent>
         </Card>
     )

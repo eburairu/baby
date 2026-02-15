@@ -1,6 +1,7 @@
 "use client"
 
 import { useBabies, useContractions } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import ContractionTimer from "@/components/ContractionTimer"
 import ContractionStats from "@/components/ContractionStats"
@@ -17,6 +18,7 @@ import { isApiError } from "@/lib/api"
 export default function ContractionPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId: storedBabyId, setSelectedBabyId: setStoredBabyId } = useBabyStore()
+    const { canWrite } = usePermissions()
 
     // ストアの文字列IDを数値に変換、未選択時は最初の赤ちゃんをフォールバック
     const effectiveIdStr = storedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
@@ -78,7 +80,7 @@ export default function ContractionPage() {
                         <ContractionStats contractions={typedContractions} />
 
                         {/* タイマー */}
-                        {selectedBabyId && (
+                        {selectedBabyId && canWrite && (
                             <ContractionTimer
                                 babyId={selectedBabyId}
                                 onRecorded={handleRecorded}
@@ -94,7 +96,11 @@ export default function ContractionPage() {
                         {contractionsLoading ? (
                             <div className="text-center py-4 text-muted-foreground">記録を読み込み中...</div>
                         ) : (
-                            <ContractionHistory contractions={typedContractions} onDeleted={handleDeleted} />
+                            <ContractionHistory
+                                contractions={typedContractions}
+                                onDeleted={handleDeleted}
+                                canWrite={canWrite}
+                            />
                         )}
                     </>
                 )}

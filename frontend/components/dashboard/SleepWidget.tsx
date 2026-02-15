@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useSleeps } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { api, isApiError } from "@/lib/api"
 import { formatElapsed, formatDuration, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
@@ -14,6 +15,7 @@ interface Props {
 
 export function SleepWidget({ babyId }: Props) {
     const { sleeps, isError, mutate } = useSleeps(babyId)
+    const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
@@ -118,18 +120,20 @@ export function SleepWidget({ babyId }: Props) {
                     )}
                     <p className="text-xs text-gray-500 mt-1">今日の合計: {todayTotal}</p>
                 </div>
-                <Button
-                    size="sm"
-                    loading={loading}
-                    onClick={isSleeping ? handleEnd : handleStart}
-                    className={`w-full text-xs h-8 border-0 ${isSleeping
-                            ? "bg-indigo-500 text-white hover:bg-indigo-600"
-                            : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
-                        }`}
-                    variant="outline"
-                >
-                    {isSleeping ? "睡眠終了" : "睡眠開始"}
-                </Button>
+                {canWrite && (
+                    <Button
+                        size="sm"
+                        loading={loading}
+                        onClick={isSleeping ? handleEnd : handleStart}
+                        className={`w-full text-xs h-8 border-0 ${isSleeping
+                                ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                                : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                            }`}
+                        variant="outline"
+                    >
+                        {isSleeping ? "睡眠終了" : "睡眠開始"}
+                    </Button>
+                )}
             </CardContent>
         </Card>
     )

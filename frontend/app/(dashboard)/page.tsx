@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useBabies } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import Link from "next/link"
 import { useBabyStore } from "@/stores/babyStore"
 import { api, isApiError } from "@/lib/api"
@@ -18,6 +19,7 @@ import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed"
 export default function Dashboard() {
     const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
+    const { isAdmin } = usePermissions()
 
     const [newBabyName, setNewBabyName] = useState("")
     const [newBabyBirthday, setNewBabyBirthday] = useState("")
@@ -59,6 +61,20 @@ export default function Dashboard() {
 
     // オンボーディング: 赤ちゃん未登録
     if (!babies || babies.length === 0) {
+        if (!isAdmin) {
+            return (
+                <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md rounded-2xl shadow-sm border-0">
+                        <CardHeader>
+                            <CardTitle className="text-xl text-amber-600">赤ちゃんが未登録です</CardTitle>
+                            <CardDescription>
+                                ファミリーの管理者に赤ちゃんの登録を依頼してください。
+                            </CardDescription>
+                        </CardHeader>
+                    </Card>
+                </div>
+            )
+        }
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
                 <Card className="w-full max-w-md rounded-2xl shadow-sm border-0">

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
-from app.models.family import Family, FamilyUser
+from app.models.family import Family, FamilyUser, UserRole
 from app.schemas.family import (
     FamilyResponse,
     FamilyUpdate,
@@ -25,7 +25,7 @@ def _get_family_user(db: Session, current_user: User) -> FamilyUser:
 
 
 def _require_admin(family_user: FamilyUser) -> None:
-    if family_user.role != "admin":
+    if family_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin role required")
 
 
@@ -105,8 +105,8 @@ def update_member_role(
 ):
     family_user = _get_family_user(db, current_user)
     _require_admin(family_user)
-    if body.role not in ("admin", "member"):
-        raise HTTPException(status_code=422, detail="Role must be 'admin' or 'member'")
+    if body.role not in (UserRole.ADMIN, UserRole.MEMBER, UserRole.VIEWER):
+        raise HTTPException(status_code=422, detail=f"Role must be one of: {UserRole.ADMIN}, {UserRole.MEMBER}, {UserRole.VIEWER}")
     target = (
         db.query(FamilyUser)
         .filter(
@@ -118,10 +118,10 @@ def update_member_role(
     if not target:
         raise HTTPException(status_code=404, detail="Member not found")
     # 最後の admin を降格しないようガード
-    if target.role == "admin" and body.role == "member":
+    if target.role == UserRole.ADMIN and body.role != UserRole.ADMIN:
         admin_count = (
             db.query(FamilyUser)
-            .filter(FamilyUser.family_id == family_user.family_id, FamilyUser.role == "admin")
+            .filter(FamilyUser.family_id == family_user.family_id, FamilyUser.role == UserRole.ADMIN)
             .count()
         )
         if admin_count <= 1:

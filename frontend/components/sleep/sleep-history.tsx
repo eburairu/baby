@@ -26,9 +26,10 @@ import { Sleep } from "@/types/sleep"
 
 interface Props {
     babyId: string
+    canWrite?: boolean
 }
 
-export function SleepHistory({ babyId }: Props) {
+export function SleepHistory({ babyId, canWrite = true }: Props) {
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
@@ -111,27 +112,29 @@ export function SleepHistory({ babyId }: Props) {
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-400 hover:text-indigo-600"
-                                        onClick={() => {
-                                            setEditingSleep(sleep)
-                                            setIsEditOpen(true)
-                                        }}
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-400 hover:text-red-500"
-                                        onClick={() => setDeleteTargetId(sleep.id)}
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                </div>
+                                {canWrite && (
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-gray-400 hover:text-indigo-600"
+                                            onClick={() => {
+                                                setEditingSleep(sleep)
+                                                setIsEditOpen(true)
+                                            }}
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-gray-400 hover:text-red-500"
+                                            onClick={() => setDeleteTargetId(sleep.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     )

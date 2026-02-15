@@ -1,6 +1,7 @@
 "use client"
 
 import { useSleeps, useBabies } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
@@ -17,6 +18,7 @@ import { isApiError } from "@/lib/api"
 export default function SleepPage() {
     const { babies, isLoading } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
+    const { canWrite } = usePermissions()
 
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const { isError: sleepError } = useSleeps(effectiveId)
@@ -52,9 +54,13 @@ export default function SleepPage() {
                         <SleepStats babyId={effectiveId} />
 
                         <div className="grid gap-6">
-                            <SleepTimer babyId={effectiveId} />
-                            <SleepForm babyId={effectiveId} />
-                            <SleepHistory babyId={effectiveId} />
+                            {canWrite && (
+                                <>
+                                    <SleepTimer babyId={effectiveId} />
+                                    <SleepForm babyId={effectiveId} />
+                                </>
+                            )}
+                            <SleepHistory babyId={effectiveId} canWrite={canWrite} />
                         </div>
                     </>
                 )}
