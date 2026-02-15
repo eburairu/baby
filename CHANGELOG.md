@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/eburairu/baby/compare/v1.5.0...v1.6.0) (2026-02-15)
+
+
+### Features
+
+* add image upload to diary using Cloudflare R2 ([a430102](https://github.com/eburairu/baby/commit/a43010221c61e8731c4f663124d3e0a008ac3c2c))
+
 # [1.5.0](https://github.com/eburairu/baby/compare/v1.4.0...v1.5.0) (2026-02-15)
 
 
