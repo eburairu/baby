@@ -1,5 +1,6 @@
 import os
 import uuid
+import logging
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from pydantic import BaseModel
 import boto3
@@ -7,6 +8,8 @@ from botocore.exceptions import ClientError
 
 from app.dependencies import get_current_user
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
@@ -69,10 +72,11 @@ async def upload_image(
             Body=content,
             ContentType=file.content_type,
         )
-    except ClientError:
+    except ClientError as e:
+        logger.error("R2 upload failed: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="画像のアップロードに失敗しました。",
+            detail=f"画像のアップロードに失敗しました: {e.response['Error']['Code']} - {e.response['Error']['Message']}",
         )
 
     public_url = f"{public_endpoint.rstrip('/')}/{object_key}"
