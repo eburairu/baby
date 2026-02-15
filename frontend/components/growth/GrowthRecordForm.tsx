@@ -118,6 +118,7 @@ export function GrowthRecordForm({
                         <Input
                             id="date"
                             type="date"
+                            max="9999-12-31"
                             {...form.register("date")}
                         />
                         {form.formState.errors.date && (

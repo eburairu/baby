@@ -1,33 +1,14 @@
 "use client"
-import { useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
+import { useState } from "react"
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
-
-const babySchema = z.object({
-    name: z.string().min(1, "名前を入力してください"),
-    birthday: z.string().optional(),
-    due_date: z.string().optional(),
-    characteristics: z.string().optional(),
-})
-
-type BabyFormData = z.infer<typeof babySchema>
-
+import { BabyForm, BabyFormData } from "./BabyForm"
 import { Baby } from "@/types/baby"
-
-/* Removed local Baby interface */
 
 interface Props {
     baby: Baby | null
@@ -37,86 +18,57 @@ interface Props {
 }
 
 export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-        setError,
-    } = useForm<BabyFormData>({
-        resolver: zodResolver(babySchema),
-    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        if (baby && open) {
-            reset({
-                name: baby.name,
-                birthday: baby.birthday ?? "",
-                due_date: baby.due_date ?? "",
-                characteristics: baby.characteristics ?? "",
-            })
-        }
-    }, [baby, open, reset])
+    const handleClose = () => {
+        setError(null)
+        onClose()
+    }
 
     const onSubmit = async (data: BabyFormData) => {
         if (!baby) return
+        setIsSubmitting(true)
+        setError(null)
         try {
             await api.patch(`/babies/${baby.id}`, {
                 name: data.name,
                 birthday: data.birthday || null,
                 due_date: data.due_date || null,
+                gender: data.gender || "unknown",
                 characteristics: data.characteristics || null,
             })
             onUpdated()
-            onClose()
+            handleClose()
         } catch {
-            setError("root", { message: "保存に失敗しました" })
+            setError("保存に失敗しました")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
+    const defaultValues: Partial<BabyFormData> | undefined = baby ? {
+        name: baby.name,
+        gender: (baby.gender as any) || "unknown",
+        birthday: baby.birthday ?? "",
+        due_date: baby.due_date ?? "",
+        characteristics: baby.characteristics ?? "",
+    } : undefined
+
     return (
-        <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
+        <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>赤ちゃんの情報を編集</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
-                    <div className="space-y-1">
-                        <Label htmlFor="edit-name">名前 <span className="text-red-500">*</span></Label>
-                        <Input id="edit-name" {...register("name")} autoFocus />
-                        {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="edit-birthday">生年月日</Label>
-                        <Input id="edit-birthday" type="date" {...register("birthday")} />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="edit-due-date">出産予定日</Label>
-                        <Input id="edit-due-date" type="date" {...register("due_date")} />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="edit-characteristics">特徴・傾向</Label>
-                        <Textarea
-                            id="edit-characteristics"
-                            {...register("characteristics")}
-                            placeholder="AIが生成した特徴が表示されます。手動で編集も可能です。"
-                            className="min-h-[100px]"
-                        />
-                    </div>
-                    {errors.root && <p className="text-red-500 text-sm">{errors.root.message}</p>}
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                            キャンセル
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        >
-                            保存
-                        </Button>
-                    </DialogFooter>
-                </form>
+                <BabyForm
+                    defaultValues={defaultValues}
+                    onSubmit={onSubmit}
+                    onCancel={handleClose}
+                    submitLabel="保存"
+                    isSubmitting={isSubmitting}
+                    error={error}
+                />
             </DialogContent>
         </Dialog>
     )
