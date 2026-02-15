@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/eburairu/baby/compare/v1.6.3...v1.6.4) (2026-02-15)
+
+
+### Bug Fixes
+
+* add detailed R2 error logging for upload failures ([14e984d](https://github.com/eburairu/baby/commit/14e984df74e18b26b3c2028f750bf8a06f6010eb))
+
 ## [1.6.3](https://github.com/eburairu/baby/compare/v1.6.2...v1.6.3) (2026-02-15)
 
 
