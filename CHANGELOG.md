@@ -1,3 +1,15 @@
+# [1.13.0](https://github.com/eburairu/baby/compare/v1.12.1...v1.13.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* **auth:** improve tab visibility in dark mode by removing hardcoded light background ([f7317aa](https://github.com/eburairu/baby/commit/f7317aabda651e932cd84ad169f5400b9e84edc3))
+
+
+### Features
+
+* implement general memo feature and integrate with AI summary ([67b5daa](https://github.com/eburairu/baby/commit/67b5daae92aedd28f7ccb42067f320379b6c0b53))
+
 ## [1.12.1](https://github.com/eburairu/baby/compare/v1.12.0...v1.12.1) (2026-02-15)
 
 
