@@ -1,6 +1,6 @@
 import os
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from pydantic import BaseModel
 import boto3
 from botocore.exceptions import ClientError
@@ -10,14 +10,10 @@ from app.models.user import User
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
-
-class PresignedUrlRequest(BaseModel):
-    filename: str
-    content_type: str
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 
-class PresignedUrlResponse(BaseModel):
-    upload_url: str
+class UploadResponse(BaseModel):
     public_url: str
     filename: str
 
@@ -40,20 +36,26 @@ def _get_r2_client():
     )
 
 
-@router.post("/presigned", response_model=PresignedUrlResponse)
-def create_presigned_url(
-    body: PresignedUrlRequest,
+@router.post("/image", response_model=UploadResponse)
+async def upload_image(
+    file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
 ):
-    """画像アップロード用の署名付きURLを発行する。"""
-    if not body.content_type.startswith("image/"):
+    """画像をバックエンド経由で R2 にアップロードする。"""
+    if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="画像ファイルのみアップロードできます。",
         )
 
-    # ファイル拡張子を取得（なければ .webp）
-    original_ext = os.path.splitext(body.filename)[1].lower() or ".webp"
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"ファイルサイズが大きすぎます（上限 5MB）。",
+        )
+
+    original_ext = os.path.splitext(file.filename or "")[1].lower() or ".webp"
     object_key = f"{uuid.uuid4()}{original_ext}"
 
     bucket_name = os.getenv("R2_BUCKET_NAME", "baby-app-images")
@@ -61,24 +63,18 @@ def create_presigned_url(
 
     try:
         client = _get_r2_client()
-        upload_url = client.generate_presigned_url(
-            "put_object",
-            Params={
-                "Bucket": bucket_name,
-                "Key": object_key,
-            },
-            ExpiresIn=3600,
+        client.put_object(
+            Bucket=bucket_name,
+            Key=object_key,
+            Body=content,
+            ContentType=file.content_type,
         )
-    except ClientError as e:
+    except ClientError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="署名付きURLの生成に失敗しました。",
+            detail="画像のアップロードに失敗しました。",
         )
 
     public_url = f"{public_endpoint.rstrip('/')}/{object_key}"
 
-    return PresignedUrlResponse(
-        upload_url=upload_url,
-        public_url=public_url,
-        filename=object_key,
-    )
+    return UploadResponse(public_url=public_url, filename=object_key)
