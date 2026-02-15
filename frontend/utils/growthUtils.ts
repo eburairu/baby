@@ -80,7 +80,7 @@ export function mergeData(records: any[], whoData: WhoDataPoint[], type: 'height
         allPoints.push({
             date: d.getTime(),
             originalDate: r.date,
-            [type]: type === 'weight' ? r.weight : (type === 'height' ? r.height : r.head_circumference),
+            [type]: type === 'weight' ? (r.weight ? r.weight / 1000 : null) : (type === 'height' ? r.height : r.head_circumference),
             // User data does NOT have WHO values initially
         });
     }

@@ -3,6 +3,12 @@ from sqlalchemy.orm import relationship
 from .base import Base
 
 
+class UserRole:
+    ADMIN = "admin"
+    MEMBER = "member"
+    VIEWER = "viewer"
+
+
 class Family(Base):
     __tablename__ = "families"
 

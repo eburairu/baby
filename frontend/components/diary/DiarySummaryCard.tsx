@@ -9,9 +9,10 @@ interface DiarySummaryCardProps {
     summary: DailySummary
     onEdit: (summary: DailySummary) => void
     onDelete: (summary: DailySummary) => void
+    canWrite?: boolean
 }
 
-export function DiarySummaryCard({ summary, onEdit, onDelete }: DiarySummaryCardProps) {
+export function DiarySummaryCard({ summary, onEdit, onDelete, canWrite = true }: DiarySummaryCardProps) {
     const dateLabel = new Date(summary.summary_date + "T00:00:00").toLocaleDateString("ja-JP", {
         year: "numeric",
         month: "long",
@@ -29,24 +30,28 @@ export function DiarySummaryCard({ summary, onEdit, onDelete }: DiarySummaryCard
                             ✏️ 編集済み
                         </Badge>
                     )}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500"
-                        onClick={() => onEdit(summary)}
-                        aria-label="編集"
-                    >
-                        <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
-                        onClick={() => onDelete(summary)}
-                        aria-label="削除"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canWrite && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500"
+                                onClick={() => onEdit(summary)}
+                                aria-label="編集"
+                            >
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
+                                onClick={() => onDelete(summary)}
+                                aria-label="削除"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
                 </div>
             </div>
             <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">

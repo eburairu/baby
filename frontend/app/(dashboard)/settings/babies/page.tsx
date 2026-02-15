@@ -10,6 +10,7 @@ import { BabyCard } from "@/components/settings/BabyCard"
 import { BabyEditDialog } from "@/components/settings/BabyEditDialog"
 import { AddBabyDialog } from "@/components/settings/AddBabyDialog"
 import { BabyDeleteDialog } from "@/components/settings/BabyDeleteDialog"
+import { UserRole } from "@/lib/constants"
 
 import { Baby } from "@/types/baby"
 
@@ -35,8 +36,8 @@ export default function BabySettingsPage() {
     if (!user) return null
 
     const currentMember = members?.find((m) => m.username === user.username)
-    const isAdmin = currentMember?.role === "admin"
-    const hasMemberUsers = members?.some((m) => m.role === "member") ?? false
+    const isAdmin = currentMember?.role === UserRole.ADMIN
+    const hasMemberUsers = members?.some((m) => m.role === UserRole.MEMBER || m.role === UserRole.VIEWER) ?? false
 
     return (
         <div className="min-h-screen bg-slate-50">

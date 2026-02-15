@@ -21,7 +21,7 @@ def create_or_get_daily_summary(
     current_user: User = Depends(get_current_user),
 ):
     """日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。"""
-    baby = verify_baby_access(db, baby_id, current_user.id)
+    baby = verify_baby_access(db, baby_id, current_user.id, require_write=True)
 
     existing = (
         db.query(DailySummary)
@@ -123,7 +123,7 @@ def edit_daily_summary(
     current_user: User = Depends(get_current_user),
 ):
     """手動編集。edited_content=null でリセット（is_edited=False に戻す）。"""
-    verify_baby_access(db, baby_id, current_user.id)
+    verify_baby_access(db, baby_id, current_user.id, require_write=True)
     summary = (
         db.query(DailySummary)
         .filter(
@@ -150,7 +150,7 @@ def delete_daily_summary(
     current_user: User = Depends(get_current_user),
 ):
     """指定日の日誌を削除。"""
-    verify_baby_access(db, baby_id, current_user.id)
+    verify_baby_access(db, baby_id, current_user.id, require_write=True)
     summary = (
         db.query(DailySummary)
         .filter(

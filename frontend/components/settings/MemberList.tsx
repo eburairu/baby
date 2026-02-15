@@ -15,6 +15,7 @@ import {
 import { MemberRoleDialog } from "./MemberRoleDialog"
 import { api } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
+import { UserRole } from "@/lib/constants"
 
 interface Member {
     user_id: number
@@ -72,11 +73,13 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                     <span className="font-medium text-gray-900">{getDisplayName(member)}</span>
                                     <Badge
                                         variant="secondary"
-                                        className={member.role === "admin"
+                                        className={member.role === UserRole.ADMIN
                                             ? "bg-violet-100 text-violet-700"
-                                            : "bg-gray-100 text-gray-600"}
+                                            : member.role === UserRole.VIEWER
+                                                ? "bg-amber-100 text-amber-700"
+                                                : "bg-gray-100 text-gray-600"}
                                     >
-                                        {member.role}
+                                        {member.role === UserRole.ADMIN ? "管理者" : member.role === UserRole.VIEWER ? "閲覧者" : "メンバー"}
                                     </Badge>
                                 </div>
                                 <p className="text-xs text-gray-400 mt-0.5">{formatDate(member.joined_at)}</p>

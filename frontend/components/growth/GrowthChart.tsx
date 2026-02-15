@@ -68,7 +68,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     }
 
     const renderChart = (data: any[], dataKey: string, unit: string, color: string) => (
-        <div style={{ width: '100%', height: '100%', minHeight: '300px' }}>
+        <div style={{ width: '100%', height: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />

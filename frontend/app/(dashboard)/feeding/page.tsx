@@ -8,6 +8,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useBabies } from "@/hooks/useData"
 import { useFeeding } from "@/hooks/useFeeding"
+import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import { FeedingStats } from "@/components/feeding/feeding-stats"
 import { FeedingForm } from "@/components/feeding/feeding-form"
@@ -20,6 +21,7 @@ export default function FeedingPage() {
     const router = useRouter()
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId } = useBabyStore()
+    const { canWrite } = usePermissions()
 
     // Default to first baby, prefer store selection
     const effectiveBabyIdStr = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
@@ -66,11 +68,12 @@ export default function FeedingPage() {
                     <>
                         <FeedingStats summary={summary} />
 
-                        <FeedingForm babyId={babyId} onAdd={addFeeding} />
+                        {canWrite && <FeedingForm babyId={babyId} onAdd={addFeeding} />}
 
                         <FeedingHistory
                             feedings={feedings || []}
                             onDelete={deleteFeeding}
+                            canWrite={canWrite}
                         />
                     </>
                 )}

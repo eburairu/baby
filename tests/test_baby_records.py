@@ -6,7 +6,7 @@ def test_baby_crud(auth_client):
     # 赤ちゃん登録
     response = client.post(
         "/api/babies/",
-        json={"name": "太郎", "birthday": "2024-01-01", "gender": "male"}
+        json={"name": "太郎", "birthday": "2024-01-01", "gender": "boy"}
     )
     assert response.status_code == 200
     baby_id = response.json()["id"]
