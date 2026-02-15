@@ -1,6 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 from app.main import app
 from app.database import SessionLocal, engine
 from app.models.base import Base
@@ -9,6 +11,15 @@ from app.models.family import Family, FamilyUser
 from app.models.baby import Baby, BabyPermission
 from app.dependencies import get_current_user, get_db
 import uuid
+
+# Setup SQLite engine for this test file
+sqlite_engine = create_engine(
+    "sqlite://",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sqlite_engine)
+
 
 # Global mock states
 _mock_user = None
@@ -23,9 +34,9 @@ def mock_get_current_user():
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=sqlite_engine)
     yield
-    Base.metadata.drop_all(bind=engine)
+    Base.metadata.drop_all(bind=sqlite_engine)
 
 @pytest.fixture(autouse=True)
 def overrides():
@@ -37,9 +48,9 @@ def overrides():
 @pytest.fixture
 def db():
     global _test_db
-    connection = engine.connect()
+    connection = sqlite_engine.connect()
     transaction = connection.begin()
-    _test_db = SessionLocal(bind=connection)
+    _test_db = TestingSessionLocal(bind=connection)
     yield _test_db
     _test_db.close()
     transaction.rollback()
