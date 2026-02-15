@@ -12,6 +12,7 @@ import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, Timer } from "lucide-react"
 import Link from "next/link"
+import { isApiError } from "@/lib/api"
 
 export default function ContractionPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
@@ -38,7 +39,7 @@ export default function ContractionPage() {
         )
     }
 
-    const isAccessDenied = (contractionError as any)?.status === 403
+    const isAccessDenied = isApiError(contractionError) && contractionError.status === 403
     const typedContractions: ContractionRecord[] = contractions ?? []
 
     return (

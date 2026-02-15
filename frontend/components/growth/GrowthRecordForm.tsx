@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
-import type { Growth } from "@/types/growth"
+import { Growth } from "@/types/growth"
 
 const growthSchema = z.object({
     date: z.string().min(1, "日付を選択してください"),

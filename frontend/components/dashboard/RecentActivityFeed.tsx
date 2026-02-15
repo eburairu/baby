@@ -1,6 +1,6 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useRecords } from "@/hooks/useData"
+import { useRecords, BabyRecord } from "@/hooks/useData"
 import { formatElapsed } from "@/lib/ageUtils"
 
 const TYPE_ICONS: Record<string, string> = {
@@ -36,7 +36,7 @@ export function RecentActivityFeed({ babyId }: Props) {
                     <p className="text-sm text-gray-400">読み込み中...</p>
                 ) : recent.length > 0 ? (
                     <ul className="space-y-3">
-                        {recent.map((record: any) => (
+                        {recent.map((record: BabyRecord) => (
                             <li key={`${record.type}-${record.id}`} className="flex items-center gap-3">
                                 <span className="text-xl">{TYPE_ICONS[record.type] ?? "📝"}</span>
                                 <div className="flex-1 min-w-0">

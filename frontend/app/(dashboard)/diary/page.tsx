@@ -13,6 +13,7 @@ import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { DailySummary } from "@/types/dailySummary"
+import { isApiError } from "@/lib/api"
 
 function getTodayJST(): string {
     return new Intl.DateTimeFormat("ja-JP", {
@@ -52,8 +53,8 @@ export default function DiaryPage() {
         try {
             await generateDailySummary(babyId, todayStr)
             await mutate()
-        } catch (err: any) {
-            const detail = err?.info?.detail || "日誌の生成に失敗しました。"
+        } catch (err: unknown) {
+            const detail = isApiError(err) ? (err.info?.detail || "日誌の生成に失敗しました。") : "日誌の生成に失敗しました。"
             setGenerateError(detail)
         } finally {
             setIsGenerating(false)
@@ -92,7 +93,7 @@ export default function DiaryPage() {
         )
     }
 
-    const isAccessDenied = (summariesError as any)?.status === 403
+    const isAccessDenied = isApiError(summariesError) && summariesError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">

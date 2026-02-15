@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { babies } = useBabies()
     const { selectedBabyId } = useBabyStore()
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-    const selectedBaby = babies?.find((b: any) => String(b.id) === effectiveId)
+    const selectedBaby = babies?.find((b) => String(b.id) === effectiveId)
 
     useEffect(() => {
         if (!isLoading && !user) {
