@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/eburairu/baby/compare/v1.0.0...v1.1.0) (2026-02-15)
+
+
+### Features
+
+* **frontend:** remove redundant back buttons from sub-page headers ([c680029](https://github.com/eburairu/baby/commit/c6800299021350502b67910de1667a3eb5684b26))
+
 # 1.0.0 (2026-02-15)
 
 
