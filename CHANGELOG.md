@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/eburairu/baby/compare/v1.3.0...v1.3.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* baby gender update not working and improve schema validation ([5d154d4](https://github.com/eburairu/baby/commit/5d154d4c5fc39e2c910510702e457b307b1cdaa8))
+
 # [1.3.0](https://github.com/eburairu/baby/compare/v1.2.0...v1.3.0) (2026-02-15)
 
 
