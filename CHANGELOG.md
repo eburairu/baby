@@ -1,3 +1,20 @@
+# [1.9.0](https://github.com/eburairu/baby/compare/v1.8.0...v1.9.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** refine dark mode styles for diaper history, baby selector and dashboard widgets ([f8d9c0f](https://github.com/eburairu/baby/commit/f8d9c0fb61248f92361791ded1885b8ea9167986))
+
+
+### Features
+
+* **contraction:** implement waveform UI and real-time visualization for contraction timer ([e1dc522](https://github.com/eburairu/baby/commit/e1dc52224f41398c96499462c09d3a139f9d9c04))
+
+
+### Performance Improvements
+
+* add pagination to diaper records endpoint ([e0bda10](https://github.com/eburairu/baby/commit/e0bda10145b24783d522ea161e6c27c36ee3aaf4))
+
 # [1.8.0](https://github.com/eburairu/baby/compare/v1.7.2...v1.8.0) (2026-02-15)
 
 
