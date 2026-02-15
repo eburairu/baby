@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/eburairu/baby/compare/v1.4.0...v1.5.0) (2026-02-15)
+
+
+### Features
+
+* add baby bottle favicon and update PWA icons ([4044e08](https://github.com/eburairu/baby/commit/4044e0895f538e8d5b03b4d58b3fe56253011615))
+
 # [1.4.0](https://github.com/eburairu/baby/compare/v1.3.1...v1.4.0) (2026-02-15)
 
 
