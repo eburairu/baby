@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/eburairu/baby/compare/v1.13.2...v1.13.3) (2026-02-15)
+
+
+### Bug Fixes
+
+* initialize note timestamp with local time ([4e17697](https://github.com/eburairu/baby/commit/4e17697e55e4f9b10dfee2d3e665b822e2e9eb40))
+
 ## [1.13.2](https://github.com/eburairu/baby/compare/v1.13.1...v1.13.2) (2026-02-15)
 
 
