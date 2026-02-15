@@ -91,9 +91,9 @@ export default function LoginPage() {
                 </Form>
             </CardContent>
             <CardFooter className="justify-center">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                     Don&apos;t have an account?{" "}
-                    <Link href="/register" className="text-blue-600 hover:underline">
+                    <Link href="/register" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
                         Register
                     </Link>
                 </p>
