@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/eburairu/baby/compare/v1.13.1...v1.13.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* align frontend BabyRecord type with backend UnifiedRecord and fix notes access ([0421da3](https://github.com/eburairu/baby/commit/0421da33ecc3b2909e85ea6bdf124790343d2580))
+
 ## [1.13.1](https://github.com/eburairu/baby/compare/v1.13.0...v1.13.1) (2026-02-15)
 
 
