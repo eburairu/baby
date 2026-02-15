@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/eburairu/baby/compare/v1.7.2...v1.8.0) (2026-02-15)
+
+
+### Features
+
+* **contraction:** implement waveform UI and real-time visualization for contraction timer ([a69a7fa](https://github.com/eburairu/baby/commit/a69a7fa85d54f935e4dad311f8eb576e0ac3bf6b))
+
 ## [1.7.2](https://github.com/eburairu/baby/compare/v1.7.1...v1.7.2) (2026-02-15)
 
 
