@@ -47,37 +47,37 @@ export default function ProfileSettingsPage() {
     if (!user) return null
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm h-14 flex items-center justify-center px-4">
-                <h1 className="text-base font-semibold text-gray-900">プロフィール設定</h1>
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
+            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center justify-center px-4">
+                <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">プロフィール設定</h1>
             </header>
 
             <div className="max-w-md mx-auto p-4">
-                <div className="bg-white rounded-2xl shadow-sm p-6 space-y-6">
-                    <div className="flex flex-col items-center gap-3 pb-6 border-b border-gray-100">
-                        <div className="h-20 w-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 space-y-6">
+                    <div className="flex flex-col items-center gap-3 pb-6 border-b border-gray-100 dark:border-zinc-800">
+                        <div className="h-20 w-20 bg-blue-100 dark:bg-blue-950/30 rounded-full flex items-center justify-center text-blue-500 dark:text-blue-400 transition-colors">
                             <User className="h-10 w-10" />
                         </div>
                         <div className="text-center">
-                            <h2 className="text-xl font-bold text-gray-900">{getDisplayName(user)}</h2>
-                            <p className="text-sm text-gray-500">@{user.username}</p>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-100">{getDisplayName(user)}</h2>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">@{user.username}</p>
                         </div>
                     </div>
 
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="username">ユーザー名（ログインID）</Label>
+                            <Label htmlFor="username" className="dark:text-zinc-300">ユーザー名（ログインID）</Label>
                             <Input
                                 id="username"
                                 value={user.username}
                                 disabled
-                                className="bg-gray-50 text-gray-500"
+                                className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-zinc-500 border-gray-200 dark:border-zinc-800"
                             />
-                            <p className="text-xs text-gray-400">ユーザー名は変更できません</p>
+                            <p className="text-xs text-gray-400 dark:text-zinc-600">ユーザー名は変更できません</p>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="displayName">表示名</Label>
+                            <Label htmlFor="displayName" className="dark:text-zinc-300">表示名</Label>
                             {isEditing ? (
                                 <div className="space-y-3">
                                     <Input
@@ -87,10 +87,11 @@ export default function ProfileSettingsPage() {
                                         placeholder="表示名を入力"
                                         maxLength={50}
                                         autoFocus
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
                                     />
                                     <div className="flex gap-2">
                                         <Button
-                                            className="flex-1"
+                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
                                             onClick={handleSave}
                                             disabled={isSaving}
                                         >
@@ -99,23 +100,23 @@ export default function ProfileSettingsPage() {
                                         </Button>
                                         <Button
                                             variant="outline"
-                                            className="flex-1"
+                                            className="flex-1 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
                                             onClick={() => setIsEditing(false)}
                                             disabled={isSaving}
                                         >
                                             キャンセル
                                         </Button>
                                     </div>
-                                    <p className="text-xs text-gray-400">
+                                    <p className="text-xs text-gray-400 dark:text-zinc-600">
                                         ※空欄にして保存するとユーザー名が表示されます
                                     </p>
                                 </div>
                             ) : (
-                                <div className="flex justify-between items-center bg-gray-50 p-3 rounded-md border border-gray-200">
-                                    <span className="text-gray-900 text-sm">
-                                        {user.display_name || <span className="text-gray-400 italic">未設定（ユーザー名を表示）</span>}
+                                <div className="flex justify-between items-center bg-gray-50 dark:bg-zinc-800/50 p-3 rounded-md border border-gray-200 dark:border-zinc-800">
+                                    <span className="text-gray-900 dark:text-zinc-100 text-sm">
+                                        {user.display_name || <span className="text-gray-400 dark:text-zinc-600 italic">未設定（ユーザー名を表示）</span>}
                                     </span>
-                                    <Button variant="ghost" size="sm" onClick={handleEditStart} className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                                    <Button variant="ghost" size="sm" onClick={handleEditStart} className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30">
                                         変更
                                     </Button>
                                 </div>

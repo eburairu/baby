@@ -18,6 +18,7 @@ import { format } from "date-fns"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
+import { useTheme } from "next-themes"
 
 interface GrowthChartProps {
     records: Growth[]
@@ -27,18 +28,14 @@ interface GrowthChartProps {
 
 export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartProps) {
     const [showWho, setShowWho] = useState(true)
+    const { resolvedTheme } = useTheme()
+    const isDark = resolvedTheme === "dark"
 
     const chartData = useMemo(() => {
         // Prepare WHO data
         const whoData = (babyBirthday && babyGender && showWho)
-            ? generateWhoSeries(babyBirthday, babyGender, 'height') // type is ignored in generateWho for generic month structure if optimization needed, but current util generates one type. 
-            // Wait, generateWhoSeries takes type. We need to generate for ALL types or generate on demand.
-            // Let's modify generateWhoSeries usage or run it for each tab content?
-            // Actually, mergeData is specific to type.
+            ? generateWhoSeries(babyBirthday, babyGender, 'height') 
             : []
-
-        // We'll generate merged data for each type in the render or here.
-        // It's better to memoize.
 
         return {
             height: mergeData(records, babyBirthday && babyGender && showWho ? generateWhoSeries(babyBirthday, babyGender, 'height') : [], 'height'),
@@ -49,7 +46,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
 
     if (records.length === 0 && !babyBirthday) {
         return (
-            <Card className="w-full">
+            <Card className="w-full dark:bg-zinc-900 dark:border-zinc-800">
                 <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
                     グラフを表示するためのデータがありません
                 </CardContent>
@@ -67,29 +64,44 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
         return [value, name];
     }
 
+    const gridColor = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : gray-200
+    const textColor = isDark ? "#a1a1aa" : "#6b7280" // zinc-400 : gray-500
+    const whoLineColor = isDark ? "#3f3f46" : "#ccc" // zinc-700 : ccc
+    const whoFillColor = isDark ? "#18181b" : "#e0e0e0" // zinc-900 : e0e0e0
+
     const renderChart = (data: any[], dataKey: string, unit: string, color: string) => (
         <div style={{ width: '100%', height: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                     <XAxis
                         dataKey="date"
                         domain={['dataMin', 'dataMax']}
                         tickFormatter={formatDateTick}
                         type="number"
                         scale="time"
+                        tick={{ fill: textColor, fontSize: 10 }}
                     />
-                    <YAxis unit={unit} domain={['auto', 'auto']} />
-                    <Tooltip labelFormatter={(label) => format(new Date(label), "yyyy/MM/dd")} formatter={tooltipFormatter as any} />
-                    <Legend />
+                    <YAxis unit={unit} domain={['auto', 'auto']} tick={{ fill: textColor, fontSize: 10 }} />
+                    <Tooltip 
+                        labelFormatter={(label) => format(new Date(label), "yyyy/MM/dd")} 
+                        formatter={tooltipFormatter as any}
+                        contentStyle={{ 
+                            backgroundColor: isDark ? "#18181b" : "#fff", 
+                            borderColor: isDark ? "#27272a" : "#e5e7eb",
+                            color: isDark ? "#f4f4f5" : "#1f2937"
+                        }}
+                        itemStyle={{ color: isDark ? "#f4f4f5" : "#1f2937" }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
 
                     {/* WHO Areas */}
                     {showWho && (
                         <>
-                            <Area type="monotone" dataKey={`who_${dataKey}_p97`} stroke="none" fill="#e0e0e0" fillOpacity={0.3} connectNulls stackId="who" />
-                            <Line type="monotone" dataKey={`who_${dataKey}_p97`} stroke="#ccc" strokeDasharray="5 5" dot={false} name="WHO P97" connectNulls />
-                            <Line type="monotone" dataKey={`who_${dataKey}_p50`} stroke="#999" strokeWidth={2} dot={false} name="WHO P50" connectNulls />
-                            <Line type="monotone" dataKey={`who_${dataKey}_p3`} stroke="#ccc" strokeDasharray="5 5" dot={false} name="WHO P3" connectNulls />
+                            <Area type="monotone" dataKey={`who_${dataKey}_p97`} stroke="none" fill={whoFillColor} fillOpacity={0.4} connectNulls stackId="who" />
+                            <Line type="monotone" dataKey={`who_${dataKey}_p97`} stroke={whoLineColor} strokeDasharray="5 5" dot={false} name="WHO P97" connectNulls />
+                            <Line type="monotone" dataKey={`who_${dataKey}_p50`} stroke={isDark ? "#71717a" : "#999"} strokeWidth={2} dot={false} name="WHO P50" connectNulls />
+                            <Line type="monotone" dataKey={`who_${dataKey}_p3`} stroke={whoLineColor} strokeDasharray="5 5" dot={false} name="WHO P3" connectNulls />
                         </>
                     )}
 
@@ -99,9 +111,9 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                         dataKey={dataKey}
                         name="記録"
                         stroke={color}
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                        activeDot={{ r: 6 }}
+                        strokeWidth={3}
+                        dot={{ r: 4, fill: color, strokeWidth: 2 }}
+                        activeDot={{ r: 6, strokeWidth: 0 }}
                         connectNulls
                     />
                 </ComposedChart>
@@ -110,22 +122,22 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     )
 
     return (
-        <Card className="w-full">
+        <Card className="w-full dark:bg-zinc-900 dark:border-zinc-800 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">成長曲線</CardTitle>
+                <CardTitle className="text-lg dark:text-zinc-100">成長曲線</CardTitle>
                 {(babyBirthday && babyGender) && (
                     <div className="flex items-center space-x-2">
                         <Checkbox id="show-who" checked={showWho} onCheckedChange={(c: boolean | 'indeterminate') => setShowWho(!!c)} />
-                        <Label htmlFor="show-who" className="text-sm">WHO基準を表示</Label>
+                        <Label htmlFor="show-who" className="text-sm dark:text-zinc-300">WHO基準を表示</Label>
                     </div>
                 )}
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="weight" className="w-full">
-                    <TabsList className="mb-4">
-                        <TabsTrigger value="height">身長</TabsTrigger>
-                        <TabsTrigger value="weight">体重</TabsTrigger>
-                        <TabsTrigger value="head">頭囲</TabsTrigger>
+                    <TabsList className="mb-4 dark:bg-zinc-800">
+                        <TabsTrigger value="height" className="dark:data-[state=active]:bg-zinc-700 dark:text-zinc-400 dark:data-[state=active]:text-zinc-100">身長</TabsTrigger>
+                        <TabsTrigger value="weight" className="dark:data-[state=active]:bg-zinc-700 dark:text-zinc-400 dark:data-[state=active]:text-zinc-100">体重</TabsTrigger>
+                        <TabsTrigger value="head" className="dark:data-[state=active]:bg-zinc-700 dark:text-zinc-400 dark:data-[state=active]:text-zinc-100">頭囲</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="height" className="h-[300px]">
