@@ -1,3 +1,16 @@
+# [1.11.0](https://github.com/eburairu/baby/compare/v1.10.1...v1.11.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* **backend:** replace unsupported look-ahead regex with Pydantic field_validator ([57a3e29](https://github.com/eburairu/baby/commit/57a3e29a81cd1c7a891ea14872d08eeb130357d2))
+
+
+### Features
+
+* **contraction:** add 1-min offset start button and edit functionality ([98dadcc](https://github.com/eburairu/baby/commit/98dadccbd95f693c2c238e5f79dd14d02ddd94b1))
+* **contraction:** upgrade waveform UI to rich Recharts version with interactive tooltips ([d130cad](https://github.com/eburairu/baby/commit/d130cad37fe257a7cf0dbc30521e9be0e3d28cf7))
+
 ## [1.10.1](https://github.com/eburairu/baby/compare/v1.10.0...v1.10.1) (2026-02-15)
 
 
