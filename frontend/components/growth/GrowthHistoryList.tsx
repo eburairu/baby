@@ -5,6 +5,7 @@ import { format } from "date-fns"
 import { Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
+import { Growth } from "@/types/growth"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,8 +18,8 @@ import {
 } from "@/components/ui/alert-dialog"
 
 interface GrowthHistoryListProps {
-    records: any[]
-    onEdit: (record: any) => void
+    records: Growth[]
+    onEdit: (record: Growth) => void
     onDeleteSuccess: () => void
 }
 
