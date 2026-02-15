@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Literal
 from datetime import date, datetime
 
 
@@ -7,7 +7,7 @@ class BabyBase(BaseModel):
     name: str
     birthday: Optional[date] = None
     due_date: Optional[date] = None
-    gender: Optional[str] = None
+    gender: Optional[Literal["boy", "girl", "unknown"]] = None
     characteristics: Optional[str] = None
 
 

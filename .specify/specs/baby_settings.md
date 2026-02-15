@@ -50,11 +50,13 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 - タップするとダイアログが開く（ページ遷移なし）。
 - 編集可能なフィールド:
     - 名前（必須、空文字不可）
+    - 性別（「男の子」、「女の子」、「わからない」から選択。妊娠中も利用するため「わからない」を選択可能とする。）
     - 生年月日（`birthday`、任意）
     - 出産予定日（`due_date`、任意）
     - 特徴・傾向（`characteristics`、任意、多行テキスト）
         - AIが日誌生成時に自動更新するフィールドだが、親が手動で修正・追記できるようにする。
 - `react-hook-form` + `zod` によるバリデーションを使用する。
+- 追加・編集画面は共通のフォームコンポーネントを利用する。
 - 保存後は一覧を即時更新し、成功トーストを表示する。
 
 ### BF3: 赤ちゃんの削除
@@ -104,6 +106,8 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 │  ┌───────────────────────────────┐  │
 │  │ レンくん                      │  │
 │  └───────────────────────────────┘  │
+│  性別                               │
+│  ( ) 男の子  ( ) 女の子  ( ) わからない │
 │  生年月日                           │
 │  ┌───────────────────────────────┐  │
 │  │ 2025/10/31                    │  │
@@ -129,8 +133,9 @@ Baby-App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 frontend/app/(dashboard)/settings/babies/page.tsx
 frontend/components/settings/
   BabyCard.tsx          ← 赤ちゃん情報カード（編集・削除ボタン付き、特徴表示追加）
-  BabyEditDialog.tsx    ← 赤ちゃん情報編集ダイアログ（特徴フィールド追加）
-  AddBabyDialog.tsx     ← 新規追加ダイアログ
+  BabyForm.tsx          ← 赤ちゃん情報入力フォーム（追加・編集で共通利用）
+  BabyEditDialog.tsx    ← 赤ちゃん情報編集ダイアログ（BabyForm を利用）
+  AddBabyDialog.tsx     ← 新規追加ダイアログ（BabyForm を利用）
   BabyDeleteDialog.tsx  ← 削除確認ダイアログ
 ```
 
@@ -151,6 +156,7 @@ useBabies()     // GET /api/babies/ → 赤ちゃん一覧
 ```typescript
 const babySchema = z.object({
   name: z.string().min(1, "名前を入力してください"),
+  gender: z.enum(["boy", "girl", "unknown"]).optional(),
   birthday: z.string().optional(),   // "YYYY-MM-DD" or ""
   due_date: z.string().optional(),   // "YYYY-MM-DD" or ""
   characteristics: z.string().optional(), // 多行テキスト

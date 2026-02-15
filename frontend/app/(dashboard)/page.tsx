@@ -21,6 +21,7 @@ export default function Dashboard() {
 
     const [newBabyName, setNewBabyName] = useState("")
     const [newBabyBirthday, setNewBabyBirthday] = useState("")
+    const [newBabyGender, setNewBabyGender] = useState("unknown")
     const [error, setError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
 
@@ -33,11 +34,12 @@ export default function Dashboard() {
         setSubmitting(true)
         try {
             setError(null)
-            const body: Record<string, string> = { name: newBabyName }
+            const body: Record<string, string> = { name: newBabyName, gender: newBabyGender }
             if (newBabyBirthday) body.birthday = newBabyBirthday
             await api.post("/babies/", body)
             setNewBabyName("")
             setNewBabyBirthday("")
+            setNewBabyGender("unknown")
             mutateBabies()
         } catch (err: unknown) {
             console.error("赤ちゃんの追加に失敗しました", err)
@@ -84,9 +86,46 @@ export default function Dashboard() {
                                 <Input
                                     id="babyBirthday"
                                     type="date"
+                                    max="9999-12-31"
                                     value={newBabyBirthday}
                                     onChange={(e) => setNewBabyBirthday(e.target.value)}
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>性別 <span className="text-red-500">*</span></Label>
+                                <div className="flex gap-4">
+                                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="boy"
+                                            checked={newBabyGender === "boy"}
+                                            onChange={(e) => setNewBabyGender(e.target.value)}
+                                            required
+                                        />
+                                        男の子
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="girl"
+                                            checked={newBabyGender === "girl"}
+                                            onChange={(e) => setNewBabyGender(e.target.value)}
+                                        />
+                                        女の子
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="unknown"
+                                            checked={newBabyGender === "unknown"}
+                                            onChange={(e) => setNewBabyGender(e.target.value)}
+                                        />
+                                        わからない
+                                    </label>
+                                </div>
                             </div>
                             <Button
                                 type="submit"
@@ -131,8 +170,8 @@ export default function Dashboard() {
 
                 {/* 陣痛タイマーへのリンク */}
                 <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors flex items-center justify-center">
-                        🤰 陣痛タイマー
-                    </Link>
+                    🤰 陣痛タイマー
+                </Link>
 
                 {/* Recent Activity */}
                 <RecentActivityFeed babyId={effectiveId} />
