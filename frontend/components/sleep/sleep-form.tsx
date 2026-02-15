@@ -12,6 +12,7 @@ import { api } from "@/lib/api"
 import { useSleeps } from "@/hooks/useData"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Loader2, Plus } from "lucide-react"
+import { SleepCreate } from "@/types/sleep"
 
 const formSchema = z.object({
     start_time: z.string().min(1, "開始日時は必須です"),
@@ -38,7 +39,7 @@ export function SleepForm({ babyId }: Props) {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            const payload: any = {
+            const payload: SleepCreate = {
                 baby_id: Number(babyId),
                 start_time: new Date(values.start_time).toISOString(),
                 notes: values.notes,

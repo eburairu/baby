@@ -95,17 +95,10 @@ Baby-App 全ページに適用する統一 UI/UX ガイドライン。
 <div className="min-h-screen bg-slate-50">
   {/* 共通ページヘッダー */}
   <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-    <div className="flex items-center justify-between h-14 px-4">
-      <Link href="/">
-        <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2">
-          <ChevronLeft className="h-4 w-4" />
-          <span className="text-sm">ダッシュボード</span>
-        </Button>
-      </Link>
+    <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
       <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
         {/* カテゴリーアイコン（Lucide React） + タイトル */}
       </h1>
-      <div className="w-16" /> {/* 右側スペーサー（左右対称を保つ） */}
     </div>
   </header>
 
@@ -120,13 +113,12 @@ Baby-App 全ページに適用する統一 UI/UX ガイドライン。
 
 #### ヘッダーの設計意図
 
-- **`sticky top-0 z-10`**: スクロール時にヘッダーが追従し、常に「戻る」手段が見える
+- **`sticky top-0 z-10`**: スクロール時にヘッダーが追従し、常にページタイトルが見える
 - **`bg-white/80 backdrop-blur-sm`**: Glassmorphism 効果で上品な透過表示
 - **`border-b border-gray-100 shadow-sm`**: コンテンツとの境界を明確化
 - **`h-14`**: 全ページで統一した高さ（タップ可能な十分なサイズ）
-- **戻るボタン**: 全詳細ページで左端に表示（現状 Contraction のみ実装）
-- **ページタイトル**: 中央に `text-base font-semibold text-gray-800`（現状は `text-lg` / `text-xl` / `text-2xl` 混在）
-- **右スペーサー**: `w-16` の空要素でタイトルを視覚的に中央揃えに保つ
+- **戻るボタン（廃止）**: グローバルヘッダーのハンバーガーメニューやロゴタイトルで代替可能なため、サブページ側からは削除。
+- **ページタイトル**: 中央に `text-base font-semibold text-gray-800` を配置し、視認性を高める。
 
 #### 各詳細ページのタイトル・アイコン定義
 
@@ -405,28 +397,15 @@ export function ErrorMessage({ message }: { message: string }) {
 
 ## 7. ナビゲーション
 
-### 7.1 詳細ページの戻るボタン
+### 7.1 詳細ページの戻るボタン（廃止）
 
-全詳細ページのヘッダー左端に実装する（現状は Contraction のみ）。
+各詳細ページに個別に実装されていた「ダッシュボードへ戻る」ボタンは廃止された。
 
-```tsx
-// 統一実装
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+**廃止の理由**:
+1. **グローバルヘッダーの存在**: 全ページ共通の `DashboardLayout` にハンバーガーメニューと「Baby App」タイトル（ルートへのリンク）が既に存在するため。
+2. **UI の整理**: 二重ヘッダーによる視覚的な複雑さを軽減し、モバイルでの表示領域を確保するため。
 
-<Link href="/">
-  <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2 rounded-lg">
-    <ChevronLeft className="h-4 w-4" />
-    <span className="text-sm">ダッシュボード</span>
-  </Button>
-</Link>
-```
-
-**廃止するパターン**:
-
-- Contraction の `<a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">← ダッシュボード</a>`
-  → Next.js `<Link>` + shadcn `<Button variant="ghost">` に統一
+今後、詳細ページからダッシュボードに戻る際は、画面最上部のグローバルヘッダー内のタイトルをクリックするか、ハンバーガーメニューを利用する。
 
 ### 7.2 ウィジェットの詳細ページリンク
 
@@ -442,11 +421,8 @@ import { Button } from "@/components/ui/button";
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `app/(dashboard)/feeding/page.tsx` | 戻るボタンの実装（ヘッダー左端、chevron-left + Link） |
-| `app/(dashboard)/sleep/page.tsx` | ヘッダーを `sticky top-0 z-10 bg-white/80 backdrop-blur-sm` に変更。戻るボタンの実装 |
-| `app/(dashboard)/diaper/page.tsx` | ヘッダーを統一スタイルに変更。戻るボタンの実装 |
-| `app/(dashboard)/growth/page.tsx` | ヘッダー実装（現在は `<div>`）。戻るボタンの実装 |
-| `app/(dashboard)/contraction/page.tsx` | 戻るボタンを `<Link>` + `<Button variant="ghost">` に変更。ヘッダースタイル統一 |
+| `app/(dashboard)/**/page.tsx` | サブヘッダーの「ダッシュボードへ戻る」ボタンを削除。タイトルを中央寄せに調整 |
+| `app/(dashboard)/settings/profile/page.tsx` | 冗長な戻るボタンを削除。タイトルを中央寄せに調整 |
 | `components/diaper/DiaperForm.tsx` | ネイティブ `<input>` を shadcn/ui `<Input>` に置き換え。react-hook-form 導入。ボタン色を amber 統一 |
 
 ### 中優先度（統一感）
@@ -485,18 +461,11 @@ import { Button } from "@/components/ui/button";
 ```tsx
 // app/(dashboard)/sleep/page.tsx
 <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-  <div className="flex items-center justify-between h-14 px-4">
-    <Link href="/">
-      <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2 rounded-lg">
-        <ChevronLeft className="h-4 w-4" />
-        <span className="text-sm">ダッシュボード</span>
-      </Button>
-    </Link>
+  <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
     <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
       <Moon className="h-4 w-4 text-indigo-500" />
       睡眠記録
     </h1>
-    <div className="w-16" />
   </div>
 </header>
 ```
@@ -512,7 +481,7 @@ import { Button } from "@/components/ui/button";
 - [x] 全詳細ページで `sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm` を適用
 - [x] 全詳細ページで `h-14` のヘッダー高さを統一
 - [x] 全詳細ページのタイトルを `text-base font-semibold text-gray-800` に統一
-- [x] 全詳細ページに `ChevronLeft` + `Link` の戻るボタンを実装
+- [x] 全詳細ページから冗長な戻るボタンを削除し、タイトルを中央寄せ（または適切に配置）
 
 ### カラー
 
@@ -539,5 +508,5 @@ import { Button } from "@/components/ui/button";
 
 ### ナビゲーション
 
-- [x] 全詳細ページの戻るボタンを `<Link>` + `<Button variant="ghost">` で統一
+- [x] サブページ内の「ダッシュボードへ戻る」ボタンを廃止し、グローバルヘッダーに集約
 - [x] Contraction の旧スタイル（`<a href="/">← ダッシュボード</a>`）を廃止

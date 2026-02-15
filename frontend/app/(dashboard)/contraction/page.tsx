@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button"
 import type { ContractionRecord } from "@/types/contraction"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
-import { ChevronLeft, Timer } from "lucide-react"
+import { Timer } from "lucide-react"
 import Link from "next/link"
+import { isApiError } from "@/lib/api"
 
 export default function ContractionPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
@@ -38,24 +39,17 @@ export default function ContractionPage() {
         )
     }
 
-    const isAccessDenied = (contractionError as any)?.status === 403
+    const isAccessDenied = isApiError(contractionError) && contractionError.status === 403
     const typedContractions: ContractionRecord[] = contractions ?? []
 
     return (
         <div className="min-h-screen bg-slate-50">
             <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-                <div className="flex items-center justify-between h-14 px-4 max-w-2xl mx-auto">
-                    <Link href="/">
-                        <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2 rounded-lg">
-                            <ChevronLeft className="h-4 w-4" />
-                            <span className="text-sm">ダッシュボード</span>
-                        </Button>
-                    </Link>
+                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
                     <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
                         <Timer className="h-4 w-4 text-red-500" />
                         陣痛タイマー
                     </h1>
-                    <div className="w-16" />
                 </div>
             </header>
 

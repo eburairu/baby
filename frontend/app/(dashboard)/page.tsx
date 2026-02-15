@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useBabies } from "@/hooks/useData"
 import Link from "next/link"
 import { useBabyStore } from "@/stores/babyStore"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,9 +39,9 @@ export default function Dashboard() {
             setNewBabyName("")
             setNewBabyBirthday("")
             mutateBabies()
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("赤ちゃんの追加に失敗しました", err)
-            setError(err.info?.detail || "赤ちゃんの追加に失敗しました")
+            setError(isApiError(err) ? (err.info?.detail || "赤ちゃんの追加に失敗しました") : "赤ちゃんの追加に失敗しました")
         } finally {
             setSubmitting(false)
         }
@@ -104,7 +104,7 @@ export default function Dashboard() {
 
     if (!effectiveId) return null
 
-    const babiesWithStrId = babies.map((b: any) => ({ ...b, id: String(b.id) }))
+    const babiesWithStrId = babies.map((b) => ({ ...b, id: String(b.id) }))
 
     return (
         <div className="min-h-screen bg-slate-50">

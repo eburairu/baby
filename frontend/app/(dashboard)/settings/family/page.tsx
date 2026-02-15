@@ -1,6 +1,5 @@
 "use client"
 import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/hooks/useAuth"
 import { useFamilySettings, useFamilyMembers } from "@/hooks/useData"
@@ -38,12 +37,7 @@ export default function FamilySettingsPage() {
     return (
         <div className="min-h-screen bg-slate-50">
             {/* sticky header */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm h-14 flex items-center px-4">
-                <Link href="/">
-                    <Button variant="ghost" size="icon" className="mr-2">
-                        <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                </Link>
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm h-14 flex items-center justify-center px-4">
                 <h1 className="text-base font-semibold text-gray-900">家族設定</h1>
             </header>
 

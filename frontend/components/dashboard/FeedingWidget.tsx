@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useFeedings } from "@/hooks/useData"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
@@ -16,7 +16,7 @@ export function FeedingWidget({ babyId }: Props) {
     const { feedings, isError, mutate } = useFeedings(babyId)
     const [loading, setLoading] = useState(false)
 
-    const isAccessDenied = (isError as any)?.status === 403
+    const isAccessDenied = isApiError(isError) && isError.status === 403
 
     if (isAccessDenied) {
         return (
