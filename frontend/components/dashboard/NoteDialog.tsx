@@ -15,7 +15,11 @@ interface Props {
 
 export function NoteDialog({ babyId, open, onOpenChange }: Props) {
   const [content, setContent] = useState("")
-  const [timestamp, setTimestamp] = useState(new Date().toISOString().slice(0, 16))
+  const [timestamp, setTimestamp] = useState(() => {
+    const now = new Date()
+    const offset = now.getTimezoneOffset() * 60000
+    return new Date(now.getTime() - offset).toISOString().slice(0, 16)
+  })
   const [submitting, setSubmitting] = useState(false)
   const { mutate: mutateRecords } = useRecords(babyId)
 
