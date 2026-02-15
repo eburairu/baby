@@ -66,7 +66,6 @@ def create_presigned_url(
             Params={
                 "Bucket": bucket_name,
                 "Key": object_key,
-                "ContentType": body.content_type,
             },
             ExpiresIn=3600,
         )
