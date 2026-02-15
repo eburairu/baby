@@ -5,6 +5,7 @@ import { useContractionTimer } from "@/stores/contractionStore"
 import { api } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import type { ContractionRecord } from "@/types/contraction"
 
 function formatTime(seconds: number): string {
     const m = Math.floor(seconds / 60)
@@ -15,9 +16,10 @@ function formatTime(seconds: number): string {
 interface ContractionTimerProps {
     babyId: number
     onRecorded: () => void
+    lastContraction?: ContractionRecord
 }
 
-export default function ContractionTimer({ babyId, onRecorded }: ContractionTimerProps) {
+export default function ContractionTimer({ babyId, onRecorded, lastContraction }: ContractionTimerProps) {
     const { status, elapsedSeconds, start, stop, tick } = useContractionTimer()
 
     // 毎秒のtick更新
@@ -34,11 +36,23 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
             const result = stop()
             if (result) {
                 try {
+                    // interval_seconds (Start-to-Start) の計算
+                    let intervalSeconds: number | undefined = undefined
+                    if (lastContraction) {
+                        const lastStart = new Date(lastContraction.start_time).getTime()
+                        const currentStart = result.startTime.getTime()
+                        const diff = Math.round((currentStart - lastStart) / 1000)
+                        if (diff > 0) {
+                            intervalSeconds = diff
+                        }
+                    }
+
                     await api.post("/contractions/", {
                         baby_id: babyId,
                         start_time: result.startTime.toISOString(),
                         end_time: result.endTime.toISOString(),
                         duration_seconds: result.durationSeconds,
+                        interval_seconds: intervalSeconds,
                     })
                     onRecorded()
                 } catch (err) {
@@ -46,7 +60,7 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
                 }
             }
         }
-    }, [status, babyId, start, stop, onRecorded])
+    }, [status, babyId, start, stop, onRecorded, lastContraction])
 
     const isTiming = status === "timing"
 
