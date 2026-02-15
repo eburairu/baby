@@ -22,7 +22,7 @@
 - **停止ボタン**: 陣痛の終了時刻を記録し、持続時間を自動算出する
 - **リアルタイム表示**: 経過秒数を `MM:SS` 形式でリアルタイム表示する
 - **状態管理**: タイマーの状態（idle / timing）を Zustand ストアで管理する
-- **`interval_seconds` 自動計算**: 停止時に前回記録の `start_time` と今回の `start_time` の差分から算出 (Start-to-Start / 周期)
+- **`interval_seconds` 自動計算**: 停止時に「前回の痛みの始まり（start_time）」から「今回の痛みの始まり（start_time）」までの時間を算出する（Start-to-Start / 周期）
     - 計算式: `(今回のstart_time - 前回のstart_time) / 1000`（ミリ秒→秒、Math.round）
     - diff > 0 の場合のみ送信（前回記録がない場合や差分が0以下の場合はフィールド自体を省略）
 - **ボタン仕様**: `h-20 w-full text-2xl rounded-2xl`（陣痛中の操作性を考慮して大型化）
@@ -45,7 +45,7 @@
 
 - 直近1時間の陣痛回数
 - 平均持続時間
-- 平均間隔 (Start-to-Start)
+- 平均間隔 (痛みの始まりから次の痛みの始まり / Start-to-Start)
 - 5-1-1ルール判定（正確なロジック）:
     - qualifying = `interval_seconds ≤ 300` かつ `duration_seconds ≥ 60` の陣痛
     - `shouldAlert = qualifying.length >= 3`
@@ -187,3 +187,4 @@ interface ContractionTimerState {
 | 1.2 | 2026-02-15 | 陣痛グラフを「波形UI (Waveform UI)」に一新。ベジェ曲線を用いた滑らかな描画とアニメーション要件を追加。 |
 | 1.3 | 2026-02-15 | 波形UIを Recharts ベースにアップグレード。インタラクティブなツールチップ、精緻な曲線補間、レスポンシブ対応を強化。 |
 | 1.4 | 2026-02-16 | 「1分前からの計測開始ボタン」および「記録の編集機能」を追加。PATCH API仕様を定義。 |
+| 1.5 | 2026-02-16 | 陣痛の間隔の定義を「痛みの始まりから次の痛みの始まり」と明記。 |
