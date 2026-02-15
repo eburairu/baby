@@ -60,12 +60,11 @@ export function BabyForm({
     useEffect(() => {
         if (defaultValues) {
             reset({
-                name: "",
-                gender: "unknown",
-                birthday: "",
-                due_date: "",
-                characteristics: "",
-                ...defaultValues,
+                name: defaultValues.name || "",
+                gender: defaultValues.gender || "unknown",
+                birthday: defaultValues.birthday || "",
+                due_date: defaultValues.due_date || "",
+                characteristics: defaultValues.characteristics || "",
             })
         }
     }, [defaultValues, reset])
