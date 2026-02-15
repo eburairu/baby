@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/eburairu/baby/compare/v1.7.0...v1.7.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** implement dark mode support for login, settings, and tracker screens ([de2100b](https://github.com/eburairu/baby/commit/de2100b5e5fddf64cae5061f25f48ab9b1222091))
+
 # [1.7.0](https://github.com/eburairu/baby/compare/v1.6.4...v1.7.0) (2026-02-15)
 
 
