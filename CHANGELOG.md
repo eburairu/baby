@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/eburairu/baby/compare/v1.6.1...v1.6.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* remove ContentType from presigned URL signature to fix R2 upload ([fc7e02f](https://github.com/eburairu/baby/commit/fc7e02f151b2703276420a3789080da5bd419095))
+
 ## [1.6.1](https://github.com/eburairu/baby/compare/v1.6.0...v1.6.1) (2026-02-15)
 
 
