@@ -53,7 +53,7 @@ export default function LoginPage() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Login to Baby-App</CardTitle>
+                <CardTitle>Login to Baby App</CardTitle>
                 <CardDescription>Enter your username below to login to your account</CardDescription>
             </CardHeader>
             <CardContent>

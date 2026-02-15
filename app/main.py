@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="Baby-App API")
+app = FastAPI(title="Baby App API")
 # Trigger reload
 
 origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000").split(",")
