@@ -12,6 +12,7 @@ import Link from "next/link"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { Moon as MoonIcon } from "lucide-react"
+import { isApiError } from "@/lib/api"
 
 export default function SleepPage() {
     const { babies, isLoading } = useBabies()
@@ -23,8 +24,8 @@ export default function SleepPage() {
     if (isLoading) return <PageLoading />
     if (!effectiveId) return <div className="p-8 text-center text-gray-500">赤ちゃんが登録されていません</div>
 
-    const babiesWithStrId = babies?.map((b: any) => ({ ...b, id: String(b.id) })) ?? []
-    const isAccessDenied = (sleepError as any)?.status === 403
+    const babiesWithStrId = babies?.map((b) => ({ ...b, id: String(b.id) })) ?? []
+    const isAccessDenied = isApiError(sleepError) && sleepError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50">

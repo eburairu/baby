@@ -14,6 +14,7 @@ import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { isApiError } from "@/lib/api"
 
 export default function FeedingPage() {
     const router = useRouter()
@@ -45,7 +46,7 @@ export default function FeedingPage() {
         )
     }
 
-    const isAccessDenied = (feedingError as any)?.status === 403
+    const isAccessDenied = isApiError(feedingError) && feedingError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">

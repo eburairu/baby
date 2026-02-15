@@ -58,8 +58,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
     useEffect(() => {
         let interval: NodeJS.Timeout
         if (timerRunning) {
-            if (baseTime === null) setBaseTime(Date.now() - timerSeconds * 1000)
-
+            // baseTime is set in toggleTimer now to avoid effect dependency issues
             interval = setInterval(() => {
                 if (baseTime) {
                     const diff = Math.floor((Date.now() - baseTime) / 1000)
@@ -67,10 +66,10 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                 }
             }, 1000)
         } else {
-            setBaseTime(null)
+            // cleanup is handled in toggleTimer/resetTimer
         }
         return () => clearInterval(interval)
-    }, [timerRunning, baseTime, timerSeconds])
+    }, [timerRunning, baseTime])
 
     useEffect(() => {
         // Update duration field when timer updates
@@ -84,6 +83,8 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
         if (!timerRunning) {
             // Start
             if (baseTime === null) setBaseTime(Date.now() - timerSeconds * 1000)
+        } else {
+            // Stop (optional logic if needed)
         }
         setTimerRunning(!timerRunning)
     }
