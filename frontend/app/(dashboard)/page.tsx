@@ -14,6 +14,7 @@ import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
 import { SleepWidget } from "@/components/dashboard/SleepWidget"
 import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
 import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
+import { NoteWidget } from "@/components/dashboard/NoteWidget"
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed"
 
 export default function Dashboard() {
@@ -177,11 +178,12 @@ export default function Dashboard() {
                 />
 
                 {/* ウィジェットグリッド */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     <FeedingWidget babyId={effectiveId} />
                     <SleepWidget babyId={effectiveId} />
                     <DiaperWidget babyId={effectiveId} />
                     <GrowthWidget babyId={effectiveId} />
+                    <NoteWidget babyId={effectiveId} />
                 </div>
 
                 {/* 育児日誌へのリンク */}

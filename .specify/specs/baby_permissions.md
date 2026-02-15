@@ -45,7 +45,8 @@ Baby（赤ちゃん全体の可視性）
        ├── diaper（おむつ）
        ├── growth（成長）
        ├── contraction（陣痛）
-       └── schedule（スケジュール）
+       ├── schedule（スケジュール）
+       └── note（汎用メモ）
 ```
 
 ### `record_type` の有効値一覧
@@ -59,6 +60,7 @@ Baby（赤ちゃん全体の可視性）
 | `"growth"` | 成長記録 | `growth_records` |
 | `"contraction"` | 陣痛記録 | `contractions` |
 | `"schedule"` | スケジュール | `schedules` |
+| `"note"` | 汎用メモ | `notes` |
 
 ### 権限判定ロジック
 
@@ -118,7 +120,7 @@ from pydantic import BaseModel
 from typing import List, Literal
 
 
-VALID_RECORD_TYPES = Literal["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule"]
+VALID_RECORD_TYPES = Literal["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
 
 
 class BabyPermissionItem(BaseModel):

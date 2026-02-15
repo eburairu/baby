@@ -14,6 +14,7 @@ from app.models.diaper import Diaper
 from app.models.growth import Growth
 from app.models.contraction import Contraction
 from app.models.schedule import Schedule
+from app.models.note import Note
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
@@ -115,6 +116,7 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     db.query(Growth).filter(Growth.baby_id == baby_id).delete()
     db.query(Contraction).filter(Contraction.baby_id == baby_id).delete()
     db.query(Schedule).filter(Schedule.baby_id == baby_id).delete()
+    db.query(Note).filter(Note.baby_id == baby_id).delete()
     db.delete(baby)
     db.commit()
 
@@ -195,6 +197,17 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "height_cm": growth.height,
                     "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
+                },
+            ))
+
+    if can_view_type("note"):
+        for note in db.query(Note).filter(Note.baby_id == baby_id).all():
+            records.append(UnifiedRecord(
+                id=note.id,
+                type="note",
+                timestamp=note.note_time,
+                details={
+                    "notes": note.content,
                 },
             ))
 
