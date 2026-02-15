@@ -42,9 +42,9 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
     }
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm p-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
             <div className="flex items-center gap-2 mb-3">
-                <span className="text-violet-600 font-semibold text-sm">👨‍👩‍👧 家族名</span>
+                <span className="text-violet-600 dark:text-violet-400 font-semibold text-sm">👨‍👩‍👧 家族名</span>
             </div>
             {editing ? (
                 <div className="space-y-2">
@@ -73,10 +73,10 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                 </div>
             ) : (
                 <div className="flex items-center justify-between">
-                    <p className="text-xl font-bold text-gray-900">{name}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">{name}</p>
                     {isAdmin && (
                         <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }}>
-                            <Pencil className="h-4 w-4 text-gray-500" />
+                            <Pencil className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                         </Button>
                     )}
                 </div>

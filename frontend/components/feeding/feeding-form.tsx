@@ -158,8 +158,8 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
 
                             <TabsContent value="BREAST" className="space-y-4 mt-0">
                                 {/* Timer Section */}
-                                <div className="bg-rose-50 p-4 rounded-lg text-center space-y-3">
-                                    <div className="text-4xl font-mono font-bold text-rose-600">
+                                <div className="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-lg text-center space-y-3 transition-colors">
+                                    <div className="text-4xl font-mono font-bold text-rose-600 dark:text-rose-400">
                                         {formatTimer(timerSeconds)}
                                     </div>
                                     <div className="flex justify-center gap-2">
@@ -167,14 +167,16 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                             type="button"
                                             size="lg"
                                             variant={timerRunning ? "outline" : "default"}
-                                            className={timerRunning ? "bg-white border-rose-200 text-rose-600 hover:bg-rose-50" : "bg-rose-500 hover:bg-rose-600"}
+                                            className={timerRunning 
+                                                ? "bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50" 
+                                                : "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
                                             onClick={toggleTimer}
                                         >
                                             {timerRunning ? <Pause className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
                                             {timerRunning ? "一時停止" : "スタート"}
                                         </Button>
                                         <Button type="button" variant="ghost" size="lg" onClick={resetTimer}>
-                                            <RotateCcw className="h-5 w-5 text-gray-500" />
+                                            <RotateCcw className="h-5 w-5 text-gray-500 dark:text-zinc-400" />
                                         </Button>
                                     </div>
                                 </div>
