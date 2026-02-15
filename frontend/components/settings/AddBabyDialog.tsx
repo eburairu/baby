@@ -19,6 +19,7 @@ const babySchema = z.object({
     name: z.string().min(1, "名前を入力してください"),
     birthday: z.string().optional(),
     due_date: z.string().optional(),
+    gender: z.enum(["male", "female", "other"]).optional(),
     characteristics: z.string().optional(),
 })
 
@@ -53,6 +54,7 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                 name: data.name,
                 birthday: data.birthday || null,
                 due_date: data.due_date || null,
+                gender: data.gender || null,
                 characteristics: data.characteristics || null,
             })
             onAdded()
@@ -82,6 +84,23 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                     <div className="space-y-1">
                         <Label htmlFor="add-due-date">出産予定日</Label>
                         <Input id="add-due-date" type="date" {...register("due_date")} />
+                    </div>
+                    <div className="space-y-1">
+                        <Label>性別</Label>
+                        <div className="flex gap-4">
+                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input type="radio" value="male" {...register("gender")} />
+                                男の子
+                            </label>
+                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input type="radio" value="female" {...register("gender")} />
+                                女の子
+                            </label>
+                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input type="radio" value="other" {...register("gender")} />
+                                その他
+                            </label>
+                        </div>
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="add-characteristics">特徴・傾向</Label>

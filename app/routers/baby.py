@@ -70,6 +70,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         name=baby_in.name,
         birthday=baby_in.birthday,
         due_date=baby_in.due_date,
+        gender=baby_in.gender,
         characteristics=baby_in.characteristics,
     )
     db.add(new_baby)
