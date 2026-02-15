@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/eburairu/baby/compare/v1.13.0...v1.13.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* remove redundant table creations from notes migration ([72c8db4](https://github.com/eburairu/baby/commit/72c8db48b1ccd68a2cb359a2999740276f79e51c))
+
 # [1.13.0](https://github.com/eburairu/baby/compare/v1.12.1...v1.13.0) (2026-02-15)
 
 
