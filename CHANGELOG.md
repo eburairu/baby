@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/eburairu/baby/compare/v1.3.1...v1.4.0) (2026-02-15)
+
+
+### Features
+
+* unify app name to 'Baby App' and update PWA settings project-wide ([0b61afa](https://github.com/eburairu/baby/commit/0b61afade5662b5fb45af4ed37fab475bc14eac8))
+
 ## [1.3.1](https://github.com/eburairu/baby/compare/v1.3.0...v1.3.1) (2026-02-15)
 
 
