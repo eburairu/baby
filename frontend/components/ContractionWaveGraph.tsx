@@ -1,7 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo } from 'react';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceArea,
+} from 'recharts';
+import { format } from 'date-fns';
+import { ja } from 'date-fns/locale';
 import type { ContractionRecord } from '@/types/contraction';
 import { useContractionTimer } from '@/stores/contractionStore';
 
@@ -9,205 +19,162 @@ interface ContractionWaveGraphProps {
   contractions: ContractionRecord[];
 }
 
+interface ChartPoint {
+  timestamp: number;
+  value: number;
+  isPeak?: boolean;
+  recordId?: number;
+  duration?: number;
+  interval?: number;
+  startTime?: string;
+  endTime?: string;
+}
+
 export default function ContractionWaveGraph({ contractions }: ContractionWaveGraphProps) {
-  const { status, elapsedSeconds } = useContractionTimer();
+  const { status, elapsedSeconds, startTime: activeStartTime } = useContractionTimer();
   const isTiming = status === 'timing';
 
-  // スケール定数
-  const SEC_WIDTH = 0.4; // 1秒あたりの幅(px) - 1500秒(25分)で600px
-  const MAX_HEIGHT = 100; // 波の最大高さ(px)
-  const VIEWBOX_WIDTH = 600;
-  const VIEWBOX_HEIGHT = 160;
-  const BASELINE_Y = 140;
+  const chartData = useMemo(() => {
+    const points: ChartPoint[] = [];
+    const now = Date.now();
+    const oneHourAgo = now - 3600 * 1000;
 
-  // 描画データの計算
-  const wavePaths = useMemo(() => {
-    // 最新の基準時間を決定
-    let rightmostTime = new Date().getTime();
-    
-    if (contractions.length > 0) {
-        const sorted = [...contractions].sort((a, b) => 
-            new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
-        );
-        const lastRecord = sorted[sorted.length - 1];
-        const lastEndTime = lastRecord.end_time 
-            ? new Date(lastRecord.end_time).getTime() 
-            : new Date().getTime();
-        
-        // 計測中なら「今」を右端にする。そうでなければ最新の記録の終了時刻。
-        rightmostTime = isTiming ? new Date().getTime() : lastEndTime;
+    // 1. 過去の記録を変換
+    const sorted = [...contractions].sort((a, b) => 
+      new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+    );
 
-        return sorted.map((rec) => {
-            const startTime = new Date(rec.start_time).getTime();
-            const endTime = rec.end_time ? new Date(rec.end_time).getTime() : new Date().getTime();
-            const duration = (endTime - startTime) / 1000;
-            
-            const endX = VIEWBOX_WIDTH - 20 - (rightmostTime - endTime) / 1000 * SEC_WIDTH;
-            const startX = endX - duration * SEC_WIDTH;
-            
-            const width = duration * SEC_WIDTH;
-            const height = Math.min((duration / 60) * MAX_HEIGHT, MAX_HEIGHT * 1.2);
-            
-            const path = `
-                M ${startX} ${BASELINE_Y}
-                C ${startX + width * 0.3} ${BASELINE_Y - height}, 
-                ${endX - width * 0.3} ${BASELINE_Y - height}, 
-                ${endX} ${BASELINE_Y}
-            `;
-            
-            return { 
-                id: rec.id, 
-                d: path, 
-                startX,
-                endX,
-                duration 
-            };
-        }).filter(w => w.endX > -100);
+    sorted.forEach((rec) => {
+      const start = new Date(rec.start_time).getTime();
+      const end = rec.end_time ? new Date(rec.end_time).getTime() : start + (rec.duration_seconds || 0) * 1000;
+      
+      if (end < oneHourAgo) return;
+
+      const duration = rec.duration_seconds || (end - start) / 1000;
+      const interval = rec.interval_seconds || undefined;
+      const peakValue = Math.min((duration / 60) * 100, 120); // 60秒で100, 最大120
+
+      // 波を作るための3点プロット
+      // 開始点
+      points.push({ timestamp: start - 1000, value: 0 });
+      // ピーク点
+      points.push({ 
+        timestamp: start + (duration * 500), 
+        value: peakValue, 
+        isPeak: true,
+        recordId: rec.id,
+        duration,
+        interval,
+        startTime: rec.start_time,
+        endTime: rec.end_time || undefined
+      });
+      // 終了点
+      points.push({ timestamp: end + 1000, value: 0 });
+    });
+
+    // 2. 現在計測中の波
+    if (isTiming && activeStartTime) {
+      const start = activeStartTime.getTime();
+      const duration = elapsedSeconds;
+      const peakValue = Math.min((duration / 60) * 100, 120);
+
+      // 開始点
+      points.push({ timestamp: start - 1000, value: 0 });
+      // 現在のピーク（リアルタイムに膨らむ）
+      points.push({ 
+        timestamp: Date.now(), 
+        value: peakValue, 
+        isPeak: true,
+        duration,
+        startTime: activeStartTime.toISOString()
+      });
     }
-    return [];
-  }, [contractions, isTiming]);
 
-  // 計測中の「今」の波
-  const activeWave = useMemo(() => {
-    if (!isTiming) return null;
-    
-    const duration = elapsedSeconds;
-    const endX = VIEWBOX_WIDTH - 20;
-    const startX = endX - duration * SEC_WIDTH;
-    const width = duration * SEC_WIDTH;
-    const height = Math.min((duration / 60) * MAX_HEIGHT, MAX_HEIGHT * 1.2);
+    // タイムスタンプ順にソートし、重複を排除
+    return points.sort((a, b) => a.timestamp - b.timestamp);
+  }, [contractions, isTiming, elapsedSeconds, activeStartTime]);
 
-    const path = `
-        M ${startX} ${BASELINE_Y}
-        C ${startX + width * 0.3} ${BASELINE_Y - height}, 
-          ${endX - width * 0.3} ${BASELINE_Y - height}, 
-          ${endX} ${BASELINE_Y}
-    `;
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload as ChartPoint;
+      if (!data.isPeak) return null;
 
-    return { d: path, startX, endX };
-  }, [isTiming, elapsedSeconds]);
+      return (
+        <div className="bg-white dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 p-2 rounded-lg shadow-lg text-[10px]">
+          <p className="font-bold text-red-500 dark:text-red-400 mb-1">
+            持続時間: {Math.floor(data.duration! / 60)}分{data.duration! % 60}秒
+          </p>
+          {data.interval && (
+            <p className="text-blue-500 dark:text-blue-400 font-medium">
+              間隔: {Math.floor(data.interval / 60)}分{data.interval % 60}秒
+            </p>
+          )}
+          <p className="text-gray-500 dark:text-zinc-400">
+            開始: {format(new Date(data.startTime!), 'HH:mm:ss')}
+          </p>
+          {data.endTime && (
+            <p className="text-gray-500 dark:text-zinc-400">
+              終了: {format(new Date(data.endTime), 'HH:mm:ss')}
+            </p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="w-full bg-white dark:bg-zinc-900 rounded-2xl p-4 overflow-hidden relative border border-gray-100 dark:border-zinc-800 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="text-gray-500 dark:text-zinc-400 text-xs font-medium uppercase tracking-wider">陣痛波形 (Waveform)</h3>
         <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
                 <div className={`w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)] ${isTiming ? 'animate-pulse' : ''}`}></div>
                 <span className="text-[10px] text-gray-400">{isTiming ? '計測中' : '陣痛'}</span>
             </div>
-            <div className="flex items-center gap-1">
-                <div className="w-2 h-0.5 bg-blue-400"></div>
-                <span className="text-[10px] text-gray-400">間隔</span>
-            </div>
         </div>
       </div>
-      
-      {/* SVG Canvas */}
-      <div className="relative h-32 w-full">
-        <svg 
-            className="w-full h-full" 
-            viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
-            preserveAspectRatio="xMidYMid meet"
-        >
+
+      <div className="h-40 w-full -ml-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
-            <linearGradient id="waveGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#ef4444" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="#ef4444" stopOpacity="0.05" />
-            </linearGradient>
-            
-            <linearGradient id="activeWaveGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.1" />
-            </linearGradient>
-
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="2" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
+              <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+              </linearGradient>
             </defs>
-
-            <line 
-                x1="0" y1={BASELINE_Y} x2={VIEWBOX_WIDTH} y2={BASELINE_Y} 
-                stroke="currentColor" 
-                className="text-gray-200 dark:text-zinc-800" 
-                strokeWidth="1" 
-                strokeDasharray="4 4"
+            <XAxis 
+              dataKey="timestamp" 
+              type="number" 
+              domain={['auto', 'auto']}
+              hide
             />
-
-            {/* 過去の波 */}
-            {wavePaths.map((wave, index) => (
-            <g key={wave.id}>
-                <motion.path
-                d={wave.d}
-                fill="url(#waveGradient)"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                />
-                <motion.path
-                d={wave.d}
-                fill="none"
-                stroke="#f87171"
-                strokeWidth="2"
-                filter="url(#glow)"
-                strokeLinecap="round"
-                />
-            </g>
-            ))}
-
-            {/* 凪（間隔）のライン描画 */}
-            {wavePaths.map((wave, index) => {
-                if (index === 0) return null;
-                const prevWave = wavePaths[index - 1];
-                return (
-                    <line
-                        key={`interval-${wave.id}`}
-                        x1={prevWave.endX}
-                        y1={BASELINE_Y}
-                        x2={wave.startX}
-                        y2={BASELINE_Y}
-                        stroke="#60a5fa"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        className="opacity-40"
-                    />
-                );
-            })}
-
-            {/* 現在計測中の波 */}
-            <AnimatePresence>
-            {activeWave && (
-                <g>
-                    <motion.path
-                        key="active-fill"
-                        d={activeWave.d}
-                        fill="url(#activeWaveGradient)"
-                        initial={{ opacity: 0 }}
-                        animate={{ 
-                            opacity: [0.6, 0.9, 0.6],
-                        }}
-                        transition={{ 
-                            opacity: { repeat: Infinity, duration: 2, ease: "easeInOut" }
-                        }}
-                    />
-                    <motion.path
-                        key="active-stroke"
-                        d={activeWave.d}
-                        fill="none"
-                        stroke="#fb7185"
-                        strokeWidth="3"
-                        filter="url(#glow)"
-                        strokeLinecap="round"
-                    />
-                </g>
-            )}
-            </AnimatePresence>
-        </svg>
+            <YAxis hide domain={[0, 150]} />
+            <Tooltip content={<CustomTooltip />} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="#f87171"
+              strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#waveGradient)"
+              isAnimationActive={!isTiming} // 計測中はリアルタイム更新を優先
+              animationDuration={500}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
-      
-      <div className="mt-2 flex justify-between text-[10px] text-gray-400 dark:text-zinc-500 px-2">
+
+      <div className="flex justify-between text-[10px] text-gray-400 dark:text-zinc-500 mt-1 px-1">
         <span>過去</span>
-        <span>現在</span>
+        <span className="flex items-center gap-1">
+            <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
+            現在
+        </span>
       </div>
     </div>
   );
