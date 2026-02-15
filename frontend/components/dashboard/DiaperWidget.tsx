@@ -23,15 +23,15 @@ export function DiaperWidget({ babyId }: Props) {
 
     if (isAccessDenied) {
         return (
-            <Card className="bg-white rounded-2xl shadow-sm border-0 opacity-60">
+            <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-1">
+                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
                         👶 おむつ
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center py-6">
-                    <ShieldOff className="h-6 w-6 text-gray-300 mb-1" />
-                    <p className="text-[10px] text-gray-400">閲覧制限中</p>
+                    <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
+                    <p className="text-[10px] text-gray-400 dark:text-zinc-600">閲覧制限中</p>
                 </CardContent>
             </Card>
         )
@@ -63,16 +63,16 @@ export function DiaperWidget({ babyId }: Props) {
     }
 
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
+        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium text-amber-500 flex items-center gap-1">
+                <CardTitle className="text-sm font-medium text-amber-500 dark:text-amber-400 flex items-center gap-1">
                     👶 おむつ
                 </CardTitle>
                 <Link href={`/diaper?baby_id=${babyId}`}>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-amber-500"
+                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 dark:text-zinc-600"
                         aria-label="おむつ詳細"
                         title="詳細を見る"
                     >
@@ -83,11 +83,11 @@ export function DiaperWidget({ babyId }: Props) {
             <CardContent className="space-y-3">
                 <div>
                     {elapsed ? (
-                        <p className="text-2xl font-bold text-gray-800">{elapsed}</p>
+                        <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
                     ) : (
-                        <p className="text-sm text-gray-400">記録なし</p>
+                        <p className="text-sm text-gray-400 dark:text-zinc-600">記録なし</p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
                         今日: 💧{wetCount} / 💩{dirtyCount}
                     </p>
                 </div>
@@ -97,7 +97,7 @@ export function DiaperWidget({ babyId }: Props) {
                             size="sm"
                             loading={loading}
                             onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
-                            className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
+                            className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
                             variant="outline"
                             aria-label="おしっこ"
                         >
@@ -107,7 +107,7 @@ export function DiaperWidget({ babyId }: Props) {
                             size="sm"
                             loading={loading}
                             onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
-                            className="flex-1 bg-amber-50 text-amber-600 hover:bg-amber-100 border-0 text-xs h-8"
+                            className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
                             variant="outline"
                             aria-label="うんち"
                         >

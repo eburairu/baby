@@ -98,11 +98,11 @@ export default function DiaryPage() {
     const isAccessDenied = isApiError(summariesError) && summariesError.status === 403
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
-            <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20 transition-colors">
+            <header className="sticky top-0 z-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
                 <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
-                    <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
-                        <BookOpen className="h-4 w-4 text-amber-500" />
+                    <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
+                        <BookOpen className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                         育児日誌
                     </h1>
                 </div>
@@ -133,7 +133,7 @@ export default function DiaryPage() {
                                     )}
                                 </Button>
                                 {generateError && (
-                                    <p className="text-sm text-red-500 text-center">{generateError}</p>
+                                    <p className="text-sm text-red-500 dark:text-red-400 text-center">{generateError}</p>
                                 )}
                             </div>
                         )}
@@ -142,7 +142,7 @@ export default function DiaryPage() {
                         {summariesLoading ? (
                             <PageLoading />
                         ) : !summaries || summaries.length === 0 ? (
-                            <div className="text-center text-gray-400 py-12">
+                            <div className="text-center text-gray-400 dark:text-zinc-500 py-12">
                                 <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-40" />
                                 <p className="text-sm">まだ育児日誌がありません。</p>
                                 <p className="text-xs mt-1">育児記録がある日に「今日の育児日誌を生成」を押してください。</p>

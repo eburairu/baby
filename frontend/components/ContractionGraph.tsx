@@ -48,17 +48,17 @@ export default function ContractionGraph({ contractions }: ContractionGraphProps
     const yTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => Math.round(maxValue * ratio))
 
     return (
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800 transition-colors">
             <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-medium">陣痛推移グラフ（直近10件）</CardTitle>
+                <CardTitle className="text-sm font-medium dark:text-zinc-100">陣痛推移グラフ（直近10件）</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4">
                 <div className="flex gap-4 text-xs text-muted-foreground mb-2">
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 dark:text-zinc-400">
                         <span className="inline-block w-3 h-3 rounded-sm bg-red-400" />
                         持続時間
                     </span>
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 dark:text-zinc-400">
                         <span className="inline-block w-3 h-3 rounded-sm bg-blue-400" />
                         間隔
                     </span>
@@ -77,7 +77,8 @@ export default function ContractionGraph({ contractions }: ContractionGraphProps
                                     <line
                                         x1={0} y1={y}
                                         x2={chartW} y2={y}
-                                        stroke="#e5e7eb"
+                                        stroke="currentColor"
+                                        className="text-gray-200 dark:text-zinc-800"
                                         strokeWidth={1}
                                     />
                                     <text
@@ -85,7 +86,7 @@ export default function ContractionGraph({ contractions }: ContractionGraphProps
                                         textAnchor="end"
                                         dominantBaseline="middle"
                                         fontSize={9}
-                                        fill="#9ca3af"
+                                        className="fill-gray-400 dark:fill-zinc-500"
                                     >
                                         {tick}s
                                     </text>
@@ -139,7 +140,7 @@ export default function ContractionGraph({ contractions }: ContractionGraphProps
                                         y={chartH + 12}
                                         textAnchor="middle"
                                         fontSize={9}
-                                        fill="#9ca3af"
+                                        className="fill-gray-400 dark:fill-zinc-500"
                                     >
                                         {formatHHMM(c.start_time)}
                                     </text>
@@ -151,7 +152,7 @@ export default function ContractionGraph({ contractions }: ContractionGraphProps
                         <line
                             x1={0} y1={chartH}
                             x2={chartW} y2={chartH}
-                            stroke="#d1d5db"
+                            className="stroke-gray-300 dark:stroke-zinc-700"
                             strokeWidth={1}
                         />
                     </g>

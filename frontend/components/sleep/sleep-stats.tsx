@@ -26,25 +26,25 @@ export function SleepStats({ babyId }: Props) {
     const count = todaySleeps.length
 
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-6">
+        <Card className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border-0 mb-6 transition-colors">
             <CardContent className="pt-6">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-indigo-50 rounded-xl p-4 flex items-center gap-3">
-                        <div className="bg-white rounded-full p-2 shadow-sm">
-                            <Moon className="h-4 w-4 text-indigo-500" />
+                    <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-xl p-4 flex items-center gap-3 transition-colors">
+                        <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-sm transition-colors">
+                            <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500">今日の睡眠回数</p>
-                            <p className="text-lg font-bold text-gray-800">{count}回</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400">今日の睡眠回数</p>
+                            <p className="text-lg font-bold text-gray-800 dark:text-zinc-100">{count}回</p>
                         </div>
                     </div>
-                    <div className="bg-indigo-50 rounded-xl p-4 flex items-center gap-3">
-                        <div className="bg-white rounded-full p-2 shadow-sm">
-                            <Clock className="h-4 w-4 text-indigo-500" />
+                    <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-xl p-4 flex items-center gap-3 transition-colors">
+                        <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-sm transition-colors">
+                            <Clock className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500">合計時間</p>
-                            <p className="text-lg font-bold text-gray-800">{hours}h {minutes}m</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400">合計時間</p>
+                            <p className="text-lg font-bold text-gray-800 dark:text-zinc-100">{hours}h {minutes}m</p>
                         </div>
                     </div>
                 </div>
