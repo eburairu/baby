@@ -250,6 +250,7 @@ from app.models.feeding import Feeding
 from app.models.sleep import Sleep
 from app.models.diaper import Diaper
 from app.models.growth import Growth
+from app.models.note import Note
 
 
 def get_llm_client() -> Tuple[OpenAI, str]:
@@ -316,6 +317,17 @@ def build_daily_prompt(
         .all()
     )
 
+    notes = (
+        db.query(Note)
+        .filter(
+            Note.baby_id == baby_id,
+            Note.note_time >= day_start,
+            Note.note_time <= day_end,
+        )
+        .order_by(Note.note_time)
+        .all()
+    )
+
     growths = (
         db.query(Growth)
         .filter(
@@ -325,7 +337,7 @@ def build_daily_prompt(
         .all()
     )
 
-    total_records = len(feedings) + len(sleeps) + len(diapers) + len(growths)
+    total_records = len(feedings) + len(sleeps) + len(diapers) + len(notes) + len(growths)
 
     date_str = target_date.strftime("%Y年%m月%d日")
     lines = [f"{baby_name}ちゃんの{date_str}の育児記録です。", ""]
@@ -375,6 +387,13 @@ def build_daily_prompt(
             if d.notes:
                 line += f" (メモ: {d.notes})"
             lines.append(line)
+        lines.append("")
+
+    if notes:
+        lines.append(f"【その他の様子・メモ】")
+        for n in notes:
+            t = n.note_time.strftime("%H:%M")
+            lines.append(f"  {t} {n.content}")
         lines.append("")
 
     if growths:
@@ -703,7 +722,9 @@ export async function deleteDailySummary(
 | 日誌編集 | ✅ | ✅ | `baby` レベル制限時 403 |
 | 日誌削除 | ✅ | ✅ | `baby` レベル制限時 403 |
 
-> AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レベルのみ検証）。
+> **情報漏洩に関する注意**: AI日誌の生成は、対象日の**すべての記録（閲覧制限の有無を問わない）**をソースとして行われる。そのため、例えば「授乳記録」の閲覧制限がかかっているユーザーであっても、日誌を閲覧できる権限があれば、日誌の文章を通じて「今日は7回授乳した」などの情報を得ることが可能である。これは日誌の「1日を包括的に振り返る」という性質上、許容される動作とする。
+
+AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レベルのみ検証）。
 
 ---
 
