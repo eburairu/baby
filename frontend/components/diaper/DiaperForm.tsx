@@ -76,7 +76,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
     }
 
     return (
-        <Card className="bg-white rounded-2xl shadow-sm border-0 mb-6">
+        <Card className="rounded-2xl shadow-sm border-0 mb-6 transition-colors">
             <CardContent className="pt-6">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -87,8 +87,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 className={cn(
                                     "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
                                     selectedType === DiaperType.WET
-                                        ? "border-amber-400 bg-amber-50 text-amber-700"
-                                        : "border-gray-100 bg-white text-gray-500 hover:bg-amber-50 hover:border-amber-200"
+                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
                                 )}
                             >
                                 <span className="text-2xl">💧</span>
@@ -100,8 +100,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 className={cn(
                                     "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
                                     selectedType === DiaperType.DIRTY
-                                        ? "border-amber-400 bg-amber-50 text-amber-700"
-                                        : "border-gray-100 bg-white text-gray-500 hover:bg-amber-50 hover:border-amber-200"
+                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
                                 )}
                             >
                                 <span className="text-2xl">💩</span>
@@ -113,8 +113,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 className={cn(
                                     "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
                                     selectedType === DiaperType.BOTH
-                                        ? "border-amber-400 bg-amber-50 text-amber-700"
-                                        : "border-gray-100 bg-white text-gray-500 hover:bg-amber-50 hover:border-amber-200"
+                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
                                 )}
                             >
                                 <span className="text-2xl">💧💩</span>
@@ -127,7 +127,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                             name="change_time"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500">記録日時</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">記録日時</FormLabel>
                                     <FormControl>
                                         <Input type="datetime-local" {...field} />
                                     </FormControl>
@@ -141,7 +141,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                             name="notes"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500">メモ</FormLabel>
+                                    <FormLabel className="text-xs text-muted-foreground">メモ</FormLabel>
                                     <FormControl>
                                         <Input placeholder="色や量など..." {...field} />
                                     </FormControl>
