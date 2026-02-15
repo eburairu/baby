@@ -93,4 +93,9 @@ baby-app/
 - **Version Control**: GitHub
 - **Automation**: GitHub Actions
 - **Release Strategy**: Semantic Versioning (SemVer)
-- **Release Tool**: python-semantic-release
+- **Release Tool**: semantic-release (Node.js)
+- **Deployment Flow**:
+  - `main` ブランチへのマージにより GitHub Actions が起動。
+  - `semantic-release` がバージョンを決定し、GitHub Release と Tag を作成。
+  - リリース完了後、GitHub Actions から Render の Deploy Hook を呼び出し、デプロイを実行。
+  - Render 側の `autoDeploy` は無効化 (`false`) されており、重複デプロイを防止している。
