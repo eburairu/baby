@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index
+from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index, JSON
 from sqlalchemy.sql import func
 from .base import Base
 
@@ -14,6 +14,7 @@ class DailySummary(Base):
     edited_content = Column(Text, nullable=True)
     is_edited = Column(Boolean, nullable=False, default=False)
     model_name = Column(String, nullable=True)
+    image_urls = Column(JSON, nullable=True, default=[])
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 

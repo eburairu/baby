@@ -9,6 +9,7 @@ class DailySummaryCreate(BaseModel):
 
 class DailySummaryEdit(BaseModel):
     edited_content: Optional[str] = None
+    image_urls: Optional[list[str]] = None
 
 
 class DailySummaryResponse(BaseModel):
@@ -20,6 +21,7 @@ class DailySummaryResponse(BaseModel):
     edited_content: Optional[str]
     is_edited: bool
     model_name: Optional[str]
+    image_urls: list[str] = []
     created_at: datetime
     updated_at: datetime
 
