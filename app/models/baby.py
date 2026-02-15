@@ -12,7 +12,7 @@ class Baby(Base):
     birthday = Column(Date, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     due_date = Column(Date, nullable=True)
-    gender = Column(String, nullable=True)  # 'male', 'female', 'other'
+    gender = Column(String, nullable=True)  # 'boy', 'girl', 'unknown'
     characteristics = Column(String, nullable=True)  # AIが生成・更新する「赤ちゃんの特徴・傾向」
 
     family = relationship("Family", backref="babies")
