@@ -18,7 +18,9 @@ export async function uploadImage(file: File): Promise<string> {
         }),
     })
     if (!presignedRes.ok) {
-        throw new Error("アップロードの準備に失敗しました")
+        const body = await presignedRes.json().catch(() => ({}))
+        const detail = (body as { detail?: string }).detail ?? ""
+        throw new Error(`アップロードの準備に失敗しました (${presignedRes.status}${detail ? ": " + detail : ""})`)
     }
     const { upload_url, public_url }: PresignedUrlResponse = await presignedRes.json()
 
