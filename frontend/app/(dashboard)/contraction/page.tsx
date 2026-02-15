@@ -6,7 +6,7 @@ import { useBabyStore } from "@/stores/babyStore"
 import ContractionTimer from "@/components/ContractionTimer"
 import ContractionStats from "@/components/ContractionStats"
 import ContractionHistory from "@/components/ContractionHistory"
-import ContractionGraph from "@/components/ContractionGraph"
+import ContractionWaveGraph from "@/components/ContractionWaveGraph"
 import { Button } from "@/components/ui/button"
 import type { ContractionRecord } from "@/types/contraction"
 import { PageLoading } from "@/components/ui/page-loading"
@@ -85,12 +85,13 @@ export default function ContractionPage() {
                             <ContractionTimer
                                 babyId={selectedBabyId}
                                 onRecorded={handleRecorded}
+                                lastContraction={typedContractions[0]} // 最新の記録（降順なので[0]）
                             />
                         )}
 
                         {/* グラフ（2件以上の記録がある場合のみ表示） */}
                         {typedContractions.length >= 2 && (
-                            <ContractionGraph contractions={typedContractions} />
+                            <ContractionWaveGraph contractions={typedContractions} />
                         )}
 
                         {/* 履歴 */}
