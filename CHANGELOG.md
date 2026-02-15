@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/eburairu/baby/compare/v1.7.1...v1.7.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* **frontend:** refine dark mode styles for diaper history, baby selector and dashboard widgets ([f424d60](https://github.com/eburairu/baby/commit/f424d60435a54b1f7dff75d75a6a194482528dc6))
+
 ## [1.7.1](https://github.com/eburairu/baby/compare/v1.7.0...v1.7.1) (2026-02-15)
 
 
