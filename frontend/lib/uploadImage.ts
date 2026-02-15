@@ -27,7 +27,6 @@ export async function uploadImage(file: File): Promise<string> {
     // 2. R2 へ直接 PUT
     const putRes = await fetch(upload_url, {
         method: "PUT",
-        headers: { "Content-Type": file.type },
         body: file,
     })
     if (!putRes.ok) {
