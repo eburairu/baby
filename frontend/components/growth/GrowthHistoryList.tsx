@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
-import { Growth } from "@/types/growth"
 import {
     AlertDialog,
     AlertDialogAction,
