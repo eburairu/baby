@@ -14,6 +14,8 @@ import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import { Growth } from "@/types/growth"
+import { isApiError } from "@/lib/api"
 
 export default function GrowthPage() {
     const searchParams = useSearchParams()
@@ -26,9 +28,9 @@ export default function GrowthPage() {
     const { growths, isLoading, isError: growthError, mutate } = useGrowths(babyId)
 
     const [isFormOpen, setIsFormOpen] = useState(false)
-    const [editingRecord, setEditingRecord] = useState<any>(null)
+    const [editingRecord, setEditingRecord] = useState<Growth | null>(null)
 
-    const handleEdit = (record: any) => {
+    const handleEdit = (record: Growth) => {
         setEditingRecord(record)
         setIsFormOpen(true)
     }
@@ -48,7 +50,7 @@ export default function GrowthPage() {
         )
     }
 
-    const isAccessDenied = (growthError as any)?.status === 403
+    const isAccessDenied = isApiError(growthError) && growthError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50">

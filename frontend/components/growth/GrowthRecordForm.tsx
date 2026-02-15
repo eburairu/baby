@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
+import { Growth } from "@/types/growth"
 
 const growthSchema = z.object({
     date: z.string().min(1, "日付を選択してください"),
@@ -33,7 +34,7 @@ type GrowthFormValues = z.infer<typeof growthSchema>
 
 interface GrowthRecordFormProps {
     babyId: number
-    record?: any
+    record?: Growth | null
     isOpen: boolean
     onClose: () => void
     onSuccess: () => void

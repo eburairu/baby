@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useSleeps } from "@/hooks/useData"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { formatElapsed, formatDuration, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
@@ -16,7 +16,7 @@ export function SleepWidget({ babyId }: Props) {
     const { sleeps, isError, mutate } = useSleeps(babyId)
     const [loading, setLoading] = useState(false)
 
-    const isAccessDenied = (isError as any)?.status === 403
+    const isAccessDenied = isApiError(isError) && isError.status === 403
 
     if (isAccessDenied) {
         return (
@@ -39,8 +39,8 @@ export function SleepWidget({ babyId }: Props) {
 
     const todayTotalMin = sleeps
         ?.filter((s) => s.end_time && isToday(s.start_time))
-        .reduce((acc: number, s: any) => {
-            const ms = new Date(s.end_time).getTime() - new Date(s.start_time).getTime()
+        .reduce((acc: number, s) => {
+            const ms = new Date(s.end_time!).getTime() - new Date(s.start_time).getTime()
             return acc + Math.floor(ms / 60000)
         }, 0) ?? 0
     const todayTotal = todayTotalMin > 0
