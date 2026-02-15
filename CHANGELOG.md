@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/eburairu/baby/compare/v1.10.0...v1.10.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* **backend:** replace unsupported look-ahead regex with Pydantic field_validator ([a7ffe2f](https://github.com/eburairu/baby/commit/a7ffe2f4d1474fcc73678b34aeaacd8e63fab99f))
+
 # [1.10.0](https://github.com/eburairu/baby/compare/v1.9.0...v1.10.0) (2026-02-15)
 
 
