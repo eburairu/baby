@@ -12,9 +12,10 @@ import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
-import { ChevronLeft, TrendingUp } from "lucide-react"
+import { TrendingUp } from "lucide-react"
 import Link from "next/link"
-import type { Growth } from "@/types/growth"
+import { Growth } from "@/types/growth"
+import { isApiError } from "@/lib/api"
 
 export default function GrowthPage() {
     const searchParams = useSearchParams()
@@ -49,23 +50,16 @@ export default function GrowthPage() {
         )
     }
 
-    const isAccessDenied = (growthError as any)?.status === 403
+    const isAccessDenied = isApiError(growthError) && growthError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50">
             <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-                <div className="flex items-center justify-between h-14 px-4 max-w-2xl mx-auto">
-                    <Link href="/">
-                        <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2 rounded-lg">
-                            <ChevronLeft className="h-4 w-4" />
-                            <span className="text-sm">ダッシュボード</span>
-                        </Button>
-                    </Link>
+                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
                     <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
                         <TrendingUp className="h-4 w-4 text-emerald-500" />
                         成長記録
                     </h1>
-                    <div className="w-16" />
                 </div>
             </header>
 

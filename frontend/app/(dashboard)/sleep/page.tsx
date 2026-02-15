@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
-import { ChevronLeft, Moon as MoonIcon } from "lucide-react"
+import { Moon as MoonIcon } from "lucide-react"
+import { isApiError } from "@/lib/api"
 
 export default function SleepPage() {
     const { babies, isLoading } = useBabies()
@@ -23,24 +24,17 @@ export default function SleepPage() {
     if (isLoading) return <PageLoading />
     if (!effectiveId) return <div className="p-8 text-center text-gray-500">赤ちゃんが登録されていません</div>
 
-    const babiesWithStrId = babies?.map((b: any) => ({ ...b, id: String(b.id) })) ?? []
-    const isAccessDenied = (sleepError as any)?.status === 403
+    const babiesWithStrId = babies?.map((b) => ({ ...b, id: String(b.id) })) ?? []
+    const isAccessDenied = isApiError(sleepError) && sleepError.status === 403
 
     return (
         <div className="min-h-screen bg-slate-50">
             <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-                <div className="flex items-center justify-between h-14 px-4 max-w-2xl mx-auto">
-                    <Link href="/">
-                        <Button variant="ghost" size="sm" className="gap-1 text-gray-600 hover:text-gray-900 -ml-2 rounded-lg">
-                            <ChevronLeft className="h-4 w-4" />
-                            <span className="text-sm">ダッシュボード</span>
-                        </Button>
-                    </Link>
+                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
                     <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
                         <MoonIcon className="h-4 w-4 text-indigo-500" />
                         睡眠記録
                     </h1>
-                    <div className="w-16" />
                 </div>
             </header>
 

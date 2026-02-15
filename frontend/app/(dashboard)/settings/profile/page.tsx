@@ -2,7 +2,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, User, Loader2 } from "lucide-react"
+import { User, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -48,12 +48,7 @@ export default function ProfileSettingsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm h-14 flex items-center px-4">
-                <Link href="/settings">
-                    <Button variant="ghost" size="icon" className="mr-2">
-                        <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                </Link>
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm h-14 flex items-center justify-center px-4">
                 <h1 className="text-base font-semibold text-gray-900">プロフィール設定</h1>
             </header>
 
