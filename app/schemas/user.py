@@ -16,6 +16,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
     display_name: Optional[str] = None
+    role: Optional[str] = None
     created_at: datetime
 
     class Config:

@@ -33,7 +33,7 @@ def _calculate_interval_seconds(current_start: object, last_start: object) -> in
 
 @router.post("/", response_model=ContractionResponse)
 def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, contraction_in.baby_id, current_user.id, record_type="contraction")
+    verify_baby_access(db, contraction_in.baby_id, current_user.id, record_type="contraction", require_write=True)
 
     # interval_seconds をサーバーサイドで計算（SWRキャッシュの古さに依存しない）
     last = (
@@ -64,7 +64,7 @@ def delete_contraction(contraction_id: int, db: Session = Depends(get_db), curre
     contraction = db.query(Contraction).filter(Contraction.id == contraction_id).first()
     if not contraction:
         raise HTTPException(status_code=404, detail="Contraction record not found")
-    verify_baby_access(db, contraction.baby_id, current_user.id, record_type="contraction")
+    verify_baby_access(db, contraction.baby_id, current_user.id, record_type="contraction", require_write=True)
     db.delete(contraction)
     db.commit()
     return {"message": "Deleted"}

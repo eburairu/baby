@@ -31,9 +31,10 @@ function formatTime(isoString: string): string {
 interface ContractionHistoryProps {
     contractions: ContractionRecord[]
     onDeleted: () => void
+    canWrite?: boolean
 }
 
-export default function ContractionHistory({ contractions, onDeleted }: ContractionHistoryProps) {
+export default function ContractionHistory({ contractions, onDeleted, canWrite = true }: ContractionHistoryProps) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
 
     const handleDelete = useCallback(async () => {
@@ -90,15 +91,17 @@ export default function ContractionHistory({ contractions, onDeleted }: Contract
                                         )}
                                     </div>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
-                                    onClick={() => setDeleteTargetId(record.id)}
-                                    aria-label="削除"
-                                >
-                                    ✕
-                                </Button>
+                                {canWrite && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+                                        onClick={() => setDeleteTargetId(record.id)}
+                                        aria-label="削除"
+                                    >
+                                        ✕
+                                    </Button>
+                                )}
                             </div>
                         ))}
                     </div>

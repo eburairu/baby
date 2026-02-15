@@ -11,7 +11,7 @@ from app.schemas.auth import LoginRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate
 from app.models.user import User, UserSession
-from app.models.family import Family, FamilyUser
+from app.models.family import Family, FamilyUser, UserRole
 from app.services.auth import verify_password, get_password_hash
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
@@ -70,7 +70,7 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     db.add(new_user)
     db.flush()
 
-    family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role="admin")
+    family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
     db.add(family_user)
     db.commit()
     db.refresh(new_family)
@@ -97,14 +97,21 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     db.add(new_user)
     db.flush()
 
-    family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role="member")
+    family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
     db.add(family_user)
     db.commit()
     db.refresh(new_user)
 
     token = _create_session(db, new_user.id)
     response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
-    return new_user
+    
+    return UserResponse(
+        id=new_user.id,
+        username=new_user.username,
+        display_name=new_user.display_name,
+        role=UserRole.VIEWER,
+        created_at=new_user.created_at
+    )
 
 
 @router.post("/login", response_model=UserResponse)
@@ -113,9 +120,19 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
     if not user or not verify_password(login_request.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user.id).first()
+    role = family_user.role if family_user else None
+
     token = _create_session(db, user.id)
     response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
-    return user
+    
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        display_name=user.display_name,
+        role=role,
+        created_at=user.created_at
+    )
 
 
 @router.post("/logout")
@@ -129,5 +146,14 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-def read_users_me(current_user: User = Depends(get_current_user)):
-    return current_user
+def read_users_me(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    role = family_user.role if family_user else None
+    
+    return UserResponse(
+        id=current_user.id,
+        username=current_user.username,
+        display_name=current_user.display_name,
+        role=role,
+        created_at=current_user.created_at
+    )

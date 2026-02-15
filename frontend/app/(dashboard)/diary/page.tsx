@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { useDailySummaries, generateDailySummary, editDailySummary, deleteDailySummary } from "@/hooks/useDailySummary"
+import { usePermissions } from "@/hooks/usePermissions"
 import { DiarySummaryCard } from "@/components/diary/DiarySummaryCard"
 import { DiaryEditDialog } from "@/components/diary/DiaryEditDialog"
 import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
@@ -29,6 +30,7 @@ function getTodayJST(): string {
 export default function DiaryPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId } = useBabyStore()
+    const { canWrite } = usePermissions()
 
     const effectiveBabyIdStr =
         selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
@@ -112,27 +114,29 @@ export default function DiaryPage() {
                 ) : (
                     <>
                         {/* 今日の日誌生成ボタン */}
-                        <div className="space-y-2">
-                            <Button
-                                onClick={handleGenerate}
-                                disabled={isGenerating || hasTodaySummary}
-                                className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-medium"
-                            >
-                                {isGenerating ? (
-                                    <>
-                                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                        生成中...
-                                    </>
-                                ) : hasTodaySummary ? (
-                                    "📔 今日の日誌は生成済みです"
-                                ) : (
-                                    "📔 今日の育児日誌を生成"
+                        {canWrite && (
+                            <div className="space-y-2">
+                                <Button
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating || hasTodaySummary}
+                                    className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-medium"
+                                >
+                                    {isGenerating ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            生成中...
+                                        </>
+                                    ) : hasTodaySummary ? (
+                                        "📔 今日の日誌は生成済みです"
+                                    ) : (
+                                        "📔 今日の育児日誌を生成"
+                                    )}
+                                </Button>
+                                {generateError && (
+                                    <p className="text-sm text-red-500 text-center">{generateError}</p>
                                 )}
-                            </Button>
-                            {generateError && (
-                                <p className="text-sm text-red-500 text-center">{generateError}</p>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
                         {/* 日誌一覧 */}
                         {summariesLoading ? (
@@ -151,6 +155,7 @@ export default function DiaryPage() {
                                         summary={summary}
                                         onEdit={handleEditOpen}
                                         onDelete={handleDeleteOpen}
+                                        canWrite={canWrite}
                                     />
                                 ))}
                             </div>

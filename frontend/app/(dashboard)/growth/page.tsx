@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useGrowths, useBabies } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
@@ -20,6 +21,7 @@ import { isApiError } from "@/lib/api"
 export default function GrowthPage() {
     const searchParams = useSearchParams()
     const paramBabyId = searchParams.get("baby_id")
+    const { canWrite } = usePermissions()
     const { babies } = useBabies()
     const { selectedBabyId } = useBabyStore()
 
@@ -70,17 +72,23 @@ export default function GrowthPage() {
                     <>
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold text-gray-800">数値の推移</h2>
-                            <Button onClick={handleAdd} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
-                                <Plus className="h-4 w-4" />
-                                新しい記録
-                            </Button>
+                            {canWrite && (
+                                <Button onClick={handleAdd} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                                    <Plus className="h-4 w-4" />
+                                    新しい記録
+                                </Button>
+                            )}
                         </div>
 
                         {isLoading ? (
                             <div className="text-center py-12 text-muted-foreground">読み込み中...</div>
                         ) : (
                             <>
-                                <GrowthChart records={growths || []} />
+                                <GrowthChart
+                                    records={growths || []}
+                                    babyBirthday={babies?.find(b => String(b.id) === babyId)?.birthday}
+                                    babyGender={babies?.find(b => String(b.id) === babyId)?.gender}
+                                />
 
                                 <Card>
                                     <CardHeader>
@@ -91,6 +99,7 @@ export default function GrowthPage() {
                                             records={growths || []}
                                             onEdit={handleEdit}
                                             onDeleteSuccess={() => mutate()}
+                                            canWrite={canWrite}
                                         />
                                     </CardContent>
                                 </Card>
