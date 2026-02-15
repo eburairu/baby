@@ -154,17 +154,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                     </TabsContent>
 
                     <TabsContent value="head" className="h-[300px]">
-                        {renderChart(chartData.head, "head_circumference_cm", "cm", "#ff7300")}
-                        {/* Note: dataKey in chartData logic uses 'head' but the record has 'head_circumference_cm'.
-                             In mergeData, I used [type]: ... 
-                             If type is 'head', I mapped it to r.head_circumference.
-                             But in `renderChart(..., "head_circumference_cm"...)`
-                             The data point key must match dataKey.
-                             In mergeData: `[type]: ...` -> `head: ...`
-                             So dataKey should be `head` not `head_circumference_cm`. 
-                             I need to correct the renderChart call or mergeType logic.
-                             I'll fix dataKey in renderChart call.
-                         */}
+                        {renderChart(chartData.head, "head", "cm", "#ff7300")}
                     </TabsContent>
                 </Tabs>
             </CardContent>
