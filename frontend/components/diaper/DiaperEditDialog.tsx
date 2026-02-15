@@ -68,12 +68,14 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label>種類</Label>
-                        <div className="flex gap-2">
+                        <Label className="dark:text-zinc-300">種類</Label>
+                        <div className="flex gap-2 flex-wrap">
                             <Button
                                 type="button"
                                 variant={type === DiaperType.WET ? "default" : "outline"}
-                                className={type === DiaperType.WET ? "bg-blue-500 hover:bg-blue-600" : ""}
+                                className={type === DiaperType.WET 
+                                    ? "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700" 
+                                    : "dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"}
                                 onClick={() => setType(DiaperType.WET)}
                             >
                                 💧 おしっこ
@@ -81,7 +83,9 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                             <Button
                                 type="button"
                                 variant={type === DiaperType.DIRTY ? "default" : "outline"}
-                                className={type === DiaperType.DIRTY ? "bg-amber-500 hover:bg-amber-600" : ""}
+                                className={type === DiaperType.DIRTY 
+                                    ? "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700" 
+                                    : "dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"}
                                 onClick={() => setType(DiaperType.DIRTY)}
                             >
                                 💩 うんち
@@ -89,7 +93,9 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                             <Button
                                 type="button"
                                 variant={type === DiaperType.BOTH ? "default" : "outline"}
-                                className={type === DiaperType.BOTH ? "bg-purple-500 hover:bg-purple-600" : ""}
+                                className={type === DiaperType.BOTH 
+                                    ? "bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700" 
+                                    : "dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"}
                                 onClick={() => setType(DiaperType.BOTH)}
                             >
                                 💧💩 両方
@@ -98,31 +104,33 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="time">日時</Label>
+                        <Label htmlFor="time" className="dark:text-zinc-300">日時</Label>
                         <Input
                             id="time"
                             type="datetime-local"
                             value={changeTime}
                             onChange={(e) => setChangeTime(e.target.value)}
                             required
+                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="notes">メモ</Label>
+                        <Label htmlFor="notes" className="dark:text-zinc-300">メモ</Label>
                         <Textarea
                             id="notes"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             rows={3}
+                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500"
                         />
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800">
                             キャンセル
                         </Button>
-                        <Button type="submit" disabled={loading}>
+                        <Button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white shadow-none">
                             {loading ? "保存中..." : "保存"}
                         </Button>
                     </DialogFooter>

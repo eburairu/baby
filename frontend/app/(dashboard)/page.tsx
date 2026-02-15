@@ -185,12 +185,12 @@ export default function Dashboard() {
                 </div>
 
                 {/* 育児日誌へのリンク */}
-                <Link href="/diary" className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors flex items-center justify-center">
+                <Link href="/diary" className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-medium shadow-sm transition-colors flex items-center justify-center">
                     📔 育児日誌
                 </Link>
 
                 {/* 陣痛タイマーへのリンク */}
-                <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors flex items-center justify-center">
+                <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-medium shadow-sm transition-colors flex items-center justify-center">
                     🤰 陣痛タイマー
                 </Link>
 

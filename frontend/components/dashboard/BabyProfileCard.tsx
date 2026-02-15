@@ -35,7 +35,9 @@ export function BabyProfileCard({ babies, selectedBabyId, onSelect }: Props) {
                                 size="sm"
                                 variant={selectedBabyId === baby.id ? "default" : "outline"}
                                 onClick={() => onSelect(baby.id)}
-                                className="text-xs dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                className={selectedBabyId === baby.id 
+                                    ? "text-xs shadow-none" 
+                                    : "text-xs dark:bg-zinc-800/50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"}
                             >
                                 {baby.name}
                             </Button>

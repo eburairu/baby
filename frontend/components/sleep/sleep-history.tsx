@@ -78,7 +78,7 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-700 px-1">最近の睡眠</h3>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 px-1">最近の睡眠</h3>
             <div className="space-y-3">
                 {history.map((sleep) => {
                     const duration = sleep.end_time
@@ -86,27 +86,27 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                         : "睡眠中"
 
                     return (
-                        <Card key={sleep.id} className="overflow-hidden border-0 shadow-sm bg-white hover:bg-slate-50 transition-colors">
+                        <Card key={sleep.id} className="overflow-hidden border-0 shadow-sm bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
                             <CardContent className="p-4 flex items-center justify-between">
                                 <div className="flex items-start gap-4">
-                                    <div className="mt-1 bg-indigo-100 p-2 rounded-full text-indigo-500">
+                                    <div className="mt-1 bg-indigo-100 dark:bg-indigo-950/40 p-2 rounded-full text-indigo-500 dark:text-indigo-400">
                                         <Moon className="w-5 h-5" />
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="font-medium text-gray-900">
+                                            <p className="font-medium text-gray-900 dark:text-zinc-100">
                                                 {format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}
-                                                <span className="text-gray-400 mx-2">-</span>
+                                                <span className="text-gray-400 dark:text-zinc-500 mx-2">-</span>
                                                 {sleep.end_time ? format(new Date(sleep.end_time), "HH:mm", { locale: ja }) : "現在"}
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                                            <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-600 font-medium text-xs">
+                                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium text-xs">
                                                 {duration}
                                             </span>
                                         </div>
                                         {sleep.notes && (
-                                            <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+                                            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">
                                                 {sleep.notes}
                                             </p>
                                         )}
