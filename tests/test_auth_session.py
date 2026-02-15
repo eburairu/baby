@@ -8,7 +8,7 @@ from app.services.auth import get_password_hash
 @pytest.fixture
 def test_user(db):
     # Create a test user
-    password = "testpassword"
+    password = "testpassword1"
     hashed_password = get_password_hash(password)
     user = User(username="test_auth_user", hashed_password=hashed_password)
     db.add(user)
@@ -17,7 +17,7 @@ def test_user(db):
     return user
 
 def test_login_cookie_attributes(client, test_user):
-    response = client.post("/api/auth/login", json={"username": test_user.username, "password": "testpassword"})
+    response = client.post("/api/auth/login", json={"username": test_user.username, "password": "testpassword1"})
     assert response.status_code == 200
     
     # Check cookie attributes
@@ -35,7 +35,7 @@ def test_login_cookie_attributes(client, test_user):
     
 def test_sliding_session(client, test_user, db):
     # 1. Login
-    response = client.post("/api/auth/login", json={"username": test_user.username, "password": "testpassword"})
+    response = client.post("/api/auth/login", json={"username": test_user.username, "password": "testpassword1"})
     assert response.status_code == 200
     token = response.cookies["access_token"]
     

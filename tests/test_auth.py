@@ -45,7 +45,7 @@ def test_login_failure(client):
         "/api/auth/login",
         json={
             "username": "wronguser",
-            "password": "wrongpassword"
+            "password": "wrongpassword1"
         }
     )
     assert response.status_code == 401

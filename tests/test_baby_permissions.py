@@ -1,8 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import StaticPool
 from app.main import app
-from app.database import SessionLocal, engine
 from app.models.base import Base
 from app.models.user import User
 from app.models.family import Family, FamilyUser
@@ -10,40 +11,43 @@ from app.models.baby import Baby, BabyPermission
 from app.dependencies import get_current_user, get_db
 import uuid
 
+# Use in-memory SQLite for this test file too
+SQLALCHEMY_DATABASE_URL = "sqlite://"
+test_engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
 # Global mock states
 _mock_user = None
-_test_db = None
-
-def mock_get_db():
-    yield _test_db
 
 def mock_get_current_user():
-    global _mock_user
     return _mock_user
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_db():
-    Base.metadata.create_all(bind=engine)
+@pytest.fixture(scope="module", autouse=True)
+def setup_module_db():
+    Base.metadata.create_all(bind=test_engine)
     yield
-    Base.metadata.drop_all(bind=engine)
-
-@pytest.fixture(autouse=True)
-def overrides():
-    app.dependency_overrides[get_current_user] = mock_get_current_user
-    app.dependency_overrides[get_db] = mock_get_db
-    yield
-    app.dependency_overrides.clear()
+    Base.metadata.drop_all(bind=test_engine)
 
 @pytest.fixture
 def db():
-    global _test_db
-    connection = engine.connect()
+    connection = test_engine.connect()
     transaction = connection.begin()
-    _test_db = SessionLocal(bind=connection)
-    yield _test_db
-    _test_db.close()
+    session = TestingSessionLocal(bind=connection)
+    yield session
+    session.close()
     transaction.rollback()
     connection.close()
+
+@pytest.fixture(autouse=True)
+def overrides(db):
+    app.dependency_overrides[get_current_user] = mock_get_current_user
+    app.dependency_overrides[get_db] = lambda: db
+    yield
+    app.dependency_overrides.clear()
 
 @pytest.fixture
 def setup_data(db: Session):
@@ -52,21 +56,24 @@ def setup_data(db: Session):
     db.add(family)
     db.flush()
 
-    admin_user = User(id=2001, username=f"admin-{suffix}", hashed_password="hashed")
+    admin_user = User(username=f"admin-{suffix}", hashed_password="hashed")
     db.add(admin_user)
     db.flush()
     db.add(FamilyUser(family_id=family.id, user_id=admin_user.id, role="admin"))
 
-    member_user = User(id=2002, username=f"member-{suffix}", hashed_password="hashed")
+    member_user = User(username=f"member-{suffix}", hashed_password="hashed")
     db.add(member_user)
     db.flush()
     db.add(FamilyUser(family_id=family.id, user_id=member_user.id, role="member"))
 
-    baby = Baby(id=3001, family_id=family.id, name="Test Baby")
+    baby = Baby(family_id=family.id, name="Test Baby")
     db.add(baby)
     db.flush()
 
     db.commit()
+    db.refresh(admin_user)
+    db.refresh(member_user)
+    db.refresh(baby)
     return {"admin": admin_user, "member": member_user, "baby": baby}
 
 def test_get_permissions_as_admin(setup_data):
