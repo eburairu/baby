@@ -51,10 +51,10 @@ def test_login_failure(client):
     assert response.status_code == 401
 
 def test_get_me(auth_client):
-    client = auth_client(username="me", password="password123")
+    client = auth_client(username="meuser", password="password123")
     response = client.get("/api/auth/me")
     assert response.status_code == 200
-    assert response.json()["username"] == "me"
+    assert response.json()["username"] == "meuser"
 
 def test_logout(auth_client):
     client = auth_client()
@@ -68,7 +68,7 @@ def test_join_family(client):
     # 家族作成
     res = client.post(
         "/api/auth/register/family",
-        json={"name": "Existing Family", "username": "admin", "password": "password"}
+        json={"name": "Existing Family", "username": "admin", "password": "password123"}
     )
     invite_code = res.json()["invite_code"]
     client.cookies.clear()

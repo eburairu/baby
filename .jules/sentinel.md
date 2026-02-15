@@ -7,3 +7,8 @@
 **Vulnerability:** Default test credentials (username and password) were exposed in the frontend bundle because they were assigned to `NEXT_PUBLIC_` environment variables. In Next.js, variables prefixed with `NEXT_PUBLIC_` are embedded in the client-side JavaScript during build time, making them visible to anyone inspecting the source code.
 **Learning:** Never use `NEXT_PUBLIC_` for sensitive information, even for "test" or "default" credentials. Anything prefixed with `NEXT_PUBLIC_` is public by design.
 **Prevention:** Use empty strings for default values in frontend forms. If default credentials are needed for automated testing, they should be handled by the testing framework (e.g., Playwright) or server-side scripts, never hardcoded or bundled into the client-side application.
+
+## 2026-02-15 - Missing Input Validation in User Schemas
+**Vulnerability:** User-related schemas (`UserCreate`, `FamilyCreate`, `LoginRequest`) lacked input validation for length and complexity. This could allow attackers to perform DoS attacks by sending massive payloads (e.g., extremely long passwords that take significant time to hash) or bypass expected security standards for passwords.
+**Learning:** Pydantic models should always include reasonable `min_length`, `max_length`, and `pattern` constraints for user-supplied data to prevent resource exhaustion and ensure data integrity.
+**Prevention:** Use Pydantic's `Field` with `min_length`, `max_length`, and `pattern` (regex) to enforce constraints. For login schemas, prioritize `max_length` for DoS protection while ensuring compatibility with existing users.
