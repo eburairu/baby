@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app.database import SessionLocal
 from app.models.baby import Baby, BabyPermission
-from app.models.family import FamilyUser
+from app.models.family import FamilyUser, UserRole
 from app.config import SESSION_EXPIRE_DAYS
 
 
@@ -50,16 +50,25 @@ def verify_baby_access(
     db: Session,
     baby_id: int,
     user_id: int,
-    record_type: str = "baby"
+    record_type: str = "baby",
+    require_write: bool = False
 ) -> Baby:
     """
     baby_id がユーザーのファミリーに属するか検証し、
     BabyPermission による閲覧制限もチェックする。
+    require_write=True の場合、viewer ロールを拒否する。
     失敗時 403 を raise。
     """
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+
+    # 書き込み制限のチェック
+    if require_write and family_user.role == UserRole.VIEWER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Read-only users cannot perform this action"
+        )
 
     baby = db.query(Baby).filter(
         Baby.id == baby_id,

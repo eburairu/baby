@@ -4,7 +4,7 @@ from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser
+from app.models.family import FamilyUser, UserRole
 from app.models.baby import Baby, BabyPermission
 from app.schemas.baby_permission import (
     BabyPermissionsResponse,
@@ -26,15 +26,15 @@ def get_baby_permissions(
     # 1. verify_baby_access() でアクセス検証（admin ロール確認を追加）
     verify_baby_access(db, baby_id, current_user.id)
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if family_user.role != "admin":
+    if family_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can manage permissions")
 
     baby = db.query(Baby).filter(Baby.id == baby_id).first()
     
-    # 2. 同一ファミリーの member ロールユーザー全員を FamilyUser から取得（自身 = admin は除外）
+    # 2. 同一ファミリーの member/viewer ロールユーザー全員を FamilyUser から取得（自身 = admin は除外）
     members = db.query(FamilyUser, User).join(User, FamilyUser.user_id == User.id).filter(
         FamilyUser.family_id == family_user.family_id,
-        FamilyUser.role == "member"
+        FamilyUser.role.in_([UserRole.MEMBER, UserRole.VIEWER])
     ).all()
 
     record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule"]
@@ -87,7 +87,7 @@ def update_baby_permissions(
     # 1. verify_baby_access() でアクセス検証（admin ロール確認を追加）
     verify_baby_access(db, baby_id, current_user.id)
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if family_user.role != "admin":
+    if family_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can manage permissions")
 
     # 2. リクエストの各エントリについて検証
@@ -96,11 +96,11 @@ def update_baby_permissions(
         if entry.record_type not in valid_types:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid record_type: {entry.record_type}")
         
-        # 3. user_id が同一ファミリーの member ロールであることを確認
+        # 3. user_id が同一ファミリーの member/viewer ロールであることを確認
         target_member = db.query(FamilyUser).filter(
             FamilyUser.user_id == entry.user_id,
             FamilyUser.family_id == family_user.family_id,
-            FamilyUser.role == "member"
+            FamilyUser.role.in_([UserRole.MEMBER, UserRole.VIEWER])
         ).first()
         if not target_member:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User {entry.user_id} is not a member of your family")

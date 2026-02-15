@@ -2,6 +2,7 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useBabies, useDiapers } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
 import { DiaperForm } from "@/components/diaper/DiaperForm"
@@ -17,6 +18,7 @@ export default function DiaperPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const paramBabyId = searchParams.get("baby_id")
+    const { canWrite } = usePermissions()
 
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId } = useBabyStore()
@@ -50,14 +52,17 @@ export default function DiaperPage() {
                     <>
                         <DiaperStats diapers={diapers || []} />
 
-                        <DiaperForm
-                            babyId={effectiveBabyId}
-                            onSuccess={() => mutate()}
-                        />
+                        {canWrite && (
+                            <DiaperForm
+                                babyId={effectiveBabyId}
+                                onSuccess={() => mutate()}
+                            />
+                        )}
 
                         <DiaperHistory
                             diapers={diapers || []}
                             onDeleteSuccess={() => mutate()}
+                            canWrite={canWrite}
                         />
                     </>
                 )}

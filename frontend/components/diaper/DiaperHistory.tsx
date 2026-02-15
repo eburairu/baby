@@ -31,9 +31,10 @@ const formatDate = (isoString: string) => {
 interface Props {
     diapers: Diaper[]
     onDeleteSuccess: () => void
+    canWrite?: boolean
 }
 
-export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
+export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Props) {
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
@@ -123,24 +124,26 @@ export function DiaperHistory({ diapers, onDeleteSuccess }: Props) {
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-transparent"
-                                        onClick={() => handleEdit(diaper)}
-                                    >
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-transparent"
-                                        onClick={() => setDeleteTargetId(diaper.id)}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
+                                {canWrite && (
+                                    <div className="flex gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-gray-400 hover:text-blue-500 hover:bg-transparent"
+                                            onClick={() => handleEdit(diaper)}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-transparent"
+                                            onClick={() => setDeleteTargetId(diaper.id)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         )
                     })}

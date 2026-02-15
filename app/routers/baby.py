@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser
+from app.models.family import FamilyUser, UserRole
 from app.models.baby import Baby, BabyPermission
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -43,7 +43,7 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
     babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
 
     # admin は全件返す
-    if family_user.role == "admin":
+    if family_user.role == UserRole.ADMIN:
         return babies
 
     # member: BabyPermission で can_view=false の赤ちゃんを除外
@@ -62,7 +62,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != "admin":
+    if family_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can add babies")
 
     new_baby = Baby(
@@ -84,7 +84,7 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != "admin":
+    if family_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
 
     baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
@@ -102,7 +102,7 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != "admin":
+    if family_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
 
     baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
@@ -125,7 +125,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
     verify_baby_access(db, baby_id, current_user.id)
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    is_admin = family_user and family_user.role == "admin"
+    is_admin = family_user and family_user.role == UserRole.ADMIN
 
     # Pre-fetch permissions ONLY if not admin
     permissions = {}
@@ -205,7 +205,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
 @router.post("/{baby_id}/records", response_model=UnifiedRecord)
 def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     record_type = record_in.type
-    verify_baby_access(db, baby_id, current_user.id, record_type=record_type)
+    verify_baby_access(db, baby_id, current_user.id, record_type=record_type, require_write=True)
 
     timestamp = record_in.timestamp
 

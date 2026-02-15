@@ -18,7 +18,7 @@ def get_schedules(baby_id: int, db: Session = Depends(get_db), current_user: Use
 
 @router.post("/", response_model=ScheduleResponse)
 def create_schedule(schedule_in: ScheduleCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    verify_baby_access(db, schedule_in.baby_id, current_user.id, record_type="schedule")
+    verify_baby_access(db, schedule_in.baby_id, current_user.id, record_type="schedule", require_write=True)
     new_schedule = Schedule(
         user_id=current_user.id,
         baby_id=schedule_in.baby_id,
@@ -38,7 +38,7 @@ def delete_schedule(schedule_id: int, db: Session = Depends(get_db), current_use
     schedule = db.query(Schedule).filter(Schedule.id == schedule_id).first()
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
-    verify_baby_access(db, schedule.baby_id, current_user.id, record_type="schedule")
+    verify_baby_access(db, schedule.baby_id, current_user.id, record_type="schedule", require_write=True)
     db.delete(schedule)
     db.commit()
     return {"message": "Deleted"}
