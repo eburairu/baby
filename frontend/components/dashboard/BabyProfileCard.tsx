@@ -19,12 +19,12 @@ export function BabyProfileCard({ babies, selectedBabyId, onSelect }: Props) {
     const age = selected?.birthday ? calcAge(selected.birthday) : null
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm p-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{selected?.name}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">{selected?.name}</h1>
                     {age && (
-                        <p className="text-sm text-gray-500 mt-0.5">{age.label}</p>
+                        <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">{age.label}</p>
                     )}
                 </div>
                 {babies.length > 1 && (
@@ -35,7 +35,7 @@ export function BabyProfileCard({ babies, selectedBabyId, onSelect }: Props) {
                                 size="sm"
                                 variant={selectedBabyId === baby.id ? "default" : "outline"}
                                 onClick={() => onSelect(baby.id)}
-                                className="text-xs"
+                                className="text-xs dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
                             >
                                 {baby.name}
                             </Button>
