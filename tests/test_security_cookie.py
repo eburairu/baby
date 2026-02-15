@@ -9,6 +9,8 @@ def test_cookie_secure_default_is_true():
         del os.environ["COOKIE_SECURE"]
 
     # Reload the module to pick up the default value
+    import app.config
+    importlib.reload(app.config)
     import app.routers.auth
     importlib.reload(app.routers.auth)
 
@@ -21,6 +23,8 @@ def test_cookie_secure_can_be_false():
     os.environ["COOKIE_SECURE"] = "false"
 
     # Reload the module
+    import app.config
+    importlib.reload(app.config)
     import app.routers.auth
     importlib.reload(app.routers.auth)
 
@@ -38,6 +42,8 @@ def test_cookie_secure_header_is_present(client):
     # Let's ensure COOKIE_SECURE is True for this test
     if "COOKIE_SECURE" in os.environ:
         del os.environ["COOKIE_SECURE"]
+    import app.config
+    importlib.reload(app.config)
     import app.routers.auth
     importlib.reload(app.routers.auth)
 

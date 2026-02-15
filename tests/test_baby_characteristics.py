@@ -38,7 +38,7 @@ def test_create_baby_with_characteristics(auth_client):
     assert target["characteristics"] == "Updated text"
     
 def test_update_characteristics_partial(auth_client):
-    client = auth_client(username="user2", password="pw", family_name="Fam2")
+    client = auth_client(username="user2", password="password1", family_name="Fam2")
     
     # Create baby without characteristics
     res = client.post(
