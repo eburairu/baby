@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/eburairu/baby/compare/v1.1.1...v1.2.0) (2026-02-15)
+
+
+### Features
+
+* add 'unknown' gender option for babies and unify add/edit forms ([665fa8d](https://github.com/eburairu/baby/commit/665fa8d755aa9665fae8e35a983940e1b7ded628))
+
 ## [1.1.1](https://github.com/eburairu/baby/compare/v1.1.0...v1.1.1) (2026-02-15)
 
 
