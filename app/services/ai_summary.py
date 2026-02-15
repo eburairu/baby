@@ -9,6 +9,7 @@ from app.models.feeding import Feeding
 from app.models.sleep import Sleep
 from app.models.diaper import Diaper
 from app.models.growth import Growth
+from app.models.note import Note
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,17 @@ def build_daily_prompt(
         .all()
     )
 
+    notes = (
+        db.query(Note)
+        .filter(
+            Note.baby_id == baby_id,
+            Note.note_time >= day_start,
+            Note.note_time <= day_end,
+        )
+        .order_by(Note.note_time)
+        .all()
+    )
+
     growths = (
         db.query(Growth)
         .filter(
@@ -86,7 +98,7 @@ def build_daily_prompt(
         .all()
     )
 
-    total_records = len(feedings) + len(sleeps) + len(diapers) + len(growths)
+    total_records = len(feedings) + len(sleeps) + len(diapers) + len(notes) + len(growths)
 
     date_str = target_date.strftime("%Y年%m月%d日")
     lines = [f"{baby_name}ちゃんの{date_str}の育児記録です。", ""]
@@ -136,6 +148,13 @@ def build_daily_prompt(
             if d.notes:
                 line += f" (メモ: {d.notes})"
             lines.append(line)
+        lines.append("")
+
+    if notes:
+        lines.append("【その他の様子・メモ】")
+        for n in notes:
+            t = n.note_time.strftime("%H:%M")
+            lines.append(f"  {t} {n.content}")
         lines.append("")
 
     if growths:
