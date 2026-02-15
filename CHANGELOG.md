@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/eburairu/baby/compare/v1.6.0...v1.6.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* show detailed error message for presigned URL failure ([ba5bbbb](https://github.com/eburairu/baby/commit/ba5bbbb757f3ab71d498fb13d0fc9214d3b371c4))
+
 # [1.6.0](https://github.com/eburairu/baby/compare/v1.5.0...v1.6.0) (2026-02-15)
 
 
