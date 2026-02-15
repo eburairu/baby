@@ -2,14 +2,17 @@ import os
 import importlib
 import pytest
 from fastapi.testclient import TestClient
+import app.config
+import app.routers.auth
 
 def test_cookie_secure_default_is_true():
     # Ensure COOKIE_SECURE is not set in environment
     if "COOKIE_SECURE" in os.environ:
         del os.environ["COOKIE_SECURE"]
 
-    # Reload the module to pick up the default value
-    import app.routers.auth
+    # Reload the config module to pick up the default value
+    importlib.reload(app.config)
+    # Reload the auth module to import the new config value
     importlib.reload(app.routers.auth)
 
     from app.routers.auth import COOKIE_SECURE
@@ -20,8 +23,9 @@ def test_cookie_secure_can_be_false():
     # Set COOKIE_SECURE to "false" in environment
     os.environ["COOKIE_SECURE"] = "false"
 
-    # Reload the module
-    import app.routers.auth
+    # Reload the config module to pick up the new environment value
+    importlib.reload(app.config)
+    # Reload the auth module to import the new config value
     importlib.reload(app.routers.auth)
 
     from app.routers.auth import COOKIE_SECURE
@@ -32,13 +36,12 @@ def test_cookie_secure_can_be_false():
 
 def test_cookie_secure_header_is_present(client):
     # We need to make sure the app uses the updated COOKIE_SECURE
-    # Since 'client' might have already initialized the app, we might need to reload.
-    # But in a typical pytest setup, the client is created per test or session.
 
     # Let's ensure COOKIE_SECURE is True for this test
     if "COOKIE_SECURE" in os.environ:
         del os.environ["COOKIE_SECURE"]
-    import app.routers.auth
+
+    importlib.reload(app.config)
     importlib.reload(app.routers.auth)
 
     response = client.post(
