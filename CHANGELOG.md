@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/eburairu/baby/compare/v1.12.0...v1.12.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* **auth:** improve tab visibility in dark mode by removing hardcoded light background ([daabff1](https://github.com/eburairu/baby/commit/daabff1cea13c6444cdb39f1a61e97d29ec8bc2f))
+
 # [1.12.0](https://github.com/eburairu/baby/compare/v1.11.0...v1.12.0) (2026-02-15)
 
 
