@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/eburairu/baby/compare/v1.6.4...v1.7.0) (2026-02-15)
+
+
+### Features
+
+* implement dark mode support across all pages and components ([eb91fbd](https://github.com/eburairu/baby/commit/eb91fbde9c7bf6b5447032554edbf8b2df541271))
+
 ## [1.6.4](https://github.com/eburairu/baby/compare/v1.6.3...v1.6.4) (2026-02-15)
 
 
