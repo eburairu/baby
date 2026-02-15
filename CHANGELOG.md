@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/eburairu/baby/compare/v1.11.0...v1.12.0) (2026-02-15)
+
+
+### Features
+
+* **auth:** translate login and register screens to Japanese and align with UI design system ([a1608ab](https://github.com/eburairu/baby/commit/a1608ab24e604a3c537eb43f2d7a62dedb05beda))
+
 # [1.11.0](https://github.com/eburairu/baby/compare/v1.10.1...v1.11.0) (2026-02-15)
 
 
