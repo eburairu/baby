@@ -8,6 +8,7 @@ const TYPE_ICONS: Record<string, string> = {
     sleep: "💤",
     diaper: "👶",
     growth: "📏",
+    note: "📝",
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -15,6 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
     sleep: "睡眠",
     diaper: "おむつ",
     growth: "成長",
+    note: "メモ",
 }
 
 interface Props {
