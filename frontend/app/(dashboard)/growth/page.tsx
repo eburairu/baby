@@ -14,6 +14,7 @@ import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { ChevronLeft, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import type { Growth } from "@/types/growth"
 
 export default function GrowthPage() {
     const searchParams = useSearchParams()
@@ -26,9 +27,9 @@ export default function GrowthPage() {
     const { growths, isLoading, isError: growthError, mutate } = useGrowths(babyId)
 
     const [isFormOpen, setIsFormOpen] = useState(false)
-    const [editingRecord, setEditingRecord] = useState<any>(null)
+    const [editingRecord, setEditingRecord] = useState<Growth | null>(null)
 
-    const handleEdit = (record: any) => {
+    const handleEdit = (record: Growth) => {
         setEditingRecord(record)
         setIsFormOpen(true)
     }
