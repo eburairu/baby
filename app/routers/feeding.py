@@ -5,7 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.feeding import Feeding
-from app.schemas.feeding import FeedingCreate, FeedingResponse
+from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 
 router = APIRouter(prefix="/api/feedings", tags=["feedings"])
 
@@ -32,6 +32,27 @@ def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), cur
     db.commit()
     db.refresh(new_feeding)
     return new_feeding
+
+
+@router.patch("/{feeding_id}", response_model=FeedingResponse)
+def update_feeding(
+    feeding_id: int,
+    feeding_in: FeedingUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    feeding = db.query(Feeding).filter(Feeding.id == feeding_id).first()
+    if not feeding:
+        raise HTTPException(status_code=404, detail="Feeding record not found")
+    verify_baby_access(db, feeding.baby_id, current_user.id, record_type="feeding", require_write=True)
+
+    update_data = feeding_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(feeding, field, value)
+
+    db.commit()
+    db.refresh(feeding)
+    return feeding
 
 
 @router.delete("/{feeding_id}")

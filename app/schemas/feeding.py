@@ -19,3 +19,11 @@ class FeedingResponse(FeedingCreate):
 
     class Config:
         from_attributes = True
+
+
+class FeedingUpdate(BaseModel):
+    feeding_time: Optional[datetime] = None
+    feeding_type: Optional[FeedingType] = None
+    amount_ml: Optional[float] = None
+    duration_minutes: Optional[int] = None
+    notes: Optional[str] = None
