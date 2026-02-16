@@ -76,7 +76,15 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     db.refresh(new_family)
 
     token = _create_session(db, new_user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=COOKIE_SECURE,
+        path="/",
+        max_age=SESSION_EXPIRE_DAYS * 24 * 3600
+    )
     return new_family
 
 
@@ -103,7 +111,15 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     db.refresh(new_user)
 
     token = _create_session(db, new_user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=COOKIE_SECURE,
+        path="/",
+        max_age=SESSION_EXPIRE_DAYS * 24 * 3600
+    )
     
     return UserResponse(
         id=new_user.id,
@@ -124,7 +140,15 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
     role = family_user.role if family_user else None
 
     token = _create_session(db, user.id)
-    response.set_cookie(key="access_token", value=token, httponly=True, samesite="lax", secure=COOKIE_SECURE, path="/")
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=COOKIE_SECURE,
+        path="/",
+        max_age=SESSION_EXPIRE_DAYS * 24 * 3600
+    )
     
     return UserResponse(
         id=user.id,
