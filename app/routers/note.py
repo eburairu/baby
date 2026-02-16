@@ -29,7 +29,7 @@ def create_note(
     current_user: User = Depends(get_current_user)
 ):
     """メモの新規登録"""
-    verify_baby_access(db, baby_id, current_user.id, record_type="note")
+    verify_baby_access(db, baby_id, current_user.id, record_type="note", require_write=True)
     
     # 未来の日時は許可しない（5分のバッファを持たせる）
     check_time = note_in.note_time
@@ -64,7 +64,7 @@ def update_note(
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
     
-    verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note")
+    verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note", require_write=True)
 
     if note_in.note_time:
         check_time = note_in.note_time
@@ -98,7 +98,7 @@ def delete_note(
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
     
-    verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note")
+    verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note", require_write=True)
 
     db.delete(db_note)
     db.commit()

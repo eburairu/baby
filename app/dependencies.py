@@ -104,3 +104,20 @@ def verify_baby_access(
             )
 
     return baby
+
+
+def verify_write_access(db: Session, user_id: int) -> FamilyUser:
+    """
+    ユーザーが書き込み権限（admin または member）を持っているか検証する。
+    viewer の場合は 403 を raise。
+    """
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
+    if not family_user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+
+    if family_user.role == UserRole.VIEWER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Read-only users cannot perform this action"
+        )
+    return family_user

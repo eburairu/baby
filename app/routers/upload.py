@@ -6,8 +6,9 @@ from pydantic import BaseModel
 import boto3
 from botocore.exceptions import ClientError
 
-from app.dependencies import get_current_user
+from app.dependencies import get_db, get_current_user, verify_write_access
 from app.models.user import User
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +43,11 @@ def _get_r2_client():
 @router.post("/image", response_model=UploadResponse)
 async def upload_image(
     file: UploadFile = File(...),
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """画像をバックエンド経由で R2 にアップロードする。"""
+    verify_write_access(db, current_user.id)
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
