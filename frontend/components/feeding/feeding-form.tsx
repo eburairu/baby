@@ -44,6 +44,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
     const [baseTime, setBaseTime] = useState<number | null>(null)
 
     const form = useForm<FeedingFormValues>({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(feedingSchema) as any,
         defaultValues: {
             feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),

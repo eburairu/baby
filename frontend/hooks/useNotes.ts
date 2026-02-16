@@ -20,11 +20,11 @@ export function useNotes(babyId: number | null) {
 }
 
 export async function createNote(babyId: number, data: { content: string; note_time: string }): Promise<Note> {
-  return api.post(`/babies/${babyId}/notes`, data);
+  return api.post<Note>(`/babies/${babyId}/notes`, data);
 }
 
 export async function updateNote(noteId: number, data: { content?: string; note_time?: string }): Promise<Note> {
-  return api.patch(`/notes/${noteId}`, data);
+  return api.patch<Note>(`/notes/${noteId}`, data);
 }
 
 export async function deleteNote(noteId: number): Promise<void> {

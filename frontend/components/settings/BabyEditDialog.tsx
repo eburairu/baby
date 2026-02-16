@@ -49,7 +49,7 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
 
     const defaultValues: Partial<BabyFormData> | undefined = baby ? {
         name: baby.name,
-        gender: (baby.gender as any) || "unknown",
+        gender: (baby.gender as "boy" | "girl" | "unknown") || "unknown",
         birthday: baby.birthday ?? "",
         due_date: baby.due_date ?? "",
         characteristics: baby.characteristics ?? "",

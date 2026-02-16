@@ -34,9 +34,12 @@ export default function ContractionWaveGraph({ contractions }: ContractionWaveGr
   const { status, elapsedSeconds, startTime: activeStartTime } = useContractionTimer();
   const isTiming = status === 'timing';
 
+  // Use a stable timestamp for this render to satisfy purity rules
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
+
   const chartData = useMemo(() => {
     const points: ChartPoint[] = [];
-    const now = Date.now();
     const oneHourAgo = now - 3600 * 1000;
 
     // 1. 過去の記録を変換
@@ -82,7 +85,7 @@ export default function ContractionWaveGraph({ contractions }: ContractionWaveGr
       points.push({ timestamp: start - 1000, value: 0 });
       // 現在のピーク（リアルタイムに膨らむ）
       points.push({ 
-        timestamp: Date.now(), 
+        timestamp: now, 
         value: peakValue, 
         isPeak: true,
         duration,
@@ -92,11 +95,11 @@ export default function ContractionWaveGraph({ contractions }: ContractionWaveGr
 
     // タイムスタンプ順にソートし、重複を排除
     return points.sort((a, b) => a.timestamp - b.timestamp);
-  }, [contractions, isTiming, elapsedSeconds, activeStartTime]);
+  }, [contractions, isTiming, elapsedSeconds, activeStartTime, now]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: ChartPoint }[] }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload as ChartPoint;
+      const data = payload[0].payload;
       if (!data.isPeak) return null;
 
       return (

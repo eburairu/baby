@@ -59,9 +59,12 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     }
 
     // Tooltip formatter
-    const tooltipFormatter = (value: number, name: string) => {
-        if (name.includes("WHO")) return [value.toFixed(1), name];
-        return [value, name];
+    const tooltipFormatter = (value: unknown, name: string | undefined) => {
+        const displayName = name || "";
+        if (value === undefined || value === null) return ["-", displayName];
+        const numValue = typeof value === 'string' ? parseFloat(value) : (value as number);
+        if (displayName.includes("WHO")) return [numValue.toFixed(1), displayName];
+        return [numValue, displayName];
     }
 
     const gridColor = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : gray-200
@@ -69,7 +72,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     const whoLineColor = isDark ? "#3f3f46" : "#ccc" // zinc-700 : ccc
     const whoFillColor = isDark ? "#18181b" : "#e0e0e0" // zinc-900 : e0e0e0
 
-    const renderChart = (data: any[], dataKey: string, unit: string, color: string) => (
+    const renderChart = (data: { date: number; [key: string]: string | number | boolean | Date | null | undefined }[], dataKey: string, unit: string, color: string) => (
         <div style={{ width: '100%', height: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data}>
@@ -85,7 +88,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                     <YAxis unit={unit} domain={['auto', 'auto']} tick={{ fill: textColor, fontSize: 10 }} />
                     <Tooltip 
                         labelFormatter={(label) => format(new Date(label), "yyyy/MM/dd")} 
-                        formatter={tooltipFormatter as any}
+                        formatter={tooltipFormatter}
                         contentStyle={{ 
                             backgroundColor: isDark ? "#18181b" : "#fff", 
                             borderColor: isDark ? "#27272a" : "#e5e7eb",

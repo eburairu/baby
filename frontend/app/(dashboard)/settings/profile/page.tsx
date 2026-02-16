@@ -6,7 +6,7 @@ import { User, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useUser } from "@/hooks/useAuth"
+import { useUser, User as UserType } from "@/hooks/useAuth"
 import { api } from "@/lib/api"
 import { toast } from "sonner"
 import { getDisplayName } from "@/lib/utils"
@@ -27,7 +27,7 @@ export default function ProfileSettingsPage() {
     const handleSave = async () => {
         setIsSaving(true)
         try {
-            const updatedUser = await api.patch("/auth/me", {
+            const updatedUser = await api.patch<UserType>("/auth/me", {
                 display_name: displayName,
             })
             await mutate(updatedUser) // SWRのキャッシュを更新

@@ -38,8 +38,8 @@ export function NoteDialog({ babyId, open, onOpenChange }: Props) {
       mutateRecords()
     } catch (err: unknown) {
       console.error(err)
-      const detail = isApiError(err) ? (err.info?.detail || "メモの保存に失敗しました") : "メモの保存に失敗しました"
-      alert(detail)
+                  const detail = isApiError(err) ? ((err.info as { detail?: string })?.detail || "メモの保存に失敗しました") : "メモの保存に失敗しました"
+            alert(detail)
     } finally {
       setSubmitting(false)
     }

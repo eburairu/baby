@@ -1,10 +1,10 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '') + '/api';
 
 export class ApiError extends Error {
-    info: any;
+    info: unknown;
     status: number;
 
-    constructor(message: string, info: any, status: number) {
+    constructor(message: string, info: unknown, status: number) {
         super(message);
         this.name = 'ApiError';
         this.info = info;
@@ -25,7 +25,7 @@ async function parseErrorBody(res: Response): Promise<unknown> {
     }
 }
 
-export const fetcher = async <T = any>(url: string): Promise<T> => {
+export const fetcher = async <T = unknown>(url: string): Promise<T> => {
     const res = await fetch(`${API_BASE}${url}`, {
         credentials: 'include',
     });
@@ -40,7 +40,7 @@ export const fetcher = async <T = any>(url: string): Promise<T> => {
 };
 
 export const api = {
-    post: async <TRes = any, TReq = any>(url: string, body: TReq): Promise<TRes> => {
+    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'POST',
             headers: {
@@ -54,7 +54,7 @@ export const api = {
         }
         return res.json() as Promise<TRes>;
     },
-    put: async <TRes = any, TReq = any>(url: string, body: TReq): Promise<TRes> => {
+    put: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'PUT',
             headers: {
@@ -68,7 +68,7 @@ export const api = {
         }
         return res.json() as Promise<TRes>;
     },
-    patch: async <TRes = any, TReq = any>(url: string, body: TReq): Promise<TRes> => {
+    patch: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'PATCH',
             headers: {
@@ -82,7 +82,7 @@ export const api = {
         }
         return res.json() as Promise<TRes>;
     },
-    delete: async <TRes = any>(url: string): Promise<TRes | null> => {
+    delete: async <TRes = unknown>(url: string): Promise<TRes | null> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'DELETE',
             credentials: 'include',

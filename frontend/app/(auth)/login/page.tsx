@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -45,9 +45,13 @@ export default function LoginPage() {
             await api.post("/auth/login", values)
             await mutate() // refresh user state
             router.push("/")
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Login failed", err)
-            setError(err.info?.detail || "ログインに失敗しました")
+            if (isApiError(err)) {
+                setError((err.info as { detail?: string })?.detail || "ログインに失敗しました")
+            } else {
+                setError("ログインに失敗しました")
+            }
         }
     }
 

@@ -81,7 +81,7 @@ export function BabyForm({
                 <Label>性別</Label>
                 <RadioGroup
                     value={selectedGender}
-                    onValueChange={(v) => setValue("gender", v as any)}
+                    onValueChange={(v) => setValue("gender", v as "boy" | "girl" | "unknown")}
                     className="flex gap-4"
                 >
                     <div className="flex items-center space-x-2">

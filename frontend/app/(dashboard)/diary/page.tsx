@@ -56,7 +56,7 @@ export default function DiaryPage() {
             await generateDailySummary(babyId, todayStr)
             await mutate()
         } catch (err: unknown) {
-            const detail = isApiError(err) ? (err.info?.detail || "日誌の生成に失敗しました。") : "日誌の生成に失敗しました。"
+            const detail = isApiError(err) ? ((err.info as { detail?: string })?.detail || "日誌の生成に失敗しました。") : "日誌の生成に失敗しました。"
             setGenerateError(detail)
         } finally {
             setIsGenerating(false)
