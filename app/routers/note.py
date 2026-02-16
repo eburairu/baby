@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -30,8 +30,8 @@ def create_note(
     """メモの新規登録"""
     verify_baby_access(db, baby_id, current_user.id, record_type="note")
     
-    # 未来の日時は許可しない
-    if note_in.note_time > datetime.now():
+    # 未来の日時は許可しない（5分のバッファを持たせる）
+    if note_in.note_time > datetime.now() + timedelta(minutes=5):
          raise HTTPException(status_code=400, detail="Future date is not allowed")
 
     db_note = Note(
@@ -59,7 +59,7 @@ def update_note(
     
     verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note")
 
-    if note_in.note_time and note_in.note_time > datetime.now():
+    if note_in.note_time and note_in.note_time > datetime.now() + timedelta(minutes=5):
          raise HTTPException(status_code=400, detail="Future date is not allowed")
 
     update_data = note_in.model_dump(exclude_unset=True)
