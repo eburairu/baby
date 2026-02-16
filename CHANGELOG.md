@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/eburairu/baby/compare/v1.13.3...v1.13.4) (2026-02-16)
+
+
+### Bug Fixes
+
+* improve note submission reliability and error handling ([e93fe2e](https://github.com/eburairu/baby/commit/e93fe2ecc703208b9441419a84aac0d737ca9002))
+
 ## [1.13.3](https://github.com/eburairu/baby/compare/v1.13.2...v1.13.3) (2026-02-15)
 
 
