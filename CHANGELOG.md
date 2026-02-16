@@ -1,3 +1,10 @@
+## [1.13.8](https://github.com/eburairu/baby/compare/v1.13.7...v1.13.8) (2026-02-16)
+
+
+### Bug Fixes
+
+* resolve backend datetime comparison TypeError, update tests for validation rules, and fix various frontend lint/build errors ([6eb6d77](https://github.com/eburairu/baby/commit/6eb6d77a421b3e9c3544114f1bdd6d4a0e491616))
+
 ## [1.13.7](https://github.com/eburairu/baby/compare/v1.13.6...v1.13.7) (2026-02-16)
 
 
