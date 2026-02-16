@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
 
@@ -24,8 +24,7 @@ class FamilyResponse(BaseModel):
     invite_code: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FamilyUpdate(BaseModel):
@@ -39,8 +38,7 @@ class FamilyMemberResponse(BaseModel):
     role: str
     joined_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MemberRoleUpdate(BaseModel):
