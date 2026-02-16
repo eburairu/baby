@@ -1,3 +1,15 @@
+# [1.18.0](https://github.com/eburairu/baby/compare/v1.17.0...v1.18.0) (2026-02-16)
+
+
+### Features
+
+* eliminate async waterfalls in dashboard and diary following Vercel best practices ([46a238a](https://github.com/eburairu/baby/commit/46a238a3e0558275c8a32abd55a0a2c3b568eab2))
+
+
+### Performance Improvements
+
+* optimize barrel file imports in next.config.ts ([03a87ce](https://github.com/eburairu/baby/commit/03a87ce3f40906e10d64a2c40c5759ef28d00e1c))
+
 # [1.17.0](https://github.com/eburairu/baby/compare/v1.16.5...v1.17.0) (2026-02-16)
 
 
