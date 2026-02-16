@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/eburairu/baby/compare/v1.13.8...v1.14.0) (2026-02-16)
+
+
+### Features
+
+* add record detail dialog and update feeding patch endpoint ([3a2065a](https://github.com/eburairu/baby/commit/3a2065a47cd9e8c326e54a0114b3e7ce43de5d2a))
+
 ## [1.13.8](https://github.com/eburairu/baby/compare/v1.13.7...v1.13.8) (2026-02-16)
 
 
