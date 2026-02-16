@@ -28,5 +28,5 @@ export async function updateNote(noteId: number, data: { content?: string; note_
 }
 
 export async function deleteNote(noteId: number): Promise<void> {
-  return api.delete(`/notes/${noteId}`);
+  await api.delete(`/notes/${noteId}`);
 }
