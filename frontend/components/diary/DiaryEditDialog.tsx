@@ -63,14 +63,13 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
 
         setUploadError(null)
         setIsUploading(true)
-        const newUrls: string[] = []
 
         try {
-            for (const file of files) {
+            const uploadPromises = files.map(async (file) => {
                 const compressed = await compressImage(file)
-                const url = await uploadImage(compressed)
-                newUrls.push(url)
-            }
+                return await uploadImage(compressed)
+            })
+            const newUrls = await Promise.all(uploadPromises)
             setPendingImages((prev) => [...prev, ...newUrls])
         } catch (err) {
             if (err instanceof ImageTooLargeError) {

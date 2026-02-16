@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, timezone, timedelta
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -31,8 +31,7 @@ class UnifiedRecord(BaseModel):
     details: dict
     comment_count: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RecordCreate(BaseModel):

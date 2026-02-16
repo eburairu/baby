@@ -1,4 +1,4 @@
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, computed_field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 
@@ -30,5 +30,4 @@ class DailySummaryResponse(BaseModel):
     def display_content(self) -> str:
         return self.edited_content if self.edited_content else self.generated_content
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
