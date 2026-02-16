@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/eburairu/baby/compare/v1.16.1...v1.16.2) (2026-02-16)
+
+
+### Bug Fixes
+
+* add fallback for comment count fetching to prevent API failure ([a50676b](https://github.com/eburairu/baby/commit/a50676b224b6fd5c1312006f765dca7cdeaad3d1))
+
 ## [1.16.1](https://github.com/eburairu/baby/compare/v1.16.0...v1.16.1) (2026-02-16)
 
 
