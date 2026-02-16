@@ -1,9 +1,11 @@
 services:
   - type: web
     name: baby-app-next
-    runtime: docker
+    runtime: python
     autoDeploy: false
     plan: free
+    buildCommand: pip install -r requirements.txt && cd frontend && npm ci && npm run build
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         sync: false  # Neon の接続文字列を Render Dashboard で手動設定
@@ -21,3 +23,9 @@ services:
         sync: false  # APIキーを Render Dashboard で手動設定
       - key: LLM_MODEL
         value: "gemini-2.0-flash"  # 未設定時は provider に応じて自動選択（gpt-4o-mini / gemini-2.0-flash）
+      - key: PYTHON_VERSION
+        value: "3.10.12"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"

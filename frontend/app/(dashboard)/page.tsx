@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { useBabies } from "@/hooks/useData"
+import { useBabies, useRecords } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import Link from "next/link"
 import { useBabyStore } from "@/stores/babyStore"
@@ -15,7 +15,12 @@ import { SleepWidget } from "@/components/dashboard/SleepWidget"
 import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
 import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
-import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed"
+import dynamic from "next/dynamic"
+
+const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
+    loading: () => <div className="h-32 animate-pulse bg-gray-100 dark:bg-zinc-800 rounded-2xl" />,
+    ssr: false
+})
 
 export default function Dashboard() {
     const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
@@ -30,6 +35,9 @@ export default function Dashboard() {
 
     // 最初の赤ちゃんをデフォルト選択
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+
+    // 記録の一括取得
+    const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(effectiveId)
 
     const handleAddBaby = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -87,7 +95,7 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleAddBaby} className="space-y-4">
-                            {error && <div className="text-red-500 dark:text-red-400 text-sm">{error}</div>}
+                            {error ? <div className="text-red-500 dark:text-red-400 text-sm">{error}</div> : null}
                             <div className="space-y-2">
                                 <Label htmlFor="babyName" className="dark:text-zinc-300">赤ちゃんの名前 <span className="text-red-500">*</span></Label>
                                 <Input
@@ -179,11 +187,11 @@ export default function Dashboard() {
 
                 {/* ウィジェットグリッド */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <FeedingWidget babyId={effectiveId} />
-                    <SleepWidget babyId={effectiveId} />
-                    <DiaperWidget babyId={effectiveId} />
-                    <GrowthWidget babyId={effectiveId} />
-                    <NoteWidget babyId={effectiveId} />
+                    <FeedingWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />
+                    <SleepWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />
+                    <DiaperWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />
+                    <GrowthWidget babyId={effectiveId} records={records} isError={recordsError} />
+                    <NoteWidget babyId={effectiveId} records={records} isLoading={recordsLoading} />
                 </div>
 
                 {/* 育児日誌へのリンク */}
@@ -197,7 +205,12 @@ export default function Dashboard() {
                 </Link>
 
                 {/* Recent Activity */}
-                <RecentActivityFeed babyId={effectiveId} />
+                <RecentActivityFeed 
+                    babyId={effectiveId} 
+                    records={records} 
+                    isLoading={recordsLoading} 
+                    mutate={mutateRecords} 
+                />
             </div>
         </div>
     )

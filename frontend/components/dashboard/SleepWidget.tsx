@@ -2,19 +2,21 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useSleeps } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api, isApiError } from "@/lib/api"
 import { formatElapsed, formatDuration, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
+import { BabyRecord } from "@/hooks/useData"
 
 interface Props {
     babyId: string
+    records?: BabyRecord[]
+    isError?: any
+    mutate?: () => void
 }
 
-export function SleepWidget({ babyId }: Props) {
-    const { sleeps, isError, mutate } = useSleeps(babyId)
+export function SleepWidget({ babyId, records, isError, mutate }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -36,22 +38,23 @@ export function SleepWidget({ babyId }: Props) {
         )
     }
 
-    const activeSleep = sleeps?.find((s) => !s.end_time) ?? null
+    const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
+    const activeSleep = sleepRecords.find((s) => !s.details.end_time) ?? null
     const isSleeping = !!activeSleep
 
-    const todayTotalMin = sleeps
-        ?.filter((s) => s.end_time && isToday(s.start_time))
+    const todayTotalMin = sleepRecords
+        .filter((s) => s.details.end_time && isToday(s.timestamp))
         .reduce((acc: number, s) => {
-            const ms = new Date(s.end_time!).getTime() - new Date(s.start_time).getTime()
+            const ms = new Date(s.details.end_time as string).getTime() - new Date(s.timestamp).getTime()
             return acc + Math.floor(ms / 60000)
-        }, 0) ?? 0
+        }, 0)
     const todayTotal = todayTotalMin > 0
         ? `${Math.floor(todayTotalMin / 60)}時間${todayTotalMin % 60}分`
         : "0分"
 
-    const elapsed = activeSleep ? formatElapsed(activeSleep.start_time) : null
-    const lastSleep = sleeps?.find((s) => s.end_time)
-    const lastElapsed = lastSleep ? formatElapsed(lastSleep.end_time!) : null
+    const elapsed = activeSleep ? formatElapsed(activeSleep.timestamp) : null
+    const lastSleep = sleepRecords.find((s) => s.details.end_time)
+    const lastElapsed = lastSleep ? formatElapsed(lastSleep.details.end_time as string) : null
 
     const handleStart = async () => {
         setLoading(true)
@@ -60,7 +63,7 @@ export function SleepWidget({ babyId }: Props) {
                 baby_id: Number(babyId),
                 start_time: new Date().toISOString(),
             })
-            mutate()
+            if (mutate) mutate()
         } catch (e) {
             console.error(e)
         } finally {
@@ -75,7 +78,7 @@ export function SleepWidget({ babyId }: Props) {
             await api.patch(`/sleeps/${activeSleep.id}`, {
                 end_time: new Date().toISOString(),
             })
-            mutate()
+            if (mutate) mutate()
         } catch (e) {
             console.error(e)
         } finally {
@@ -88,9 +91,9 @@ export function SleepWidget({ babyId }: Props) {
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium text-indigo-500 dark:text-indigo-400 flex items-center gap-1">
                     💤 睡眠
-                    {isSleeping && (
+                    {isSleeping ? (
                         <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-                    )}
+                    ) : null}
                 </CardTitle>
                 <Link href={`/sleep?baby_id=${babyId}`}>
                     <Button
@@ -120,7 +123,7 @@ export function SleepWidget({ babyId }: Props) {
                     )}
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
                 </div>
-                {canWrite && (
+                {canWrite ? (
                     <Button
                         size="sm"
                         loading={loading}
@@ -133,7 +136,7 @@ export function SleepWidget({ babyId }: Props) {
                     >
                         {isSleeping ? "睡眠終了" : "睡眠開始"}
                     </Button>
-                )}
+                ) : null}
             </CardContent>
         </Card>
     )

@@ -1,20 +1,21 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useNotes } from "@/hooks/useNotes"
 import { formatElapsed } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, StickyNote } from "lucide-react"
+import { BabyRecord } from "@/hooks/useData"
 
 interface Props {
   babyId: string
+  records?: BabyRecord[]
+  isLoading?: boolean
 }
 
-export function NoteWidget({ babyId }: Props) {
-  const { notes, isLoading } = useNotes(Number(babyId))
-
-  const lastNote = notes?.[0]
-  const elapsed = lastNote ? formatElapsed(lastNote.note_time) : null
+export function NoteWidget({ babyId, records, isLoading }: Props) {
+  const noteRecords = records?.filter(r => r.type === 'note') ?? []
+  const lastNote = noteRecords[0]
+  const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
 
   return (
     <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
@@ -42,7 +43,7 @@ export function NoteWidget({ babyId }: Props) {
           <div className="space-y-1">
             <p className="text-xs text-gray-500 dark:text-zinc-400">{elapsed}</p>
             <p className="text-sm text-gray-800 dark:text-zinc-200 line-clamp-2 font-medium leading-relaxed">
-              {lastNote.content}
+              {lastNote.details.notes as string}
             </p>
           </div>
         ) : (
