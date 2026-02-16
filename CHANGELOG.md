@@ -1,3 +1,10 @@
+## [1.16.4](https://github.com/eburairu/baby/compare/v1.16.3...v1.16.4) (2026-02-16)
+
+
+### Bug Fixes
+
+* add missing fetcher to comments hook and improve UI states ([feaea6f](https://github.com/eburairu/baby/commit/feaea6ff739908317362dfb442d482f3c731667c))
+
 ## [1.16.3](https://github.com/eburairu/baby/compare/v1.16.2...v1.16.3) (2026-02-16)
 
 
