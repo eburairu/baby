@@ -21,7 +21,7 @@ export function useComments(recordType: string, recordId: number) {
   const addComment = async (content: string) => {
     // api ヘルパーを使用して POST
     const res = await api.post(`/records/${recordType}/${recordId}/comments`, { content });
-    const newComment = res;
+    const newComment = res as CommentResponse;
     // Optimistically update
     mutate((prev) => (prev ? [...prev, newComment] : [newComment]), false);
     return newComment;
