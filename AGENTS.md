@@ -34,6 +34,17 @@ baby-app/
 └── AGENTS.md              # 本ファイル
 ```
 
+## エージェント・スキル (AI Agent Skills)
+
+このプロジェクトでは、Vercel Labs の `agent-skills` を導入しています。以下のパスに、開発のベストプラクティスやルールが格納されています。作業を開始する前に、これらの内容を読み込んで遵守してください。
+
+- **場所**: `.agents/skills/`
+- **利用可能なスキル**:
+  - `vercel-react-best-practices`: React/Next.js のパフォーマンス最適化ガイドライン
+  - `vercel-composition-patterns`: コンポーネント設計のベストプラクティス
+  - `web-design-guidelines`: ウェブデザインの一般的ガイドライン
+  - `vercel-react-native-skills`: React Native 向けのガイドライン（主にモバイル開発時）
+
 ## 開発環境のセットアップ
 
 ### Backend
