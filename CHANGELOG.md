@@ -1,3 +1,10 @@
+## [1.15.4](https://github.com/eburairu/baby/compare/v1.15.3...v1.15.4) (2026-02-16)
+
+
+### Bug Fixes
+
+* replace datetime-local inputs with read-only text in edit dialogs to prevent unwanted calendar popup ([ebdbdf9](https://github.com/eburairu/baby/commit/ebdbdf9346fe315b2b7f2637a7c3ff3eaec4eebe))
+
 ## [1.15.3](https://github.com/eburairu/baby/compare/v1.15.2...v1.15.3) (2026-02-16)
 
 
