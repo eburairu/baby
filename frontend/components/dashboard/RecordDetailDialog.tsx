@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { BabyRecord } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
@@ -29,10 +30,15 @@ const TYPE_LABELS: Record<string, string> = {
 export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
   const [loading, setLoading] = useState(false)
   const [notes, setNotes] = useState("")
+  const [timestamp, setTimestamp] = useState("")
 
   useEffect(() => {
     if (record) {
       setNotes(record.details.notes || "")
+      // Convert to local time string for input
+      const date = new Date(record.timestamp)
+      const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
+      setTimestamp(localIso)
     }
   }, [record])
 
@@ -43,31 +49,37 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     setLoading(true)
     try {
       let endpoint = ""
-      const body: { notes: string } = { notes }
+      const isoTimestamp = new Date(timestamp).toISOString()
+      const body: Record<string, string | null> = { notes }
 
       switch (record.type) {
         case "feeding":
           endpoint = `/feedings/${record.id}`
+          body.feeding_time = isoTimestamp
           await api.patch(endpoint, body)
           break
         case "sleep":
           endpoint = `/sleeps/${record.id}`
+          body.start_time = isoTimestamp
           await api.patch(endpoint, body)
           break
         case "diaper":
           endpoint = `/diapers/${record.id}`
+          body.change_time = isoTimestamp
           await api.put(endpoint, body)
           break
         case "growth":
           endpoint = `/growths/${record.id}`
+          body.date = isoTimestamp.split('T')[0] // Growth uses date only
           await api.put(endpoint, body)
           break
         case "note":
           endpoint = `/notes/${record.id}`
-          await api.patch(endpoint, { content: notes })
+          await api.patch(endpoint, { content: notes, note_time: isoTimestamp })
           break
         case "contraction":
           endpoint = `/contractions/${record.id}`
+          body.start_time = isoTimestamp
           await api.patch(endpoint, body)
           break
       }
@@ -119,14 +131,19 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-500 dark:text-zinc-400">日時</span>
-            <span className="font-medium">
-              {format(new Date(record.timestamp), "yyyy/MM/dd HH:mm", { locale: ja })}
-            </span>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="timestamp" className="text-gray-700 dark:text-zinc-300">日時</Label>
+              <Input
+                id="timestamp"
+                type="datetime-local"
+                value={timestamp}
+                onChange={(e) => setTimestamp(e.target.value)}
+                className="dark:bg-zinc-800 dark:border-zinc-700"
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-gray-700 dark:text-zinc-300">メモ</Label>
               <Textarea

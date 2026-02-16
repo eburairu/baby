@@ -38,6 +38,9 @@ def update_sleep(sleep_id: int, sleep_update: SleepUpdate, db: Session = Depends
     if not sleep:
         raise HTTPException(status_code=404, detail="Sleep record not found")
     verify_baby_access(db, sleep.baby_id, current_user.id, record_type="sleep", require_write=True)
+    
+    if sleep_update.start_time is not None:
+        sleep.start_time = sleep_update.start_time
     if sleep_update.end_time is not None:
         sleep.end_time = sleep_update.end_time
     if sleep_update.notes is not None:
