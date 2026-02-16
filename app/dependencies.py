@@ -1,11 +1,11 @@
 from typing import Generator, Annotated
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, status, Request, Response
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app.database import SessionLocal
 from app.models.baby import Baby, BabyPermission
 from app.models.family import FamilyUser, UserRole
-from app.config import SESSION_EXPIRE_DAYS
+from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -19,7 +19,7 @@ def get_db() -> Generator[Session, None, None]:
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
-def get_current_user(request: Request, db: db_dependency):
+def get_current_user(request: Request, response: Response, db: db_dependency):
     from app.models.user import User, UserSession
 
     token = request.cookies.get("access_token")
@@ -36,6 +36,17 @@ def get_current_user(request: Request, db: db_dependency):
     # Sliding session: extend expiration
     session.expires_at = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS)
     db.commit()
+
+    # Extend cookie in browser
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=COOKIE_SECURE,
+        path="/",
+        max_age=SESSION_EXPIRE_DAYS * 24 * 3600
+    )
 
     user = db.query(User).filter(User.id == session.user_id).first()
     if user is None:
