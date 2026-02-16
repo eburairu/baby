@@ -24,7 +24,9 @@ def mock_cookie_secure(monkeypatch):
     """テスト環境ではSecure Cookieを無効化する"""
     monkeypatch.setenv("COOKIE_SECURE", "false")
     import app.routers.auth
+    import app.dependencies
     monkeypatch.setattr(app.routers.auth, "COOKIE_SECURE", False)
+    monkeypatch.setattr(app.dependencies, "COOKIE_SECURE", False)
 
 
 @pytest.fixture(scope="function")
