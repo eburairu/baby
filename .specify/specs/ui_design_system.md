@@ -361,8 +361,10 @@ export function ErrorMessage({ message }: { message: string }) {
 
 ### 6.2 日時入力
 
+#### 新規登録時
+新規登録フォームでは、ユーザーが日時を調整できるよう `datetime-local` 入力を使用する。
+
 ```tsx
-// 統一パターン
 <FormField
   control={form.control}
   name="recordedAt"
@@ -376,6 +378,15 @@ export function ErrorMessage({ message }: { message: string }) {
     </FormItem>
   )}
 />
+```
+
+#### 編集時（共通ルール）
+既存レコードの編集ダイアログにおいては、**日時は読み取り専用のテキスト表示**とする。これは、編集時に不意にカレンダーがポップアップするのを防ぎ、ユーザー体験を損なわないための措置である。日時の変更が必要な場合は、一度削除して再登録する運用とする。
+
+```tsx
+<div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+  {format(new Date(recordedAt), "yyyy年MM月dd日 HH:mm", { locale: ja })}
+</div>
 ```
 
 ### 6.3 送信ボタン

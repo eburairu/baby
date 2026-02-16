@@ -39,13 +39,15 @@
 - `app/dependencies.py` に、ユーザーのロールを確認し、`viewer` の場合に `403 Forbidden` を返すロジックを追加する。
 - 以下のすべての「作成・更新・削除」エンドポイントにこのチェックを適用する。
     - `/api/babies/` (POST, PATCH, DELETE, POST records)
-    - `/api/feedings/` (POST, DELETE)
+    - `/api/feedings/` (POST, PATCH, DELETE)
     - `/api/sleeps/` (POST, PATCH, DELETE)
     - `/api/diapers/` (POST, PUT, DELETE)
     - `/api/growth/` (POST, PUT, DELETE)
-    - `/api/contractions/` (POST, DELETE)
+    - `/api/contractions/` (POST, PATCH, DELETE)
     - `/api/schedules/` (POST, DELETE)
+    - `/api/notes/` (POST, PATCH, DELETE)
     - `/api/ai_summary/` (POST, PATCH, DELETE)
+    - `/api/upload/image` (POST)
 
 #### ファミリー管理 API の更新
 - `app/routers/family.py` の `update_member_role` において、`viewer` への変更を許可するようにバリデーションを修正する。
@@ -56,6 +58,7 @@
 - ログイン中のユーザーのロールが `viewer` の場合、以下の操作を非表示または無効化する。
     - 各記録画面の「記録する」ボタン（Floating Action Button など）
     - 記録一覧の編集・削除メニュー/ボタン
+    - アクティビティフィード（最近の記録）の編集ダイアログにおける「保存」「削除」ボタンの非表示、および入力項目の無効化（読み取り専用）
     - 赤ちゃん設定の追加・編集・削除ボタン
     - ファミリー設定の名前変更・招待コード再生成・メンバー削除ボタン
 
@@ -68,23 +71,23 @@
 
 ### Phase 1: バックエンドの修正
 
-1.  **ロールのデフォルト変更**:
+1.  [x] **ロールのデフォルト変更**:
     - `app/routers/auth.py` の `join_family` を修正。
-2.  **バリデーションの更新**:
+2.  [x] **バリデーションの更新**:
     - `app/routers/family.py` の `update_member_role` を修正。
-3.  **権限チェックの強化**:
-    - `app/dependencies.py` に `verify_write_access` (仮) を追加。
-    - または `verify_baby_access` 内で書き込み権限（role != viewer）のチェックを行えるようにオプションを追加する。
-4.  **各ルーターへの適用**:
-    - 全記録系ルーターのミューテーション操作にチェックを追加。
+3.  [x] **権限チェックの強化**:
+    - `app/dependencies.py` に `verify_write_access` を追加。
+    - `verify_baby_access` 内で書き込み権限（role != viewer）のチェックを行えるようにオプションを実装。
+4.  [x] **各ルーターへの適用**:
+    - 全記録系ルーター（メモ含む）およびアップロードルーターのミューテーション操作にチェックを追加。
 
 ### Phase 2: フロントエンドの修正
 
-1.  **ロール情報の取得・保持**:
-    - `useFamilyMembers` などの既存フックで自身のロールを判定できるようにする。
-2.  **ボタン等の表示制御**:
-    - `FloatingActionButton` や各種 `ActionMenu` にロールベースの表示条件を追加。
-3.  **設定画面の更新**:
+1.  [x] **ロール情報の取得・保持**:
+    - `usePermissions` フックで自身のロール（`canWrite` 等）を判定できるように実装。
+2.  [x] **ボタン等の表示制御**:
+    - `FloatingActionButton`、各種 `ActionMenu`、および `RecordDetailDialog` にロールベースの表示・無効化条件を追加。
+3.  [x] **設定画面の更新**:
     - メンバーロールの選択肢に `閲覧者 (viewer)` を追加。
 
 ---
