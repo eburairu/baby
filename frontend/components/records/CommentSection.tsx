@@ -5,7 +5,7 @@ import { useComments } from "@/hooks/useComments";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Trash2, Heart } from "lucide-react";
+import { MessageCircle, Trash2, Heart, AlertCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ recordType, recordId, currentUserId, onCommentChange }: CommentSectionProps) {
-  const { comments, addComment, deleteComment, isLoading } = useComments(recordType, recordId);
+  const { comments, addComment, deleteComment, isLoading, error } = useComments(recordType, recordId);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,7 +60,21 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
       </div>
 
       <div className="space-y-3">
-        {comments?.map((comment) => (
+        {isLoading && (
+          <div className="flex items-center justify-center py-4 text-gray-400">
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            <span className="text-xs">読み込み中...</span>
+          </div>
+        )}
+        
+        {error && (
+          <div className="flex items-center justify-center py-4 text-red-400 bg-red-50 rounded-lg">
+            <AlertCircle className="w-4 h-4 mr-2" />
+            <span className="text-xs">メッセージの取得に失敗しました</span>
+          </div>
+        )}
+
+        {!isLoading && !error && comments?.map((comment) => (
           <div
             key={comment.id}
             className={cn(
@@ -104,7 +118,8 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
             )}
           </div>
         ))}
-        {comments?.length === 0 && !isLoading && (
+        
+        {comments?.length === 0 && !isLoading && !error && (
           <p className="text-xs text-gray-400 text-center py-2">
             メッセージを送って育児を応援しましょう！
           </p>
@@ -126,13 +141,11 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
             className="bg-orange-500 hover:bg-orange-600 text-white"
           >
             {isSubmitting ? (
-              "送信中..."
+              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
             ) : (
-              <>
-                <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
-                応援を送る
-              </>
+              <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
             )}
+            応援を送る
           </Button>
         </div>
       </form>
