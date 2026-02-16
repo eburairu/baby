@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { BabyRecord } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
@@ -28,6 +29,7 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
+  const { canWrite } = usePermissions()
   const [loading, setLoading] = useState(false)
   const [notes, setNotes] = useState("")
   const [timestamp, setTimestamp] = useState("")
@@ -142,6 +144,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 onChange={(e) => setTimestamp(e.target.value)}
                 className="dark:bg-zinc-800 dark:border-zinc-700"
                 required
+                disabled={!canWrite}
               />
             </div>
 
@@ -152,21 +155,24 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={5}
-                placeholder="メモを入力..."
+                placeholder={canWrite ? "メモを入力..." : ""}
                 className="dark:bg-zinc-800 dark:border-zinc-700 resize-none"
+                disabled={!canWrite}
               />
             </div>
 
             <DialogFooter className="flex flex-col sm:flex-row gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleDelete}
-                disabled={loading}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 sm:mr-auto"
-              >
-                削除
-              </Button>
+              {canWrite && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleDelete}
+                  disabled={loading}
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 sm:mr-auto"
+                >
+                  削除
+                </Button>
+              )}
               <div className="flex gap-2">
                 <Button 
                   type="button" 
@@ -174,15 +180,17 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                   onClick={() => onOpenChange(false)}
                   className="dark:border-zinc-700"
                 >
-                  キャンセル
+                  {canWrite ? "キャンセル" : "閉じる"}
                 </Button>
-                <Button 
-                  type="submit" 
-                  disabled={loading}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                  {loading ? "保存中..." : "保存する"}
-                </Button>
+                {canWrite && (
+                  <Button 
+                    type="submit" 
+                    disabled={loading}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    {loading ? "保存中..." : "保存する"}
+                  </Button>
+                )}
               </div>
             </DialogFooter>
           </form>
