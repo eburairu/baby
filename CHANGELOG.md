@@ -1,3 +1,10 @@
+## [1.13.6](https://github.com/eburairu/baby/compare/v1.13.5...v1.13.6) (2026-02-16)
+
+
+### Bug Fixes
+
+* resolve typescript error in deleteNote return type ([9279671](https://github.com/eburairu/baby/commit/92796716098c00897a35c6c3b4816b9db6eb5b90))
+
 ## [1.13.5](https://github.com/eburairu/baby/compare/v1.13.4...v1.13.5) (2026-02-16)
 
 
