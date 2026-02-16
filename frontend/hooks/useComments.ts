@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import { fetcher, api } from "@/lib/api";
 
 export type CommentResponse = {
   id: number;
@@ -10,35 +11,25 @@ export type CommentResponse = {
 };
 
 export function useComments(recordType: string, recordId: number) {
+  // fetcher を追加し、パスをプロジェクトの慣習に合わせる（/api は fetcher が付与する場合が多いが、他と合わせる）
   const { data, error, mutate, isLoading } = useSWR<CommentResponse[]>(
-    `/api/records/${recordType}/${recordId}/comments`,
+    `/records/${recordType}/${recordId}/comments`,
+    fetcher,
     { revalidateOnFocus: false }
   );
 
   const addComment = async (content: string) => {
-    const res = await fetch(`/api/records/${recordType}/${recordId}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content }),
-      credentials: "include",
-    });
-    if (!res.ok) {
-      throw new Error("Failed to add comment");
-    }
-    const newComment = await res.json();
+    // api ヘルパーを使用して POST
+    const res = await api.post(`/records/${recordType}/${recordId}/comments`, { content });
+    const newComment = res;
     // Optimistically update
     mutate((prev) => (prev ? [...prev, newComment] : [newComment]), false);
     return newComment;
   };
 
   const deleteComment = async (commentId: number) => {
-    const res = await fetch(`/api/comments/${commentId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    if (!res.ok) {
-      throw new Error("Failed to delete comment");
-    }
+    // api ヘルパーを使用して DELETE
+    await api.delete(`/comments/${commentId}`);
     mutate((prev) => (prev ? prev.filter((c) => c.id !== commentId) : []), false);
   };
 
