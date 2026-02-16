@@ -6,14 +6,23 @@ export function calcAge(birthday: string): { months: number; days: number; label
     const birth = new Date(birthday);
     const now = new Date();
 
-    let months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
-    const dayOfMonth = now.getDate() - birth.getDate();
+    if (now < birth) {
+        return { months: 0, days: 0, label: createLabel(0, 0) };
+    }
 
-    if (dayOfMonth < 0) {
-        months -= 1;
+    let months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+    let dayOfMonth = now.getDate() - birth.getDate();
+
+    // 月末の処理
+    const lastDayOfNowMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const isLastDayOfNowMonth = now.getDate() === lastDayOfNowMonth;
+
+    if (dayOfMonth < 0 && isLastDayOfNowMonth && birth.getDate() >= lastDayOfNowMonth) {
+        dayOfMonth = 0;
     }
 
     if (dayOfMonth < 0) {
+        months -= 1;
         // 前月の日数を使う
         const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
         // 誕生日の日が前月の末日より大きい場合（例：1月31日生まれで前月が28日まで）、
@@ -55,7 +64,7 @@ export function formatDuration(startIso: string, endIso?: string | null): string
     const start = new Date(startIso);
     const end = endIso ? new Date(endIso) : new Date();
     const diffMs = end.getTime() - start.getTime();
-    const diffMin = Math.floor(diffMs / 60000);
+    const diffMin = Math.max(0, Math.floor(diffMs / 60000));
     if (diffMin < 60) return `${diffMin}分`;
     const h = Math.floor(diffMin / 60);
     const m = diffMin % 60;
