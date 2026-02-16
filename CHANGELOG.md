@@ -1,3 +1,10 @@
+## [1.13.7](https://github.com/eburairu/baby/compare/v1.13.6...v1.13.7) (2026-02-16)
+
+
+### Bug Fixes
+
+* **db:** enable pool_pre_ping and set pool_recycle to stabilize connections ([4a2133e](https://github.com/eburairu/baby/commit/4a2133e88e2818435acff82bb89ae28f3fe177e3))
+
 ## [1.13.6](https://github.com/eburairu/baby/compare/v1.13.5...v1.13.6) (2026-02-16)
 
 
