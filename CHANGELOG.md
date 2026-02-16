@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/eburairu/baby/compare/v1.14.1...v1.15.0) (2026-02-16)
+
+
+### Features
+
+* add note history page and update note widget ([3cf008c](https://github.com/eburairu/baby/commit/3cf008c59a2c41217a5bc9972ed35b987e100ca9))
+
 ## [1.14.1](https://github.com/eburairu/baby/compare/v1.14.0...v1.14.1) (2026-02-16)
 
 
