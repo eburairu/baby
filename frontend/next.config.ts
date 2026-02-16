@@ -18,6 +18,19 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "recharts",
+      "radix-ui",
+      "@radix-ui/react-checkbox",
+      "zod",
+      "zustand",
+      "sonner",
+      "framer-motion"
+    ],
+  },
 };
 
 export default withPWA(nextConfig);
