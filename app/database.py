@@ -10,6 +10,8 @@ if not SQLALCHEMY_DATABASE_URL:
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    connect_args={"options": "-c timezone=Asia/Tokyo"}
+    connect_args={"options": "-c timezone=Asia/Tokyo"},
+    pool_pre_ping=True,
+    pool_recycle=3600
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
