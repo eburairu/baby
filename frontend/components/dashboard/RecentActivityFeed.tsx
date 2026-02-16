@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRecords, BabyRecord } from "@/hooks/useData"
 import { formatElapsed } from "@/lib/ageUtils"
 import { RecordDetailDialog } from "./RecordDetailDialog"
+import { MessageCircle } from "lucide-react"
 
 const TYPE_ICONS: Record<string, string> = {
     feeding: "🍼",
@@ -63,6 +64,14 @@ export function RecentActivityFeed({ babyId }: Props) {
                                         </p>
                                         {record.details.notes && (
                                             <p className="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2">{record.details.notes}</p>
+                                        )}
+                                        {record.comment_count > 0 && (
+                                            <div className="flex items-center gap-1 mt-0.5">
+                                                <MessageCircle className="w-3 h-3 text-orange-400" />
+                                                <span className="text-[10px] font-medium text-orange-500">
+                                                    {record.comment_count}件のメッセージ
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                     <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">

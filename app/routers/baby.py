@@ -15,6 +15,7 @@ from app.models.growth import Growth
 from app.models.contraction import Contraction
 from app.models.schedule import Schedule
 from app.models.note import Note
+from app.models.comment import RecordComment
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
@@ -27,6 +28,7 @@ class UnifiedRecord(BaseModel):
     type: str
     timestamp: datetime
     details: dict
+    comment_count: int = 0
 
     class Config:
         from_attributes = True
@@ -119,6 +121,7 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     db.query(Contraction).filter(Contraction.baby_id == baby_id).delete()
     db.query(Schedule).filter(Schedule.baby_id == baby_id).delete()
     db.query(Note).filter(Note.baby_id == baby_id).delete()
+    db.query(RecordComment).filter(RecordComment.baby_id == baby_id).delete()
     db.delete(baby)
     db.commit()
 
@@ -148,6 +151,19 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
         # If permission record exists, use its value. Otherwise default to True.
         return permissions.get(rt, True)
 
+    # Pre-fetch comment counts for all records of this baby
+    comment_counts = {}
+    counts = db.query(
+        RecordComment.record_type,
+        RecordComment.record_id,
+        func.count(RecordComment.id)
+    ).filter(RecordComment.baby_id == baby_id).group_by(
+        RecordComment.record_type,
+        RecordComment.record_id
+    ).all()
+    for rt, rid, count in counts:
+        comment_counts[(rt, rid)] = count
+
     records: List[UnifiedRecord] = []
 
     if can_view_type("feeding"):
@@ -162,6 +178,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "duration_minutes": feeding.duration_minutes,
                     "notes": feeding.notes,
                 },
+                comment_count=comment_counts.get(("feeding", feeding.id), 0)
             ))
 
     if can_view_type("sleep"):
@@ -174,6 +191,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
                     "notes": sleep.notes,
                 },
+                comment_count=comment_counts.get(("sleep", sleep.id), 0)
             ))
 
     if can_view_type("diaper"):
@@ -186,6 +204,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "diaper_type": diaper.diaper_type,
                     "notes": diaper.notes,
                 },
+                comment_count=comment_counts.get(("diaper", diaper.id), 0)
             ))
 
     if can_view_type("growth"):
@@ -200,6 +219,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
                 },
+                comment_count=comment_counts.get(("growth", growth.id), 0)
             ))
 
     if can_view_type("note"):
@@ -211,6 +231,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                 details={
                     "notes": note.content,
                 },
+                comment_count=comment_counts.get(("note", note.id), 0)
             ))
 
     if can_view_type("contraction"):
@@ -224,6 +245,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "duration_seconds": c.duration_seconds,
                     "notes": c.notes,
                 },
+                comment_count=comment_counts.get(("contraction", c.id), 0)
             ))
 
     # 全ての記録のタイムゾーンをJSTとして明示する

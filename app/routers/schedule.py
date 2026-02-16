@@ -5,6 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.schedule import Schedule
+from app.models.comment import RecordComment
 from app.schemas.schedule import ScheduleCreate, ScheduleResponse
 
 router = APIRouter(prefix="/api/schedules", tags=["schedules"])
@@ -39,6 +40,10 @@ def delete_schedule(schedule_id: int, db: Session = Depends(get_db), current_use
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
     verify_baby_access(db, schedule.baby_id, current_user.id, record_type="schedule", require_write=True)
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "schedule",
+        RecordComment.record_id == schedule_id
+    ).delete()
     db.delete(schedule)
     db.commit()
     return {"message": "Deleted"}

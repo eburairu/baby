@@ -6,6 +6,7 @@ from datetime import timezone, timedelta
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.contraction import Contraction
+from app.models.comment import RecordComment
 from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
 from app.utils.timezone import to_jst_naive
 
@@ -124,6 +125,10 @@ def delete_contraction(contraction_id: int, db: Session = Depends(get_db), curre
     if not contraction:
         raise HTTPException(status_code=404, detail="Contraction record not found")
     verify_baby_access(db, contraction.baby_id, current_user.id, record_type="contraction", require_write=True)
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "contraction",
+        RecordComment.record_id == contraction_id
+    ).delete()
     db.delete(contraction)
     db.commit()
     return {"message": "Deleted"}

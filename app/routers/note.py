@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.note import Note
+from app.models.comment import RecordComment
 from app.schemas.note import NoteCreate, NoteUpdate, NoteResponse
 from app.utils.timezone import to_jst_naive
 
@@ -100,6 +101,10 @@ def delete_note(
     
     verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note", require_write=True)
 
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "note",
+        RecordComment.record_id == note_id
+    ).delete()
     db.delete(db_note)
     db.commit()
     return {"message": "Deleted"}

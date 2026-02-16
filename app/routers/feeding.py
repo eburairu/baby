@@ -5,6 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.feeding import Feeding
+from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 from app.utils.timezone import to_jst_naive
 
@@ -65,6 +66,10 @@ def delete_feeding(feeding_id: int, db: Session = Depends(get_db), current_user:
     if not feeding:
         raise HTTPException(status_code=404, detail="Feeding not found")
     verify_baby_access(db, feeding.baby_id, current_user.id, record_type="feeding", require_write=True)
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "feeding",
+        RecordComment.record_id == feeding_id
+    ).delete()
     db.delete(feeding)
     db.commit()
     return {"message": "Deleted"}
