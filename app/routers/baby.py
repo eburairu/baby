@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -18,6 +18,8 @@ from app.models.note import Note
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
+
+JST = timezone(timedelta(hours=9))
 
 
 class UnifiedRecord(BaseModel):
@@ -210,6 +212,24 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
                     "notes": note.content,
                 },
             ))
+
+    if can_view_type("contraction"):
+        for c in db.query(Contraction).filter(Contraction.baby_id == baby_id).all():
+            records.append(UnifiedRecord(
+                id=c.id,
+                type="contraction",
+                timestamp=c.start_time,
+                details={
+                    "end_time": c.end_time.isoformat() if c.end_time else None,
+                    "duration_seconds": c.duration_seconds,
+                    "notes": c.notes,
+                },
+            ))
+
+    # 全ての記録のタイムゾーンをJSTとして明示する
+    for r in records:
+        if r.timestamp.tzinfo is None:
+            r.timestamp = r.timestamp.replace(tzinfo=JST)
 
     records.sort(key=lambda r: r.timestamp, reverse=True)
     return records
