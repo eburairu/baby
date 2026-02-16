@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/eburairu/baby/compare/v1.16.5...v1.17.0) (2026-02-16)
+
+
+### Features
+
+* implement sliding session and persistent cookies ([2448258](https://github.com/eburairu/baby/commit/2448258a1a6724ffb75284553584aec10094337e))
+
 ## [1.16.5](https://github.com/eburairu/baby/compare/v1.16.4...v1.16.5) (2026-02-16)
 
 
