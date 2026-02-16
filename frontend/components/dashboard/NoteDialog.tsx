@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { createNote } from "@/hooks/useNotes"
 import { useRecords } from "@/hooks/useData"
+import { isApiError } from "@/lib/api"
 
 interface Props {
   babyId: string
@@ -35,9 +36,10 @@ export function NoteDialog({ babyId, open, onOpenChange }: Props) {
       setContent("")
       onOpenChange(false)
       mutateRecords()
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err)
-      alert("メモの保存に失敗しました")
+      const detail = isApiError(err) ? (err.info?.detail || "メモの保存に失敗しました") : "メモの保存に失敗しました"
+      alert(detail)
     } finally {
       setSubmitting(false)
     }

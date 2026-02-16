@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { fetcher } from "@/lib/api";
+import { fetcher, api } from "@/lib/api";
 
 export type Note = {
   id: number;
@@ -20,40 +20,13 @@ export function useNotes(babyId: number | null) {
 }
 
 export async function createNote(babyId: number, data: { content: string; note_time: string }): Promise<Note> {
-  const res = await fetch(`/api/babies/${babyId}/notes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail ?? "メモの登録に失敗しました");
-  }
-  return res.json();
+  return api.post(`/babies/${babyId}/notes`, data);
 }
 
 export async function updateNote(noteId: number, data: { content?: string; note_time?: string }): Promise<Note> {
-  const res = await fetch(`/api/notes/${noteId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail ?? "メモの更新に失敗しました");
-  }
-  return res.json();
+  return api.patch(`/notes/${noteId}`, data);
 }
 
 export async function deleteNote(noteId: number): Promise<void> {
-  const res = await fetch(`/api/notes/${noteId}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail ?? "メモの削除に失敗しました");
-  }
+  return api.delete(`/notes/${noteId}`);
 }
