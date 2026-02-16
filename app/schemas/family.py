@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional
+from app.models.family import UserRole
 
 
 class FamilyCreate(BaseModel):
@@ -36,7 +37,7 @@ class FamilyMemberResponse(BaseModel):
     user_id: int
     username: str
     display_name: Optional[str] = None
-    role: str
+    role: UserRole
     joined_at: datetime
 
     class Config:
@@ -44,4 +45,4 @@ class FamilyMemberResponse(BaseModel):
 
 
 class MemberRoleUpdate(BaseModel):
-    role: str
+    role: UserRole
