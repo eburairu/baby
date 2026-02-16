@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/eburairu/baby/compare/v1.19.0...v1.19.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* only trigger Render deploy when new release is published ([7198a60](https://github.com/eburairu/baby/commit/7198a60eb8e4167ceef12735e8a10c5fc3161148))
+
 # [1.19.0](https://github.com/eburairu/baby/compare/v1.18.0...v1.19.0) (2026-02-16)
 
 
