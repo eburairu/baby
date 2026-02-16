@@ -1,3 +1,10 @@
+## [1.16.5](https://github.com/eburairu/baby/compare/v1.16.4...v1.16.5) (2026-02-16)
+
+
+### Bug Fixes
+
+* resolve typescript error in comments hook by casting api response ([110d9ee](https://github.com/eburairu/baby/commit/110d9ee82ee08b937dd5a2b2467bfbad3dbed319))
+
 ## [1.16.4](https://github.com/eburairu/baby/compare/v1.16.3...v1.16.4) (2026-02-16)
 
 
