@@ -1,3 +1,10 @@
+## [1.16.3](https://github.com/eburairu/baby/compare/v1.16.2...v1.16.3) (2026-02-16)
+
+
+### Bug Fixes
+
+* import missing func in baby router ([c7154a8](https://github.com/eburairu/baby/commit/c7154a8d093cff3beba8df7392764812e096bcf3))
+
 ## [1.16.2](https://github.com/eburairu/baby/compare/v1.16.1...v1.16.2) (2026-02-16)
 
 
