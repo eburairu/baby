@@ -19,20 +19,11 @@ interface Props {
 export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Props) {
     const [loading, setLoading] = useState(false)
     const [type, setType] = useState<DiaperType>(DiaperType.WET)
-    const [changeTime, setChangeTime] = useState("")
     const [notes, setNotes] = useState("")
 
     useEffect(() => {
         if (diaper) {
             setType(diaper.diaper_type)
-            // Convert ISO string to datetime-local format (yyyy-MM-ddThh:mm)
-            // Note: This simple slice works for ISO strings that end in Z or offset, 
-            // but for inputs we need local time. 
-            // Better to parse date and format it.
-            const date = new Date(diaper.change_time)
-            // Adjust to local time string for input
-            const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
-            setChangeTime(localIso)
             setNotes(diaper.notes || "")
         }
     }, [diaper])
@@ -45,7 +36,7 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
         try {
             await api.put(`/diapers/${diaper.id}`, {
                 diaper_type: type,
-                change_time: new Date(changeTime).toISOString(),
+                change_time: diaper.change_time,
                 notes: notes
             })
             onSuccess()
@@ -104,15 +95,10 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="time" className="dark:text-zinc-300">日時</Label>
-                        <Input
-                            id="time"
-                            type="datetime-local"
-                            value={changeTime}
-                            onChange={(e) => setChangeTime(e.target.value)}
-                            required
-                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
-                        />
+                        <Label className="dark:text-zinc-300">日時</Label>
+                        <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+                            {diaper.change_time ? new Date(diaper.change_time).toLocaleString("ja-JP", { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "-"}
+                        </div>
                     </div>
 
                     <div className="space-y-2">

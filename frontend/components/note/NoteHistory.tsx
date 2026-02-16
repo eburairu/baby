@@ -180,11 +180,9 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                                     <FormItem>
                                         <FormLabel>日時</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                type="datetime-local"
-                                                {...field}
-                                                className="dark:bg-zinc-800 dark:border-zinc-700"
-                                            />
+                                            <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+                                                {field.value ? format(new Date(field.value), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
