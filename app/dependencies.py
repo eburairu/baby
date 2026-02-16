@@ -89,7 +89,7 @@ def verify_baby_access(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
 
     # admin は常に許可
-    if family_user.role == "admin":
+    if family_user.role == UserRole.ADMIN:
         return baby
 
     # "baby" レベルの可視性チェック（record_type != "baby" のときも先にチェック）
