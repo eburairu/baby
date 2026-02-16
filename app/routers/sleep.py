@@ -6,6 +6,7 @@ from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.sleep import Sleep
 from app.schemas.sleep import SleepCreate, SleepUpdate, SleepResponse
+from app.utils.timezone import to_jst_naive
 
 router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
@@ -22,8 +23,8 @@ def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_u
     new_sleep = Sleep(
         user_id=current_user.id,
         baby_id=sleep_in.baby_id,
-        start_time=sleep_in.start_time,
-        end_time=sleep_in.end_time,
+        start_time=to_jst_naive(sleep_in.start_time),
+        end_time=to_jst_naive(sleep_in.end_time),
         notes=sleep_in.notes,
     )
     db.add(new_sleep)
@@ -40,9 +41,9 @@ def update_sleep(sleep_id: int, sleep_update: SleepUpdate, db: Session = Depends
     verify_baby_access(db, sleep.baby_id, current_user.id, record_type="sleep", require_write=True)
     
     if sleep_update.start_time is not None:
-        sleep.start_time = sleep_update.start_time
+        sleep.start_time = to_jst_naive(sleep_update.start_time)
     if sleep_update.end_time is not None:
-        sleep.end_time = sleep_update.end_time
+        sleep.end_time = to_jst_naive(sleep_update.end_time)
     if sleep_update.notes is not None:
         sleep.notes = sleep_update.notes
     db.commit()
