@@ -105,8 +105,6 @@ def update_member_role(
 ):
     family_user = _get_family_user(db, current_user)
     _require_admin(family_user)
-    if body.role not in (UserRole.ADMIN, UserRole.MEMBER, UserRole.VIEWER):
-        raise HTTPException(status_code=422, detail=f"Role must be one of: {UserRole.ADMIN}, {UserRole.MEMBER}, {UserRole.VIEWER}")
     target = (
         db.query(FamilyUser)
         .filter(

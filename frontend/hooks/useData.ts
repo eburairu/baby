@@ -27,8 +27,8 @@ export function useFamilyMembers() {
     };
 }
 
-export function useBabies() {
-    const { data, error, isLoading, mutate } = useSWR<Baby[]>('/babies/', fetcher);
+export function useBabies(options?: { fallbackData?: Baby[] }) {
+    const { data, error, isLoading, mutate } = useSWR<Baby[]>('/babies/', fetcher, options);
     return {
         babies: data,
         isLoading,

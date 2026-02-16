@@ -15,7 +15,7 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 
 - **Frontend**: Next.js を使用し、`next build` (Static Export) で静的ファイルとして出力 (`frontend/out`) します。
 - **Backend**: FastAPI が API エンドポイント (`/api/*`) を提供すると同時に、Frontend の静的ファイルをルート (`/*`) にマウントして配信します。
-- **Deployment**: Docker のマルチステージビルドを利用し、単一のコンテナイメージとして Render にデプロイされます。
+- **Deployment**: Render Native Python ランタイムを利用し、単一のサービスとして Render にデプロイされます。
 
 ## 階層構造 (Data Hierarchy)
 
@@ -48,7 +48,7 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 ### Infrastructure & Database
 
 - **Database**: PostgreSQL (Neon Serverless)
-- **Container**: Docker (Multi-stage Build)
+- **Runtime**: Render Native Python (Python 3.10)
 - **Deployment**: Render (Web Service)
 
 ## ディレクトリ構造
@@ -72,7 +72,7 @@ baby-app/
 │   └── public/            # 静的アセット
 ├── alembic/               # データベースマイグレーション
 ├── tests/                 # Backend テスト (pytest)
-├── Dockerfile             # マルチステージビルド定義
+├── Dockerfile             # ローカル Docker 実行用（Render デプロイでは使用しない）
 ├── render.yaml            # Render デプロイ設定
 └── .specify/specs/        # SDD 仕様書 (本書)
 ```
