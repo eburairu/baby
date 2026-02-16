@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/eburairu/baby/compare/v1.15.4...v1.16.0) (2026-02-16)
+
+
+### Features
+
+* add record comments and support viewer messages ([13aed82](https://github.com/eburairu/baby/commit/13aed8229372519c9016f9e9be320c462d8f1b58))
+
 ## [1.15.4](https://github.com/eburairu/baby/compare/v1.15.3...v1.15.4) (2026-02-16)
 
 
