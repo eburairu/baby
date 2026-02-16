@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/eburairu/baby/compare/v1.16.0...v1.16.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* cleanup migration file to only include record_comments ([f6c2bd3](https://github.com/eburairu/baby/commit/f6c2bd350ee12e26215e1536fa0527e5950a4443))
+
 # [1.16.0](https://github.com/eburairu/baby/compare/v1.15.4...v1.16.0) (2026-02-16)
 
 
