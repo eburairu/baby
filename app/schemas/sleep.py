@@ -11,6 +11,7 @@ class SleepCreate(BaseModel):
 
 
 class SleepUpdate(BaseModel):
+    start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     notes: Optional[str] = None
 
