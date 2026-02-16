@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/eburairu/baby/compare/v1.15.1...v1.15.2) (2026-02-16)
+
+
+### Bug Fixes
+
+* ensure all records are saved in JST and enable growth date editing ([9308eb3](https://github.com/eburairu/baby/commit/9308eb3cbd15155d8edfda22a01cb21adac41e19))
+
 ## [1.15.1](https://github.com/eburairu/baby/compare/v1.15.0...v1.15.1) (2026-02-16)
 
 
