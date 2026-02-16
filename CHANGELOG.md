@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/eburairu/baby/compare/v1.15.0...v1.15.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* allow editing timestamp in record detail dialog and backend ([1f39a00](https://github.com/eburairu/baby/commit/1f39a0023e6b11fe8cebcb191c8fd09d6f2d6691))
+
 # [1.15.0](https://github.com/eburairu/baby/compare/v1.14.1...v1.15.0) (2026-02-16)
 
 
