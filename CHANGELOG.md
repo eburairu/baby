@@ -1,3 +1,10 @@
+## [1.15.3](https://github.com/eburairu/baby/compare/v1.15.2...v1.15.3) (2026-02-16)
+
+
+### Bug Fixes
+
+* prevent VIEWER role from editing records via RecentActivityFeed and Note API ([99ad464](https://github.com/eburairu/baby/commit/99ad4643262c33350c75e4a8b101b096135e491a))
+
 ## [1.15.2](https://github.com/eburairu/baby/compare/v1.15.1...v1.15.2) (2026-02-16)
 
 
