@@ -108,20 +108,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </Link>
                     </div>
                     <div className="flex items-center gap-4">
-                        {selectedBaby && (
-                            <Badge variant="secondary" className="text-xs dark:bg-zinc-800 dark:text-zinc-300 border-0">
-                                🍼 {selectedBaby.name}
-                            </Badge>
-                        )}
-                        <span className="text-sm text-gray-500 dark:text-zinc-400 hidden sm:inline-block">
-                            Welcome, {user && getDisplayName(user)}
-                        </span>
-                        <Link href="/settings">
-                            <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400" aria-label="設定">
-                                <Settings className="h-5 w-5" />
-                            </Button>
-                        </Link>
-                        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-500 dark:text-zinc-400" aria-label="ログアウト">Logout</Button>
+                        {isLoading ? (
+                            <div className="h-8 w-24 bg-gray-100 dark:bg-zinc-800 animate-pulse rounded-full" />
+                        ) : user ? (
+                            <>
+                                {selectedBaby && (
+                                    <Badge variant="secondary" className="text-xs dark:bg-zinc-800 dark:text-zinc-300 border-0">
+                                        🍼 {selectedBaby.name}
+                                    </Badge>
+                                )}
+                                <span className="text-sm text-gray-500 dark:text-zinc-400 hidden sm:inline-block">
+                                    Welcome, {getDisplayName(user)}
+                                </span>
+                                <Link href="/settings">
+                                    <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400" aria-label="設定">
+                                        <Settings className="h-5 w-5" />
+                                    </Button>
+                                </Link>
+                                <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-500 dark:text-zinc-400" aria-label="ログアウト">Logout</Button>
+                            </>
+                        ) : null}
                     </div>
                 </div>
             </header>
