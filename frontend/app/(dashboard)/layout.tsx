@@ -28,6 +28,7 @@ const NAV_ITEMS = [
     { label: "成長", href: "/growth", icon: "📏" },
     { label: "陣痛", href: "/contraction", icon: "⏱️" },
     { label: "日記", href: "/diary", icon: "📝" },
+    { label: "メモ一覧", href: "/note", icon: "📋" },
     { label: "設定", href: "/settings", icon: "⚙️" },
 ]
 
