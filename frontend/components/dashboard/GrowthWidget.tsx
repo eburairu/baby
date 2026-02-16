@@ -1,18 +1,18 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useGrowths } from "@/hooks/useData"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
 import { isApiError } from "@/lib/api"
+import { BabyRecord } from "@/hooks/useData"
 
 interface Props {
     babyId: string
+    records?: BabyRecord[]
+    isError?: any
 }
 
-export function GrowthWidget({ babyId }: Props) {
-    const { growths, isError } = useGrowths(babyId)
-
+export function GrowthWidget({ babyId, records, isError }: Props) {
     const isAccessDenied = isApiError(isError) && isError.status === 403
 
     if (isAccessDenied) {
@@ -31,11 +31,15 @@ export function GrowthWidget({ babyId }: Props) {
         )
     }
 
-    const latest = growths?.[0] ?? null
+    const growthRecords = records?.filter(r => r.type === 'growth') ?? []
+    const latest = growthRecords[0] ?? null
 
-    const measureDate = latest?.date
-        ? new Date(latest.date).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })
+    const measureDate = latest?.timestamp
+        ? new Date(latest.timestamp).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })
         : null
+
+    const weight = latest?.details.weight_kg as number | undefined
+    const height = latest?.details.height_cm as number | undefined
 
     return (
         <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
@@ -52,14 +56,14 @@ export function GrowthWidget({ babyId }: Props) {
             <CardContent className="space-y-3">
                 {latest ? (
                     <div className="space-y-1">
-                        {latest.weight != null && (
+                        {weight != null && (
                             <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">
-                                {latest.weight} <span className="text-sm font-normal text-gray-500 dark:text-zinc-400">g</span>
+                                {weight * 1000} <span className="text-sm font-normal text-gray-500 dark:text-zinc-400">g</span>
                             </p>
                         )}
-                        {latest.height != null && (
+                        {height != null && (
                             <p className="text-sm text-gray-600 dark:text-zinc-300">
-                                身長 {latest.height} cm
+                                身長 {height} cm
                             </p>
                         )}
                         {measureDate && (

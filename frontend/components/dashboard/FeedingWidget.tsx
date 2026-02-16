@@ -2,19 +2,22 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useFeedings } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api, isApiError } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
+import { BabyRecord } from "@/hooks/useData"
+import { FeedingType } from "@/types/feeding"
 
 interface Props {
     babyId: string
+    records?: BabyRecord[]
+    isError?: any
+    mutate?: () => void
 }
 
-export function FeedingWidget({ babyId }: Props) {
-    const { feedings, isError, mutate } = useFeedings(babyId)
+export function FeedingWidget({ babyId, records, isError, mutate }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -36,9 +39,10 @@ export function FeedingWidget({ babyId }: Props) {
         )
     }
 
-    const todayCount = feedings?.filter((f) => isToday(f.feeding_time)).length ?? 0
-    const lastFeeding = feedings?.[0]
-    const elapsed = lastFeeding ? formatElapsed(lastFeeding.feeding_time) : null
+    const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
+    const todayCount = feedingRecords.filter((f) => isToday(f.timestamp)).length
+    const lastFeeding = feedingRecords[0]
+    const elapsed = lastFeeding ? formatElapsed(lastFeeding.timestamp) : null
 
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
         e.preventDefault()
@@ -50,7 +54,7 @@ export function FeedingWidget({ babyId }: Props) {
                 feeding_type: feedingType.toUpperCase(),
                 feeding_time: new Date().toISOString(),
             })
-            mutate()
+            if (mutate) mutate()
         } catch (e) {
             console.error(e)
         } finally {
@@ -85,7 +89,7 @@ export function FeedingWidget({ babyId }: Props) {
                     )}
                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日: {todayCount}回</p>
                 </div>
-                {canWrite && (
+                {canWrite ? (
                     <div className="flex gap-2">
                         <Button
                             size="sm"
@@ -106,7 +110,7 @@ export function FeedingWidget({ babyId }: Props) {
                             母乳
                         </Button>
                     </div>
-                )}
+                ) : null}
             </CardContent>
         </Card>
     )

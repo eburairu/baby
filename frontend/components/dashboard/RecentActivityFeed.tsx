@@ -3,8 +3,12 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useRecords, BabyRecord } from "@/hooks/useData"
 import { formatElapsed } from "@/lib/ageUtils"
-import { RecordDetailDialog } from "./RecordDetailDialog"
 import { MessageCircle } from "lucide-react"
+import dynamic from "next/dynamic"
+
+const RecordDetailDialog = dynamic(() => import("./RecordDetailDialog").then(mod => mod.RecordDetailDialog), {
+    ssr: false
+})
 
 const TYPE_ICONS: Record<string, string> = {
     feeding: "🍼",
@@ -26,10 +30,12 @@ const TYPE_LABELS: Record<string, string> = {
 
 interface Props {
     babyId: string
+    records?: BabyRecord[]
+    isLoading?: boolean
+    mutate?: () => void
 }
 
-export function RecentActivityFeed({ babyId }: Props) {
-    const { records, isLoading, mutate } = useRecords(babyId)
+export function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props) {
     const [selectedRecord, setSelectedRecord] = useState<BabyRecord | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -90,7 +96,7 @@ export function RecentActivityFeed({ babyId }: Props) {
                 record={selectedRecord}
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}
-                onSuccess={() => mutate()}
+                onSuccess={() => mutate && mutate()}
             />
         </>
     )
