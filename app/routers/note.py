@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -31,14 +31,14 @@ def create_note(
     verify_baby_access(db, baby_id, current_user.id, record_type="note")
     
     # 未来の日時は許可しない（5分のバッファを持たせる）
-    if note_in.note_time > datetime.now() + timedelta(minutes=5):
+    if note_in.note_time > datetime.now(timezone.utc) + timedelta(minutes=5):
          raise HTTPException(status_code=400, detail="Future date is not allowed")
 
     db_note = Note(
         baby_id=baby_id,
         user_id=current_user.id,
         content=note_in.content,
-        note_time=note_in.note_time
+        note_time=note_in.note_time.replace(tzinfo=None)
     )
     db.add(db_note)
     db.commit()
@@ -59,10 +59,13 @@ def update_note(
     
     verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note")
 
-    if note_in.note_time and note_in.note_time > datetime.now() + timedelta(minutes=5):
+    if note_in.note_time and note_in.note_time > datetime.now(timezone.utc) + timedelta(minutes=5):
          raise HTTPException(status_code=400, detail="Future date is not allowed")
 
     update_data = note_in.model_dump(exclude_unset=True)
+    if "note_time" in update_data and update_data["note_time"]:
+        update_data["note_time"] = update_data["note_time"].replace(tzinfo=None)
+
     for field, value in update_data.items():
         setattr(db_note, field, value)
 
