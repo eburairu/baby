@@ -159,9 +159,8 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                 </AlertDialogContent>
             </AlertDialog>
 
-            {/* 編集ダイアログ */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent>
+                <DialogContent className="dark:bg-zinc-900 dark:border-zinc-800">
                     <DialogHeader>
                         <DialogTitle>睡眠記録の編集</DialogTitle>
                     </DialogHeader>
@@ -169,31 +168,27 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                         <form onSubmit={handleEditSave} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">開始日時</label>
-                                    <Input
-                                        type="datetime-local"
-                                        value={format(new Date(editingSleep.start_time), "yyyy-MM-dd'T'HH:mm")}
-                                        onChange={(e) => setEditingSleep({ ...editingSleep, start_time: e.target.value })}
-                                        required
-                                    />
+                                    <label className="text-sm font-medium dark:text-zinc-300">開始日時</label>
+                                    <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+                                        {format(new Date(editingSleep.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">終了日時</label>
-                                    <Input
-                                        type="datetime-local"
-                                        value={editingSleep.end_time ? format(new Date(editingSleep.end_time), "yyyy-MM-dd'T'HH:mm") : ""}
-                                        onChange={(e) => setEditingSleep({ ...editingSleep, end_time: e.target.value })}
-                                    />
+                                    <label className="text-sm font-medium dark:text-zinc-300">終了日時</label>
+                                    <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+                                        {editingSleep.end_time ? format(new Date(editingSleep.end_time), "yyyy/MM/dd HH:mm", { locale: ja }) : "現在"}
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">メモ</label>
+                                <label className="text-sm font-medium dark:text-zinc-300">メモ</label>
                                 <Textarea
                                     value={editingSleep.notes || ""}
                                     onChange={(e) => setEditingSleep({ ...editingSleep, notes: e.target.value })}
+                                    className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
                                 />
                             </div>
-                            <Button type="submit" className="w-full">保存</Button>
+                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-none">保存</Button>
                         </form>
                     )}
                 </DialogContent>

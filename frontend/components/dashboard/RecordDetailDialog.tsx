@@ -32,15 +32,10 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
   const { canWrite } = usePermissions()
   const [loading, setLoading] = useState(false)
   const [notes, setNotes] = useState("")
-  const [timestamp, setTimestamp] = useState("")
 
   useEffect(() => {
     if (record) {
       setNotes(record.details.notes || "")
-      // Convert to local time string for input
-      const date = new Date(record.timestamp)
-      const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
-      setTimestamp(localIso)
     }
   }, [record])
 
@@ -51,7 +46,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     setLoading(true)
     try {
       let endpoint = ""
-      const isoTimestamp = new Date(timestamp).toISOString()
+      const isoTimestamp = new Date(record.timestamp).toISOString()
       const body: Record<string, string | null> = { notes }
 
       switch (record.type) {
@@ -73,7 +68,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         case "growth":
           endpoint = `/growths/${record.id}`
           // Use format to get YYYY-MM-DD in local time
-          body.date = format(new Date(timestamp), "yyyy-MM-dd")
+          body.date = format(new Date(record.timestamp), "yyyy-MM-dd")
           await api.put(endpoint, body)
           break
         case "note":
@@ -136,16 +131,10 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         <div className="space-y-4 py-2">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="timestamp" className="text-gray-700 dark:text-zinc-300">日時</Label>
-              <Input
-                id="timestamp"
-                type="datetime-local"
-                value={timestamp}
-                onChange={(e) => setTimestamp(e.target.value)}
-                className="dark:bg-zinc-800 dark:border-zinc-700"
-                required
-                disabled={!canWrite}
-              />
+              <Label className="text-gray-700 dark:text-zinc-300">日時</Label>
+              <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+                {record.timestamp ? format(new Date(record.timestamp), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
+              </div>
             </div>
 
             <div className="space-y-2">
