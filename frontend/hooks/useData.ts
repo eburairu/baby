@@ -57,7 +57,7 @@ export interface BabyRecord {
     timestamp: string;
     details: {
         notes?: string;
-        [key: string]: any;
+        [key: string]: unknown;
     };
 }
 

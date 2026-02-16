@@ -84,9 +84,10 @@ export function BabyPermissionDialog({ baby, open, onOpenChange }: Props) {
       await updateBabyPermissions(baby.id, flattenedPermissions)
       await mutate()
       onOpenChange(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      alert(err.message || "権限の更新に失敗しました")
+      const message = err instanceof Error ? err.message : "権限の更新に失敗しました";
+      alert(message)
     } finally {
       setIsSaving(false)
     }

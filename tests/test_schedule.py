@@ -6,7 +6,7 @@ def test_create_and_get_schedule(auth_client):
     # Create a baby
     res = client.post(
         "/api/babies/",
-        json={"name": "太郎", "birthday": "2024-01-01", "gender": "male"}
+        json={"name": "太郎", "birthday": "2024-01-01", "gender": "boy"}
     )
     assert res.status_code == 200
     baby_id = res.json()["id"]

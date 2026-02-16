@@ -46,7 +46,7 @@ export default function Dashboard() {
             mutateBabies()
         } catch (err: unknown) {
             console.error("赤ちゃんの追加に失敗しました", err)
-            setError(isApiError(err) ? (err.info?.detail || "赤ちゃんの追加に失敗しました") : "赤ちゃんの追加に失敗しました")
+            setError(isApiError(err) ? ((err.info as { detail?: string })?.detail || "赤ちゃんの追加に失敗しました") : "赤ちゃんの追加に失敗しました")
         } finally {
             setSubmitting(false)
         }

@@ -8,7 +8,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { UserRole } from "@/lib/constants"
 
 interface Member {
@@ -42,8 +42,12 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
             await api.patch(`/family/members/${member.user_id}/role`, { role: selectedRole })
             onUpdated()
             onClose()
-        } catch (e: any) {
-            setError(e?.info?.detail || "ロール変更に失敗しました")
+        } catch (e: unknown) {
+            if (isApiError(e)) {
+                setError((e.info as { detail?: string })?.detail || "ロール変更に失敗しました")
+            } else {
+                setError("ロール変更に失敗しました")
+            }
         } finally {
             setSaving(false)
         }

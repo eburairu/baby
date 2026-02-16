@@ -20,14 +20,13 @@ export function generateWhoSeries(
     const isMale = g === 'male' || g === 'boy';
     const isFemale = g === 'female' || g === 'girl';
 
-    let dataset: Record<number, { p3: number; p50: number; p97: number }> | undefined;
+    type Dataset = Record<number, { p3: number; p50: number; p97: number }>;
+    let dataset: Dataset | undefined;
 
     if (isMale) {
-        // @ts-ignore
-        dataset = WHO_STANDARDS.male[type];
+        dataset = (WHO_STANDARDS.male as Record<string, Dataset>)[type];
     } else if (isFemale) {
-        // @ts-ignore
-        dataset = WHO_STANDARDS.female[type];
+        dataset = (WHO_STANDARDS.female as Record<string, Dataset>)[type];
     } else {
         // 'other' or unknown: for now, do not show standards
         return [];
@@ -61,16 +60,9 @@ export function generateWhoSeries(
     return points;
 }
 
-export function mergeData(records: any[], whoData: WhoDataPoint[], type: 'height' | 'weight' | 'head') {
+export function mergeData(records: { date: string | Date; weight?: number | null; height?: number | null; head_circumference?: number | null }[], whoData: WhoDataPoint[], type: 'height' | 'weight' | 'head') {
     // Combine records and WHO data into a single sorted array for Recharts
     // records have { date: string/Date, height/weight/head... }
-
-    const combinedMap = new Map<string, any>();
-
-    // formatted date key for deduplication? 
-    // Recharts uses XAxis timestamp usually.
-    // Let's use timestamp as key if possible, but exact match is rare.
-    // Actually, we just want a list of points.
 
     const allPoints = [];
 
