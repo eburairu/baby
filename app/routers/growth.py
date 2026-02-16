@@ -6,6 +6,7 @@ from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.growth import Growth
 from app.schemas.growth import GrowthCreate, GrowthResponse, GrowthUpdate
+from app.utils.timezone import to_jst_naive
 
 router = APIRouter(prefix="/api/growths", tags=["growths"])
 

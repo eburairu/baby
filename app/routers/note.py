@@ -7,6 +7,7 @@ from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.note import Note
 from app.schemas.note import NoteCreate, NoteUpdate, NoteResponse
+from app.utils.timezone import to_jst_naive
 
 router = APIRouter(prefix="/api", tags=["notes"])
 
@@ -44,7 +45,7 @@ def create_note(
         baby_id=baby_id,
         user_id=current_user.id,
         content=note_in.content,
-        note_time=note_in.note_time.replace(tzinfo=None)
+        note_time=to_jst_naive(note_in.note_time)
     )
     db.add(db_note)
     db.commit()
@@ -77,7 +78,7 @@ def update_note(
 
     update_data = note_in.model_dump(exclude_unset=True)
     if "note_time" in update_data and update_data["note_time"]:
-        update_data["note_time"] = update_data["note_time"].replace(tzinfo=None)
+        update_data["note_time"] = to_jst_naive(update_data["note_time"])
 
     for field, value in update_data.items():
         setattr(db_note, field, value)

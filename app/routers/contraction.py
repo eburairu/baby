@@ -7,6 +7,7 @@ from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.contraction import Contraction
 from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
+from app.utils.timezone import to_jst_naive
 
 router = APIRouter(prefix="/api/contractions", tags=["contractions"])
 
@@ -47,8 +48,8 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
     new_contraction = Contraction(
         user_id=current_user.id,
         baby_id=contraction_in.baby_id,
-        start_time=contraction_in.start_time,
-        end_time=contraction_in.end_time,
+        start_time=to_jst_naive(contraction_in.start_time),
+        end_time=to_jst_naive(contraction_in.end_time),
         duration_seconds=contraction_in.duration_seconds,
         interval_seconds=interval_seconds,
         notes=contraction_in.notes,
@@ -72,6 +73,11 @@ def update_contraction(
     verify_baby_access(db, contraction.baby_id, current_user.id, record_type="contraction", require_write=True)
 
     update_data = contraction_in.model_dump(exclude_unset=True)
+    if "start_time" in update_data and update_data["start_time"]:
+        update_data["start_time"] = to_jst_naive(update_data["start_time"])
+    if "end_time" in update_data and update_data["end_time"]:
+        update_data["end_time"] = to_jst_naive(update_data["end_time"])
+
     for field, value in update_data.items():
         setattr(contraction, field, value)
 

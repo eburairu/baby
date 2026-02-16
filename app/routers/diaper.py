@@ -6,6 +6,7 @@ from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.diaper import Diaper
 from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
+from app.utils.timezone import to_jst_naive
 
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
@@ -28,7 +29,7 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
     new_diaper = Diaper(
         user_id=current_user.id,
         baby_id=diaper_in.baby_id,
-        change_time=diaper_in.change_time,
+        change_time=to_jst_naive(diaper_in.change_time),
         diaper_type=diaper_in.diaper_type,
         notes=diaper_in.notes,
     )
@@ -57,7 +58,7 @@ def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends
     verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper", require_write=True)
 
     if diaper_in.change_time:
-        diaper.change_time = diaper_in.change_time
+        diaper.change_time = to_jst_naive(diaper_in.change_time)
     if diaper_in.diaper_type:
         diaper.diaper_type = diaper_in.diaper_type
     if diaper_in.notes is not None:

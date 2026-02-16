@@ -70,7 +70,8 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
           break
         case "growth":
           endpoint = `/growths/${record.id}`
-          body.date = isoTimestamp.split('T')[0] // Growth uses date only
+          // Use format to get YYYY-MM-DD in local time
+          body.date = format(new Date(timestamp), "yyyy-MM-dd")
           await api.put(endpoint, body)
           break
         case "note":
