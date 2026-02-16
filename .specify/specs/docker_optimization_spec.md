@@ -1,5 +1,8 @@
 # Dockerfile Optimization Specification
 
+> **[廃止]** Render デプロイは Docker から Native Python ランタイムへ移行済み（pipeline minutes 削減のため）。
+> 本仕様は Render デプロイには適用されない。ローカル Docker 実行が必要な場合の参考として保持。
+
 ## 1. 概要
 
 現在の `Dockerfile` のビルド時間を短縮し、セキュリティおよびパフォーマンスのベストプラクティスを適用するための仕様を定義する。
