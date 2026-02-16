@@ -5,6 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.diaper import Diaper
+from app.models.comment import RecordComment
 from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
 from app.utils.timezone import to_jst_naive
 
@@ -45,6 +46,10 @@ def delete_diaper(diaper_id: int, db: Session = Depends(get_db), current_user: U
     if not diaper:
         raise HTTPException(status_code=404, detail="Diaper record not found")
     verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper", require_write=True)
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "diaper",
+        RecordComment.record_id == diaper_id
+    ).delete()
     db.delete(diaper)
     db.commit()
     return {"message": "Deleted"}

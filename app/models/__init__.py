@@ -10,3 +10,4 @@ from .contraction import Contraction
 from .schedule import Schedule
 from .note import Note
 from .ai_summary import DailySummary
+from .comment import RecordComment

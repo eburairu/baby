@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 from app.routers import auth, family, baby
-from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload
+from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments
 
 app.include_router(auth.router)
 app.include_router(family.router)
@@ -36,6 +36,7 @@ app.include_router(note.router)
 app.include_router(baby_permissions.router)
 app.include_router(ai_summary.router)
 app.include_router(upload.router)
+app.include_router(comments.router)
 
 frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/out")
 

@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { BabyRecord } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
+import { useUser } from "@/hooks/useAuth"
+import { CommentSection } from "@/components/records/CommentSection"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
@@ -30,6 +32,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
   const { canWrite } = usePermissions()
+  const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [notes, setNotes] = useState("")
 
@@ -121,7 +124,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800">
+      <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span>{TYPE_LABELS[record.type] || record.type}の記録</span>
@@ -183,6 +186,14 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
               </div>
             </DialogFooter>
           </form>
+
+          {/* コメントセクションの追加 */}
+          <CommentSection
+            recordType={record.type}
+            recordId={record.id}
+            currentUserId={user?.id}
+            onCommentChange={onSuccess}
+          />
         </div>
       </DialogContent>
     </Dialog>

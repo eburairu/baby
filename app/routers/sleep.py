@@ -5,6 +5,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.sleep import Sleep
+from app.models.comment import RecordComment
 from app.schemas.sleep import SleepCreate, SleepUpdate, SleepResponse
 from app.utils.timezone import to_jst_naive
 
@@ -57,6 +58,10 @@ def delete_sleep(sleep_id: int, db: Session = Depends(get_db), current_user: Use
     if not sleep:
         raise HTTPException(status_code=404, detail="Sleep record not found")
     verify_baby_access(db, sleep.baby_id, current_user.id, record_type="sleep", require_write=True)
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "sleep",
+        RecordComment.record_id == sleep_id
+    ).delete()
     db.delete(sleep)
     db.commit()
     return {"message": "Deleted"}
