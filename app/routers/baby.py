@@ -153,16 +153,21 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
 
     # Pre-fetch comment counts for all records of this baby
     comment_counts = {}
-    counts = db.query(
-        RecordComment.record_type,
-        RecordComment.record_id,
-        func.count(RecordComment.id)
-    ).filter(RecordComment.baby_id == baby_id).group_by(
-        RecordComment.record_type,
-        RecordComment.record_id
-    ).all()
-    for rt, rid, count in counts:
-        comment_counts[(rt, rid)] = count
+    try:
+        counts = db.query(
+            RecordComment.record_type,
+            RecordComment.record_id,
+            func.count(RecordComment.id)
+        ).filter(RecordComment.baby_id == baby_id).group_by(
+            RecordComment.record_type,
+            RecordComment.record_id
+        ).all()
+        for rt, rid, count in counts:
+            comment_counts[(rt, rid)] = count
+    except Exception as e:
+        print(f"Error fetching comment counts: {e}")
+        # Table might not exist yet, fallback to empty counts
+        pass
 
     records: List[UnifiedRecord] = []
 
