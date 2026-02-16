@@ -2,20 +2,22 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useDiapers } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api, isApiError } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
-import { Diaper, DiaperType } from "@/types/diaper"
+import { DiaperType } from "@/types/diaper"
+import { BabyRecord } from "@/hooks/useData"
 
 interface Props {
     babyId: string
+    records?: BabyRecord[]
+    isError?: any
+    mutate?: () => void
 }
 
-export function DiaperWidget({ babyId }: Props) {
-    const { diapers, isError, mutate } = useDiapers(babyId)
+export function DiaperWidget({ babyId, records, isError, mutate }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -37,12 +39,13 @@ export function DiaperWidget({ babyId }: Props) {
         )
     }
 
-    const todayDiapers = diapers?.filter((d) => isToday(d.change_time)) ?? []
-    const wetCount = todayDiapers.filter((d) => d.diaper_type === DiaperType.WET || d.diaper_type === DiaperType.BOTH).length
-    const dirtyCount = todayDiapers.filter((d) => d.diaper_type === DiaperType.DIRTY || d.diaper_type === DiaperType.BOTH).length
+    const diaperRecords = records?.filter(r => r.type === 'diaper') ?? []
+    const todayDiapers = diaperRecords.filter((d) => isToday(d.timestamp))
+    const wetCount = todayDiapers.filter((d) => d.details.diaper_type === DiaperType.WET || d.details.diaper_type === DiaperType.BOTH).length
+    const dirtyCount = todayDiapers.filter((d) => d.details.diaper_type === DiaperType.DIRTY || d.details.diaper_type === DiaperType.BOTH).length
 
-    const lastDiaper = diapers?.[0]
-    const elapsed = lastDiaper ? formatElapsed(lastDiaper.change_time) : null
+    const lastDiaper = diaperRecords[0]
+    const elapsed = lastDiaper ? formatElapsed(lastDiaper.timestamp) : null
 
     const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
         e.preventDefault()
@@ -54,7 +57,7 @@ export function DiaperWidget({ babyId }: Props) {
                 diaper_type: diaperType,
                 change_time: new Date().toISOString(),
             })
-            mutate()
+            if (mutate) mutate()
         } catch (e) {
             console.error(e)
         } finally {
@@ -91,7 +94,7 @@ export function DiaperWidget({ babyId }: Props) {
                         今日: 💧{wetCount} / 💩{dirtyCount}
                     </p>
                 </div>
-                {canWrite && (
+                {canWrite ? (
                     <div className="flex gap-2">
                         <Button
                             size="sm"
@@ -114,7 +117,7 @@ export function DiaperWidget({ babyId }: Props) {
                             💩
                         </Button>
                     </div>
-                )}
+                ) : null}
             </CardContent>
         </Card>
     )
