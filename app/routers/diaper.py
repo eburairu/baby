@@ -8,6 +8,8 @@ from app.models.diaper import Diaper
 from app.models.comment import RecordComment
 from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
 from app.utils.timezone import to_jst_naive
+from app.utils.notifications import notify_family_members
+from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
@@ -37,6 +39,21 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
     db.add(new_diaper)
     db.commit()
     db.refresh(new_diaper)
+    
+    # 家族に通知
+    baby = db.query(Baby).filter(Baby.id == new_diaper.baby_id).first()
+    if baby:
+        display_name = current_user.display_name or current_user.username
+        notify_family_members(
+            db, 
+            baby.family_id, 
+            current_user.id, 
+            title="オムツの記録", 
+            body=f"{display_name}さんが{baby.name}のオムツを替えました。",
+            url=f"/diaper",
+            category="family_record"
+        )
+        
     return new_diaper
 
 

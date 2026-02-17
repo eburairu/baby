@@ -8,6 +8,8 @@ from app.models.sleep import Sleep
 from app.models.comment import RecordComment
 from app.schemas.sleep import SleepCreate, SleepUpdate, SleepResponse
 from app.utils.timezone import to_jst_naive
+from app.utils.notifications import notify_family_members
+from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
@@ -31,6 +33,21 @@ def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_u
     db.add(new_sleep)
     db.commit()
     db.refresh(new_sleep)
+    
+    # 家族に通知
+    baby = db.query(Baby).filter(Baby.id == new_sleep.baby_id).first()
+    if baby:
+        display_name = current_user.display_name or current_user.username
+        notify_family_members(
+            db, 
+            baby.family_id, 
+            current_user.id, 
+            title="睡眠の記録", 
+            body=f"{display_name}さんが{baby.name}の睡眠を記録しました。",
+            url=f"/sleep",
+            category="family_record"
+        )
+        
     return new_sleep
 
 

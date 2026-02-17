@@ -9,6 +9,8 @@ from app.models.contraction import Contraction
 from app.models.comment import RecordComment
 from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
 from app.utils.timezone import to_jst_naive
+from app.utils.notifications import notify_family_members
+from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/contractions", tags=["contractions"])
 
@@ -58,6 +60,21 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
     db.add(new_contraction)
     db.commit()
     db.refresh(new_contraction)
+    
+    # 家族に通知
+    baby = db.query(Baby).filter(Baby.id == new_contraction.baby_id).first()
+    if baby:
+        display_name = current_user.display_name or current_user.username
+        notify_family_members(
+            db, 
+            baby.family_id, 
+            current_user.id, 
+            title="陣痛タイマー", 
+            body=f"{display_name}さんが陣痛を計測しました。",
+            url=f"/contraction",
+            category="family_record"
+        )
+        
     return new_contraction
 
 
