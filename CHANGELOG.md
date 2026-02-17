@@ -1,3 +1,47 @@
+## [1.19.1](https://github.com/eburairu/baby/compare/v1.19.0...v1.19.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* only trigger Render deploy when new release is published ([7198a60](https://github.com/eburairu/baby/commit/7198a60eb8e4167ceef12735e8a10c5fc3161148))
+
+# [1.19.0](https://github.com/eburairu/baby/compare/v1.18.0...v1.19.0) (2026-02-16)
+
+
+### Bug Fixes
+
+* 🔒 Enforce role validation in MemberRoleUpdate schema ([c8e9471](https://github.com/eburairu/baby/commit/c8e94714f9c7712c04b79570d2bf072288e07f06))
+
+
+### Features
+
+* eliminate async waterfalls in dashboard and diary following Vercel best practices ([aff0994](https://github.com/eburairu/baby/commit/aff0994d1d277b98d4869d4650d7b0ce081e08dd))
+
+
+### Performance Improvements
+
+* optimize barrel file imports in next.config.ts ([ea28883](https://github.com/eburairu/baby/commit/ea28883f3272ff1bb8e3d9673cbf795b7ff64595))
+* optimize dashboard performance following Vercel best practices ([785c5fb](https://github.com/eburairu/baby/commit/785c5fb1199418d43fef62ad3148bbbe16e2812a))
+
+# [1.18.0](https://github.com/eburairu/baby/compare/v1.17.0...v1.18.0) (2026-02-16)
+
+
+### Features
+
+* eliminate async waterfalls in dashboard and diary following Vercel best practices ([46a238a](https://github.com/eburairu/baby/commit/46a238a3e0558275c8a32abd55a0a2c3b568eab2))
+
+
+### Performance Improvements
+
+* optimize barrel file imports in next.config.ts ([03a87ce](https://github.com/eburairu/baby/commit/03a87ce3f40906e10d64a2c40c5759ef28d00e1c))
+
+# [1.17.0](https://github.com/eburairu/baby/compare/v1.16.5...v1.17.0) (2026-02-16)
+
+
+### Features
+
+* implement sliding session and persistent cookies ([2448258](https://github.com/eburairu/baby/commit/2448258a1a6724ffb75284553584aec10094337e))
+
 ## [1.16.5](https://github.com/eburairu/baby/compare/v1.16.4...v1.16.5) (2026-02-16)
 
 
