@@ -1,3 +1,10 @@
+## [1.21.1](https://github.com/eburairu/baby/compare/v1.21.0...v1.21.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* resolve PWA loading hang by adding hydration check, timeout safeguard, and optimizing PWA config ([dd8d7f7](https://github.com/eburairu/baby/commit/dd8d7f76fce32d23aa8f245dcebf752d89ae0282))
+
 # [1.21.0](https://github.com/eburairu/baby/compare/v1.20.1...v1.21.0) (2026-02-17)
 
 
