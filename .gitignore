@@ -18,3 +18,6 @@ node_modules/
 
 # その他
 .DS_Store
+
+# 秘密鍵・証明書
+*.pem
