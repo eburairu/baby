@@ -2,7 +2,7 @@
 import { useUser } from "@/hooks/useAuth"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, Settings, Menu } from "lucide-react"
@@ -19,6 +19,7 @@ import {
     SheetDescription,
     SheetClose,
 } from "@/components/ui/sheet"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
 const NAV_ITEMS = [
     { label: "ホーム", href: "/", icon: "🏠" },
@@ -33,21 +34,63 @@ const NAV_ITEMS = [
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { user, isLoading, mutate } = useUser()
+    const { user, isLoading, mutate, isError } = useUser()
     const router = useRouter()
     const pathname = usePathname()
     const { babies } = useBabies()
     const { selectedBabyId } = useBabyStore()
+    const [mounted, setMounted] = useState(false)
+    const [showTimeoutError, setShowTimeoutError] = useState(false)
+
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const selectedBaby = babies?.find((b) => String(b.id) === effectiveId)
 
     useEffect(() => {
-        if (!isLoading && !user) {
+        setMounted(true)
+        // 10秒待っても読み込み中ならタイムアウトを表示
+        const timer = setTimeout(() => {
+            if (isLoading) setShowTimeoutError(true)
+        }, 10000)
+        return () => clearTimeout(timer)
+    }, [isLoading])
+
+    useEffect(() => {
+        if (mounted && !isLoading && !user) {
             router.push("/login")
         }
-    }, [isLoading, user, router])
+    }, [mounted, isLoading, user, router])
 
-    if (isLoading) return <div className="flex h-screen items-center justify-center">Loading...</div>
+    if (!mounted || (isLoading && !showTimeoutError)) return (
+        <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
+            <div className="flex flex-col items-center gap-4">
+                <div className="h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-gray-500 animate-pulse">読み込み中...</p>
+            </div>
+        </div>
+    )
+
+    if (showTimeoutError && isLoading) {
+        return (
+            <div className="flex h-screen flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950 p-4">
+                <Card className="w-full max-w-sm dark:bg-zinc-900 border-0 shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="text-lg">接続がタイムアウトしました</CardTitle>
+                        <CardDescription>
+                            ネットワーク接続を確認するか、再試行してください。
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-3">
+                        <Button onClick={() => window.location.reload()} className="w-full">
+                            再読み込み
+                        </Button>
+                        <Button variant="ghost" onClick={() => router.push("/login")} className="w-full">
+                            ログイン画面へ
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     if (!user) return null
 
