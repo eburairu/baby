@@ -4,12 +4,10 @@ import nextPWA from "@ducanh2912/next-pwa";
 
 const withPWA = nextPWA({
   dest: "public",
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
-  disable: process.env.NODE_ENV === "development", // 開発環境では無効化
+  disable: process.env.NODE_ENV === "development",
+  register: true,
   workboxOptions: {
-    disableDevLogs: true,
+    skipWaiting: true,
   },
 });
 
