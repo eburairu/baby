@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/eburairu/baby/compare/v1.19.1...v1.20.0) (2026-02-17)
+
+
+### Features
+
+* implement PWA push notifications with VAPID authentication ([99acc64](https://github.com/eburairu/baby/commit/99acc64b3285b61a33984e4d870a3f97aab8d9eb))
+
 ## [1.19.1](https://github.com/eburairu/baby/compare/v1.19.0...v1.19.1) (2026-02-16)
 
 
