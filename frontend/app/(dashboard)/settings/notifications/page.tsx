@@ -65,21 +65,42 @@ export default function NotificationsPage() {
 
   const handleEnableNotifications = async () => {
     const status = await requestPermission();
+    
     if (status === "granted") {
-      // 公開鍵をバックエンドから取得するか環境変数から
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        toast.error("VAPID鍵が設定されていません");
+        toast.error("VAPID鍵が設定されていません。管理者にお問い合わせください。");
         return;
       }
       
       const sub = await subscribeUser(vapidPublicKey);
       if (sub) {
         await sendSubscriptionToBackend(sub);
-        toast.success("通知を有効にしました");
+        toast.success("通知が有効になりました");
+      } else {
+        toast.error("通知の購読に失敗しました。時間をおいて再度お試しください。");
+      }
+    } else if (status === "denied") {
+      toast.error("通知がブロックされています。ブラウザの設定から通知を許可してください。");
+    } else if (status === "unsupported") {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        toast.error("通知はこのデバイスでサポートされていないか、アプリをホーム画面に追加（PWA）する必要があります。");
+      } else {
+        toast.error("お使いのブラウザは通知に対応していません。");
       }
     } else {
-      toast.error("通知が許可されませんでした");
+      toast.error("通知の許可がキャンセルされました");
+    }
+  };
+
+  const getPermissionLabel = () => {
+    switch (permission) {
+      case "granted": return "許可されています";
+      case "denied": return "ブロックされています";
+      case "default": return "未設定（クリックで許可を求める）";
+      case "unsupported" as any: return "非対応（ホーム画面に追加してください）";
+      default: return "不明な状態";
     }
   };
 
@@ -108,7 +129,7 @@ export default function NotificationsPage() {
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">ブラウザの通知許可</p>
                 <p className="text-xs text-muted-foreground">
-                  {permission === "granted" ? "許可されています" : permission === "denied" ? "ブロックされています" : "未設定"}
+                  {getPermissionLabel()}
                 </p>
               </div>
               {permission !== "granted" && (
