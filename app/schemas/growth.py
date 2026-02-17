@@ -1,11 +1,11 @@
+import datetime
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from datetime import date, datetime
 
 
 class GrowthCreate(BaseModel):
     baby_id: int
-    date: date
+    date: datetime.date
     weight: Optional[int] = None  # in grams
     height: Optional[float] = None  # in cm
     head_circumference: Optional[float] = None  # in cm
@@ -13,7 +13,7 @@ class GrowthCreate(BaseModel):
 
 
 class GrowthUpdate(BaseModel):
-    date: Optional[date] = None
+    date: Optional[datetime.date] = None
     weight: Optional[int] = None
     height: Optional[float] = None
     head_circumference: Optional[float] = None
