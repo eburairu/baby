@@ -46,7 +46,16 @@ export function usePushNotification() {
     if (!("serviceWorker" in navigator)) return null;
 
     try {
-      const registration = await navigator.serviceWorker.ready;
+      // Service Worker が active になるまで最大 60 秒待機
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Service Worker の準備がタイムアウトしました。ページを再読み込みして再試行してください。")), 60000)
+        ),
+      ]);
+      if (!registration.pushManager) {
+        throw new Error("プッシュ通知はこのブラウザ/環境では使用できません（PushManager が見つかりません）。");
+      }
       const existingSubscription = await registration.pushManager.getSubscription();
 
       if (existingSubscription) {
