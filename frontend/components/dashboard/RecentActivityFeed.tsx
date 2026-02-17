@@ -68,17 +68,17 @@ export function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props
                                         <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                                             {TYPE_LABELS[record.type] ?? record.type}
                                         </p>
-                                        {record.details.notes && (
+                                        {record.details.notes ? (
                                             <p className="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2">{record.details.notes}</p>
-                                        )}
-                                        {record.comment_count > 0 && (
+                                        ) : null}
+                                        {record.comment_count > 0 ? (
                                             <div className="flex items-center gap-1 mt-0.5">
                                                 <MessageCircle className="w-3 h-3 text-orange-400" />
                                                 <span className="text-[10px] font-medium text-orange-500">
                                                     {record.comment_count}件のメッセージ
                                                 </span>
                                             </div>
-                                        )}
+                                        ) : null}
                                     </div>
                                     <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
                                         {formatElapsed(record.timestamp)}

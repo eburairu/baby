@@ -87,7 +87,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
         } else {
             // Stop (optional logic if needed)
         }
-        setTimerRunning(!timerRunning)
+        setTimerRunning(prev => !prev)
     }
 
     const resetTimer = () => {

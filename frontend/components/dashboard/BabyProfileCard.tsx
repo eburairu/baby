@@ -23,11 +23,11 @@ export function BabyProfileCard({ babies, selectedBabyId, onSelect }: Props) {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">{selected?.name}</h1>
-                    {age && (
+                    {age ? (
                         <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">{age.label}</p>
-                    )}
+                    ) : null}
                 </div>
-                {babies.length > 1 && (
+                {babies.length > 1 ? (
                     <div className="flex gap-2 flex-wrap justify-end">
                         {babies.map((baby) => (
                             <Button
@@ -43,7 +43,7 @@ export function BabyProfileCard({ babies, selectedBabyId, onSelect }: Props) {
                             </Button>
                         ))}
                     </div>
-                )}
+                ) : null}
             </div>
         </div>
     )
