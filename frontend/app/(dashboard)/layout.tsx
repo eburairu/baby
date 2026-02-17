@@ -5,11 +5,11 @@ import Link from "next/link"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { api } from "@/lib/api"
 import { ChevronLeft, Settings, Menu } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { getDisplayName } from "@/lib/utils"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
     Sheet,
     SheetContent,
@@ -50,16 +50,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isLoading) return <div className="flex h-screen items-center justify-center">Loading...</div>
 
     if (!user) return null
-
-    const handleLogout = async () => {
-        try {
-            await api.post("/auth/logout", {})
-            await mutate() // clear user state
-            router.push("/login")
-        } catch (e) {
-            console.error("Logout failed", e)
-        }
-    }
 
     const isSettingsSubPage = pathname.startsWith("/settings/") && pathname !== "/settings"
 
@@ -120,12 +110,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <span className="text-sm text-gray-500 dark:text-zinc-400 hidden sm:inline-block">
                                     Welcome, {getDisplayName(user)}
                                 </span>
-                                <Link href="/settings">
-                                    <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400" aria-label="設定">
-                                        <Settings className="h-5 w-5" />
-                                    </Button>
-                                </Link>
-                                <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-500 dark:text-zinc-400" aria-label="ログアウト">Logout</Button>
+                                <div className="flex items-center gap-1">
+                                    <ThemeToggle />
+                                    <Link href="/settings">
+                                        <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400" aria-label="設定">
+                                            <Settings className="h-5 w-5" />
+                                        </Button>
+                                    </Link>
+                                </div>
                             </>
                         ) : null}
                     </div>

@@ -14,6 +14,8 @@ class User(Base):
 
     family_users = relationship("FamilyUser", back_populates="user")
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
+    push_subscriptions = relationship("PushSubscription", back_populates="user", cascade="all, delete-orphan")
+    notification_setting = relationship("NotificationSetting", back_populates="user", cascade="all, delete-orphan", uselist=False)
 
 
 class UserSession(Base):

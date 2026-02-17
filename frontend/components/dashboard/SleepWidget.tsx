@@ -12,7 +12,7 @@ import { BabyRecord } from "@/hooks/useData"
 interface Props {
     babyId: string
     records?: BabyRecord[]
-    isError?: any
+    isError?: unknown
     mutate?: () => void
 }
 
@@ -21,22 +21,6 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
     const [loading, setLoading] = useState(false)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
-
-    if (isAccessDenied) {
-        return (
-            <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
-                        💤 睡眠
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center py-6">
-                    <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-600">閲覧制限中</p>
-                </CardContent>
-            </Card>
-        )
-    }
 
     const { activeSleep, isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
@@ -58,6 +42,24 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
             lastElapsed: lastSleep ? formatElapsed(lastSleep.details.end_time as string) : null,
         }
     }, [records])
+
+    if (isAccessDenied) {
+        return (
+            <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
+                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
+                        💤 睡眠
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center py-6">
+                    <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
+                    <p className="text-[10px] text-gray-400 dark:text-zinc-600">閲覧制限中</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+
 
     const handleStart = async () => {
         setLoading(true)

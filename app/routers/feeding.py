@@ -8,6 +8,8 @@ from app.models.feeding import Feeding
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 from app.utils.timezone import to_jst_naive
+from app.utils.notifications import notify_family_members
+from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/feedings", tags=["feedings"])
 
@@ -33,6 +35,21 @@ def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), cur
     db.add(new_feeding)
     db.commit()
     db.refresh(new_feeding)
+    
+    # 家族に通知
+    baby = db.query(Baby).filter(Baby.id == new_feeding.baby_id).first()
+    if baby:
+        display_name = current_user.display_name or current_user.username
+        notify_family_members(
+            db, 
+            baby.family_id, 
+            current_user.id, 
+            title="授乳の記録", 
+            body=f"{display_name}さんが{baby.name}の授乳を記録しました。",
+            url=f"/babies/{baby.id}/feedings",
+            category="family_record"
+        )
+
     return new_feeding
 
 
