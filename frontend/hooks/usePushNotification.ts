@@ -13,26 +13,50 @@ export function usePushNotification() {
   }, []);
 
   const requestPermission = async () => {
-    if (!("Notification" in window)) return "unsupported";
-    const status = await Notification.requestPermission();
-    setPermission(status);
-    return status;
+    if (!("Notification" in window)) {
+      setPermission("unsupported" as any);
+      return "unsupported";
+    }
+    try {
+      const status = await Notification.requestPermission();
+      setPermission(status);
+      return status;
+    } catch (error) {
+      console.error("Error requesting notification permission:", error);
+      return "default";
+    }
+  };
+
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
   };
 
   const subscribeUser = async (vapidPublicKey: string) => {
     if (!("serviceWorker" in navigator)) return null;
 
-    const registration = await navigator.serviceWorker.ready;
-    const existingSubscription = await registration.pushManager.getSubscription();
-
-    if (existingSubscription) {
-      return existingSubscription;
-    }
-
     try {
+      const registration = await navigator.serviceWorker.ready;
+      const existingSubscription = await registration.pushManager.getSubscription();
+
+      if (existingSubscription) {
+        return existingSubscription;
+      }
+
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
       const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidPublicKey,
+        applicationServerKey,
       });
       setSubscription(newSubscription);
       return newSubscription;
