@@ -20,12 +20,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.routers import auth, family, baby
+from app.routers import auth, family, baby, notifications
 from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments
 
 app.include_router(auth.router)
 app.include_router(family.router)
 app.include_router(baby.router)
+app.include_router(notifications.router)
 app.include_router(feeding.router)
 app.include_router(sleep.router)
 app.include_router(diaper.router)

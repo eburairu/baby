@@ -9,7 +9,7 @@ import { BabyRecord } from "@/hooks/useData"
 interface Props {
     babyId: string
     records?: BabyRecord[]
-    isError?: any
+    isError?: unknown
 }
 
 export function GrowthWidget({ babyId, records, isError }: Props) {

@@ -13,7 +13,7 @@ import { FeedingType } from "@/types/feeding"
 interface Props {
     babyId: string
     records?: BabyRecord[]
-    isError?: any
+    isError?: unknown
     mutate?: () => void
 }
 
@@ -22,6 +22,14 @@ export function FeedingWidget({ babyId, records, isError, mutate }: Props) {
     const [loading, setLoading] = useState(false)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
+
+    const { todayCount, elapsed } = useMemo(() => {
+        const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
+        return {
+            todayCount: feedingRecords.filter((f) => isToday(f.timestamp)).length,
+            elapsed: feedingRecords[0] ? formatElapsed(feedingRecords[0].timestamp) : null,
+        }
+    }, [records])
 
     if (isAccessDenied) {
         return (
@@ -39,13 +47,7 @@ export function FeedingWidget({ babyId, records, isError, mutate }: Props) {
         )
     }
 
-    const { todayCount, elapsed } = useMemo(() => {
-        const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
-        return {
-            todayCount: feedingRecords.filter((f) => isToday(f.timestamp)).length,
-            elapsed: feedingRecords[0] ? formatElapsed(feedingRecords[0].timestamp) : null,
-        }
-    }, [records])
+
 
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
         e.preventDefault()
