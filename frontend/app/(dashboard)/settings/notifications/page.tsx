@@ -73,12 +73,17 @@ export default function NotificationsPage() {
         return;
       }
       
-      const sub = await subscribeUser(vapidPublicKey);
-      if (sub) {
-        await sendSubscriptionToBackend(sub);
-        toast.success("通知が有効になりました");
-      } else {
-        toast.error("通知の購読に失敗しました。時間をおいて再度お試しください。");
+      try {
+        const sub = await subscribeUser(vapidPublicKey);
+        if (sub) {
+          await sendSubscriptionToBackend(sub);
+          toast.success("通知が有効になりました");
+        } else {
+          toast.error("通知の購読に失敗しました。時間をおいて再度お試しください。");
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : "不明なエラー";
+        toast.error(`購読エラー: ${msg}`);
       }
     } else if (status === "denied") {
       toast.error("通知がブロックされています。ブラウザの設定から通知を許可してください。");
