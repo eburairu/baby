@@ -61,8 +61,9 @@ export function usePushNotification() {
       setSubscription(newSubscription);
       return newSubscription;
     } catch (error) {
-      console.error("Failed to subscribe user:", error);
-      return null;
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error("Failed to subscribe user:", msg);
+      throw new Error(msg);
     }
   };
 
