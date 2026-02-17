@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.ai_summary import DailySummary
 from app.schemas.ai_summary import DailySummaryCreate, DailySummaryEdit, DailySummaryResponse
 from app.services.ai_summary import generate_daily_summary
+from app.utils.notifications import notify_family_members
 
 router = APIRouter(prefix="/api/babies/{baby_id}/daily-summary", tags=["daily-summary"])
 
@@ -59,6 +60,18 @@ def create_or_get_daily_summary(
         existing.user_id = current_user.id
         db.commit()
         db.refresh(existing)
+        
+        # 家族に通知
+        notify_family_members(
+            db, 
+            baby.family_id, 
+            current_user.id, 
+            title="AI日誌の更新", 
+            body=f"{baby.name}の{body.summary_date}のAI日誌が更新されました。",
+            url=f"/diary",
+            category="daily_summary"
+        )
+        
         return existing
 
     summary = DailySummary(
@@ -72,6 +85,18 @@ def create_or_get_daily_summary(
     db.add(summary)
     db.commit()
     db.refresh(summary)
+    
+    # 家族に通知
+    notify_family_members(
+        db, 
+        baby.family_id, 
+        current_user.id, 
+        title="AI日誌の完成", 
+        body=f"{baby.name}の{body.summary_date}のAI日誌が生成されました。",
+        url=f"/diary",
+        category="daily_summary"
+    )
+    
     return summary
 
 

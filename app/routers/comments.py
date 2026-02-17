@@ -14,6 +14,8 @@ from app.models.contraction import Contraction
 from app.models.schedule import Schedule
 from app.models.note import Note
 from app.schemas.comment import CommentCreate, CommentResponse
+from app.utils.notifications import notify_family_members
+from app.models.baby import Baby
 
 router = APIRouter(prefix="/api", tags=["comments"])
 
@@ -92,6 +94,20 @@ def create_record_comment(
     db.add(new_comment)
     db.commit()
     db.refresh(new_comment)
+
+    # 家族に通知
+    baby = db.query(Baby).filter(Baby.id == baby_id).first()
+    if baby:
+        display_name = current_user.display_name or current_user.username
+        notify_family_members(
+            db, 
+            baby.family_id, 
+            current_user.id, 
+            title="新しいコメント", 
+            body=f"{display_name}さんが記録にコメントしました。",
+            url=f"/{record_type}",
+            category="family_record"
+        )
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     return CommentResponse(
