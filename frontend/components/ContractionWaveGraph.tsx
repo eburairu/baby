@@ -107,19 +107,19 @@ export default function ContractionWaveGraph({ contractions }: ContractionWaveGr
           <p className="font-bold text-red-500 dark:text-red-400 mb-1">
             持続時間: {Math.floor(data.duration! / 60)}分{data.duration! % 60}秒
           </p>
-          {data.interval && (
+          {data.interval ? (
             <p className="text-blue-500 dark:text-blue-400 font-medium">
               間隔: {Math.floor(data.interval / 60)}分{data.interval % 60}秒
             </p>
-          )}
+          ) : null}
           <p className="text-gray-500 dark:text-zinc-400">
             開始: {format(new Date(data.startTime!), 'HH:mm:ss')}
           </p>
-          {data.endTime && (
+          {data.endTime ? (
             <p className="text-gray-500 dark:text-zinc-400">
               終了: {format(new Date(data.endTime), 'HH:mm:ss')}
             </p>
-          )}
+          ) : null}
         </div>
       );
     }

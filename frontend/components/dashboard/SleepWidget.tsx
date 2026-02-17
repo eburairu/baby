@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
@@ -38,23 +38,26 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
         )
     }
 
-    const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
-    const activeSleep = sleepRecords.find((s) => !s.details.end_time) ?? null
-    const isSleeping = !!activeSleep
-
-    const todayTotalMin = sleepRecords
-        .filter((s) => s.details.end_time && isToday(s.timestamp))
-        .reduce((acc: number, s) => {
-            const ms = new Date(s.details.end_time as string).getTime() - new Date(s.timestamp).getTime()
-            return acc + Math.floor(ms / 60000)
-        }, 0)
-    const todayTotal = todayTotalMin > 0
-        ? `${Math.floor(todayTotalMin / 60)}時間${todayTotalMin % 60}分`
-        : "0分"
-
-    const elapsed = activeSleep ? formatElapsed(activeSleep.timestamp) : null
-    const lastSleep = sleepRecords.find((s) => s.details.end_time)
-    const lastElapsed = lastSleep ? formatElapsed(lastSleep.details.end_time as string) : null
+    const { activeSleep, isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
+        const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
+        const activeSleep = sleepRecords.find((s) => !s.details.end_time) ?? null
+        const todayTotalMin = sleepRecords
+            .filter((s) => s.details.end_time && isToday(s.timestamp))
+            .reduce((acc: number, s) => {
+                const ms = new Date(s.details.end_time as string).getTime() - new Date(s.timestamp).getTime()
+                return acc + Math.floor(ms / 60000)
+            }, 0)
+        const lastSleep = sleepRecords.find((s) => s.details.end_time)
+        return {
+            activeSleep,
+            isSleeping: !!activeSleep,
+            todayTotal: todayTotalMin > 0
+                ? `${Math.floor(todayTotalMin / 60)}時間${todayTotalMin % 60}分`
+                : "0分",
+            elapsed: activeSleep ? formatElapsed(activeSleep.timestamp) : null,
+            lastElapsed: lastSleep ? formatElapsed(lastSleep.details.end_time as string) : null,
+        }
+    }, [records])
 
     const handleStart = async () => {
         setLoading(true)

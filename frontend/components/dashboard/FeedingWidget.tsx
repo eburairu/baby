@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
@@ -39,10 +39,13 @@ export function FeedingWidget({ babyId, records, isError, mutate }: Props) {
         )
     }
 
-    const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
-    const todayCount = feedingRecords.filter((f) => isToday(f.timestamp)).length
-    const lastFeeding = feedingRecords[0]
-    const elapsed = lastFeeding ? formatElapsed(lastFeeding.timestamp) : null
+    const { todayCount, elapsed } = useMemo(() => {
+        const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
+        return {
+            todayCount: feedingRecords.filter((f) => isToday(f.timestamp)).length,
+            elapsed: feedingRecords[0] ? formatElapsed(feedingRecords[0].timestamp) : null,
+        }
+    }, [records])
 
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
         e.preventDefault()

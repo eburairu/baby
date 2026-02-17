@@ -101,7 +101,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                     <CardTitle className="text-sm font-medium text-gray-500 dark:text-zinc-500">最近の記録</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {diapers.length === 0 && <p className="text-sm text-gray-400 dark:text-zinc-500 text-center py-4">記録がありません</p>}
+                    {diapers.length === 0 ? <p className="text-sm text-gray-400 dark:text-zinc-500 text-center py-4">記録がありません</p> : null}
 
                     {diapers.map((diaper) => {
                         const style = getStyles(diaper.diaper_type)
@@ -119,12 +119,12 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                                                 {formatDate(diaper.change_time)}
                                             </span>
                                         </div>
-                                        {diaper.notes && (
+                                        {diaper.notes ? (
                                             <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{diaper.notes}</div>
-                                        )}
+                                        ) : null}
                                     </div>
                                 </div>
-                                {canWrite && (
+                                {canWrite ? (
                                     <div className="flex gap-1">
                                         <Button
                                             variant="ghost"
@@ -143,7 +143,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
-                                )}
+                                ) : null}
                             </div>
                         )
                     })}

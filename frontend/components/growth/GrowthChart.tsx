@@ -99,14 +99,14 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
 
                     {/* WHO Areas */}
-                    {showWho && (
+                    {showWho ? (
                         <>
                             <Area type="monotone" dataKey={`who_${dataKey}_p97`} stroke="none" fill={whoFillColor} fillOpacity={0.4} connectNulls stackId="who" />
                             <Line type="monotone" dataKey={`who_${dataKey}_p97`} stroke={whoLineColor} strokeDasharray="5 5" dot={false} name="WHO P97" connectNulls />
                             <Line type="monotone" dataKey={`who_${dataKey}_p50`} stroke={isDark ? "#71717a" : "#999"} strokeWidth={2} dot={false} name="WHO P50" connectNulls />
                             <Line type="monotone" dataKey={`who_${dataKey}_p3`} stroke={whoLineColor} strokeDasharray="5 5" dot={false} name="WHO P3" connectNulls />
                         </>
-                    )}
+                    ) : null}
 
                     {/* User Data */}
                     <Line
@@ -128,12 +128,12 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
         <Card className="w-full dark:bg-zinc-900 dark:border-zinc-800 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg dark:text-zinc-100">成長曲線</CardTitle>
-                {(babyBirthday && babyGender) && (
+                {(babyBirthday && babyGender) ? (
                     <div className="flex items-center space-x-2">
                         <Checkbox id="show-who" checked={showWho} onCheckedChange={(c: boolean | 'indeterminate') => setShowWho(!!c)} />
                         <Label htmlFor="show-who" className="text-sm dark:text-zinc-300">WHO基準を表示</Label>
                     </div>
-                )}
+                ) : null}
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="weight" className="w-full">

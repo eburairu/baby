@@ -24,15 +24,17 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || isSubmitting) return;
+    const trimmed = content.trim();
+    if (!trimmed || isSubmitting) return;
 
     setIsSubmitting(true);
+    setContent("");
     try {
-      await addComment(content.trim());
-      setContent("");
+      await addComment(trimmed);
       onCommentChange?.();
     } catch (err) {
       console.error(err);
+      setContent(trimmed);
     } finally {
       setIsSubmitting(false);
     }
@@ -49,7 +51,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
 
   return (
     <div className="mt-4 border-t pt-4 space-y-4">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
         <MessageCircle className="w-4 h-4" />
         <span>コメント・応援メッセージ</span>
         {comments && comments.length > 0 && (
@@ -61,36 +63,36 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
 
       <div className="space-y-3">
         {isLoading && (
-          <div className="flex items-center justify-center py-4 text-gray-400">
+          <div className="flex items-center justify-center py-4 text-gray-400 dark:text-gray-500">
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
             <span className="text-xs">読み込み中...</span>
           </div>
         )}
         
         {error && (
-          <div className="flex items-center justify-center py-4 text-red-400 bg-red-50 rounded-lg">
+          <div className="flex items-center justify-center py-4 text-red-400 bg-red-50 dark:bg-red-950/20 rounded-lg">
             <AlertCircle className="w-4 h-4 mr-2" />
             <span className="text-xs">メッセージの取得に失敗しました</span>
           </div>
         )}
 
-        {!isLoading && !error && comments?.map((comment) => (
+        {!isLoading && !error ? comments?.map((comment) => (
           <div
             key={comment.id}
             className={cn(
               "p-3 rounded-lg text-sm relative group transition-colors",
               comment.user_role === "viewer"
-                ? "bg-orange-50 border border-orange-100"
-                : "bg-gray-50 border border-gray-100"
+                ? "bg-orange-50 border border-orange-100 dark:bg-orange-950/20 dark:border-orange-900"
+                : "bg-gray-50 border border-gray-100 dark:bg-gray-800 dark:border-gray-700"
             )}
           >
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-800">
+                <span className="font-semibold text-gray-800 dark:text-gray-200">
                   {comment.user_display_name}
                 </span>
                 {comment.user_role === "viewer" && (
-                  <Badge className="bg-orange-200 text-orange-800 border-none text-[10px] h-4 px-1">
+                  <Badge className="bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200 border-none text-[10px] h-4 px-1">
                     応援
                   </Badge>
                 )}
@@ -100,30 +102,30 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
                   </Badge>
                 )}
               </div>
-              <span className="text-[10px] text-gray-500">
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">
                 {format(new Date(comment.created_at), "M/d HH:mm", { locale: ja })}
               </span>
             </div>
-            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
               {comment.content}
             </p>
             
             {(currentUserId === comment.user_id) && (
               <button
                 onClick={() => handleDelete(comment.id)}
-                className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
-        ))}
-        
-        {comments?.length === 0 && !isLoading && !error && (
-          <p className="text-xs text-gray-400 text-center py-2">
+        )) : null}
+
+        {comments?.length === 0 && !isLoading && !error ? (
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-2">
             メッセージを送って育児を応援しましょう！
           </p>
-        )}
+        ) : null}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-2">

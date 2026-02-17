@@ -28,9 +28,9 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
                             <p className="text-xs text-gray-500 dark:text-zinc-400">今日</p>
                             <p className="text-lg font-bold text-gray-800 dark:text-zinc-100">{summary.today_count}回</p>
                             <p className="text-[10px] text-gray-500 dark:text-zinc-500">
-                                {summary.today_duration > 0 && <span>母乳 {summary.today_duration}分</span>}
-                                {summary.today_duration > 0 && summary.today_amount > 0 && <span> / </span>}
-                                {summary.today_amount > 0 && <span>ミルク {summary.today_amount}ml</span>}
+                                {summary.today_duration > 0 ? <span>母乳 {summary.today_duration}分</span> : null}
+                                {summary.today_duration > 0 && summary.today_amount > 0 ? <span> / </span> : null}
+                                {summary.today_amount > 0 ? <span>ミルク {summary.today_amount}ml</span> : null}
                             </p>
                         </div>
                     </div>
@@ -42,9 +42,9 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
                             <p className="text-xs text-gray-500 dark:text-zinc-400">前回</p>
                             <p className="text-lg font-bold text-gray-800 dark:text-zinc-100 truncate">{timeSinceLast}</p>
                             <p className="text-[10px] text-gray-500 dark:text-zinc-500">
-                                {summary.last_feeding_type === "BREAST" && "母乳"}
-                                {summary.last_feeding_type === "BOTTLE" && "ミルク"}
-                                {summary.last_feeding_type === "MIXED" && "混合"}
+                                {summary.last_feeding_type === "BREAST" ? "母乳" : null}
+                                {summary.last_feeding_type === "BOTTLE" ? "ミルク" : null}
+                                {summary.last_feeding_type === "MIXED" ? "混合" : null}
                             </p>
                         </div>
                     </div>

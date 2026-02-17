@@ -112,11 +112,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <div className="h-8 w-24 bg-gray-100 dark:bg-zinc-800 animate-pulse rounded-full" />
                         ) : user ? (
                             <>
-                                {selectedBaby && (
+                                {selectedBaby ? (
                                     <Badge variant="secondary" className="text-xs dark:bg-zinc-800 dark:text-zinc-300 border-0">
                                         🍼 {selectedBaby.name}
                                     </Badge>
-                                )}
+                                ) : null}
                                 <span className="text-sm text-gray-500 dark:text-zinc-400 hidden sm:inline-block">
                                     Welcome, {getDisplayName(user)}
                                 </span>
