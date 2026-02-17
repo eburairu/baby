@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import date, datetime, timedelta, timezone
-from typing import Tuple
+from typing import Tuple, Type
 from sqlalchemy.orm import Session
 from openai import OpenAI
 
@@ -33,6 +33,30 @@ def get_llm_client() -> Tuple[OpenAI, str]:
     return client, model
 
 
+def _fetch_records_in_range(
+    db: Session,
+    model_class: Type,
+    baby_id: int,
+    time_column,
+    start_time: datetime,
+    end_time: datetime,
+):
+    """
+    指定された日時範囲内のレコードを取得するヘルパー関数。
+    time_columnでソートして返す。
+    """
+    return (
+        db.query(model_class)
+        .filter(
+            model_class.baby_id == baby_id,
+            time_column >= start_time,
+            time_column <= end_time,
+        )
+        .order_by(time_column)
+        .all()
+    )
+
+
 def build_daily_prompt(
     db: Session,
     baby_id: int,
@@ -45,48 +69,20 @@ def build_daily_prompt(
     day_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=JST)
     day_end = datetime(target_date.year, target_date.month, target_date.day, 23, 59, 59, tzinfo=JST)
 
-    feedings = (
-        db.query(Feeding)
-        .filter(
-            Feeding.baby_id == baby_id,
-            Feeding.feeding_time >= day_start,
-            Feeding.feeding_time <= day_end,
-        )
-        .order_by(Feeding.feeding_time)
-        .all()
+    feedings = _fetch_records_in_range(
+        db, Feeding, baby_id, Feeding.feeding_time, day_start, day_end
     )
 
-    sleeps = (
-        db.query(Sleep)
-        .filter(
-            Sleep.baby_id == baby_id,
-            Sleep.start_time >= day_start,
-            Sleep.start_time <= day_end,
-        )
-        .order_by(Sleep.start_time)
-        .all()
+    sleeps = _fetch_records_in_range(
+        db, Sleep, baby_id, Sleep.start_time, day_start, day_end
     )
 
-    diapers = (
-        db.query(Diaper)
-        .filter(
-            Diaper.baby_id == baby_id,
-            Diaper.change_time >= day_start,
-            Diaper.change_time <= day_end,
-        )
-        .order_by(Diaper.change_time)
-        .all()
+    diapers = _fetch_records_in_range(
+        db, Diaper, baby_id, Diaper.change_time, day_start, day_end
     )
 
-    notes = (
-        db.query(Note)
-        .filter(
-            Note.baby_id == baby_id,
-            Note.note_time >= day_start,
-            Note.note_time <= day_end,
-        )
-        .order_by(Note.note_time)
-        .all()
+    notes = _fetch_records_in_range(
+        db, Note, baby_id, Note.note_time, day_start, day_end
     )
 
     growths = (
