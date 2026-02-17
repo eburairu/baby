@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/eburairu/baby/compare/v1.20.1...v1.21.0) (2026-02-17)
+
+
+### Features
+
+* improve notification permission handling with detailed error messages and iOS PWA support ([17c65f6](https://github.com/eburairu/baby/commit/17c65f64a451007ff14d7ba19bcc4750b9f2b40b))
+
 ## [1.20.1](https://github.com/eburairu/baby/compare/v1.20.0...v1.20.1) (2026-02-17)
 
 
