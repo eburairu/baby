@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/eburairu/baby/compare/v1.20.0...v1.20.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* resolve ImportError by importing get_db from app.dependencies in notifications router ([0f9f5cd](https://github.com/eburairu/baby/commit/0f9f5cd316468c316ff0f6d47b25984401f8f474))
+
 # [1.20.0](https://github.com/eburairu/baby/compare/v1.19.1...v1.20.0) (2026-02-17)
 
 
