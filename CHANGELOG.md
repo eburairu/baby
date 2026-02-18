@@ -1,3 +1,10 @@
+# [1.26.0](https://github.com/eburairu/baby/compare/v1.25.0...v1.26.0) (2026-02-18)
+
+
+### Features
+
+* add recorded_by_display_name and notes to RecentActivityFeed and RecordDetailDialog ([02ee603](https://github.com/eburairu/baby/commit/02ee6030a22d56102fcd8814d8144934f934c17c))
+
 # [1.25.0](https://github.com/eburairu/baby/compare/v1.24.0...v1.25.0) (2026-02-18)
 
 
