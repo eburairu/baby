@@ -1,3 +1,10 @@
+## [1.22.3](https://github.com/eburairu/baby/compare/v1.22.2...v1.22.3) (2026-02-18)
+
+
+### Bug Fixes
+
+* auto-create notification settings for users without settings ([a66aae1](https://github.com/eburairu/baby/commit/a66aae1c99c030a0065aba6a5882719a0c2b580c))
+
 ## [1.22.2](https://github.com/eburairu/baby/compare/v1.22.1...v1.22.2) (2026-02-18)
 
 
