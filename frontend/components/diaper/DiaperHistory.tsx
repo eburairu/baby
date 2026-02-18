@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil } from "lucide-react"
+import { Trash2, Pencil, User } from "lucide-react"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DiaperEditDialog } from "./DiaperEditDialog"
@@ -121,6 +121,12 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                                         </div>
                                         {diaper.notes ? (
                                             <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{diaper.notes}</div>
+                                        ) : null}
+                                        {diaper.recorded_by_display_name ? (
+                                            <div className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
+                                                <User className="w-3 h-3" />
+                                                {diaper.recorded_by_display_name}
+                                            </div>
                                         ) : null}
                                     </div>
                                 </div>

@@ -14,10 +14,20 @@ from app.models.baby import Baby
 router = APIRouter(prefix="/api/feedings", tags=["feedings"])
 
 
+def _build_feeding_response(record: Feeding, user_map: dict) -> FeedingResponse:
+    r = FeedingResponse.model_validate(record)
+    r.recorded_by_display_name = user_map.get(record.user_id)
+    return r
+
+
 @router.get("/", response_model=List[FeedingResponse])
 def get_feedings(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="feeding")
-    return db.query(Feeding).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).all()
+    records = db.query(Feeding).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).all()
+    user_ids = {r.user_id for r in records if r.user_id is not None}
+    users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
+    user_map = {u.id: u.display_name or u.username for u in users}
+    return [_build_feeding_response(r, user_map) for r in records]
 
 
 @router.post("/", response_model=FeedingResponse)
@@ -40,22 +50,24 @@ def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), cur
     db.add(new_feeding)
     db.commit()
     db.refresh(new_feeding)
-    
+
     # 家族に通知
     baby = db.query(Baby).filter(Baby.id == new_feeding.baby_id).first()
+    display_name = current_user.display_name or current_user.username
     if baby:
-        display_name = current_user.display_name or current_user.username
         notify_family_members(
-            db, 
-            baby.family_id, 
-            current_user.id, 
-            title="授乳の記録", 
+            db,
+            baby.family_id,
+            current_user.id,
+            title="授乳の記録",
             body=f"{display_name}さんが{baby.name}の授乳を記録しました。",
             url=f"/babies/{baby.id}/feedings",
             category="family_record"
         )
 
-    return new_feeding
+    response = FeedingResponse.model_validate(new_feeding)
+    response.recorded_by_display_name = display_name
+    return response
 
 
 @router.patch("/{feeding_id}", response_model=FeedingResponse)
@@ -79,7 +91,10 @@ def update_feeding(
 
     db.commit()
     db.refresh(feeding)
-    return feeding
+    recorder = db.query(User).filter(User.id == feeding.user_id).first()
+    response = FeedingResponse.model_validate(feeding)
+    response.recorded_by_display_name = (recorder.display_name or recorder.username) if recorder else None
+    return response
 
 
 @router.delete("/{feeding_id}")

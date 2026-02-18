@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Pencil, Trash2, Moon } from "lucide-react"
+import { Pencil, Trash2, Moon, User } from "lucide-react"
 import { formatDuration } from "@/lib/ageUtils"
 import { Sleep } from "@/types/sleep"
 
@@ -100,10 +100,16 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                                                 {sleep.end_time ? format(new Date(sleep.end_time), "HH:mm", { locale: ja }) : "現在"}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                                        <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
                                             <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium text-xs">
                                                 {duration}
                                             </span>
+                                            {sleep.recorded_by_display_name && (
+                                                <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500">
+                                                    <User className="w-3 h-3" />
+                                                    {sleep.recorded_by_display_name}
+                                                </span>
+                                            )}
                                         </div>
                                         {sleep.notes && (
                                             <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">

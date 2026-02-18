@@ -14,6 +14,12 @@ from app.models.baby import Baby
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
 
+def _build_diaper_response(record: Diaper, user_map: dict) -> DiaperResponse:
+    r = DiaperResponse.model_validate(record)
+    r.recorded_by_display_name = user_map.get(record.user_id)
+    return r
+
+
 @router.get("/", response_model=List[DiaperResponse])
 def get_diapers(
     baby_id: int,
@@ -23,7 +29,11 @@ def get_diapers(
     current_user: User = Depends(get_current_user)
 ):
     verify_baby_access(db, baby_id, current_user.id, record_type="diaper")
-    return db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).offset(skip).limit(limit).all()
+    records = db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).offset(skip).limit(limit).all()
+    user_ids = {r.user_id for r in records if r.user_id is not None}
+    users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
+    user_map = {u.id: u.display_name or u.username for u in users}
+    return [_build_diaper_response(r, user_map) for r in records]
 
 
 @router.post("/", response_model=DiaperResponse)
@@ -39,22 +49,24 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
     db.add(new_diaper)
     db.commit()
     db.refresh(new_diaper)
-    
+
     # 家族に通知
     baby = db.query(Baby).filter(Baby.id == new_diaper.baby_id).first()
+    display_name = current_user.display_name or current_user.username
     if baby:
-        display_name = current_user.display_name or current_user.username
         notify_family_members(
-            db, 
-            baby.family_id, 
-            current_user.id, 
-            title="オムツの記録", 
+            db,
+            baby.family_id,
+            current_user.id,
+            title="オムツの記録",
             body=f"{display_name}さんが{baby.name}のオムツを替えました。",
             url=f"/diaper",
             category="family_record"
         )
-        
-    return new_diaper
+
+    response = DiaperResponse.model_validate(new_diaper)
+    response.recorded_by_display_name = display_name
+    return response
 
 
 @router.delete("/{diaper_id}")
@@ -88,4 +100,7 @@ def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends
 
     db.commit()
     db.refresh(diaper)
-    return diaper
+    recorder = db.query(User).filter(User.id == diaper.user_id).first()
+    response = DiaperResponse.model_validate(diaper)
+    response.recorded_by_display_name = (recorder.display_name or recorder.username) if recorder else None
+    return response

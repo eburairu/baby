@@ -19,5 +19,6 @@ class SleepUpdate(BaseModel):
 class SleepResponse(SleepCreate):
     id: int
     user_id: int
+    recorded_by_display_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
