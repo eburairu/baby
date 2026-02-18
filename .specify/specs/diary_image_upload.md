@@ -167,7 +167,7 @@ app.include_router(upload.router)
 ### 新規パッケージ
 
 ```bash
-cd frontend && npm install browser-image-compression
+cd frontend && pnpm add browser-image-compression
 ```
 
 ### 型定義の更新: `frontend/types/dailySummary.ts`

@@ -850,7 +850,7 @@ export function ChatInput({ onSend, disabled }: Props) {
   - [ ] AI応答待ち中は入力フォームを disabled + スピナー表示
   - [ ] 新規メッセージ送信後に最下部へ自動スクロール
   - [ ] `mutate()` でメッセージ一覧を更新
-- [ ] `cd frontend && npm run build` でビルド確認
+- [ ] `cd frontend && pnpm build` でビルド確認
 
 ---
 

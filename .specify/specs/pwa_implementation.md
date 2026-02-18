@@ -55,7 +55,7 @@
 
 ```bash
 cd frontend
-npm install @ducanh2912/next-pwa
+pnpm add @ducanh2912/next-pwa
 ```
 
 ### 5.2. next.config.ts の設定
@@ -135,7 +135,7 @@ public/workbox-*.js.map
 
 ## 7. 動作確認
 
-1. **ビルド確認**: `npm run build` で `out/sw.js` が生成されること。
+1. **ビルド確認**: `cd frontend && pnpm build` で `out/sw.js` が生成されること。
 2. **Lighthouse**: Chrome DevTools の Lighthouse パネルで PWA の項目がすべて合格すること。
 3. **インストール**: 実機（iOS/Android）の「ホーム画面に追加」から正常に起動し、スプラッシュ画面が表示されること。
 4. **オフライン**: 機内モード時に、キャッシュされたページが表示されること。

@@ -210,7 +210,7 @@ class MemberRoleUpdate(BaseModel):
 - [x] `useFamilySettings` SWR フック作成
 - [x] `useFamilyMembers` SWR フック作成
 - [x] ダッシュボードヘッダーに Settings アイコン追加 → `/settings/family` へのリンク
-- [x] `npm run build` でビルド確認
+- [x] `cd frontend && pnpm build` でビルド確認
 
 ### ナビゲーション
 

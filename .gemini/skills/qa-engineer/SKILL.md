@@ -17,7 +17,7 @@ This skill provides a comprehensive quality assurance workflow to ensure code st
 ## Workflow
 
 1.  **Run Automated Checks**: Execute the bundled `run_checks.sh` script to perform a full suite of checks.
-    -   **Frontend**: Runs `npm run build` (Next.js build + TypeCheck), `npm run lint`, and `npm run test`.
+    -   **Frontend**: Runs `pnpm build` (Next.js build + TypeCheck), `pnpm lint`, and `pnpm test`.
     -   **Backend**: Checks Python syntax and runs `pytest` if available.
 
 2.  **Analyze Failures**:
@@ -47,5 +47,5 @@ A bash script that runs the project's standard build and test commands.
 ### Common Build Errors
 
 -   **Duplicate identifier**: Often caused by merging branches that both added the same import. Check `git log` or `git blame` to see recent changes.
--   **Module not found**: Check `package.json` dependencies and ensure `npm install` has been run.
+-   **Module not found**: Check `package.json` dependencies and ensure `pnpm install` has been run.
 -   **Type mismatch**: Check if an API response type matches the frontend interface definition.
