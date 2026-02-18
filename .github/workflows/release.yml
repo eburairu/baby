@@ -38,6 +38,24 @@ jobs:
       - name: Build frontend
         run: cd frontend && pnpm build
 
+  validate-backend-tests:
+    name: Validate Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest tests/ -q
+
   validate-schema:
     name: Validate OpenAPI Schema
     runs-on: ubuntu-latest
@@ -67,7 +85,7 @@ jobs:
 
   release:
     name: Release
-    needs: [validate-schema, validate-frontend-build]
+    needs: [validate-schema, validate-frontend-build, validate-backend-tests]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
