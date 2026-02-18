@@ -1,3 +1,15 @@
+# [1.28.0](https://github.com/eburairu/baby/compare/v1.27.0...v1.28.0) (2026-02-18)
+
+
+### Bug Fixes
+
+* prevent last admin self-deletion and add RBAC constraint tests ([4400c5b](https://github.com/eburairu/baby/commit/4400c5b2ad09ed033f1a37901d42a60c5eeec796))
+
+
+### Features
+
+* 出生前/出生後でダッシュボード表示を切り替え ([3f8e2f7](https://github.com/eburairu/baby/commit/3f8e2f75418f3228890201f033d6c0e9cc38ce93))
+
 # [1.27.0](https://github.com/eburairu/baby/compare/v1.26.0...v1.27.0) (2026-02-18)
 
 
