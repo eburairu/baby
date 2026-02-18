@@ -4,7 +4,7 @@ services:
     runtime: python
     autoDeploy: false
     plan: free
-    buildCommand: pip install uv && uv pip install -r requirements.txt && cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
+    buildCommand: pip install -r requirements.txt && cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
