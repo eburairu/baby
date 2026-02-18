@@ -1,3 +1,13 @@
+## [1.22.2](https://github.com/eburairu/baby/compare/v1.22.1...v1.22.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* improve push notification reliability with better error logging and auto-cleanup ([934754e](https://github.com/eburairu/baby/commit/934754ebe82968150e048646a96e44eb97c0c20b))
+* remove duplicate HEAD route to fix non-deterministic openapi.json ([8014fd7](https://github.com/eburairu/baby/commit/8014fd75e751bfddf69aa1c23b7456d6ed442b00))
+* revert uv on Render, use pip directly for reliable script PATH ([0f0c910](https://github.com/eburairu/baby/commit/0f0c910813ebb6faab2e4834b91b854ea031f67b))
+* sort openapi.json keys for deterministic output across Python versions ([7b696a4](https://github.com/eburairu/baby/commit/7b696a4f4fbc9d06a256cfaf04b9083ce527d73a))
+
 ## [1.22.1](https://github.com/eburairu/baby/compare/v1.22.0...v1.22.1) (2026-02-18)
 
 
