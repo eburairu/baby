@@ -53,15 +53,15 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
     if family_user.role == UserRole.ADMIN:
         return babies
 
-    # member: BabyPermission で can_view=false の赤ちゃんを除外
-    hidden_baby_ids = set(
+    # member/viewer: can_view=true の BabyPermission が存在する赤ちゃんのみ返す（デフォルト拒否）
+    allowed_baby_ids = set(
         perm.baby_id for perm in db.query(BabyPermission).filter(
             BabyPermission.user_id == current_user.id,
             BabyPermission.record_type == "baby",
-            BabyPermission.can_view == False,
+            BabyPermission.can_view == True,
         ).all()
     )
-    return [b for b in babies if b.id not in hidden_baby_ids]
+    return [b for b in babies if b.id in allowed_baby_ids]
 
 
 @router.post("/", response_model=BabyResponse)
@@ -150,8 +150,8 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
     def can_view_type(rt: str) -> bool:
         if is_admin:
             return True
-        # If permission record exists, use its value. Otherwise default to True.
-        return permissions.get(rt, True)
+        # If permission record exists, use its value. Otherwise default to False (default deny).
+        return permissions.get(rt, False)
 
     # Pre-fetch comment counts for all records of this baby
     comment_counts = {}

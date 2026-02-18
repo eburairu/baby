@@ -1,18 +1,13 @@
 "use client"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Pencil, Trash2, ShieldCheck } from "lucide-react"
+import { Pencil, Trash2 } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
-import { BabyPermissionDialog } from "./BabyPermissionDialog"
 
 import { Baby } from "@/types/baby"
-
-/* Removed local Baby interface */
 
 interface Props {
     baby: Baby
     isAdmin: boolean
-    hasMemberUsers: boolean
     onEdit: (baby: Baby) => void
     onDelete: (baby: Baby) => void
 }
@@ -22,9 +17,8 @@ function formatDate(dateStr: string | null): string {
     return dateStr.replace(/-/g, "/")
 }
 
-export function BabyCard({ baby, isAdmin, hasMemberUsers, onEdit, onDelete }: Props) {
+export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
     const age = baby.birthday ? calcAge(baby.birthday).label : ""
-    const [permissionDialogOpen, setPermissionDialogOpen] = useState(false)
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
@@ -50,16 +44,6 @@ export function BabyCard({ baby, isAdmin, hasMemberUsers, onEdit, onDelete }: Pr
                 {isAdmin && (
                     <div className="flex items-center gap-2 shrink-0">
                         <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPermissionDialogOpen(true)}
-                            disabled={!hasMemberUsers}
-                            className="text-xs h-8 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-900 hover:bg-violet-50 dark:hover:bg-violet-950/30"
-                        >
-                            <ShieldCheck className="w-3 h-3 mr-1" />
-                            権限
-                        </Button>
-                        <Button
                             size="sm"
                             variant="outline"
                             onClick={() => onEdit(baby)}
@@ -79,12 +63,6 @@ export function BabyCard({ baby, isAdmin, hasMemberUsers, onEdit, onDelete }: Pr
                     </div>
                 )}
             </div>
-
-            <BabyPermissionDialog
-                baby={baby}
-                open={permissionDialogOpen}
-                onOpenChange={setPermissionDialogOpen}
-            />
         </div>
     )
 }

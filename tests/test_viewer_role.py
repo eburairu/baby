@@ -37,16 +37,31 @@ def test_viewer_read_only_access(client):
     client.cookies.clear()
 
     # 2. VIEWERが参加
-    client.post(f"/api/auth/register/join?invite_code={invite_code}", json={
+    res = client.post(f"/api/auth/register/join?invite_code={invite_code}", json={
         "username": "viewer_user",
         "password": "password123"
     })
+    viewer_id = res.json()["id"]
 
-    # 3. 閲覧は可能
+    # 3. ADMINとして戻り、VIEWERに赤ちゃん + 授乳の閲覧権限を付与（デフォルト拒否のため）
+    client.cookies.clear()
+    client.post("/api/auth/login", json={"username": "admin_user", "password": "password123"})
+    client.put(f"/api/babies/{baby_id}/permissions", json={
+        "permissions": [
+            {"user_id": viewer_id, "record_type": "baby", "can_view": True},
+            {"user_id": viewer_id, "record_type": "feeding", "can_view": True},
+        ]
+    })
+    client.cookies.clear()
+
+    # 4. VIEWERとしてログイン
+    client.post("/api/auth/login", json={"username": "viewer_user", "password": "password123"})
+
+    # 5. 閲覧は可能
     res = client.get(f"/api/feedings/?baby_id={baby_id}")
     assert res.status_code == 200
 
-    # 4. 作成は拒否 (403)
+    # 6. 作成は拒否 (403)
     res = client.post("/api/feedings/", json={
         "baby_id": baby_id,
         "feeding_time": "2024-01-01T10:00:00",
@@ -55,7 +70,7 @@ def test_viewer_read_only_access(client):
     assert res.status_code == 403
     assert "Read-only users cannot perform this action" in res.json()["detail"]
 
-    # 5. 削除も拒否 (403)
+    # 7. 削除も拒否 (403)
     # まずADMINとして記録作成
     client.cookies.clear()
     client.post("/api/auth/login", json={"username": "admin_user", "password": "password123"})
@@ -111,8 +126,16 @@ def test_admin_can_change_role(client):
     client.post("/api/auth/login", json={"username": "admin_user", "password": "password123"})
     res = client.post("/api/babies/", json={"name": "Real Baby", "gender": "boy"})
     baby_id = res.json()["id"]
+
+    # MEMBERに赤ちゃん + 授乳の閲覧権限を付与（デフォルト拒否のため）
+    client.put(f"/api/babies/{baby_id}/permissions", json={
+        "permissions": [
+            {"user_id": user_id, "record_type": "baby", "can_view": True},
+            {"user_id": user_id, "record_type": "feeding", "can_view": True},
+        ]
+    })
     client.cookies.clear()
-    
+
     # MEMBERとしてログイン
     client.post("/api/auth/login", json={"username": "target_user", "password": "password123"})
     res = client.post("/api/feedings/", json={

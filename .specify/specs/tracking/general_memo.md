@@ -95,6 +95,7 @@ class Note(Base):
 `app/services/ai_summary.py` の `build_daily_prompt` を修正し、対象日の `Note` を取得してプロンプトに含める。
 
 **プロンプト構成例**:
+
 ```text
 【その他の様子・メモ】
   10:30 今日ははじめて自分の足を見つけて不思議そうにしていた。

@@ -8,9 +8,9 @@ Web Push API を使用して、ユーザーのデバイス（スマートフォ�
 
 ## 2. 目的
 
-* **リマインダー**: 次の授乳やオムツ替えの時間を通知し、育児をサポートする。
-* **リアルタイム共有**: 家族が記録を追加した際に通知を受け取り、状況をリアルタイムに把握できるようにする。
-* **ユーザーエンゲージメント**: デイリーサマリーの生成通知などを通じて、アプリの利用を促す。
+- **リマインダー**: 次の授乳やオムツ替えの時間を通知し、育児をサポートする。
+- **リアルタイム共有**: 家族が記録を追加した際に通知を受け取り、状況をリアルタイムに把握できるようにする。
+- **ユーザーエンゲージメント**: デイリーサマリーの生成通知などを通じて、アプリの利用を促す。
 
 ## 3. 用語定義
 
@@ -44,16 +44,16 @@ Web Push API を使用して、ユーザーのデバイス（スマートフォ�
 
 ### 4.2. 通知設定 UI (Settings UI)
 
-* **エントリポイント**: `/settings/notifications` を新設し、設定メニューに追加。
-* **プッシュ通知の許可**: ページ上部に「通知を有効にする」ボタンを配置。未許可の場合はブラウザの許可ダイアログを表示する。
-* **各項目のトグル**: 4.1 の項目をトグルスイッチで設定。
-* **おやすみモード (Do Not Disturb)**: 指定した時間帯（例: 22:00 - 07:00）は通知を送信しない設定。
+- **エントリポイント**: `/settings/notifications` を新設し、設定メニューに追加。
+- **プッシュ通知の許可**: ページ上部に「通知を有効にする」ボタンを配置。未許可の場合はブラウザの許可ダイアログを表示する。
+- **各項目のトグル**: 4.1 の項目をトグルスイッチで設定。
+- **おやすみモード (Do Not Disturb)**: 指定した時間帯（例: 22:00 - 07:00）は通知を送信しない設定。
 
 ### 4.3. 通知の動作
 
-* **フォアグラウンド**: アプリを開いている間も通知（バナー）を表示する。
-* **バックグラウンド**: アプリを閉じている、またはデバイスがスリープ状態でも通知を表示する。
-* **通知のタップ**: 通知をタップすると、関連する画面（例: 家族の記録なら該当の記録詳細、リマインダーなら入力画面）へ遷移する。
+- **フォアグラウンド**: アプリを開いている間も通知（バナー）を表示する。
+- **バックグラウンド**: アプリを閉じている、またはデバイスがスリープ状態でも通知を表示する。
+- **通知のタップ**: 通知をタップすると、関連する画面（例: 家族の記録なら該当の記録詳細、リマインダーなら入力画面）へ遷移する。
 
 ## 5. データベース設計
 
@@ -95,25 +95,25 @@ CREATE TABLE notification_settings (
 
 ### 6.1. バックエンド (FastAPI)
 
-* **ライブラリ**: `pywebpush` (Web Push送信用)
-* **エンドポイント**:
-    * `POST /api/notifications/subscribe`: `PushSubscription` を保存。
-    * `POST /api/notifications/unsubscribe`: `PushSubscription` を削除。
-    * `GET /api/notifications/settings`: 通知設定を取得。
-    * `PATCH /api/notifications/settings`: 通知設定を更新。
-* **環境変数**:
-    * `VAPID_PUBLIC_KEY`: 公開鍵
-    * `VAPID_PRIVATE_KEY`: 秘密鍵
-    * `VAPID_CLAIM_EMAIL`: 送信元の連絡先メールアドレス
+- **ライブラリ**: `pywebpush` (Web Push送信用)
+- **エンドポイント**:
+    - `POST /api/notifications/subscribe`: `PushSubscription` を保存。
+    - `POST /api/notifications/unsubscribe`: `PushSubscription` を削除。
+    - `GET /api/notifications/settings`: 通知設定を取得。
+    - `PATCH /api/notifications/settings`: 通知設定を更新。
+- **環境変数**:
+    - `VAPID_PUBLIC_KEY`: 公開鍵
+    - `VAPID_PRIVATE_KEY`: 秘密鍵
+    - `VAPID_CLAIM_EMAIL`: 送信元の連絡先メールアドレス
 
 ### 6.2. フロントエンド (Next.js)
 
-* **Service Worker (`frontend/public/sw.js`)**:
-    * `push` イベントをリッスンし、`self.registration.showNotification()` を実行。
-    * `notificationclick` イベントでアプリをフォカスし、URLへ遷移。
-* **通知管理ユーティリティ**:
-    * `Notification.requestPermission()` による許可取得。
-    * `serviceWorker.pushManager.subscribe()` による購読生成。
+- **Service Worker (`frontend/public/sw.js`)**:
+    - `push` イベントをリッスンし、`self.registration.showNotification()` を実行。
+    - `notificationclick` イベントでアプリをフォカスし、URLへ遷移。
+- **通知管理ユーティリティ**:
+    - `Notification.requestPermission()` による許可取得。
+    - `serviceWorker.pushManager.subscribe()` による購読生成。
 
 ## 7. 実装ステップ (予定)
 
@@ -126,7 +126,7 @@ CREATE TABLE notification_settings (
 
 ## 8. セキュリティ・考慮事項
 
-* **ペイロードの暗号化**: `pywebpush` により自動で行われるが、鍵の管理を厳重にする。
-* **おやすみモードの考慮**: 送信直前にユーザーの設定を確認し、時間帯内であれば送信をスキップまたは遅延させる。
-* **購読のクリーンアップ**: ブラウザ側で購読が解除された場合や、プッシュサーバーから `410 Gone` が返された場合はDBから削除する。
-* **iOS の制限**: iOS 16.4 以降かつホーム画面に追加された PWA でのみ動作することをユーザーに明示する。
+- **ペイロードの暗号化**: `pywebpush` により自動で行われるが、鍵の管理を厳重にする。
+- **おやすみモードの考慮**: 送信直前にユーザーの設定を確認し、時間帯内であれば送信をスキップまたは遅延させる。
+- **購読のクリーンアップ**: ブラウザ側で購読が解除された場合や、プッシュサーバーから `410 Gone` が返された場合はDBから削除する。
+- **iOS の制限**: iOS 16.4 以降かつホーム画面に追加された PWA でのみ動作することをユーザーに明示する。

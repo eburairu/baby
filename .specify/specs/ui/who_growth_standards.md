@@ -30,7 +30,7 @@ WHOが公開している以下のデータをアプリケーション内で保�
 - **対象データ**:
     - Length/height-for-age (年齢別身長)
     - Weight-for-age (年齢別体重)
-    - Head circumference-for-age (年齢別頭囲) 
+    - Head circumference-for-age (年齢別頭囲)
 - **保持形式**: `frontend/constants/who_standards_data.ts`
       ```typescript
       export const WHO_STANDARDS = {
@@ -65,17 +65,20 @@ WHOが公開している以下のデータをアプリケーション内で保�
 ## テスト・検証項目
 
 ### 1. データ不整合テスト
+
 - [ ] 性別のない赤ちゃんが存在する場合の挙動（デフォルト値を適用するか、エラーにならず非表示になるか）。
 - [ ] WHOデータが存在しない月齢（5歳以上など）における描画確認。
 
 ### 2. 境界値テスト
+
 - [ ] 生まれたて（0ヶ月0日）のプロット位置が正しいか。
 - [ ] うるう年を含む期間での月齢計算が正しいか。
 
 ### 3. 表示テスト
+
 - [ ] グラフのY軸スケールが、ユーザーの極端な入力値（例: 身長10cmや200cm）とWHO基準値の両方を正しく収めるように自動調整されるか。
 - [ ] 性別を切り替えた際、即座にグラフの基準線が再描画され、値が変化するか（男児の方が女児よりやや大きい傾向など）。
 
 ## 参考リソース
 
-- WHO Child Growth Standards: https://www.who.int/tools/child-growth-standards/standards
+- WHO Child Growth Standards: <https://www.who.int/tools/child-growth-standards/standards>

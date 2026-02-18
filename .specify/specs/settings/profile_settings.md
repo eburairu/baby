@@ -33,16 +33,16 @@
 
 - `/settings/profile` ページで現在のプロフィール情報を表示する。
 - 表示情報:
-  - 表示名（`display_name` または `username`）
-  - ユーザー名（`username`、ログイン ID として参考表示）
+    - 表示名（`display_name` または `username`）
+    - ユーザー名（`username`、ログイン ID として参考表示）
 
 ### PF2: 表示名の編集
 
 - 「表示名を編集」ボタンをタップするとダイアログが開く（ページ遷移なし）。
 - 入力フィールドに現在の `display_name`（未設定なら空欄）を初期値として表示する。
 - バリデーション:
-  - 最大 50 文字
-  - 空文字を送信した場合 = `display_name` をクリア（`null` に設定、`username` にフォールバック）
+    - 最大 50 文字
+    - 空文字を送信した場合 = `display_name` をクリア（`null` に設定、`username` にフォールバック）
 - 保存後: ダイアログを閉じ、成功トーストを表示。表示を即時更新する。
 
 ### PF3: 表示名のアプリ全体への反映
@@ -467,8 +467,8 @@ Welcome, {getDisplayName(user)}
 - [x] `app/schemas/user.py` に `UserProfileUpdate` スキーマ追加・`UserResponse` に `display_name` 追加
 - [x] `app/schemas/family.py` の `FamilyMemberResponse` に `display_name` 追加
 - [x] `app/routers/auth.py` に `PATCH /api/auth/me` エンドポイント追加
-  - [x] 空文字を `null` に変換する処理
-  - [x] 50文字制限の検証
+    - [x] 空文字を `null` に変換する処理
+    - [x] 50文字制限の検証
 - [x] `app/routers/family.py` の `GET /api/family/members` レスポンスに `display_name` を含める
 
 ### フロントエンド
@@ -476,10 +476,10 @@ Welcome, {getDisplayName(user)}
 - [x] `frontend/lib/types.ts` の `User` 型に `display_name: string | null` を追加
 - [x] `frontend/lib/utils.ts`（または同等ファイル）に `getDisplayName()` ヘルパー関数を追加
 - [x] `frontend/app/(dashboard)/settings/profile/page.tsx` 新規作成
-  - [x] プロフィール表示（表示名 + ユーザー名）
-  - [x] 編集ダイアログ（`react-hook-form` + `zod`、shadcn `Dialog`）
-  - [x] `PATCH /api/auth/me` 呼び出し後に `mutate()` で SWR キャッシュ更新
-  - [x] 成功トースト表示
+    - [x] プロフィール表示（表示名 + ユーザー名）
+    - [x] 編集ダイアログ（`react-hook-form` + `zod`、shadcn `Dialog`）
+    - [x] `PATCH /api/auth/me` 呼び出し後に `mutate()` で SWR キャッシュ更新
+    - [x] 成功トースト表示
 - [x] `frontend/app/(dashboard)/settings/page.tsx` にプロフィールメニュー項目追加
 - [x] `frontend/app/(dashboard)/layout.tsx` の `user.username` を `getDisplayName(user)` に置換
 - [x] `frontend/components/settings/MemberList.tsx` の `member.username` を `getDisplayName(member)` に置換（ダイアログ内のタイトルも含む）

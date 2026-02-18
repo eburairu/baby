@@ -20,11 +20,13 @@ FastAPI が自動生成する OpenAPI スキーマを `openapi-typescript` で T
 **採用方式**: `frontend/openapi.json` としてリポジトリにコミットする
 
 **採用理由**:
+
 - CI/CD がシンプルになる（ビルド時にサーバー起動が不要）
 - `git diff` でスキーマ変更が可視化され、バックエンド変更のレビューが容易になる
 - 開発者が意図的に `openapi.json` を更新することで、型変更が明示的なコミットとして残る
 
 **不採用方式**: ビルド時に `http://localhost:8000/openapi.json` を取得する方式
+
 - 理由: ビルド時にサーバー起動が必要で CI/CD が複雑になる
 
 ---
@@ -33,7 +35,7 @@ FastAPI が自動生成する OpenAPI スキーマを `openapi-typescript` で T
 
 - **パッケージ**: `openapi-typescript` v7.x
 - **特徴**: ランタイムゼロ。型定義ファイル（`.d.ts`）のみを生成し、バンドルサイズに影響しない
-- **公式**: https://openapi-ts.dev/
+- **公式**: <https://openapi-ts.dev/>
 
 ---
 
@@ -107,6 +109,7 @@ print(f"OpenAPI schema exported to {output_path}")
 ```
 
 実行方法:
+
 ```bash
 # プロジェクトルートで実行
 python scripts/export_openapi.py

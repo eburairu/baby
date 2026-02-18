@@ -12,6 +12,7 @@ from app.models.family import UserRole
 # ---------------------------------------------------------------------------
 def _setup_admin_and_viewer(client):
     """ADMIN が家族を作成し、赤ちゃんを登録。VIEWER が参加。
+    デフォルト拒否のため、VIEWERには全record_typeの閲覧権限を付与する。
     戻り値: (admin_id, viewer_id, baby_id, invite_code)
     """
     # ADMIN が家族を作成
@@ -37,6 +38,16 @@ def _setup_admin_and_viewer(client):
         "password": "password123",
     })
     viewer_id = res.json()["id"]
+
+    # ADMINとして戻り、VIEWERに赤ちゃんへの全アクセスを許可（デフォルト拒否のため）
+    _login(client, "rbac_admin")
+    client.put(f"/api/babies/{baby_id}/permissions", json={
+        "permissions": [
+            {"user_id": viewer_id, "record_type": rt, "can_view": True}
+            for rt in ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
+        ]
+    })
+    client.cookies.clear()
 
     return admin_id, viewer_id, baby_id, invite_code
 

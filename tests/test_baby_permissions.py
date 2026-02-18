@@ -74,17 +74,18 @@ def test_get_permissions_as_admin(setup_data):
     admin = setup_data["admin"]
     baby = setup_data["baby"]
     member = setup_data["member"]
-    
+
     _mock_user = admin
     client = TestClient(app)
     response = client.get(f"/api/babies/{baby.id}/permissions")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["baby_id"] == baby.id
     member_data = next(m for m in data["members"] if m["user_id"] == member.id)
+    # デフォルト拒否: BabyPermissionレコードがない場合は can_view=False
     for p in member_data["permissions"]:
-        assert p["can_view"] is True
+        assert p["can_view"] is False
 
 def test_update_permissions_as_admin(setup_data):
     global _mock_user
@@ -107,42 +108,83 @@ def test_update_permissions_as_admin(setup_data):
     feeding_perm = next(p for p in member_data["permissions"] if p["record_type"] == "feeding")
     assert feeding_perm["can_view"] is False
 
-def test_access_denied_to_member(setup_data):
+def test_new_member_denied_by_default(setup_data):
+    """デフォルト拒否: 権限なしのメンバーは赤ちゃんにアクセスできない"""
+    global _mock_user
+    baby = setup_data["baby"]
+    member = setup_data["member"]
+
+    # BabyPermissionレコードなしの状態でメンバーとしてアクセス
+    _mock_user = member
+    client = TestClient(app)
+    response = client.get(f"/api/feedings/?baby_id={baby.id}")
+
+    assert response.status_code == 403
+    assert "Access denied to this baby" in response.json()["detail"]
+
+def test_access_denied_when_feeding_permission_revoked(setup_data):
+    """明示的な許可後に授乳権限を拒否すると403になる"""
     global _mock_user
     admin = setup_data["admin"]
     baby = setup_data["baby"]
     member = setup_data["member"]
-    
-    # 1. Update permission to deny feeding access
+
     _mock_user = admin
     client = TestClient(app)
+
+    # まず赤ちゃん + 授乳の閲覧を許可
     client.put(f"/api/babies/{baby.id}/permissions", json={
-        "permissions": [{"user_id": member.id, "record_type": "feeding", "can_view": False}]
+        "permissions": [
+            {"user_id": member.id, "record_type": "baby", "can_view": True},
+            {"user_id": member.id, "record_type": "feeding", "can_view": True},
+        ]
     })
-    
-    # 2. Try to access as member
+
+    # 次に授乳権限を拒否
+    client.put(f"/api/babies/{baby.id}/permissions", json={
+        "permissions": [
+            {"user_id": member.id, "record_type": "feeding", "can_view": False}
+        ]
+    })
+
+    # メンバーとして授乳記録へのアクセスを試みる
     _mock_user = member
     response = client.get(f"/api/feedings/?baby_id={baby.id}")
-    
+
     assert response.status_code == 403
     assert "Access denied to feeding records" in response.json()["detail"]
 
-def test_hide_baby_from_member(setup_data):
+def test_new_member_sees_no_babies(setup_data):
+    """デフォルト拒否: 権限なしのメンバーは赤ちゃん一覧に表示されない"""
+    global _mock_user
+    baby = setup_data["baby"]
+    member = setup_data["member"]
+
+    _mock_user = member
+    client = TestClient(app)
+    response = client.get("/api/babies/")
+
+    assert response.status_code == 200
+    babies = response.json()
+    # BabyPermissionレコードがないため、赤ちゃんは表示されない
+    assert all(b["id"] != baby.id for b in babies)
+
+def test_baby_visible_after_permission_granted(setup_data):
+    """baby権限を付与した後、メンバーは赤ちゃんを閲覧できる"""
     global _mock_user
     admin = setup_data["admin"]
     baby = setup_data["baby"]
     member = setup_data["member"]
-    
-    # 1. Update permission to hide baby
+
     _mock_user = admin
     client = TestClient(app)
     client.put(f"/api/babies/{baby.id}/permissions", json={
-        "permissions": [{"user_id": member.id, "record_type": "baby", "can_view": False}]
+        "permissions": [{"user_id": member.id, "record_type": "baby", "can_view": True}]
     })
-    
-    # 2. Member should not see the baby in list
+
     _mock_user = member
     response = client.get("/api/babies/")
+
     assert response.status_code == 200
     babies = response.json()
-    assert all(b["id"] != baby.id for b in babies)
+    assert any(b["id"] == baby.id for b in babies)
