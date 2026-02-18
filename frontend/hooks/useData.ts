@@ -65,6 +65,7 @@ export interface BabyRecord {
         [key: string]: unknown;
     };
     comment_count: number;
+    recorded_by_display_name?: string | null;
 }
 
 export function useRecords(babyId: string | null) {

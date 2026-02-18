@@ -140,6 +140,15 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
               </div>
             </div>
 
+            {record.recorded_by_display_name && (
+              <div className="space-y-2">
+                <Label className="text-gray-700 dark:text-zinc-300">記録者</Label>
+                <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
+                  {record.recorded_by_display_name}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-gray-700 dark:text-zinc-300">メモ</Label>
               <Textarea

@@ -2164,6 +2164,17 @@
             "title": "Id",
             "type": "integer"
           },
+          "recorded_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorded By Display Name"
+          },
           "timestamp": {
             "format": "date-time",
             "title": "Timestamp",

@@ -1392,6 +1392,8 @@ export interface components {
             };
             /** Id */
             id: number;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
             /**
              * Timestamp
              * Format: date-time
