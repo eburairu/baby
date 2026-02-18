@@ -35,6 +35,7 @@
 - 各記録の表示内容:
     - 開始時刻 ～ 終了時刻
     - 睡眠時間（例: 1時間30分、進行中の場合は「睡眠中 (1h 15m経過)」など）
+    - **記録者名**: `recorded_by_display_name` を表示（例：「ママ」「パパ」）。`null`（削除済みユーザー）の場合は表示省略または「不明」と表示。
     - メモ（あれば）
 - 記録の編集・削除機能。
 
@@ -75,9 +76,9 @@
 
 [ 最近の記録 ]
 ─────────────────────
-13:00 - 14:30  💤 1h 30m
-10:00 - 10:45  💤 45m
-昨夜 21:00 - 06:00 🌙 9h 00m
+13:00 - 14:30  💤 1h 30m  👤 ママ
+10:00 - 10:45  💤 45m  👤 パパ
+昨夜 21:00 - 06:00 🌙 9h 00m  👤 ママ
 ...
 ```
 
@@ -88,6 +89,7 @@
 ### モデル (`Sleep`)
 
 - `baby_id`: FK (Integer)
+- `user_id`: FK (Integer) - 記録者（ログインユーザーのID）
 - `start_time`: DateTime (UTC, 必須)
 - `end_time`: DateTime (UTC, Nullable) - Nullの場合は「現在睡眠中」を表す
 - `notes`: Text (Nullable)
@@ -115,6 +117,20 @@
   start_time?: string,
   end_time?: string,  // Set this to stop the timer
   notes?: string
+}
+```
+
+### レスポンススキーマ (`SleepResponse`)
+
+```typescript
+interface SleepResponse {
+  id: number
+  baby_id: number
+  user_id: number
+  start_time: string
+  end_time: string | null
+  notes: string | null
+  recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
 }
 ```
 
