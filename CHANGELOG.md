@@ -1,3 +1,10 @@
+## [1.22.1](https://github.com/eburairu/baby/compare/v1.22.0...v1.22.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* remove --system flag from uv pip install to fix alembic not found on Render ([9317833](https://github.com/eburairu/baby/commit/931783397f98aff4ccb28752dafb64517804bb33))
+
 # [1.22.0](https://github.com/eburairu/baby/compare/v1.21.0...v1.22.0) (2026-02-18)
 
 
