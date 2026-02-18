@@ -1,13 +1,12 @@
-# AGENTS.md - 開発ガイドライン
+# GEMINI.md
 
-このプロジェクト（Baby App）で作業する AI エージェント（Claude, Gemini, Antigravity 等）向けのガイドラインです。
+This file provides guidance to Gemini assistants (including Antigravity, gemini-cli) when working with code in this repository.
 
 ## プロジェクト概要
 
-Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、おむつ、成長、陣痛、スケジュール）を共同管理するための Web アプリケーションです。
-FastAPI（バックエンド）と Next.js（フロントエンド）を単一 Docker コンテナでデプロイするシングルサービス構成。
+Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、おむつ、成長、陣痛、スケジュール）を共同管理する招待制 Web アプリ。FastAPI（バックエンド）と Next.js（フロントエンド）を単一 Docker コンテナでデプロイするシングルサービス構成。
 
-## エージェント行動指針 (User Rules)
+## Gemini/Antigravity 行動指針 (User Rules)
 
 このプロジェクトでは以下のルールを厳守すること:
 
@@ -27,21 +26,10 @@ FastAPI（バックエンド）と Next.js（フロントエンド）を単一 D
 
 ## 技術スタック
 
-- **Frontend**: Next.js (App Router, Static Export), TypeScript (strict), Tailwind CSS v4, SWR, Zustand, shadcn/ui
 - **Backend**: FastAPI, SQLAlchemy 2.0, Pydantic v2, Alembic
+- **Frontend**: Next.js (App Router, Static Export), TypeScript (strict), Tailwind CSS v4, SWR, Zustand, shadcn/ui
 - **Database**: PostgreSQL (Neon)
 - **Deployment**: Docker マルチステージビルド → Render
-
-## エージェント・スキル (AI Agent Skills)
-
-このプロジェクトでは、Vercel Labs の `agent-skills` を導入しています。以下のパスに、開発のベストプラクティスやルールが格納されています。作業を開始する前に、これらの内容を読み込んで遵守してください。
-
-- **場所**: `.agents/skills/`
-- **利用可能なスキル**:
-  - `vercel-react-best-practices`: React/Next.js のパフォーマンス最適化ガイドライン
-  - `vercel-composition-patterns`: コンポーネント設計のベストプラクティス
-  - `web-design-guidelines`: ウェブデザインの一般的ガイドライン
-  - `vercel-react-native-skills`: React Native 向けのガイドライン（主にモバイル開発時）
 
 ## ローカル開発環境のセットアップ
 
@@ -49,6 +37,22 @@ FastAPI（バックエンド）と Next.js（フロントエンド）を単一 D
 
 - **Docker 不要**。DB は Neon のブランチを使用する。
 - `.env` に `DATABASE_URL` を設定。`.env` は `.gitignore` 済み。
+
+### DB 環境（Neon ブランチ構成）
+
+| ブランチ名 | 用途 |
+| ---------- | ---- |
+| `production` | 本番（Render から参照） |
+| `develop` | ローカル開発用 |
+
+接続文字列は Neon MCP で取得可能。
+
+### `.env` の設定例
+
+```env
+DATABASE_URL="postgresql://neondb_owner:<password>@<endpoint>.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"
+```
+※ シェルで `source .env` する場合は値をダブルクォートで囲むこと。
 
 ### ローカル起動手順
 
@@ -79,6 +83,27 @@ cd frontend && pnpm dev
 - API: `http://localhost:8000/api`
 - Frontend: `http://localhost:3000`
 
+## アーキテクチャ
+
+### シングルサービス構成
+FastAPI が Next.js の静的ビルド (`frontend/out/`) を配信。
+フロントエンドは `next.config.ts` で `output: 'export'` 設定済み。
+
+### 認証フロー
+Cookie ベースのセッション管理 (HttpOnly, 有効期限 7 日)。
+`UserSession` テーブルで管理。
+
+### データ階層
+`Family → User → Baby → Records`
+Admin / Member ロール、`verify_baby_access()` による権限チェック。
+
+## ディレクトリ構成パターン
+
+- `app/models/`: SQLAlchemy モデル
+- `app/schemas/`: Pydantic スキーマ
+- `app/routers/`: API エンドポイント
+- `app/services/`: ビジネスロジック
+
 ## コマンドリファレンス
 
 ### テスト
@@ -100,21 +125,3 @@ alembic upgrade head
 cd frontend && pnpm build
 cd frontend && pnpm lint
 ```
-
-## アーキテクチャ
-
-### シングルサービス構成
-FastAPI が Next.js の静的ビルド (`frontend/out/`) を配信。
-フロントエンドは `next.config.ts` で `output: 'export'` 設定済み。
-
-### データ階層
-`Family → User → Baby → Records`
-Admin / Member ロール、`verify_baby_access()` による権限チェック。
-
-## ディレクトリ構成パターン
-
-- `app/models/`: SQLAlchemy モデル
-- `app/schemas/`: Pydantic スキーマ
-- `app/routers/`: API エンドポイント
-- `app/services/`: ビジネスロジック
-- `.specify/specs/`: 仕様書 (SDD の起点)

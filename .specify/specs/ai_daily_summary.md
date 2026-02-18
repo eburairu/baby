@@ -789,7 +789,7 @@ AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レ�
     - [x] 「今日の日誌を生成」ボタン（当日未生成の場合のみ表示）
     - [x] 生成中のスピナー表示・ボタン disabled
     - [x] 削除確認ダイアログ
-- [x] `cd frontend && npm run build` でビルド確認
+- [x] `cd frontend && pnpm build` でビルド確認
 
 ### 長期的特徴（Long-term Characteristics）
 

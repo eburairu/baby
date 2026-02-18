@@ -45,6 +45,12 @@ DATABASE_URL="postgresql://neondb_owner:<password>@<endpoint>.ap-southeast-1.aws
 ### ローカル起動手順
 
 ```bash
+# 0. 依存パッケージをインストール（初回・requirements変更時）
+# uv が未インストールの場合は先に入れる
+pip install uv
+# pytest/httpx を含む開発用パッケージをインストールする
+uv pip install -r requirements-dev.txt
+
 # 1. 仮想環境を有効化
 source .venv/bin/activate
 
@@ -58,7 +64,7 @@ alembic upgrade head
 uvicorn app.main:app --reload
 
 # 5. フロントエンドを起動（別ターミナル）
-cd frontend && npm run dev
+cd frontend && pnpm dev
 ```
 
 起動後:
@@ -79,8 +85,8 @@ alembic revision --autogenerate -m "description"
 alembic upgrade head
 
 # フロントエンドビルド（変更後は必ず実行・型チェック含む）
-cd frontend && npm run build
-cd frontend && npm run lint
+cd frontend && pnpm build
+cd frontend && pnpm lint
 ```
 
 ## アーキテクチャ
@@ -110,4 +116,4 @@ Cookie ベースのセッション管理（HttpOnly）。`UserSession` テーブ
 - **Python**: 型ヒント必須、PEP 8 準拠
 - **TypeScript**: strict モード、関数コンポーネント + Hooks
 - **コミット**: Conventional Commits 形式（`feat:`, `fix:`, `chore:`, `docs:` 等）
-- **変更後**: 必ず `cd frontend && npm run build` でビルド確認してから報告する
+- **変更後**: 必ず `cd frontend && pnpm build` でビルド確認してから報告する

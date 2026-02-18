@@ -484,7 +484,7 @@ Welcome, {getDisplayName(user)}
 - [x] `frontend/app/(dashboard)/layout.tsx` の `user.username` を `getDisplayName(user)` に置換
 - [x] `frontend/components/settings/MemberList.tsx` の `member.username` を `getDisplayName(member)` に置換（ダイアログ内のタイトルも含む）
 - [x] `MemberList` の `Member` インターフェースに `display_name: string | null` を追加
-- [x] `cd frontend && npm run build` でビルド確認
+- [x] `cd frontend && pnpm build` でビルド確認
 
 ---
 

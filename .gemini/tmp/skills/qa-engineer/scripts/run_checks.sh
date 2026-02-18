@@ -16,7 +16,7 @@ ${GREEN}[Frontend] Checking...${NC}"
   
   # Type Check / Build
   echo "Running build (includes type check)..."
-  if npm run build; then
+  if pnpm build; then
     echo -e "${GREEN}[Frontend] Build passed.${NC}"
   else
     echo -e "${RED}[Frontend] Build failed!${NC}"
@@ -25,7 +25,7 @@ ${GREEN}[Frontend] Checking...${NC}"
 
   # Lint
   echo "Running lint..."
-  if npm run lint; then
+  if pnpm lint; then
     echo -e "${GREEN}[Frontend] Lint passed.${NC}"
   else
     echo -e "${RED}[Frontend] Lint failed!${NC}"
@@ -34,7 +34,7 @@ ${GREEN}[Frontend] Checking...${NC}"
   
   # Test
   echo "Running tests..."
-  if npm run test; then
+  if pnpm test; then
     echo -e "${GREEN}[Frontend] Tests passed.${NC}"
   else
     echo -e "${RED}[Frontend] Tests failed!${NC}"
