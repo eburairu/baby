@@ -1,12 +1,15 @@
 "use client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, ShieldCheck } from "lucide-react"
+import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useUser } from "@/hooks/useAuth"
 import { useFamilyMembers } from "@/hooks/useData"
 import { api } from "@/lib/api"
+import { useState } from "react"
+import { AppInfoDialog } from "@/components/settings/AppInfoDialog"
+import { useAppVersion } from "@/hooks/useAppVersion"
 import { UserRole } from "@/lib/constants"
 import {
     AlertDialog,
@@ -72,6 +75,8 @@ export default function SettingsPage() {
     const { user, mutate } = useUser()
     const { members } = useFamilyMembers()
     const router = useRouter()
+    const [appInfoOpen, setAppInfoOpen] = useState(false)
+    const { appVersion } = useAppVersion()
 
     const currentMember = members?.find((m) => m.username === user?.username)
     const isAdmin = currentMember?.role === UserRole.ADMIN
@@ -162,7 +167,28 @@ export default function SettingsPage() {
                         </AlertDialog>
                     </div>
                 </section>
+
+                <section className="space-y-3 pt-4">
+                    <h2 className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider ml-1 mb-1">アプリ情報</h2>
+                    <div
+                        onClick={() => setAppInfoOpen(true)}
+                        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    >
+                        <div className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                            <Info className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">バージョン情報</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
+                                {appVersion ? `v${appVersion.version}` : "読み込み中..."}
+                            </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />
+                    </div>
+                </section>
             </div>
+
+            <AppInfoDialog open={appInfoOpen} onOpenChange={setAppInfoOpen} />
         </div>
     )
 }

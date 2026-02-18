@@ -2409,6 +2409,52 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "VersionResponse": {
+        "properties": {
+          "html_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Html Url"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "release_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Notes"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "title": "VersionResponse",
+        "type": "object"
       }
     }
   },
@@ -4992,6 +5038,27 @@
         "summary": "Upload Image",
         "tags": [
           "upload"
+        ]
+      }
+    },
+    "/api/version": {
+      "get": {
+        "operationId": "get_version_api_version_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Version",
+        "tags": [
+          "version"
         ]
       }
     }
