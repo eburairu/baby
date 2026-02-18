@@ -10,6 +10,8 @@ import { DiaperHistory } from "@/components/diaper/DiaperHistory"
 import { Diaper } from "@/types/diaper"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { diaperTips } from "@/lib/tips-data"
 import { Smile, Droplets } from "lucide-react"
 import Link from "next/link"
 import { isApiError } from "@/lib/api"
@@ -51,6 +53,8 @@ export default function DiaperPage() {
                 ) : (
                     <>
                         <DiaperStats diapers={diapers || []} />
+
+                        <TipsCard {...diaperTips} />
 
                         {canWrite && (
                             <DiaperForm

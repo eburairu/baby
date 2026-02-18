@@ -11,6 +11,8 @@ import { NoteForm } from "@/components/note/NoteForm"
 import { NoteHistory } from "@/components/note/NoteHistory"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { noteTips } from "@/lib/tips-data"
 import { isApiError } from "@/lib/api"
 
 export default function NotePage() {
@@ -58,8 +60,10 @@ export default function NotePage() {
                     <AccessDenied />
                 ) : (
                     <>
+                        <TipsCard {...noteTips} />
+
                         {canWrite && (
-                            <NoteForm 
+                            <NoteForm
                                 babyId={babyId} 
                                 onAddSuccess={() => mutateNotes()} 
                             />

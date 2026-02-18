@@ -13,6 +13,8 @@ import { DiaryEditDialog } from "@/components/diary/DiaryEditDialog"
 import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { diaryTips } from "@/lib/tips-data"
 import { DailySummary } from "@/types/dailySummary"
 import { isApiError } from "@/lib/api"
 
@@ -113,6 +115,8 @@ export default function DiaryPage() {
                     <AccessDenied />
                 ) : (
                     <>
+                        <TipsCard {...diaryTips} />
+
                         {/* 今日の日誌生成ボタン */}
                         {canWrite && (
                             <div className="space-y-2">
