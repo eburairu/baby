@@ -22,14 +22,15 @@ cp .env.example .env
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install uv
+uv pip install -r requirements-dev.txt  # pytest/httpx を含む開発用
 alembic upgrade head
 ```
 
 ### 3. フロントエンドのセットアップ
 ```bash
 cd frontend
-npm install
+pnpm install
 ```
 
 ## 動作確認手順
@@ -72,4 +73,4 @@ FastAPI がフロントエンドの静的ファイルを正常に配信し、API
 ## 異常時の対応
 - データベース接続エラー: `DATABASE_URL` の設定を確認。
 - マイグレーションエラー: `alembic upgrade head` が成功しているか確認。
-- フロントエンドビルドエラー: `node_modules` を削除して再インストールを試行。
+- フロントエンドビルドエラー: `frontend/node_modules` を削除して `pnpm install` を再実行。

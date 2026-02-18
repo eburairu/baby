@@ -13,6 +13,17 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 - **Database**: PostgreSQL (本番: Neon production ブランチ / ローカル: Neon develop ブランチ) + Alembic マイグレーション
 - **Deployment**: Docker マルチステージビルド → Render
 
+## エージェント・スキル (AI Agent Skills)
+
+このプロジェクトでは、Vercel Labs の `agent-skills` を導入しています。以下のパスに、開発のベストプラクティスやルールが格納されています。作業を開始する前に、これらの内容を読み込んで遵守してください。
+
+- **場所**: `.agents/skills/`
+- **利用可能なスキル**:
+  - `vercel-react-best-practices`: React/Next.js のパフォーマンス最適化ガイドライン
+  - `vercel-composition-patterns`: コンポーネント設計のベストプラクティス
+  - `web-design-guidelines`: ウェブデザインの一般的ガイドライン
+  - `vercel-react-native-skills`: React Native 向けのガイドライン（主にモバイル開発時）
+
 ## ローカル開発環境のセットアップ
 
 ### 前提
@@ -45,6 +56,12 @@ DATABASE_URL="postgresql://neondb_owner:<password>@<endpoint>.ap-southeast-1.aws
 ### ローカル起動手順
 
 ```bash
+# 0. 依存パッケージをインストール（初回・requirements変更時）
+# uv が未インストールの場合は先に入れる
+pip install uv
+# pytest/httpx を含む開発用パッケージをインストールする
+uv pip install -r requirements-dev.txt
+
 # 1. 仮想環境を有効化
 source .venv/bin/activate
 
@@ -58,7 +75,7 @@ alembic upgrade head
 uvicorn app.main:app --reload
 
 # 5. フロントエンドを起動（別ターミナル）
-cd frontend && npm run dev
+cd frontend && pnpm dev
 ```
 
 起動後:
@@ -79,8 +96,8 @@ alembic revision --autogenerate -m "description"
 alembic upgrade head
 
 # フロントエンドビルド（変更後は必ず実行・型チェック含む）
-cd frontend && npm run build
-cd frontend && npm run lint
+cd frontend && pnpm build
+cd frontend && pnpm lint
 ```
 
 ## アーキテクチャ
@@ -110,4 +127,4 @@ Cookie ベースのセッション管理（HttpOnly）。`UserSession` テーブ
 - **Python**: 型ヒント必須、PEP 8 準拠
 - **TypeScript**: strict モード、関数コンポーネント + Hooks
 - **コミット**: Conventional Commits 形式（`feat:`, `fix:`, `chore:`, `docs:` 等）
-- **変更後**: 必ず `cd frontend && npm run build` でビルド確認してから報告する
+- **変更後**: 必ず `cd frontend && pnpm build` でビルド確認してから報告する

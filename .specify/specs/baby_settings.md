@@ -239,7 +239,7 @@ class BabyUpdate(BaseModel):
 - [ ] `BabyEditDialog.tsx` 改修（特徴フィールド追加）
 - [ ] `AddBabyDialog.tsx` 改修（特徴フィールド追加、ダッシュボードの追加ロジックを移植・共通化）
 - [ ] ダッシュボードから `AddBabyDialog` を共通コンポーネントとして利用するようリファクタリング
-- [ ] `npm run build` でビルド確認
+- [ ] `cd frontend && pnpm build` でビルド確認
 
 ### ナビゲーション
 

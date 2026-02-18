@@ -643,7 +643,7 @@ if (error?.status === 403) {
   - [ ] admin かつ family に member が 1 人以上いる場合のみ表示
   - [ ] `BabyPermissionDialog` の開閉状態を `useState` で管理
 - [ ] 各記録ページに 403 エラー時の「閲覧制限」UI を追加
-- [ ] `cd frontend && npm run build` でビルド確認
+- [ ] `cd frontend && pnpm build` でビルド確認
 
 ---
 

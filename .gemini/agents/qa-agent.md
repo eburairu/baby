@@ -24,8 +24,8 @@ temperature: 0.1
 
 ### 1. Frontend (Next.js / TypeScript)
 - **型チェック**: `cd frontend && npx tsc --noEmit`
-- **ビルド**: `cd frontend && npm run build`
-- **リンター**: `cd frontend && npm run lint` (必要に応じて)
+- **ビルド**: `cd frontend && pnpm build`
+- **リンター**: `cd frontend && pnpm lint` (必要に応じて)
 
 ### 2. Backend (FastAPI / Python)
 - **型チェック**: `mypy .` (導入されている場合)

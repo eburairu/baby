@@ -118,7 +118,8 @@ cp .env.example .env
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install uv
+uv pip install -r requirements-dev.txt  # pytest/httpx を含む開発用
 alembic upgrade head
 ```
 
@@ -126,7 +127,7 @@ alembic upgrade head
 
 ```bash
 cd frontend
-npm install
+pnpm install
 ```
 
 ## 開発コマンド
@@ -144,7 +145,7 @@ set -a && source .env && set +a
 uvicorn app.main:app --reload
 
 # 4. フロントエンドを起動（別ターミナル）
-cd frontend && npm run dev
+cd frontend && pnpm dev
 ```
 
 起動後:
@@ -173,14 +174,14 @@ alembic upgrade head
 
 ```bash
 cd frontend
-npm run lint
-npm run build
+pnpm lint
+pnpm build
 ```
 
 ## Single Service 動作確認
 
 ```bash
-cd frontend && npm run build && cd ..
+cd frontend && pnpm build && cd ..
 uvicorn app.main:app --reload
 ```
 
