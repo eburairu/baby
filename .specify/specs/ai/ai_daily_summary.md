@@ -804,8 +804,8 @@ AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レ�
 
 ## 参照先ドキュメント
 
-- `.specify/specs/baby_permissions.md` — `verify_baby_access()` の仕様
-- `.specify/specs/ui_design_system.md` — カラーパレット・コンポーネントデザイン
+- `.specify/specs/settings/baby_permissions.md` — `verify_baby_access()` の仕様
+- `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/feeding.py` — `Feeding` モデル
 - `app/models/sleep.py` — `Sleep` モデル
 - `app/models/diaper.py` — `Diaper` モデル

@@ -649,9 +649,9 @@ if (error?.status === 403) {
 
 ## 参照先ドキュメント
 
-- `.specify/specs/family_settings.md` — 家族設定・メンバー管理
-- `.specify/specs/baby_settings.md` — 赤ちゃん管理画面（BabyCard, BabyEditDialog 等）
-- `.specify/specs/ui_design_system.md` — カラーパレット・コンポーネントデザイン
+- `.specify/specs/settings/family_settings.md` — 家族設定・メンバー管理
+- `.specify/specs/settings/baby_settings.md` — 赤ちゃん管理画面（BabyCard, BabyEditDialog 等）
+- `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/baby.py` — `Baby`, `BabyPermission` モデル
 - `app/dependencies.py` — `verify_baby_access()` 実装
 - `app/routers/baby.py` — 既存の赤ちゃん CRUD + 記録取得エンドポイント

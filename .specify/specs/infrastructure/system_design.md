@@ -115,4 +115,4 @@ baby-app/
   - `semantic-release` がバージョンを決定し、GitHub Release と Tag を作成。
   - リリース完了後、GitHub Actions から Render の Deploy Hook を呼び出し、デプロイを実行。
   - Render 側の `autoDeploy` は無効化 (`false`) されており、重複デプロイを防止している。
-- **スキーマ整合性チェック**: `frontend/openapi.json` の差分を CI で検出し、バックエンド変更時の更新漏れを防止する（詳細: `.specify/specs/openapi_type_generation.md`）。
+- **スキーマ整合性チェック**: `frontend/openapi.json` の差分を CI で検出し、バックエンド変更時の更新漏れを防止する（詳細: `.specify/specs/development/openapi_type_generation.md`）。

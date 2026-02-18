@@ -856,9 +856,9 @@ export function ChatInput({ onSend, disabled }: Props) {
 
 ## 参照先ドキュメント
 
-- `.specify/specs/baby_permissions.md` — `verify_baby_access()` の仕様
-- `.specify/specs/ai_daily_summary.md` — AI日誌生成仕様（`OPENAI_API_KEY` 共用）
-- `.specify/specs/ui_design_system.md` — カラーパレット・コンポーネントデザイン
+- `.specify/specs/settings/baby_permissions.md` — `verify_baby_access()` の仕様
+- `.specify/specs/ai/ai_daily_summary.md` — AI日誌生成仕様（`OPENAI_API_KEY` 共用）
+- `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/feeding.py` — `Feeding` モデル
 - `app/models/sleep.py` — `Sleep` モデル
 - `app/models/diaper.py` — `Diaper` モデル

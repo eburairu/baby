@@ -216,8 +216,8 @@ class BabyUpdate(BaseModel):
 
 ## 参照先ドキュメント
 
-- `.specify/specs/ui_design_system.md` — カラーパレット・ページレイアウト・コンポーネントデザイン
-- `.specify/specs/system_design.md` — 権限モデル（Family → User → Baby）
+- `.specify/specs/ui/ui_design_system.md` — カラーパレット・ページレイアウト・コンポーネントデザイン
+- `.specify/specs/infrastructure/system_design.md` — 権限モデル（Family → User → Baby）
 - `app/models/baby.py` — DBスキーマ（Baby, BabyPermission）
 - `app/schemas/baby.py` — Pydanticスキーマ（BabyBase, BabyCreate, BabyResponse）
 - `app/routers/babies.py` — 既存の API エンドポイント実装

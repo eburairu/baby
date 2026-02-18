@@ -490,8 +490,8 @@ Welcome, {getDisplayName(user)}
 
 ## 参照先ドキュメント
 
-- `.specify/specs/family_settings.md` — 家族設定・メンバー一覧
-- `.specify/specs/ui_design_system.md` — カラーパレット・コンポーネントデザイン
+- `.specify/specs/settings/family_settings.md` — 家族設定・メンバー一覧
+- `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/user.py` — `User` モデル
 - `app/schemas/user.py` — `UserResponse` スキーマ
 - `app/routers/auth.py` — 認証 API（`/api/auth/me`）
