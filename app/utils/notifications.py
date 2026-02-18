@@ -88,9 +88,16 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
     """ユーザーの全デバイスに通知を送信する（設定を確認した上で）"""
     settings = db.query(NotificationSetting).filter(NotificationSetting.user_id == user_id).first()
     if not settings:
-        # 設定がない場合はデフォルト（システム通知のみON等）
-        if category != "system":
-            logger.info(f"Skipping {category} notification for user {user_id}: no settings found and category is not system")
+        # 設定がない場合はデフォルト設定を自動作成（family_record_enabled=True がデフォルト）
+        logger.info(f"No notification settings for user {user_id}, creating defaults")
+        settings = NotificationSetting(user_id=user_id)
+        db.add(settings)
+        try:
+            db.commit()
+            db.refresh(settings)
+        except Exception as ex:
+            logger.error(f"Failed to create default notification settings for user {user_id}: {ex}")
+            db.rollback()
             return
     else:
         # カテゴリごとのON/OFF確認
