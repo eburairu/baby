@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useAppVersion } from "@/hooks/useAppVersion"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,6 +44,7 @@ const ALL_NAV_ITEMS = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, isLoading, mutate, isError } = useUser()
+    const { appVersion } = useAppVersion()
     const router = useRouter()
     const pathname = usePathname()
     const { babies } = useBabies()
@@ -152,6 +154,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Link href="/">
                             <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-zinc-100" data-sentry-unmask>Baby App</h1>
                         </Link>
+                        {appVersion && (
+                            <Badge variant="outline" className="hidden sm:inline-flex text-xs text-gray-400 dark:text-zinc-500 dark:border-zinc-700">
+                                v{appVersion.version}
+                            </Badge>
+                        )}
                     </div>
                     <div className="flex items-center gap-4">
                         {isLoading ? (
