@@ -1,3 +1,22 @@
+# [1.22.0](https://github.com/eburairu/baby/compare/v1.21.0...v1.22.0) (2026-02-18)
+
+
+### Bug Fixes
+
+* **notifications:** add timeout and pushManager check to subscribeUser ([36ec901](https://github.com/eburairu/baby/commit/36ec901cd2d1193e264841540ac7f9127786af75))
+* **notifications:** prevent double mailto: prefix in VAPID claims ([85f3864](https://github.com/eburairu/baby/commit/85f38645885a4bef984470138f5c2988e5ba6919))
+* **notifications:** surface detailed error message on subscribe failure ([4d4b212](https://github.com/eburairu/baby/commit/4d4b212d14ed177c3a2eb10c7dcb18674fb77094))
+* remove hardcoded VAPID public key from debug script ([96ad537](https://github.com/eburairu/baby/commit/96ad53798bafc28333d3d5dc7a410f3956bb33a0))
+* resolve ImportError by importing get_db from app.dependencies in notifications router ([2936050](https://github.com/eburairu/baby/commit/2936050e9675b7905cb863ceb653a41608f0f6ab))
+* resolve PWA loading hang by adding hydration check, timeout safeguard, and optimizing PWA config ([306f8a9](https://github.com/eburairu/baby/commit/306f8a9de7def060c7f6385738c786a666db933b))
+* resolve PWA loading hang by adding hydration check, timeout safeguard, and optimizing PWA config ([cfe8554](https://github.com/eburairu/baby/commit/cfe8554b2763083a62830faba510f6399beb1c9f))
+
+
+### Features
+
+* improve notification permission handling with detailed error messages and iOS PWA support ([a48e52d](https://github.com/eburairu/baby/commit/a48e52df4b995318ecc29560042a79bfae9c0a27))
+* **types:** introduce openapi-typescript for automatic type generation ([6de642a](https://github.com/eburairu/baby/commit/6de642aa4b5e53c04ffa630b727c04b22cb50b99))
+
 # 1.0.0 (2026-02-17)
 
 
