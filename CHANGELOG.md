@@ -1,3 +1,11 @@
+# [1.24.0](https://github.com/eburairu/baby/compare/v1.23.0...v1.24.0) (2026-02-18)
+
+
+### Features
+
+* add left/right breast tracking and feeding completion to feeding records ([a6f9e22](https://github.com/eburairu/baby/commit/a6f9e22118aa7c778893f3dc3c64c447e020c0c0))
+* add left/right breast tracking and feeding completion to feeding records ([d251f34](https://github.com/eburairu/baby/commit/d251f34f739661db3ff03ae3d1822e02b26c42f7))
+
 # [1.23.0](https://github.com/eburairu/baby/compare/v1.22.3...v1.23.0) (2026-02-18)
 
 
