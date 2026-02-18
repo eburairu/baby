@@ -13,3 +13,4 @@ psycopg2-binary>=2.9.9
 openai>=1.30.0
 boto3>=1.34.0
 pywebpush
+httpx>=0.27.0

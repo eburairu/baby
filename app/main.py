@@ -22,7 +22,9 @@ app.add_middleware(
 
 from app.routers import auth, family, baby, notifications
 from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments
+from app.routers import version
 
+app.include_router(version.router)
 app.include_router(auth.router)
 app.include_router(family.router)
 app.include_router(baby.router)
