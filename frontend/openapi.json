@@ -797,6 +797,26 @@
         }
       }
     },
+    "/api/notifications/test": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Send Test Notification",
+        "description": "テスト通知を自分自身に送信する",
+        "operationId": "send_test_notification_api_notifications_test_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/feedings/": {
       "get": {
         "tags": [
