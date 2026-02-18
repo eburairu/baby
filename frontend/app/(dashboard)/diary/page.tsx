@@ -64,11 +64,17 @@ export default function DiaryPage() {
     const hasSelectedSummary = selectedSummary !== null
     const isSelectedEdited = selectedSummary?.is_edited ?? false
 
-    const doGenerate = async () => {
+    const doGenerate = async (forceRegen = false) => {
         if (!babyId) return
         setIsGenerating(true)
         setGenerateError(null)
         try {
+            // 手動編集済みを確認の上で再生成する場合は先に編集をクリアする。
+            // バックエンドは is_edited=true のレコードを再生成せず返すため、
+            // クリアしないと再生成が行われないまま成功扱いになってしまう。
+            if (forceRegen && selectedSummary?.is_edited) {
+                await editDailySummary(babyId, selectedDate, null, selectedSummary.image_urls ?? [])
+            }
             await generateDailySummary(babyId, selectedDate)
             await mutate()
         } catch (err: unknown) {
@@ -231,7 +237,7 @@ export default function DiaryPage() {
                         <AlertDialogAction
                             onClick={() => {
                                 setRegenConfirmOpen(false)
-                                doGenerate()
+                                doGenerate(true)
                             }}
                             className="bg-amber-500 hover:bg-amber-600 text-white"
                         >
