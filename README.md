@@ -6,6 +6,7 @@ Baby App は、家族単位で赤ちゃんの育児記録を共同管理する�
 ## 主な機能
 
 ### 育児記録
+
 - **授乳** — 母乳・ミルク・混合の記録（量・時間）
 - **睡眠** — 開始・終了時刻のトラッキング
 - **おむつ** — おしっこ・うんち・両方の記録
@@ -15,12 +16,14 @@ Baby App は、家族単位で赤ちゃんの育児記録を共同管理する�
 - **スケジュール** — 予定管理
 
 ### 家族管理・認証
+
 - 家族作成（管理者） / 招待コードで参加
 - Cookie セッション認証（ログイン / ログアウト / ユーザー情報取得）
 - ロールベースのアクセス制御（admin / member / viewer）
 - 赤ちゃんごと・記録タイプごとの詳細権限管理
 
 ### 付加機能
+
 - **AI 日誌** — OpenAI API 連携によるデイリーサマリー自動生成・手動編集
 - **記録へのコメント** — 各記録にコメントを投稿
 - **画像アップロード** — Cloudflare R2 連携
@@ -196,6 +199,7 @@ uvicorn app.main:app --reload
 ## 主要 API
 
 ### 認証 (`/api/auth/`)
+
 | メソッド | パス | 説明 |
 | -------- | ---- | ---- |
 | `POST` | `/register/family` | 家族作成と管理者登録 |
@@ -206,6 +210,7 @@ uvicorn app.main:app --reload
 | `PATCH` | `/me` | プロフィール更新 |
 
 ### 家族 (`/api/family/`)
+
 | メソッド | パス | 説明 |
 | -------- | ---- | ---- |
 | `GET` / `PATCH` | `/` | 家族情報の取得・更新 |
@@ -215,6 +220,7 @@ uvicorn app.main:app --reload
 | `DELETE` | `/members/{user_id}` | メンバー削除（管理者のみ） |
 
 ### 赤ちゃん (`/api/babies/`)
+
 | メソッド | パス | 説明 |
 | -------- | ---- | ---- |
 | `GET` / `POST` | `/` | 一覧取得・新規登録 |
@@ -223,6 +229,7 @@ uvicorn app.main:app --reload
 | `GET` / `PUT` | `/{baby_id}/permissions` | 詳細権限管理 |
 
 ### 育児記録
+
 - `GET/POST/PATCH/DELETE /api/feedings/*`
 - `GET/POST/PATCH/DELETE /api/sleeps/*`
 - `GET/POST/DELETE /api/diapers/*`
@@ -232,6 +239,7 @@ uvicorn app.main:app --reload
 - `GET/POST/DELETE /api/babies/{baby_id}/notes`
 
 ### 付加機能
+
 - `GET/POST/PATCH /api/babies/{baby_id}/daily-summary` — AI 日誌
 - `GET/POST /api/records/{record_type}/{record_id}/comments` — コメント
 - `DELETE /api/comments/{comment_id}` — コメント削除

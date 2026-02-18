@@ -139,6 +139,7 @@ class FeedingCompletion(str, Enum):
 ### モデル (`Feeding`)
 
 既存フィールド:
+
 - `feeding_type`: `BREAST` | `BOTTLE` | `MIXED`
 - `feeding_time`: 日時
 - `duration_minutes`: 授乳時間（分）— **後方互換性のため削除しない**
