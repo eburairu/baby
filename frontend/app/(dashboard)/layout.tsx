@@ -5,10 +5,16 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ChevronLeft, Settings, Menu } from "lucide-react"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
-import { getDisplayName } from "@/lib/utils"
+import { cn, getDisplayName } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
     Sheet,
@@ -38,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter()
     const pathname = usePathname()
     const { babies } = useBabies()
-    const { selectedBabyId } = useBabyStore()
+    const { selectedBabyId, setSelectedBabyId } = useBabyStore()
     const [mounted, setMounted] = useState(false)
     const [showTimeoutError, setShowTimeoutError] = useState(false)
 
@@ -146,9 +152,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         ) : user ? (
                             <>
                                 {selectedBaby ? (
-                                    <Badge variant="secondary" className="text-xs dark:bg-zinc-800 dark:text-zinc-300 border-0">
-                                        🍼 {selectedBaby.name}
-                                    </Badge>
+                                    babies && babies.length > 1 ? (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <button className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground dark:bg-zinc-800 dark:text-zinc-300 hover:bg-secondary/80 dark:hover:bg-zinc-700 transition-colors">
+                                                    🍼 {selectedBaby.name}
+                                                    <ChevronDown className="h-3 w-3 opacity-60" />
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="dark:bg-zinc-900 dark:border-zinc-800">
+                                                {babies.map((baby) => (
+                                                    <DropdownMenuItem
+                                                        key={baby.id}
+                                                        onClick={() => setSelectedBabyId(String(baby.id))}
+                                                        className="flex items-center gap-2 cursor-pointer dark:text-zinc-300 dark:focus:bg-zinc-800"
+                                                    >
+                                                        <Check
+                                                            className={cn("h-4 w-4", String(baby.id) === effectiveId ? "opacity-100" : "opacity-0")}
+                                                        />
+                                                        {baby.name}
+                                                    </DropdownMenuItem>
+                                                ))}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    ) : (
+                                        <Badge variant="secondary" className="text-xs dark:bg-zinc-800 dark:text-zinc-300 border-0">
+                                            🍼 {selectedBaby.name}
+                                        </Badge>
+                                    )
                                 ) : null}
                                 <span className="text-sm text-gray-500 dark:text-zinc-400 hidden sm:inline-block">
                                     Welcome, {getDisplayName(user)}
