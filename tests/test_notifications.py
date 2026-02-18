@@ -95,14 +95,15 @@ class TestSendPushNotification:
 
 
 class TestNotifyUser:
-    def test_skip_non_system_without_settings(self):
-        """設定がないユーザーへのsystem以外の通知はスキップ"""
+    def test_auto_creates_settings_for_new_user(self):
+        """設定がないユーザーにはデフォルト設定を自動作成する"""
         db = MagicMock()
         db.query.return_value.filter.return_value.first.return_value = None
+        db.query.return_value.filter.return_value.all.return_value = []  # no subscriptions
         
         notify_user(db, 1, "Test", "Body", category="family_record")
-        # PushSubscriptionのクエリが呼ばれないことを確認
-        # (最初のqueryはNotificationSettingのため)
+        # デフォルト設定が作成されることを確認
+        db.add.assert_called_once()
 
     def test_skip_disabled_category(self):
         """無効なカテゴリの通知はスキップ"""
