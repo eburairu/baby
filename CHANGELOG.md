@@ -1,3 +1,12 @@
+# [1.23.0](https://github.com/eburairu/baby/compare/v1.22.3...v1.23.0) (2026-02-18)
+
+
+### Features
+
+* add baby switcher dropdown to global header ([aec056a](https://github.com/eburairu/baby/commit/aec056ae0e6c321e6e18d2035488069d07adccab))
+* add infinite scroll to RecentActivityFeed on dashboard ([36ccf4a](https://github.com/eburairu/baby/commit/36ccf4ae9835dc6759c124fc5fa8fae7bd49e311))
+* integrate Sentry error monitoring for Next.js frontend ([be2f43a](https://github.com/eburairu/baby/commit/be2f43acecafb6f5233d505338e8454c07747dc0))
+
 ## [1.22.3](https://github.com/eburairu/baby/compare/v1.22.2...v1.22.3) (2026-02-18)
 
 
