@@ -239,6 +239,7 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] 全記録系ルーターのミューテーション操作に書き込み権限チェック適用
 - [x] `update_member_role` で VIEWER への変更を許可（`app/routers/family.py`）
 - [x] 最終 ADMIN の降格防止ガード
+- [x] 最終 ADMIN の自己削除防止ガード（`app/routers/family.py` `delete_member`）
 
 ### フロントエンド
 
@@ -258,14 +259,14 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] ADMIN が VIEWER を MEMBER に変更でき、MEMBER が記録を作成できることを確認（`test_admin_can_change_role`）
 - [x] 無効なロール値での更新が `422` で拒否されることを確認（`test_update_role_with_invalid_value`）
 
-#### 未実装テスト
+#### 実装済み（`tests/test_rbac_constraints.py`）
 
-- [x] 最終 ADMIN の降格が拒否されることを確認
-- [x] 最終 ADMIN の自己削除が拒否されることを確認
-- [x] VIEWER がコメントを投稿できることを確認
-- [x] VIEWER が自分のコメントを削除できることを確認
-- [x] MEMBER / VIEWER が他者のコメントを削除できないことを確認
-- [x] 通知系エンドポイントに全ロールがアクセスできることを確認
+- [x] 最終 ADMIN の降格が拒否されることを確認（`test_last_admin_demotion_rejected`）
+- [x] 最終 ADMIN の自己削除が拒否されることを確認（`test_last_admin_self_delete_rejected`）
+- [x] VIEWER がコメントを投稿できることを確認（`test_viewer_can_post_comment`）
+- [x] VIEWER が自分のコメントを削除できることを確認（`test_viewer_can_delete_own_comment`）
+- [x] MEMBER / VIEWER が他者のコメントを削除できないことを確認（`test_member_cannot_delete_others_comment`）
+- [x] 通知系エンドポイントに全ロールがアクセスできることを確認（`test_all_roles_can_access_notifications`）
 
 ---
 
