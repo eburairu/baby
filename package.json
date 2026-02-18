@@ -7,7 +7,9 @@
     "test": "npm run test:backend && npm run test:frontend",
     "build:frontend": "cd frontend && npm run build",
     "start:backend": "./.venv/bin/python -m uvicorn app.main:app --reload",
-    "migrate": "./.venv/bin/python -m alembic upgrade head"
+    "migrate": "./.venv/bin/python -m alembic upgrade head",
+    "schema:generate": "./.venv/bin/python scripts/export_openapi.py",
+    "types:generate": "npm run schema:generate && cd frontend && npm run types:generate"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",

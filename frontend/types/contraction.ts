@@ -1,29 +1,11 @@
-/** APIレスポンスの陣痛記録型 */
-export interface ContractionRecord {
-    id: number
-    user_id: number
-    baby_id: number
-    start_time: string
-    end_time: string | null
-    duration_seconds: number | null
-    interval_seconds: number | null
-    notes: string | null
-}
+import type { components } from "@/types/generated/api"
 
-/** API POST リクエスト用 */
-export interface ContractionCreate {
-    baby_id: number
-    start_time: string
-    end_time?: string
-    duration_seconds?: number
-    interval_seconds?: number
-    notes?: string
-}
+export type ContractionRecord = components["schemas"]["ContractionResponse"]
+export type ContractionCreate = components["schemas"]["ContractionCreate"]
 
-/** タイマーの状態 */
+// フロントエンド固有の型（手動管理）
 export type TimerStatus = 'idle' | 'timing'
 
-/** 統計情報 */
 export interface ContractionStatsData {
     count: number
     avgDuration: number | null

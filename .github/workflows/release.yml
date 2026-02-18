@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -11,8 +14,37 @@ permissions:
   pull-requests: write
 
 jobs:
+  validate-schema:
+    name: Validate OpenAPI Schema
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate OpenAPI schema
+        run: python scripts/export_openapi.py
+
+      - name: Check for schema drift
+        run: |
+          if ! git diff --quiet frontend/openapi.json; then
+            echo "::error::frontend/openapi.json is out of date."
+            echo "Run 'python scripts/export_openapi.py' and commit the result."
+            git diff frontend/openapi.json
+            exit 1
+          fi
+
   release:
     name: Release
+    needs: validate-schema
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -50,7 +50,7 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             data=json.dumps(payload),
             vapid_private_key=VAPID_PRIVATE_KEY,
             vapid_claims={
-                "sub": f"mailto:{VAPID_CLAIM_EMAIL}"
+                "sub": VAPID_CLAIM_EMAIL if VAPID_CLAIM_EMAIL.startswith("mailto:") else f"mailto:{VAPID_CLAIM_EMAIL}"
             }
         )
         return True
