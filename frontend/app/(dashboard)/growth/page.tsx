@@ -13,6 +13,8 @@ import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { growthTips } from "@/lib/tips-data"
 import { TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Growth } from "@/types/growth"
@@ -70,6 +72,8 @@ export default function GrowthPage() {
                     <AccessDenied />
                 ) : (
                     <>
+                        <TipsCard {...growthTips} />
+
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-100">数値の推移</h2>
                             {canWrite && (

@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button"
 import type { ContractionRecord } from "@/types/contraction"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { contractionTips } from "@/lib/tips-data"
 import { Timer } from "lucide-react"
 import Link from "next/link"
 import { isApiError } from "@/lib/api"
@@ -80,6 +82,8 @@ export default function ContractionPage() {
 
                         {/* 統計 */}
                         <ContractionStats contractions={typedContractions} />
+
+                        <TipsCard {...contractionTips} />
 
                         {/* タイマー */}
                         {selectedBabyId && canWrite && (

@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { sleepTips } from "@/lib/tips-data"
 import { Moon as MoonIcon } from "lucide-react"
 import { isApiError } from "@/lib/api"
 
@@ -52,6 +54,8 @@ export default function SleepPage() {
                 ) : (
                     <>
                         <SleepStats babyId={effectiveId} />
+
+                        <TipsCard {...sleepTips} />
 
                         <div className="grid gap-6">
                             {canWrite && (

@@ -15,6 +15,8 @@ import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
+import { TipsCard } from "@/components/ui/tips-card"
+import { feedingTips } from "@/lib/tips-data"
 import { isApiError } from "@/lib/api"
 
 export default function FeedingPage() {
@@ -67,6 +69,8 @@ export default function FeedingPage() {
                 ) : (
                     <>
                         <FeedingStats summary={summary} />
+
+                        <TipsCard {...feedingTips} />
 
                         {canWrite && <FeedingForm babyId={babyId} onAdd={addFeeding} />}
 
