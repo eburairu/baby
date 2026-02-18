@@ -34,6 +34,7 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const history = useMemo(() => {
         return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
@@ -41,12 +42,14 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return
+        setIsDeleting(true)
         try {
             await api.delete(`/sleeps/${deleteTargetId}`)
             mutate()
         } catch (e) {
             console.error(e)
         } finally {
+            setIsDeleting(false)
             setDeleteTargetId(null)
         }
     }
@@ -157,8 +160,8 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

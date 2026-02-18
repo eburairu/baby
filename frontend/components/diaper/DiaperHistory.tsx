@@ -38,9 +38,11 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return
+        setIsDeleting(true)
         try {
             await api.delete(`/diapers/${deleteTargetId}`)
             onDeleteSuccess()
@@ -48,6 +50,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
             console.error(e)
             alert("削除に失敗しました")
         } finally {
+            setIsDeleting(false)
             setDeleteTargetId(null)
         }
     }
@@ -166,8 +169,8 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>
