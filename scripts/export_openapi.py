@@ -27,7 +27,7 @@ output_path = project_root / "frontend" / "openapi.json"
 schema = app.openapi()
 
 with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(schema, f, ensure_ascii=False, indent=2)
+    json.dump(schema, f, ensure_ascii=False, indent=2, sort_keys=True)
     f.write("\n")
 
 print(f"OpenAPI schema exported to {output_path}")
