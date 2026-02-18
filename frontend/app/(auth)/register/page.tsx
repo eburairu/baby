@@ -93,15 +93,15 @@ export default function RegisterPage() {
     return (
         <Tabs defaultValue="create" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4 p-1 rounded-xl">
-                <TabsTrigger value="create" className="rounded-lg">家族を新規作成</TabsTrigger>
-                <TabsTrigger value="join" className="rounded-lg">家族に参加</TabsTrigger>
+                <TabsTrigger value="create" className="rounded-lg" data-sentry-unmask>家族を新規作成</TabsTrigger>
+                <TabsTrigger value="join" className="rounded-lg" data-sentry-unmask>家族に参加</TabsTrigger>
             </TabsList>
 
             <TabsContent value="create">
                 <Card className="rounded-2xl shadow-sm border-0">
                     <CardHeader>
-                        <CardTitle>家族の新規作成</CardTitle>
-                        <CardDescription>家族で赤ちゃんの記録を共有しましょう。</CardDescription>
+                        <CardTitle data-sentry-unmask>家族の新規作成</CardTitle>
+                        <CardDescription data-sentry-unmask>家族で赤ちゃんの記録を共有しましょう。</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                         <Form {...createForm}>
@@ -146,10 +146,11 @@ export default function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button 
-                                    type="submit" 
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11" 
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
                                     loading={createForm.formState.isSubmitting}
+                                    data-sentry-unmask
                                 >
                                     家族を作成して登録
                                 </Button>
@@ -170,8 +171,8 @@ export default function RegisterPage() {
             <TabsContent value="join">
                 <Card className="rounded-2xl shadow-sm border-0">
                     <CardHeader>
-                        <CardTitle>既存の家族に参加</CardTitle>
-                        <CardDescription>家族から共有された招待コードを入力してください。</CardDescription>
+                        <CardTitle data-sentry-unmask>既存の家族に参加</CardTitle>
+                        <CardDescription data-sentry-unmask>家族から共有された招待コードを入力してください。</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                         <Form {...joinForm}>
@@ -216,10 +217,11 @@ export default function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Button 
-                                    type="submit" 
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11" 
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
                                     loading={joinForm.formState.isSubmitting}
+                                    data-sentry-unmask
                                 >
                                     家族に参加して登録
                                 </Button>

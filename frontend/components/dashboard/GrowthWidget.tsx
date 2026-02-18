@@ -19,13 +19,13 @@ export function GrowthWidget({ babyId, records, isError }: Props) {
         return (
             <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
+                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1" data-sentry-unmask>
                         📏 成長
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center py-6">
                     <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-600">閲覧制限中</p>
+                    <p className="text-[10px] text-gray-400 dark:text-zinc-600" data-sentry-unmask>閲覧制限中</p>
                 </CardContent>
             </Card>
         )
@@ -44,7 +44,7 @@ export function GrowthWidget({ babyId, records, isError }: Props) {
     return (
         <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium text-emerald-500 dark:text-emerald-400 flex items-center gap-1">
+                <CardTitle className="text-sm font-medium text-emerald-500 dark:text-emerald-400 flex items-center gap-1" data-sentry-unmask>
                     📏 成長
                 </CardTitle>
                 <Link href={`/growth?baby_id=${babyId}`}>
@@ -71,7 +71,7 @@ export function GrowthWidget({ babyId, records, isError }: Props) {
                         )}
                     </div>
                 ) : (
-                    <p className="text-sm text-gray-400 dark:text-zinc-600">記録なし</p>
+                    <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
                 )}
             </CardContent>
         </Card>
