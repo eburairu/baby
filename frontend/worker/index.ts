@@ -9,7 +9,7 @@ sw.addEventListener("push", (event) => {
 
   const options: NotificationOptions = {
     body,
-    icon: "/icons/icon-192x192.png",
+    icon: "/icons/icon-192x192.svg",
     badge: "/favicon.ico",
     data: {
       url,

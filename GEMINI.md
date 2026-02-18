@@ -29,7 +29,11 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 - **Backend**: FastAPI, SQLAlchemy 2.0, Pydantic v2, Alembic
 - **Frontend**: Next.js (App Router, Static Export), TypeScript (strict), Tailwind CSS v4, SWR, Zustand, shadcn/ui
 - **Database**: PostgreSQL (Neon)
-- **Deployment**: Docker マルチステージビルド → Render
+
+- **ドキュメント**:
+  - `GEMINI.md`: AIエージェント向けガイドライン・プロジェクト概要
+  - `docs/TECH_INSIGHTS.md`: 技術的な工夫・最適化のメモ（人間・AI共用）
+
 
 ## エージェント・スキル (AI Agent Skills)
 

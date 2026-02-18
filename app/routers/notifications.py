@@ -103,3 +103,48 @@ def update_settings(
     db.commit()
     db.refresh(settings)
     return settings
+
+
+@router.post("/test")
+def send_test_notification(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """テスト通知を自分自身に送信する"""
+    from app.utils.notifications import send_push_notification
+    
+    subscriptions = db.query(PushSubscription).filter(
+        PushSubscription.user_id == current_user.id
+    ).all()
+    
+    if not subscriptions:
+        return {
+            "success": False,
+            "message": "プッシュ通知の購読が見つかりません。通知設定ページで通知を有効にしてください。",
+            "subscription_count": 0,
+            "results": []
+        }
+    
+    results = []
+    for sub in subscriptions:
+        success = send_push_notification(
+            sub,
+            title="テスト通知 🔔",
+            body="プッシュ通知が正常に動作しています！",
+            url="/settings/notifications",
+            db=db
+        )
+        results.append({
+            "subscription_id": sub.id,
+            "endpoint_preview": sub.endpoint[:60] + "...",
+            "success": success
+        })
+    
+    all_success = all(r["success"] for r in results)
+    return {
+        "success": all_success,
+        "message": "テスト通知を送信しました" if all_success else "一部の送信に失敗しました。サーバーログを確認してください。",
+        "subscription_count": len(subscriptions),
+        "results": results
+    }
+
