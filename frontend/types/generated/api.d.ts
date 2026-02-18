@@ -4,6 +4,40 @@
  */
 
 export interface paths {
+    "/api/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login */
+        post: operations["login_api_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout */
+        post: operations["logout_api_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -56,24 +90,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/login": {
+    "/api/babies/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get Babies */
+        get: operations["get_babies_api_babies__get"];
         put?: never;
-        /** Login */
-        post: operations["login_api_auth_login_post"];
+        /** Create Baby */
+        post: operations["create_baby_api_babies__post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/auth/logout": {
+    "/api/babies/{baby_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -82,9 +117,211 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Logout */
-        post: operations["logout_api_auth_logout_post"];
+        post?: never;
+        /** Delete Baby */
+        delete: operations["delete_baby_api_babies__baby_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Baby */
+        patch: operations["update_baby_api_babies__baby_id__patch"];
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/daily-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Daily Summaries
+         * @description 直近30件を降順で返す。
+         */
+        get: operations["list_daily_summaries_api_babies__baby_id__daily_summary_get"];
+        put?: never;
+        /**
+         * Create Or Get Daily Summary
+         * @description 日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。
+         */
+        post: operations["create_or_get_daily_summary_api_babies__baby_id__daily_summary_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/daily-summary/{summary_date}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Daily Summary
+         * @description 指定日の日誌を取得。
+         */
+        get: operations["get_daily_summary_api_babies__baby_id__daily_summary__summary_date__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Daily Summary
+         * @description 指定日の日誌を削除。
+         */
+        delete: operations["delete_daily_summary_api_babies__baby_id__daily_summary__summary_date__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Edit Daily Summary
+         * @description 手動編集。edited_content=null でリセット（is_edited=False に戻す）。
+         */
+        patch: operations["edit_daily_summary_api_babies__baby_id__daily_summary__summary_date__patch"];
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Notes
+         * @description メモ一覧取得（履歴）
+         */
+        get: operations["get_notes_api_babies__baby_id__notes_get"];
+        put?: never;
+        /**
+         * Create Note
+         * @description メモの新規登録
+         */
+        post: operations["create_note_api_babies__baby_id__notes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Baby Permissions */
+        get: operations["get_baby_permissions_api_babies__baby_id__permissions_get"];
+        /** Update Baby Permissions */
+        put: operations["update_baby_permissions_api_babies__baby_id__permissions_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Records */
+        get: operations["get_records_api_babies__baby_id__records_get"];
+        put?: never;
+        /** Create Record */
+        post: operations["create_record_api_babies__baby_id__records_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/comments/{comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Comment */
+        delete: operations["delete_comment_api_comments__comment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contractions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Contractions */
+        get: operations["get_contractions_api_contractions__get"];
+        put?: never;
+        /** Create Contraction */
+        post: operations["create_contraction_api_contractions__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contractions/{contraction_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Contraction */
+        delete: operations["delete_contraction_api_contractions__contraction_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Contraction */
+        patch: operations["update_contraction_api_contractions__contraction_id__patch"];
+        trace?: never;
+    };
+    "/api/diapers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Diapers */
+        get: operations["get_diapers_api_diapers__get"];
+        put?: never;
+        /** Create Diaper */
+        post: operations["create_diaper_api_diapers__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diapers/{diaper_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Diaper */
+        put: operations["update_diaper_api_diapers__diaper_id__put"];
+        post?: never;
+        /** Delete Diaper */
+        delete: operations["delete_diaper_api_diapers__diaper_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -142,23 +379,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/family/members/{user_id}/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update Member Role */
-        patch: operations["update_member_role_api_family_members__user_id__role_patch"];
-        trace?: never;
-    };
     "/api/family/members/{user_id}": {
         parameters: {
             query?: never;
@@ -176,25 +396,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/babies/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Babies */
-        get: operations["get_babies_api_babies__get"];
-        put?: never;
-        /** Create Baby */
-        post: operations["create_baby_api_babies__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/babies/{baby_id}": {
+    "/api/family/members/{user_id}/role": {
         parameters: {
             query?: never;
             header?: never;
@@ -204,82 +406,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Baby */
-        delete: operations["delete_baby_api_babies__baby_id__delete"];
-        options?: never;
-        head?: never;
-        /** Update Baby */
-        patch: operations["update_baby_api_babies__baby_id__patch"];
-        trace?: never;
-    };
-    "/api/babies/{baby_id}/records": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Records */
-        get: operations["get_records_api_babies__baby_id__records_get"];
-        put?: never;
-        /** Create Record */
-        post: operations["create_record_api_babies__baby_id__records_post"];
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/notifications/subscribe": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Subscribe */
-        post: operations["subscribe_api_notifications_subscribe_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/notifications/unsubscribe": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Unsubscribe */
-        post: operations["unsubscribe_api_notifications_unsubscribe_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/notifications/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Settings */
-        get: operations["get_settings_api_notifications_settings_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update Settings */
-        patch: operations["update_settings_api_notifications_settings_patch"];
+        /** Update Member Role */
+        patch: operations["update_member_role_api_family_members__user_id__role_patch"];
         trace?: never;
     };
     "/api/feedings/": {
@@ -318,78 +449,6 @@ export interface paths {
         patch: operations["update_feeding_api_feedings__feeding_id__patch"];
         trace?: never;
     };
-    "/api/sleeps/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Sleeps */
-        get: operations["get_sleeps_api_sleeps__get"];
-        put?: never;
-        /** Create Sleep */
-        post: operations["create_sleep_api_sleeps__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/sleeps/{sleep_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Sleep */
-        delete: operations["delete_sleep_api_sleeps__sleep_id__delete"];
-        options?: never;
-        head?: never;
-        /** Update Sleep */
-        patch: operations["update_sleep_api_sleeps__sleep_id__patch"];
-        trace?: never;
-    };
-    "/api/diapers/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Diapers */
-        get: operations["get_diapers_api_diapers__get"];
-        put?: never;
-        /** Create Diaper */
-        post: operations["create_diaper_api_diapers__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/diapers/{diaper_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update Diaper */
-        put: operations["update_diaper_api_diapers__diaper_id__put"];
-        post?: never;
-        /** Delete Diaper */
-        delete: operations["delete_diaper_api_diapers__diaper_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/growths/": {
         parameters: {
             query?: never;
@@ -426,25 +485,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/contractions/": {
+    "/api/health": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Contractions */
-        get: operations["get_contractions_api_contractions__get"];
+        /** Health Check */
+        get: operations["health_check_api_health_get"];
         put?: never;
-        /** Create Contraction */
-        post: operations["create_contraction_api_contractions__post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/contractions/{contraction_id}": {
+    "/api/notes/{note_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -454,12 +512,108 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Contraction */
-        delete: operations["delete_contraction_api_contractions__contraction_id__delete"];
+        /**
+         * Delete Note
+         * @description メモの削除
+         */
+        delete: operations["delete_note_api_notes__note_id__delete"];
         options?: never;
         head?: never;
-        /** Update Contraction */
-        patch: operations["update_contraction_api_contractions__contraction_id__patch"];
+        /**
+         * Update Note
+         * @description メモの編集
+         */
+        patch: operations["update_note_api_notes__note_id__patch"];
+        trace?: never;
+    };
+    "/api/notifications/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Settings */
+        get: operations["get_settings_api_notifications_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Settings */
+        patch: operations["update_settings_api_notifications_settings_patch"];
+        trace?: never;
+    };
+    "/api/notifications/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Subscribe */
+        post: operations["subscribe_api_notifications_subscribe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send Test Notification
+         * @description テスト通知を自分自身に送信する
+         */
+        post: operations["send_test_notification_api_notifications_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unsubscribe */
+        post: operations["unsubscribe_api_notifications_unsubscribe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/records/{record_type}/{record_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Record Comments */
+        get: operations["get_record_comments_api_records__record_type___record_id__comments_get"];
+        put?: never;
+        /** Create Record Comment */
+        post: operations["create_record_comment_api_records__record_type___record_id__comments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/schedules/": {
@@ -497,31 +651,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/babies/{baby_id}/notes": {
+    "/api/sleeps/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get Notes
-         * @description メモ一覧取得（履歴）
-         */
-        get: operations["get_notes_api_babies__baby_id__notes_get"];
+        /** Get Sleeps */
+        get: operations["get_sleeps_api_sleeps__get"];
         put?: never;
-        /**
-         * Create Note
-         * @description メモの新規登録
-         */
-        post: operations["create_note_api_babies__baby_id__notes_post"];
+        /** Create Sleep */
+        post: operations["create_sleep_api_sleeps__post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/notes/{note_id}": {
+    "/api/sleeps/{sleep_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -531,88 +679,12 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /**
-         * Delete Note
-         * @description メモの削除
-         */
-        delete: operations["delete_note_api_notes__note_id__delete"];
+        /** Delete Sleep */
+        delete: operations["delete_sleep_api_sleeps__sleep_id__delete"];
         options?: never;
         head?: never;
-        /**
-         * Update Note
-         * @description メモの編集
-         */
-        patch: operations["update_note_api_notes__note_id__patch"];
-        trace?: never;
-    };
-    "/api/babies/{baby_id}/permissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Baby Permissions */
-        get: operations["get_baby_permissions_api_babies__baby_id__permissions_get"];
-        /** Update Baby Permissions */
-        put: operations["update_baby_permissions_api_babies__baby_id__permissions_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/babies/{baby_id}/daily-summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Daily Summaries
-         * @description 直近30件を降順で返す。
-         */
-        get: operations["list_daily_summaries_api_babies__baby_id__daily_summary_get"];
-        put?: never;
-        /**
-         * Create Or Get Daily Summary
-         * @description 日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。
-         */
-        post: operations["create_or_get_daily_summary_api_babies__baby_id__daily_summary_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/babies/{baby_id}/daily-summary/{summary_date}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Daily Summary
-         * @description 指定日の日誌を取得。
-         */
-        get: operations["get_daily_summary_api_babies__baby_id__daily_summary__summary_date__get"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete Daily Summary
-         * @description 指定日の日誌を削除。
-         */
-        delete: operations["delete_daily_summary_api_babies__baby_id__daily_summary__summary_date__delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Edit Daily Summary
-         * @description 手動編集。edited_content=null でリセット（is_edited=False に戻す）。
-         */
-        patch: operations["edit_daily_summary_api_babies__baby_id__daily_summary__summary_date__patch"];
+        /** Update Sleep */
+        patch: operations["update_sleep_api_sleeps__sleep_id__patch"];
         trace?: never;
     };
     "/api/upload/image": {
@@ -635,102 +707,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/records/{record_type}/{record_id}/comments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Record Comments */
-        get: operations["get_record_comments_api_records__record_type___record_id__comments_get"];
-        put?: never;
-        /** Create Record Comment */
-        post: operations["create_record_comment_api_records__record_type___record_id__comments_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/comments/{comment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Comment */
-        delete: operations["delete_comment_api_comments__comment_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Health Check */
-        get: operations["health_check_api_health_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/{full_path}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Serve Frontend */
-        get: operations["serve_frontend__full_path__head"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        /** Serve Frontend */
-        head: operations["serve_frontend__full_path__head"];
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /** BabyCreate */
         BabyCreate: {
-            /** Name */
-            name: string;
             /** Birthday */
             birthday?: string | null;
+            /** Characteristics */
+            characteristics?: string | null;
             /** Due Date */
             due_date?: string | null;
             /** Gender */
             gender?: ("boy" | "girl" | "unknown") | null;
-            /** Characteristics */
-            characteristics?: string | null;
+            /** Name */
+            name: string;
         };
         /**
          * BabyPermissionItem
          * @description 単一の権限レコード（1ユーザー × 1record_type）
          */
         BabyPermissionItem: {
-            /** Record Type */
-            record_type: string;
             /** Can View */
             can_view: boolean;
+            /** Record Type */
+            record_type: string;
         };
         /**
          * BabyPermissionUpdate
@@ -754,38 +756,38 @@ export interface components {
         };
         /** BabyResponse */
         BabyResponse: {
-            /** Name */
-            name: string;
             /** Birthday */
             birthday?: string | null;
-            /** Due Date */
-            due_date?: string | null;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
             /** Characteristics */
             characteristics?: string | null;
-            /** Id */
-            id: number;
-            /** Family Id */
-            family_id: number;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Due Date */
+            due_date?: string | null;
+            /** Family Id */
+            family_id: number;
+            /** Gender */
+            gender?: ("boy" | "girl" | "unknown") | null;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
         };
         /** BabyUpdate */
         BabyUpdate: {
-            /** Name */
-            name?: string | null;
             /** Birthday */
             birthday?: string | null;
+            /** Characteristics */
+            characteristics?: string | null;
             /** Due Date */
             due_date?: string | null;
             /** Gender */
             gender?: ("boy" | "girl" | "unknown") | null;
-            /** Characteristics */
-            characteristics?: string | null;
+            /** Name */
+            name?: string | null;
         };
         /** Body_upload_image_api_upload_image_post */
         Body_upload_image_api_upload_image_post: {
@@ -795,6 +797,16 @@ export interface components {
              */
             file: string;
         };
+        /**
+         * BottleContentType
+         * @enum {string}
+         */
+        BottleContentType: "FORMULA" | "EXPRESSED_MILK" | "MIXED";
+        /**
+         * BreastSide
+         * @enum {string}
+         */
+        BreastSide: "LEFT" | "RIGHT" | "BOTH";
         /** CommentCreate */
         CommentCreate: {
             /** Content */
@@ -804,70 +816,72 @@ export interface components {
         CommentResponse: {
             /** Content */
             content: string;
-            /** Id */
-            id: number;
-            /** User Id */
-            user_id: number;
-            /** User Display Name */
-            user_display_name: string | null;
-            /** User Role */
-            user_role: string;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Id */
+            id: number;
+            /** User Display Name */
+            user_display_name: string | null;
+            /** User Id */
+            user_id: number;
+            /** User Role */
+            user_role: string;
         };
         /** ContractionCreate */
         ContractionCreate: {
             /** Baby Id */
             baby_id: number;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Interval Seconds */
+            interval_seconds?: number | null;
+            /** Notes */
+            notes?: string | null;
             /**
              * Start Time
              * Format: date-time
              */
             start_time: string;
-            /** End Time */
-            end_time?: string | null;
-            /** Duration Seconds */
-            duration_seconds?: number | null;
-            /** Interval Seconds */
-            interval_seconds?: number | null;
-            /** Notes */
-            notes?: string | null;
         };
         /** ContractionResponse */
         ContractionResponse: {
             /** Baby Id */
             baby_id: number;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** End Time */
+            end_time?: string | null;
+            /** Id */
+            id: number;
+            /** Interval Seconds */
+            interval_seconds?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
             /**
              * Start Time
              * Format: date-time
              */
             start_time: string;
-            /** End Time */
-            end_time?: string | null;
-            /** Duration Seconds */
-            duration_seconds?: number | null;
-            /** Interval Seconds */
-            interval_seconds?: number | null;
-            /** Notes */
-            notes?: string | null;
-            /** Id */
-            id: number;
             /** User Id */
             user_id: number;
         };
         /** ContractionUpdate */
         ContractionUpdate: {
-            /** Start Time */
-            start_time?: string | null;
-            /** End Time */
-            end_time?: string | null;
             /** Duration Seconds */
             duration_seconds?: number | null;
+            /** End Time */
+            end_time?: string | null;
             /** Notes */
             notes?: string | null;
+            /** Start Time */
+            start_time?: string | null;
         };
         /** DailySummaryCreate */
         DailySummaryCreate: {
@@ -886,42 +900,42 @@ export interface components {
         };
         /** DailySummaryResponse */
         DailySummaryResponse: {
-            /** Id */
-            id: number;
             /** Baby Id */
             baby_id: number;
-            /** User Id */
-            user_id: number | null;
-            /**
-             * Summary Date
-             * Format: date
-             */
-            summary_date: string;
-            /** Generated Content */
-            generated_content: string;
-            /** Edited Content */
-            edited_content: string | null;
-            /** Is Edited */
-            is_edited: boolean;
-            /** Model Name */
-            model_name: string | null;
-            /**
-             * Image Urls
-             * @default []
-             */
-            image_urls: string[];
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Display Content */
+            readonly display_content: string;
+            /** Edited Content */
+            edited_content: string | null;
+            /** Generated Content */
+            generated_content: string;
+            /** Id */
+            id: number;
+            /**
+             * Image Urls
+             * @default []
+             */
+            image_urls: string[];
+            /** Is Edited */
+            is_edited: boolean;
+            /** Model Name */
+            model_name: string | null;
+            /**
+             * Summary Date
+             * Format: date
+             */
+            summary_date: string;
             /**
              * Updated At
              * Format: date-time
              */
             updated_at: string;
-            /** Display Content */
-            readonly display_content: string;
+            /** User Id */
+            user_id: number | null;
         };
         /** DiaperCreate */
         DiaperCreate: {
@@ -946,10 +960,12 @@ export interface components {
              */
             change_time: string;
             diaper_type: components["schemas"]["DiaperType"];
-            /** Notes */
-            notes?: string | null;
             /** Id */
             id: number;
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
             /** User Id */
             user_id: number;
         };
@@ -970,39 +986,39 @@ export interface components {
         FamilyCreate: {
             /** Name */
             name: string;
-            /** Username */
-            username: string;
             /** Password */
             password: string;
+            /** Username */
+            username: string;
         };
         /** FamilyMemberResponse */
         FamilyMemberResponse: {
-            /** User Id */
-            user_id: number;
-            /** Username */
-            username: string;
             /** Display Name */
             display_name?: string | null;
-            role: components["schemas"]["UserRole"];
             /**
              * Joined At
              * Format: date-time
              */
             joined_at: string;
+            role: components["schemas"]["UserRole"];
+            /** User Id */
+            user_id: number;
+            /** Username */
+            username: string;
         };
         /** FamilyResponse */
         FamilyResponse: {
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
-            /** Invite Code */
-            invite_code: string;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Id */
+            id: number;
+            /** Invite Code */
+            invite_code: string;
+            /** Name */
+            name: string;
         };
         /** FamilyUpdate */
         FamilyUpdate: {
@@ -1010,69 +1026,61 @@ export interface components {
             name: string;
         };
         /**
-         * BreastSide
-         * @enum {string}
-         */
-        BreastSide: "LEFT" | "RIGHT" | "BOTH";
-        /**
-         * BottleContentType
-         * @enum {string}
-         */
-        BottleContentType: "FORMULA" | "EXPRESSED_MILK" | "MIXED";
-        /**
          * FeedingCompletion
          * @enum {string}
          */
         FeedingCompletion: "FULL" | "PARTIAL";
         /** FeedingCreate */
         FeedingCreate: {
+            /** Amount Ml */
+            amount_ml?: number | null;
             /** Baby Id */
             baby_id: number;
+            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
             /**
              * Feeding Time
              * Format: date-time
              */
             feeding_time: string;
             feeding_type: components["schemas"]["FeedingType"];
-            /** Amount Ml */
-            amount_ml?: number | null;
-            /** Duration Minutes */
-            duration_minutes?: number | null;
-            /** Notes */
-            notes?: string | null;
+            last_breast_side?: components["schemas"]["BreastSide"] | null;
             /** Left Breast Minutes */
             left_breast_minutes?: number | null;
+            /** Notes */
+            notes?: string | null;
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
-            last_breast_side?: components["schemas"]["BreastSide"] | null;
-            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
-            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
         };
         /** FeedingResponse */
         FeedingResponse: {
+            /** Amount Ml */
+            amount_ml?: number | null;
             /** Baby Id */
             baby_id: number;
+            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
             /**
              * Feeding Time
              * Format: date-time
              */
             feeding_time: string;
             feeding_type: components["schemas"]["FeedingType"];
-            /** Amount Ml */
-            amount_ml?: number | null;
-            /** Duration Minutes */
-            duration_minutes?: number | null;
-            /** Notes */
-            notes?: string | null;
-            /** Left Breast Minutes */
-            left_breast_minutes?: number | null;
-            /** Right Breast Minutes */
-            right_breast_minutes?: number | null;
-            last_breast_side?: components["schemas"]["BreastSide"] | null;
-            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
-            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
             /** Id */
             id: number;
+            last_breast_side?: components["schemas"]["BreastSide"] | null;
+            /** Left Breast Minutes */
+            left_breast_minutes?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
+            /** Right Breast Minutes */
+            right_breast_minutes?: number | null;
             /** User Id */
             user_id: number;
         };
@@ -1083,22 +1091,22 @@ export interface components {
         FeedingType: "BREAST" | "BOTTLE" | "MIXED";
         /** FeedingUpdate */
         FeedingUpdate: {
+            /** Amount Ml */
+            amount_ml?: number | null;
+            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
             /** Feeding Time */
             feeding_time?: string | null;
             feeding_type?: components["schemas"]["FeedingType"] | null;
-            /** Amount Ml */
-            amount_ml?: number | null;
-            /** Duration Minutes */
-            duration_minutes?: number | null;
-            /** Notes */
-            notes?: string | null;
+            last_breast_side?: components["schemas"]["BreastSide"] | null;
             /** Left Breast Minutes */
             left_breast_minutes?: number | null;
+            /** Notes */
+            notes?: string | null;
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
-            last_breast_side?: components["schemas"]["BreastSide"] | null;
-            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
-            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
         };
         /** GrowthCreate */
         GrowthCreate: {
@@ -1109,14 +1117,14 @@ export interface components {
              * Format: date
              */
             date: string;
-            /** Weight */
-            weight?: number | null;
-            /** Height */
-            height?: number | null;
             /** Head Circumference */
             head_circumference?: number | null;
+            /** Height */
+            height?: number | null;
             /** Notes */
             notes?: string | null;
+            /** Weight */
+            weight?: number | null;
         };
         /** GrowthResponse */
         GrowthResponse: {
@@ -1127,31 +1135,33 @@ export interface components {
              * Format: date
              */
             date: string;
-            /** Weight */
-            weight?: number | null;
-            /** Height */
-            height?: number | null;
             /** Head Circumference */
             head_circumference?: number | null;
-            /** Notes */
-            notes?: string | null;
+            /** Height */
+            height?: number | null;
             /** Id */
             id: number;
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
             /** User Id */
             user_id: number;
+            /** Weight */
+            weight?: number | null;
         };
         /** GrowthUpdate */
         GrowthUpdate: {
             /** Date */
             date?: string | null;
-            /** Weight */
-            weight?: number | null;
-            /** Height */
-            height?: number | null;
             /** Head Circumference */
             head_circumference?: number | null;
+            /** Height */
+            height?: number | null;
             /** Notes */
             notes?: string | null;
+            /** Weight */
+            weight?: number | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1160,10 +1170,10 @@ export interface components {
         };
         /** LoginRequest */
         LoginRequest: {
-            /** Username */
-            username: string;
             /** Password */
             password: string;
+            /** Username */
+            username: string;
         };
         /** MemberRoleUpdate */
         MemberRoleUpdate: {
@@ -1181,29 +1191,29 @@ export interface components {
         };
         /** NoteResponse */
         NoteResponse: {
-            /** Content */
-            content: string;
-            /**
-             * Note Time
-             * Format: date-time
-             */
-            note_time: string;
-            /** Id */
-            id: number;
             /** Baby Id */
             baby_id: number;
-            /** User Id */
-            user_id: number | null;
+            /** Content */
+            content: string;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Id */
+            id: number;
+            /**
+             * Note Time
+             * Format: date-time
+             */
+            note_time: string;
             /**
              * Updated At
              * Format: date-time
              */
             updated_at: string;
+            /** User Id */
+            user_id: number | null;
         };
         /** NoteUpdate */
         NoteUpdate: {
@@ -1214,217 +1224,219 @@ export interface components {
         };
         /** NotificationSettingsResponse */
         NotificationSettingsResponse: {
+            /** Daily Summary Enabled */
+            daily_summary_enabled: boolean;
+            /** Diaper Reminder Enabled */
+            diaper_reminder_enabled: boolean;
+            /** Dnd End Time */
+            dnd_end_time?: string | null;
+            /** Dnd Start Time */
+            dnd_start_time?: string | null;
             /** Family Record Enabled */
             family_record_enabled: boolean;
             /** Feeding Reminder Enabled */
             feeding_reminder_enabled: boolean;
-            /** Diaper Reminder Enabled */
-            diaper_reminder_enabled: boolean;
-            /** Daily Summary Enabled */
-            daily_summary_enabled: boolean;
             /** System Notice Enabled */
             system_notice_enabled: boolean;
-            /** Dnd Start Time */
-            dnd_start_time?: string | null;
-            /** Dnd End Time */
-            dnd_end_time?: string | null;
         };
         /** NotificationSettingsUpdate */
         NotificationSettingsUpdate: {
+            /** Daily Summary Enabled */
+            daily_summary_enabled?: boolean | null;
+            /** Diaper Reminder Enabled */
+            diaper_reminder_enabled?: boolean | null;
+            /** Dnd End Time */
+            dnd_end_time?: string | null;
+            /** Dnd Start Time */
+            dnd_start_time?: string | null;
             /** Family Record Enabled */
             family_record_enabled?: boolean | null;
             /** Feeding Reminder Enabled */
             feeding_reminder_enabled?: boolean | null;
-            /** Diaper Reminder Enabled */
-            diaper_reminder_enabled?: boolean | null;
-            /** Daily Summary Enabled */
-            daily_summary_enabled?: boolean | null;
             /** System Notice Enabled */
             system_notice_enabled?: boolean | null;
-            /** Dnd Start Time */
-            dnd_start_time?: string | null;
-            /** Dnd End Time */
-            dnd_end_time?: string | null;
         };
         /** PushSubscriptionCreate */
         PushSubscriptionCreate: {
+            /** Auth */
+            auth: string;
             /** Endpoint */
             endpoint: string;
             /** P256Dh */
             p256dh: string;
-            /** Auth */
-            auth: string;
             /** User Agent */
             user_agent?: string | null;
         };
         /** PushSubscriptionResponse */
         PushSubscriptionResponse: {
-            /** Id */
-            id: number;
-            /** Endpoint */
-            endpoint: string;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Endpoint */
+            endpoint: string;
+            /** Id */
+            id: number;
         };
         /** RecordCreate */
         RecordCreate: {
-            /** Type */
-            type: string;
             /**
              * Timestamp
              * Format: date-time
              */
             timestamp: string;
+            /** Type */
+            type: string;
         };
         /** ScheduleCreate */
         ScheduleCreate: {
             /** Baby Id */
             baby_id: number;
-            /** Title */
-            title: string;
             /** Description */
             description?: string | null;
-            /**
-             * Scheduled Time
-             * Format: date-time
-             */
-            scheduled_time: string;
             /**
              * Is Completed
              * @default false
              */
             is_completed: boolean;
+            /**
+             * Scheduled Time
+             * Format: date-time
+             */
+            scheduled_time: string;
+            /** Title */
+            title: string;
         };
         /** ScheduleResponse */
         ScheduleResponse: {
             /** Baby Id */
             baby_id: number;
-            /** Title */
-            title: string;
-            /** Description */
-            description?: string | null;
-            /**
-             * Scheduled Time
-             * Format: date-time
-             */
-            scheduled_time: string;
-            /**
-             * Is Completed
-             * @default false
-             */
-            is_completed: boolean;
-            /** Id */
-            id: number;
-            /** User Id */
-            user_id: number;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Description */
+            description?: string | null;
+            /** Id */
+            id: number;
+            /**
+             * Is Completed
+             * @default false
+             */
+            is_completed: boolean;
+            /**
+             * Scheduled Time
+             * Format: date-time
+             */
+            scheduled_time: string;
+            /** Title */
+            title: string;
+            /** User Id */
+            user_id: number;
         };
         /** SleepCreate */
         SleepCreate: {
             /** Baby Id */
             baby_id: number;
+            /** End Time */
+            end_time?: string | null;
+            /** Notes */
+            notes?: string | null;
             /**
              * Start Time
              * Format: date-time
              */
             start_time: string;
-            /** End Time */
-            end_time?: string | null;
-            /** Notes */
-            notes?: string | null;
         };
         /** SleepResponse */
         SleepResponse: {
             /** Baby Id */
             baby_id: number;
+            /** End Time */
+            end_time?: string | null;
+            /** Id */
+            id: number;
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
             /**
              * Start Time
              * Format: date-time
              */
             start_time: string;
-            /** End Time */
-            end_time?: string | null;
-            /** Notes */
-            notes?: string | null;
-            /** Id */
-            id: number;
             /** User Id */
             user_id: number;
         };
         /** SleepUpdate */
         SleepUpdate: {
-            /** Start Time */
-            start_time?: string | null;
             /** End Time */
             end_time?: string | null;
             /** Notes */
             notes?: string | null;
+            /** Start Time */
+            start_time?: string | null;
         };
         /** UnifiedRecord */
         UnifiedRecord: {
-            /** Id */
-            id: number;
-            /** Type */
-            type: string;
-            /**
-             * Timestamp
-             * Format: date-time
-             */
-            timestamp: string;
-            /** Details */
-            details: {
-                [key: string]: unknown;
-            };
             /**
              * Comment Count
              * @default 0
              */
             comment_count: number;
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+            /** Id */
+            id: number;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+            /** Type */
+            type: string;
         };
         /** UploadResponse */
         UploadResponse: {
-            /** Public Url */
-            public_url: string;
             /** Filename */
             filename: string;
+            /** Public Url */
+            public_url: string;
         };
         /** UserCreate */
         UserCreate: {
-            /** Username */
-            username: string;
             /** Password */
             password: string;
+            /** Username */
+            username: string;
         };
         /**
          * UserPermissionEntry
          * @description PUT 用: 1ユーザー × 1record_type の更新エントリ
          */
         UserPermissionEntry: {
-            /** User Id */
-            user_id: number;
-            /** Record Type */
-            record_type: string;
             /** Can View */
             can_view: boolean;
+            /** Record Type */
+            record_type: string;
+            /** User Id */
+            user_id: number;
         };
         /**
          * UserPermissionSet
          * @description 1ユーザーに対するすべての record_type の権限セット
          */
         UserPermissionSet: {
+            /** Permissions */
+            permissions: components["schemas"]["BabyPermissionItem"][];
             /** User Id */
             user_id: number;
             /** Username */
             username: string;
-            /** Permissions */
-            permissions: components["schemas"]["BabyPermissionItem"][];
         };
         /** UserProfileUpdate */
         UserProfileUpdate: {
@@ -1433,19 +1445,19 @@ export interface components {
         };
         /** UserResponse */
         UserResponse: {
-            /** Id */
-            id: number;
-            /** Username */
-            username: string;
-            /** Display Name */
-            display_name?: string | null;
-            /** Role */
-            role?: string | null;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Display Name */
+            display_name?: string | null;
+            /** Id */
+            id: number;
+            /** Role */
+            role?: string | null;
+            /** Username */
+            username: string;
         };
         /**
          * UserRole
@@ -1454,16 +1466,16 @@ export interface components {
         UserRole: "admin" | "member" | "viewer";
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */
             msg: string;
             /** Error Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -1474,6 +1486,59 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    login_api_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    logout_api_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
     read_users_me_api_auth_me_get: {
         parameters: {
             query?: never;
@@ -1595,216 +1660,6 @@ export interface operations {
             };
         };
     };
-    login_api_auth_login_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    logout_api_auth_logout_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    get_family_api_family__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FamilyResponse"];
-                };
-            };
-        };
-    };
-    update_family_api_family__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FamilyUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FamilyResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    regenerate_invite_code_api_family_invite_code_regenerate_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FamilyResponse"];
-                };
-            };
-        };
-    };
-    get_family_members_api_family_members_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FamilyMemberResponse"][];
-                };
-            };
-        };
-    };
-    update_member_role_api_family_members__user_id__role_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MemberRoleUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FamilyMemberResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_member_api_family_members__user_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_babies_api_babies__get: {
         parameters: {
             query?: never;
@@ -1909,1134 +1764,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BabyResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_records_api_babies__baby_id__records_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                baby_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UnifiedRecord"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_record_api_babies__baby_id__records_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                baby_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RecordCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UnifiedRecord"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    subscribe_api_notifications_subscribe_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PushSubscriptionCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PushSubscriptionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    unsubscribe_api_notifications_unsubscribe_post: {
-        parameters: {
-            query: {
-                endpoint: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_settings_api_notifications_settings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationSettingsResponse"];
-                };
-            };
-        };
-    };
-    update_settings_api_notifications_settings_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NotificationSettingsUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationSettingsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_feedings_api_feedings__get: {
-        parameters: {
-            query: {
-                baby_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedingResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_feeding_api_feedings__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FeedingCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedingResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_feeding_api_feedings__feeding_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                feeding_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_feeding_api_feedings__feeding_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                feeding_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FeedingUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedingResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_sleeps_api_sleeps__get: {
-        parameters: {
-            query: {
-                baby_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SleepResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_sleep_api_sleeps__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SleepCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SleepResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_sleep_api_sleeps__sleep_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                sleep_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_sleep_api_sleeps__sleep_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                sleep_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SleepUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SleepResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_diapers_api_diapers__get: {
-        parameters: {
-            query: {
-                baby_id: number;
-                skip?: number;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DiaperResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_diaper_api_diapers__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DiaperCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DiaperResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_diaper_api_diapers__diaper_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                diaper_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DiaperUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DiaperResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_diaper_api_diapers__diaper_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                diaper_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_growths_api_growths__get: {
-        parameters: {
-            query: {
-                baby_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GrowthResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_growth_api_growths__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GrowthCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GrowthResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_growth_api_growths__growth_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                growth_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GrowthUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GrowthResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_growth_api_growths__growth_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                growth_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_contractions_api_contractions__get: {
-        parameters: {
-            query: {
-                baby_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractionResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_contraction_api_contractions__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ContractionCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_contraction_api_contractions__contraction_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                contraction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_contraction_api_contractions__contraction_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                contraction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ContractionUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ContractionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_schedules_api_schedules__get: {
-        parameters: {
-            query: {
-                baby_id: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScheduleResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_schedule_api_schedules__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScheduleCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScheduleResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_schedule_api_schedules__schedule_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                schedule_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_notes_api_babies__baby_id__notes_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                baby_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NoteResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_note_api_babies__baby_id__notes_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                baby_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NoteCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NoteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_note_api_notes__note_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                note_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_note_api_notes__note_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                note_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NoteUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NoteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_baby_permissions_api_babies__baby_id__permissions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                baby_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BabyPermissionsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_baby_permissions_api_babies__baby_id__permissions_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                baby_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BabyPermissionUpdate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BabyPermissionsResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3214,16 +1941,115 @@ export interface operations {
             };
         };
     };
-    upload_image_api_upload_image_post: {
+    get_notes_api_babies__baby_id__notes_get: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoteResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_note_api_babies__baby_id__notes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["Body_upload_image_api_upload_image_post"];
+                "application/json": components["schemas"]["NoteCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_baby_permissions_api_babies__baby_id__permissions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BabyPermissionsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_baby_permissions_api_babies__baby_id__permissions_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BabyPermissionUpdate"];
             };
         };
         responses: {
@@ -3233,7 +2059,1004 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UploadResponse"];
+                    "application/json": components["schemas"]["BabyPermissionsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_records_api_babies__baby_id__records_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnifiedRecord"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_record_api_babies__baby_id__records_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnifiedRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_comment_api_comments__comment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_contractions_api_contractions__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_contraction_api_contractions__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_contraction_api_contractions__contraction_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contraction_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_contraction_api_contractions__contraction_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contraction_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_diapers_api_diapers__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaperResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_diaper_api_diapers__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiaperCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaperResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_diaper_api_diapers__diaper_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                diaper_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiaperUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiaperResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_diaper_api_diapers__diaper_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                diaper_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_family_api_family__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyResponse"];
+                };
+            };
+        };
+    };
+    update_family_api_family__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    regenerate_invite_code_api_family_invite_code_regenerate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyResponse"];
+                };
+            };
+        };
+    };
+    get_family_members_api_family_members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyMemberResponse"][];
+                };
+            };
+        };
+    };
+    delete_member_api_family_members__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_member_role_api_family_members__user_id__role_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRoleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyMemberResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_feedings_api_feedings__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_feeding_api_feedings__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedingCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_feeding_api_feedings__feeding_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeding_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_feeding_api_feedings__feeding_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeding_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedingUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_growths_api_growths__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrowthResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_growth_api_growths__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrowthCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrowthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_growth_api_growths__growth_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                growth_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrowthUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrowthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_growth_api_growths__growth_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                growth_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    health_check_api_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    delete_note_api_notes__note_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                note_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_note_api_notes__note_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                note_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoteUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_settings_api_notifications_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSettingsResponse"];
+                };
+            };
+        };
+    };
+    update_settings_api_notifications_settings_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationSettingsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSettingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    subscribe_api_notifications_subscribe_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushSubscriptionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushSubscriptionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_test_notification_api_notifications_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    unsubscribe_api_notifications_unsubscribe_post: {
+        parameters: {
+            query: {
+                endpoint: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -3315,38 +3138,11 @@ export interface operations {
             };
         };
     };
-    delete_comment_api_comments__comment_id__delete: {
+    get_schedules_api_schedules__get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                comment_id: number;
+            query: {
+                baby_id: number;
             };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    health_check_api_health_get: {
-        parameters: {
-            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -3359,17 +3155,59 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["ScheduleResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    serve_frontend__full_path__head: {
+    create_schedule_api_schedules__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_schedule_api_schedules__schedule_id__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                full_path: string;
+                schedule_id: number;
             };
             cookie?: never;
         };
@@ -3395,12 +3233,76 @@ export interface operations {
             };
         };
     };
-    serve_frontend__full_path__head: {
+    get_sleeps_api_sleeps__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SleepResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_sleep_api_sleeps__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SleepCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SleepResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_sleep_api_sleeps__sleep_id__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                full_path: string;
+                sleep_id: number;
             };
             cookie?: never;
         };
@@ -3413,6 +3315,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_sleep_api_sleeps__sleep_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sleep_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SleepUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SleepResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_image_api_upload_image_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_image_api_upload_image_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadResponse"];
                 };
             };
             /** @description Validation Error */

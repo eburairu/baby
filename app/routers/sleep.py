@@ -14,10 +14,20 @@ from app.models.baby import Baby
 router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
 
+def _build_sleep_response(record: Sleep, user_map: dict) -> SleepResponse:
+    r = SleepResponse.model_validate(record)
+    r.recorded_by_display_name = user_map.get(record.user_id)
+    return r
+
+
 @router.get("/", response_model=List[SleepResponse])
 def get_sleeps(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="sleep")
-    return db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).all()
+    records = db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).all()
+    user_ids = {r.user_id for r in records if r.user_id is not None}
+    users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
+    user_map = {u.id: u.display_name or u.username for u in users}
+    return [_build_sleep_response(r, user_map) for r in records]
 
 
 @router.post("/", response_model=SleepResponse)
@@ -33,22 +43,24 @@ def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_u
     db.add(new_sleep)
     db.commit()
     db.refresh(new_sleep)
-    
+
     # 家族に通知
     baby = db.query(Baby).filter(Baby.id == new_sleep.baby_id).first()
+    display_name = current_user.display_name or current_user.username
     if baby:
-        display_name = current_user.display_name or current_user.username
         notify_family_members(
-            db, 
-            baby.family_id, 
-            current_user.id, 
-            title="睡眠の記録", 
+            db,
+            baby.family_id,
+            current_user.id,
+            title="睡眠の記録",
             body=f"{display_name}さんが{baby.name}の睡眠を記録しました。",
             url=f"/sleep",
             category="family_record"
         )
-        
-    return new_sleep
+
+    response = SleepResponse.model_validate(new_sleep)
+    response.recorded_by_display_name = display_name
+    return response
 
 
 @router.patch("/{sleep_id}", response_model=SleepResponse)
@@ -66,7 +78,10 @@ def update_sleep(sleep_id: int, sleep_update: SleepUpdate, db: Session = Depends
         sleep.notes = sleep_update.notes
     db.commit()
     db.refresh(sleep)
-    return sleep
+    recorder = db.query(User).filter(User.id == sleep.user_id).first()
+    response = SleepResponse.model_validate(sleep)
+    response.recorded_by_display_name = (recorder.display_name or recorder.username) if recorder else None
+    return response
 
 
 @router.delete("/{sleep_id}")

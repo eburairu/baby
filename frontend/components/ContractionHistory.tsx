@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { ContractionRecord } from "@/types/contraction"
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2, User } from "lucide-react"
 
 function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60)
@@ -137,6 +137,12 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                         {record.interval_seconds != null && (
                                             <span>
                                                 間隔: <span className="font-medium text-foreground">{formatDuration(record.interval_seconds)}</span>
+                                            </span>
+                                        )}
+                                        {record.recorded_by_display_name && (
+                                            <span className="inline-flex items-center gap-0.5 text-xs">
+                                                <User className="w-3 h-3" />
+                                                {record.recorded_by_display_name}
                                             </span>
                                         )}
                                     </div>

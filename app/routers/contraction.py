@@ -18,10 +18,20 @@ JST = timezone(timedelta(hours=9))
 _MAX_INTERVAL_SECONDS = 3600  # 1時間超は新セッションとして扱わない
 
 
+def _build_contraction_response(record: Contraction, user_map: dict) -> ContractionResponse:
+    r = ContractionResponse.model_validate(record)
+    r.recorded_by_display_name = user_map.get(record.user_id)
+    return r
+
+
 @router.get("/", response_model=List[ContractionResponse])
 def get_contractions(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="contraction")
-    return db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).all()
+    records = db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).all()
+    user_ids = {r.user_id for r in records if r.user_id is not None}
+    users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
+    user_map = {u.id: u.display_name or u.username for u in users}
+    return [_build_contraction_response(r, user_map) for r in records]
 
 
 def _calculate_interval_seconds(current_start: object, last_start: object) -> int | None:
@@ -60,22 +70,24 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
     db.add(new_contraction)
     db.commit()
     db.refresh(new_contraction)
-    
+
     # 家族に通知
     baby = db.query(Baby).filter(Baby.id == new_contraction.baby_id).first()
+    display_name = current_user.display_name or current_user.username
     if baby:
-        display_name = current_user.display_name or current_user.username
         notify_family_members(
-            db, 
-            baby.family_id, 
-            current_user.id, 
-            title="陣痛タイマー", 
+            db,
+            baby.family_id,
+            current_user.id,
+            title="陣痛タイマー",
             body=f"{display_name}さんが陣痛を計測しました。",
             url=f"/contraction",
             category="family_record"
         )
-        
-    return new_contraction
+
+    response = ContractionResponse.model_validate(new_contraction)
+    response.recorded_by_display_name = display_name
+    return response
 
 
 @router.patch("/{contraction_id}", response_model=ContractionResponse)
@@ -133,7 +145,10 @@ def update_contraction(
 
     db.commit()
     db.refresh(contraction)
-    return contraction
+    recorder = db.query(User).filter(User.id == contraction.user_id).first()
+    response = ContractionResponse.model_validate(contraction)
+    response.recorded_by_display_name = (recorder.display_name or recorder.username) if recorder else None
+    return response
 
 
 @router.delete("/{contraction_id}")

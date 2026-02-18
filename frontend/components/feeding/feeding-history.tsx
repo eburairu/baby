@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Feeding } from "@/types/feeding";
-import { Trash2, Milk, Baby } from "lucide-react";
+import { Trash2, Milk, Baby, User } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import {
@@ -117,11 +117,19 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                                             <span className="ml-2 text-xs text-gray-400">({feeding.notes})</span>
                                         )}
                                     </div>
-                                    {feeding.feeding_completion && (
-                                        <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${COMPLETION_STYLE[feeding.feeding_completion].className}`}>
-                                            {COMPLETION_STYLE[feeding.feeding_completion].label}
-                                        </span>
-                                    )}
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        {feeding.feeding_completion && (
+                                            <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${COMPLETION_STYLE[feeding.feeding_completion].className}`}>
+                                                {COMPLETION_STYLE[feeding.feeding_completion].label}
+                                            </span>
+                                        )}
+                                        {feeding.recorded_by_display_name && (
+                                            <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500">
+                                                <User className="w-3 h-3" />
+                                                {feeding.recorded_by_display_name}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             {canWrite && (

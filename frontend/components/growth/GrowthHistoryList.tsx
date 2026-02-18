@@ -64,6 +64,7 @@ export function GrowthHistoryList({
                             <th className="text-right py-2 px-4 font-medium">身長 (cm)</th>
                             <th className="text-right py-2 px-4 font-medium">体重 (g)</th>
                             <th className="text-right py-2 px-4 font-medium">頭囲 (cm)</th>
+                            <th className="text-left py-2 px-4 font-medium">記録者</th>
                             {canWrite && <th className="text-left py-2 px-4 font-medium">操作</th>}
                         </tr>
                     </thead>
@@ -79,6 +80,9 @@ export function GrowthHistoryList({
                                 </td>
                                 <td className="py-2 px-4 text-right">
                                     {record.head_circumference ? `${record.head_circumference.toFixed(1)} cm` : "-"}
+                                </td>
+                                <td className="py-2 px-4 text-muted-foreground text-xs">
+                                    {record.recorded_by_display_name ?? "-"}
                                 </td>
                                 {canWrite && (
                                     <td className="py-2 px-4">
