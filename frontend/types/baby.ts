@@ -1,8 +1,3 @@
-export interface Baby {
-    id: number
-    name: string
-    birthday: string | null
-    due_date: string | null
-    gender?: string | null
-    characteristics?: string | null
-}
+import type { components } from "@/types/generated/api"
+
+export type Baby = components["schemas"]["BabyResponse"]

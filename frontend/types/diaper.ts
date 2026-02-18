@@ -1,14 +1,14 @@
-export enum DiaperType {
-    WET = "WET",
-    DIRTY = "DIRTY",
-    BOTH = "BOTH"
-}
+import type { components } from "@/types/generated/api"
 
-export interface Diaper {
-    id: number;
-    user_id: number;
-    baby_id: number;
-    change_time: string; // ISO 8601
-    diaper_type: DiaperType;
-    notes?: string;
-}
+// TypeScript enum から const object へ移行。
+// DiaperType.WET / z.nativeEnum(DiaperType) 等の既存の使用箇所と互換性を維持しつつ、
+// 生成型の union "WET" | "DIRTY" | "BOTH" と型レベルで互換になる。
+export const DiaperType = {
+    WET: "WET",
+    DIRTY: "DIRTY",
+    BOTH: "BOTH",
+} as const
+
+export type DiaperType = components["schemas"]["DiaperType"]
+
+export type Diaper = components["schemas"]["DiaperResponse"]

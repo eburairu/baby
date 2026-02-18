@@ -36,6 +36,7 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 - **Data Fetching**: SWR
 - **Validation**: Zod + React Hook Form
 - **PWA**: @ducanh2912/next-pwa (Offline support, Installable)
+- **Type Generation**: openapi-typescript（FastAPI スキーマから型を自動生成）
 
 ### Backend
 
@@ -64,11 +65,15 @@ baby-app/
 │   ├── middleware/        # ミドルウェア (CSRF, CORS)
 │   └── dependencies.py    # DI (依存性注入)
 ├── frontend/              # Frontend (Next.js)
+│   ├── openapi.json       # FastAPI OpenAPI スキーマ（自動生成・コミット対象）
 │   ├── app/               # App Router ページ・レイアウト
 │   ├── components/        # UI コンポーネント
 │   ├── lib/               # ユーティリティ (API Client, utils)
 │   ├── hooks/             # カスタムフック
 │   ├── stores/            # Zustand ストア
+│   ├── types/
+│   │   ├── generated/     # openapi-typescript による自動生成型
+│   │   └── ...            # フロントエンド固有の手動型（徐々に削減）
 │   └── public/            # 静的アセット
 ├── alembic/               # データベースマイグレーション
 ├── tests/                 # Backend テスト (pytest)
@@ -110,3 +115,4 @@ baby-app/
   - `semantic-release` がバージョンを決定し、GitHub Release と Tag を作成。
   - リリース完了後、GitHub Actions から Render の Deploy Hook を呼び出し、デプロイを実行。
   - Render 側の `autoDeploy` は無効化 (`false`) されており、重複デプロイを防止している。
+- **スキーマ整合性チェック**: `frontend/openapi.json` の差分を CI で検出し、バックエンド変更時の更新漏れを防止する（詳細: `.specify/specs/openapi_type_generation.md`）。

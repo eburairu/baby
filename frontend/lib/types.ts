@@ -1,7 +1,3 @@
-export interface User {
-    id: number;
-    username: string;
-    display_name: string | null;
-    role?: string;
-    created_at: string;
-}
+import type { components } from "@/types/generated/api"
+
+export type User = components["schemas"]["UserResponse"]

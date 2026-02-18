@@ -1,15 +1,4 @@
-export interface Sleep {
-    id: number;
-    user_id: number;
-    baby_id: number;
-    start_time: string; // ISO 8601
-    end_time: string | null; // ISO 8601
-    notes: string | null;
-}
+import type { components } from "@/types/generated/api"
 
-export interface SleepCreate {
-    baby_id: number;
-    start_time: string;
-    end_time?: string;
-    notes?: string;
-}
+export type Sleep = components["schemas"]["SleepResponse"]
+export type SleepCreate = components["schemas"]["SleepCreate"]
