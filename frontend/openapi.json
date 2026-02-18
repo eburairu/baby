@@ -1627,6 +1627,17 @@
             "title": "Note Time",
             "type": "string"
           },
+          "recorded_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorded By Display Name"
+          },
           "updated_at": {
             "format": "date-time",
             "title": "Updated At",

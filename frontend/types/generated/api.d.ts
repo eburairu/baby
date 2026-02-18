@@ -1207,6 +1207,8 @@ export interface components {
              * Format: date-time
              */
             note_time: string;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
             /**
              * Updated At
              * Format: date-time
