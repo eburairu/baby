@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/eburairu/baby/compare/v1.24.0...v1.25.0) (2026-02-18)
+
+
+### Features
+
+* add recorded_by_display_name to all record endpoints and UI ([f5dd08e](https://github.com/eburairu/baby/commit/f5dd08ecfa27b8261972f04091886373a2f7af03))
+
 # [1.24.0](https://github.com/eburairu/baby/compare/v1.23.0...v1.24.0) (2026-02-18)
 
 
