@@ -44,14 +44,20 @@ class UserRole(str, enum.Enum):
 | **招待コード** | 招待コードの再生成 | ✅ | ❌ | ❌ |
 | **メンバー管理** | メンバーのロール変更・削除 | ✅ | ❌ | ❌ |
 | **アクセス権限設定** | BabyPermission（赤ちゃん別の閲覧制限）の管理 | ✅ | ❌ | ❌ |
+| **プロフィール管理** | 自分の表示名の変更 | ✅ | ✅ | ✅ |
+| **通知設定** | プッシュ通知の購読・設定変更・テスト送信 | ✅ | ✅ | ✅ |
 
 ### エンドポイント別権限
 
 | エンドポイント | メソッド | ADMIN | MEMBER | VIEWER |
 | :--- | :--- | :---: | :---: | :---: |
+| **赤ちゃん** | | | | |
 | `/api/babies/` | GET | ✅ | ✅ ※1 | ✅ ※1 |
 | `/api/babies/` | POST | ✅ | ❌ | ❌ |
 | `/api/babies/{id}` | PATCH, DELETE | ✅ | ❌ | ❌ |
+| `/api/babies/{id}/records` | GET | ✅ | ✅ ※1 | ✅ ※1 |
+| `/api/babies/{id}/records` | POST | ✅ | ✅ | ❌ |
+| **記録系** | | | | |
 | `/api/feedings/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
 | `/api/feedings/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
 | `/api/sleeps/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
@@ -62,13 +68,20 @@ class UserRole(str, enum.Enum):
 | `/api/growth/` | POST, PUT, DELETE | ✅ | ✅ | ❌ |
 | `/api/contractions/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
 | `/api/contractions/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
+| `/api/contractions/{id}/stop` | PATCH | ✅ | ✅ | ❌ |
 | `/api/schedules/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
 | `/api/schedules/` | POST, DELETE | ✅ | ✅ | ❌ |
 | `/api/notes/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
 | `/api/notes/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
 | `/api/ai_summary/` | GET | ✅ | ✅ | ✅ |
 | `/api/ai_summary/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
+| **コメント** | | | | |
+| `/api/records/{type}/{id}/comments` | GET | ✅ | ✅ | ✅ |
+| `/api/records/{type}/{id}/comments` | POST | ✅ | ✅ | ✅ |
+| `/api/comments/{id}` | DELETE | ✅ ※3 | ✅ ※4 | ✅ ※4 |
+| **ファイル** | | | | |
 | `/api/upload/image` | POST | ✅ | ✅ | ❌ |
+| **ファミリー管理** | | | | |
 | `/api/family/` | GET | ✅ | ✅ | ✅ |
 | `/api/family/` | PATCH | ✅ | ❌ | ❌ |
 | `/api/family/invite_code/regenerate` | POST | ✅ | ❌ | ❌ |
@@ -76,15 +89,28 @@ class UserRole(str, enum.Enum):
 | `/api/family/members/{id}/role` | PATCH | ✅ | ❌ | ❌ |
 | `/api/family/members/{id}` | DELETE | ✅ | ❌ | ❌ |
 | `/api/babies/{id}/permissions` | GET, PUT | ✅ | ❌ | ❌ |
-| `/api/records/{type}/{id}/comments` | GET | ✅ | ✅ | ✅ |
-| `/api/records/{type}/{id}/comments` | POST | ✅ | ✅ | ✅ |
-| `/api/comments/{id}` | DELETE | ✅ ※3 | ✅ ※4 | ✅ ※4 |
+| **認証・プロフィール** | | | | |
+| `/api/auth/register/family` | POST | — ※5 | — | — |
+| `/api/auth/register/join` | POST | — ※5 | — | — |
+| `/api/auth/login` | POST | — ※5 | — | — |
+| `/api/auth/logout` | POST | ✅ | ✅ | ✅ |
+| `/api/auth/me` | GET | ✅ | ✅ | ✅ |
+| `/api/auth/me` | PATCH | ✅ | ✅ | ✅ |
+| **通知** | | | | |
+| `/api/notifications/subscribe` | POST | ✅ | ✅ | ✅ |
+| `/api/notifications/unsubscribe` | POST | ✅ | ✅ | ✅ |
+| `/api/notifications/settings` | GET, PATCH | ✅ | ✅ | ✅ |
+| `/api/notifications/test` | POST | ✅ | ✅ | ✅ |
 
 > [!NOTE]
 > - ※1: `BabyPermission` で `can_view=false` に設定された赤ちゃんは結果から除外される（ADMIN は免除）
 > - ※2: `BabyPermission` で当該 `record_type` の `can_view=false` が設定されている場合は `403` を返す（ADMIN は免除）
 > - ※3: ADMIN は他ユーザーのコメントも削除可能
 > - ※4: 自分のコメントのみ削除可能
+> - ※5: 認証前のエンドポイント。RBAC のロールチェック対象外（未認証ユーザーがアクセス）
+
+> [!NOTE]
+> コメント投稿対象の `record_type` は `feeding / sleep / diaper / growth / contraction / schedule / note` の 7 種類。`ai_summary` はコメント対象外。
 
 ---
 
@@ -144,9 +170,12 @@ def _require_admin(family_user: FamilyUser) -> None:
 | `_require_admin()` | `/api/family/` (PATCH), `/api/family/invite_code/regenerate`, `/api/family/members/{id}/role`, `/api/family/members/{id}` (DELETE), `/api/babies/{id}/permissions` |
 | `baby.py` 内の直接チェック | `/api/babies/` (POST, PATCH, DELETE) — `family_user.role != UserRole.ADMIN` で拒否 |
 
-### ロール変更の制約
+### ロール変更・メンバー管理の制約
 
 - **最終 ADMIN の降格禁止**: ファミリーに ADMIN が 1 人しかいない場合、そのユーザーの ADMIN ロールを変更できない（`400 At least one admin is required`）
+- **自分自身のロール変更**: 現在の実装では ADMIN が自分自身のロールを変更可能（ADMIN が 2 人以上いる場合）
+- **⚠️ 最終 ADMIN の自己削除防止（未実装）**: `delete_member` で最終 ADMIN が自分自身を削除できてしまう問題あり。降格と同様にガードが必要
+- **無効なロール値の拒否**: Pydantic バリデーションにより、`UserRole` enum に存在しない値は `422` で拒否
 
 ---
 
@@ -219,13 +248,24 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] `RecordDetailDialog` での VIEWER 制限（保存・削除非表示、入力無効化）
 - [x] ファミリー設定画面でのロール表示と変更機能
 
-### 未実装テスト
+### テスト
 
-- [ ] VIEWER ロールで `join_family` されることを確認するテスト
-- [ ] VIEWER ロールが GET エンドポイント（閲覧）にアクセスできることを確認
-- [ ] VIEWER ロールが POST/PATCH/PUT/DELETE エンドポイントにアクセスした際、`403 Forbidden` が返ることを確認
-- [ ] ADMIN が VIEWER を MEMBER に、または MEMBER を VIEWER に変更できることを確認
+#### 実装済み（`tests/test_viewer_role.py`, `tests/test_role_validation.py`）
+
+- [x] VIEWER ロールで `join_family` されることを確認（`test_viewer_default_on_join`）
+- [x] VIEWER ロールが GET エンドポイント（閲覧）にアクセスできることを確認（`test_viewer_read_only_access`）
+- [x] VIEWER ロールが POST/DELETE エンドポイントにアクセスした際、`403` が返ることを確認（`test_viewer_read_only_access`）
+- [x] ADMIN が VIEWER を MEMBER に変更でき、MEMBER が記録を作成できることを確認（`test_admin_can_change_role`）
+- [x] 無効なロール値での更新が `422` で拒否されることを確認（`test_update_role_with_invalid_value`）
+
+#### 未実装テスト
+
 - [ ] 最終 ADMIN の降格が拒否されることを確認
+- [ ] 最終 ADMIN の自己削除が拒否されることを確認
+- [ ] VIEWER がコメントを投稿できることを確認
+- [ ] VIEWER が自分のコメントを削除できることを確認
+- [ ] MEMBER / VIEWER が他者のコメントを削除できないことを確認
+- [ ] 通知系エンドポイントに全ロールがアクセスできることを確認
 
 ---
 
