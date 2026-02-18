@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -30,6 +31,7 @@ class UnifiedRecord(BaseModel):
     timestamp: datetime
     details: dict
     comment_count: int = 0
+    recorded_by_display_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -169,89 +171,96 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
         # Table might not exist yet, fallback to empty counts
         pass
 
-    records: List[UnifiedRecord] = []
+    # 各記録と紐付く user_id を収集するためのリスト（後でまとめてUser取得）
+    raw_records: list[tuple] = []  # (model_instance, type, timestamp, details_builder)
 
     if can_view_type("feeding"):
         for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).all():
-            records.append(UnifiedRecord(
-                id=feeding.id,
-                type="feeding",
-                timestamp=feeding.feeding_time,
-                details={
+            raw_records.append((
+                feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
+                {
                     "feeding_type": feeding.feeding_type,
                     "amount_ml": feeding.amount_ml,
                     "duration_minutes": feeding.duration_minutes,
                     "notes": feeding.notes,
                 },
-                comment_count=comment_counts.get(("feeding", feeding.id), 0)
+                comment_counts.get(("feeding", feeding.id), 0)
             ))
 
     if can_view_type("sleep"):
         for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).all():
-            records.append(UnifiedRecord(
-                id=sleep.id,
-                type="sleep",
-                timestamp=sleep.start_time,
-                details={
+            raw_records.append((
+                sleep.id, "sleep", sleep.user_id, sleep.start_time,
+                {
                     "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
                     "notes": sleep.notes,
                 },
-                comment_count=comment_counts.get(("sleep", sleep.id), 0)
+                comment_counts.get(("sleep", sleep.id), 0)
             ))
 
     if can_view_type("diaper"):
         for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).all():
-            records.append(UnifiedRecord(
-                id=diaper.id,
-                type="diaper",
-                timestamp=diaper.change_time,
-                details={
+            raw_records.append((
+                diaper.id, "diaper", diaper.user_id, diaper.change_time,
+                {
                     "diaper_type": diaper.diaper_type,
                     "notes": diaper.notes,
                 },
-                comment_count=comment_counts.get(("diaper", diaper.id), 0)
+                comment_counts.get(("diaper", diaper.id), 0)
             ))
 
     if can_view_type("growth"):
         for growth in db.query(Growth).filter(Growth.baby_id == baby_id).all():
-            records.append(UnifiedRecord(
-                id=growth.id,
-                type="growth",
-                timestamp=datetime.combine(growth.date, datetime.min.time()),
-                details={
+            raw_records.append((
+                growth.id, "growth", growth.user_id,
+                datetime.combine(growth.date, datetime.min.time()),
+                {
                     "weight_kg": growth.weight / 1000.0 if growth.weight else None,
                     "height_cm": growth.height,
                     "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
                 },
-                comment_count=comment_counts.get(("growth", growth.id), 0)
+                comment_counts.get(("growth", growth.id), 0)
             ))
 
     if can_view_type("note"):
         for note in db.query(Note).filter(Note.baby_id == baby_id).all():
-            records.append(UnifiedRecord(
-                id=note.id,
-                type="note",
-                timestamp=note.note_time,
-                details={
+            raw_records.append((
+                note.id, "note", note.user_id, note.note_time,
+                {
                     "notes": note.content,
                 },
-                comment_count=comment_counts.get(("note", note.id), 0)
+                comment_counts.get(("note", note.id), 0)
             ))
 
     if can_view_type("contraction"):
         for c in db.query(Contraction).filter(Contraction.baby_id == baby_id).all():
-            records.append(UnifiedRecord(
-                id=c.id,
-                type="contraction",
-                timestamp=c.start_time,
-                details={
+            raw_records.append((
+                c.id, "contraction", c.user_id, c.start_time,
+                {
                     "end_time": c.end_time.isoformat() if c.end_time else None,
                     "duration_seconds": c.duration_seconds,
                     "notes": c.notes,
                 },
-                comment_count=comment_counts.get(("contraction", c.id), 0)
+                comment_counts.get(("contraction", c.id), 0)
             ))
+
+    # User を一括取得してマップを作成
+    user_ids = {r[2] for r in raw_records if r[2] is not None}
+    users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
+    user_map = {u.id: u.display_name or u.username for u in users}
+
+    records: List[UnifiedRecord] = [
+        UnifiedRecord(
+            id=rec_id,
+            type=rec_type,
+            timestamp=ts,
+            details=details,
+            comment_count=cc,
+            recorded_by_display_name=user_map.get(user_id),
+        )
+        for rec_id, rec_type, user_id, ts, details, cc in raw_records
+    ]
 
     # 全ての記録のタイムゾーンをJSTとして明示する
     for r in records:
