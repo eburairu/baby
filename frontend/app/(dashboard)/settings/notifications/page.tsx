@@ -45,7 +45,7 @@ export default function NotificationsPage() {
 
   const updateSetting = async (key: keyof NotificationSettings, value: any) => {
     if (!settings) return;
-    
+
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
 
@@ -65,14 +65,14 @@ export default function NotificationsPage() {
 
   const handleEnableNotifications = async () => {
     const status = await requestPermission();
-    
+
     if (status === "granted") {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
         toast.error("VAPID鍵が設定されていません。管理者にお問い合わせください。");
         return;
       }
-      
+
       try {
         const sub = await subscribeUser(vapidPublicKey);
         if (sub) {
@@ -143,6 +143,33 @@ export default function NotificationsPage() {
                 </Button>
               )}
             </div>
+            {permission === "granted" && (
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">テスト通知を送信</p>
+                  <p className="text-xs text-muted-foreground">通知が正常に届くか確認します</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/notifications/test", { method: "POST" });
+                      const data = await res.json();
+                      if (data.success) {
+                        toast.success("テスト通知を送信しました");
+                      } else {
+                        toast.error(data.message || "テスト通知の送信に失敗しました");
+                      }
+                    } catch {
+                      toast.error("テスト通知の送信に失敗しました");
+                    }
+                  }}
+                >
+                  送信
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -160,20 +187,20 @@ export default function NotificationsPage() {
                 <p className="text-sm font-medium">家族の記録</p>
                 <p className="text-xs text-muted-foreground">家族が新しい記録を追加したときに通知します</p>
               </div>
-              <Switch 
-                checked={settings?.family_record_enabled} 
-                onCheckedChange={(v) => updateSetting("family_record_enabled", v)} 
+              <Switch
+                checked={settings?.family_record_enabled}
+                onCheckedChange={(v) => updateSetting("family_record_enabled", v)}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">授乳リマインダー</p>
                 <p className="text-xs text-muted-foreground">前回の授乳から時間が経過したときに通知します</p>
               </div>
-              <Switch 
-                checked={settings?.feeding_reminder_enabled} 
-                onCheckedChange={(v) => updateSetting("feeding_reminder_enabled", v)} 
+              <Switch
+                checked={settings?.feeding_reminder_enabled}
+                onCheckedChange={(v) => updateSetting("feeding_reminder_enabled", v)}
               />
             </div>
 
@@ -182,9 +209,9 @@ export default function NotificationsPage() {
                 <p className="text-sm font-medium">オムツリマインダー</p>
                 <p className="text-xs text-muted-foreground">前回のオムツ替えから時間が経過したときに通知します</p>
               </div>
-              <Switch 
-                checked={settings?.diaper_reminder_enabled} 
-                onCheckedChange={(v) => updateSetting("diaper_reminder_enabled", v)} 
+              <Switch
+                checked={settings?.diaper_reminder_enabled}
+                onCheckedChange={(v) => updateSetting("diaper_reminder_enabled", v)}
               />
             </div>
 
@@ -193,9 +220,9 @@ export default function NotificationsPage() {
                 <p className="text-sm font-medium">デイリーサマリー</p>
                 <p className="text-xs text-muted-foreground">AIによる1日のまとめが完成したときに通知します</p>
               </div>
-              <Switch 
-                checked={settings?.daily_summary_enabled} 
-                onCheckedChange={(v) => updateSetting("daily_summary_enabled", v)} 
+              <Switch
+                checked={settings?.daily_summary_enabled}
+                onCheckedChange={(v) => updateSetting("daily_summary_enabled", v)}
               />
             </div>
 
@@ -204,9 +231,9 @@ export default function NotificationsPage() {
                 <p className="text-sm font-medium">システム通知</p>
                 <p className="text-xs text-muted-foreground">重要なお知らせやアップデート情報を通知します</p>
               </div>
-              <Switch 
-                checked={settings?.system_notice_enabled} 
-                onCheckedChange={(v) => updateSetting("system_notice_enabled", v)} 
+              <Switch
+                checked={settings?.system_notice_enabled}
+                onCheckedChange={(v) => updateSetting("system_notice_enabled", v)}
               />
             </div>
           </CardContent>
@@ -224,8 +251,8 @@ export default function NotificationsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-medium text-muted-foreground">開始時間</label>
-                <input 
-                  type="time" 
+                <input
+                  type="time"
                   className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
                   value={settings?.dnd_start_time || ""}
                   onChange={(e) => updateSetting("dnd_start_time", e.target.value || null)}
@@ -233,8 +260,8 @@ export default function NotificationsPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium text-muted-foreground">終了時間</label>
-                <input 
-                  type="time" 
+                <input
+                  type="time"
                   className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
                   value={settings?.dnd_end_time || ""}
                   onChange={(e) => updateSetting("dnd_end_time", e.target.value || null)}

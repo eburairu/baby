@@ -26,7 +26,7 @@ def is_within_dnd(settings: NotificationSetting) -> bool:
     else: # 日を跨ぐ場合 (例: 22:00 - 07:00)
         return now >= start or now <= end
 
-def send_push_notification(subscription: PushSubscription, title: str, body: str, url: str = "/"):
+def send_push_notification(subscription: PushSubscription, title: str, body: str, url: str = "/", db: Session | None = None):
     """特定の購読に対してプッシュ通知を送信する"""
     if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
         logger.warning("VAPID keys not configured. Skipping push notification.")
@@ -38,6 +38,8 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             "body": body,
             "url": url
         }
+        
+        logger.info(f"Sending push notification to subscription id={subscription.id}, endpoint={subscription.endpoint[:60]}...")
         
         webpush(
             subscription_info={
@@ -53,14 +55,33 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
                 "sub": VAPID_CLAIM_EMAIL if VAPID_CLAIM_EMAIL.startswith("mailto:") else f"mailto:{VAPID_CLAIM_EMAIL}"
             }
         )
+        logger.info(f"Push notification sent successfully to subscription id={subscription.id}")
         return True
     except WebPushException as ex:
-        logger.error(f"Web Push error: {ex}")
-        # 410 Gone または 404 Not Found の場合は購読が無効なので削除を検討すべきだが、
-        # ここではログ出力に留め、呼び出し側で処理するか検討する。
+        status_code = None
+        response_body = None
+        if hasattr(ex, 'response') and ex.response is not None:
+            status_code = ex.response.status_code
+            try:
+                response_body = ex.response.text
+            except Exception:
+                response_body = str(ex.response.content) if hasattr(ex.response, 'content') else None
+        logger.error(
+            f"Web Push error for subscription id={subscription.id}: {ex} | "
+            f"status_code={status_code} | response_body={response_body}"
+        )
+        # 410 Gone or 404 Not Found: 購読が無効なのでDBから削除
+        if status_code in (410, 404) and db is not None:
+            logger.info(f"Removing invalid subscription id={subscription.id} (status={status_code})")
+            try:
+                db.delete(subscription)
+                db.commit()
+            except Exception as delete_ex:
+                logger.error(f"Failed to delete invalid subscription: {delete_ex}")
+                db.rollback()
         return False
     except Exception as ex:
-        logger.error(f"Unexpected error sending push: {ex}")
+        logger.error(f"Unexpected error sending push to subscription id={subscription.id}: {type(ex).__name__}: {ex}")
         return False
 
 def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/", category: str = "system"):
@@ -69,6 +90,7 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
     if not settings:
         # 設定がない場合はデフォルト（システム通知のみON等）
         if category != "system":
+            logger.info(f"Skipping {category} notification for user {user_id}: no settings found and category is not system")
             return
     else:
         # カテゴリごとのON/OFF確認
@@ -80,6 +102,7 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
             "system": settings.system_notice_enabled
         }
         if not enabled_map.get(category, True):
+            logger.info(f"Skipping {category} notification for user {user_id}: category disabled")
             return
 
         # おやすみモード確認
@@ -88,8 +111,12 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
             return
 
     subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
+    logger.info(f"Sending {category} notification to user {user_id}: {len(subscriptions)} subscription(s) found")
+    if not subscriptions:
+        logger.warning(f"No push subscriptions found for user {user_id}")
+        return
     for sub in subscriptions:
-        send_push_notification(sub, title, body, url)
+        send_push_notification(sub, title, body, url, db=db)
 
 def notify_family_members(db: Session, family_id: int, exclude_user_id: int, title: str, body: str, url: str = "/", category: str = "family_record"):
     """家族メンバー全員（本人を除く）に通知を送信する"""
@@ -100,5 +127,8 @@ def notify_family_members(db: Session, family_id: int, exclude_user_id: int, tit
         FamilyUser.user_id != exclude_user_id
     ).all()
     
+    logger.info(f"Notifying {len(members)} family member(s) in family {family_id} (excluding user {exclude_user_id})")
+    
     for member in members:
         notify_user(db, member.user_id, title, body, url, category)
+
