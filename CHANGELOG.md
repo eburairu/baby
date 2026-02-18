@@ -1,3 +1,10 @@
+# [1.27.0](https://github.com/eburairu/baby/compare/v1.26.0...v1.27.0) (2026-02-18)
+
+
+### Features
+
+* add recorded_by_display_name to note records ([39d45b5](https://github.com/eburairu/baby/commit/39d45b56b53af3ccd343d6ec77ef5bae9679e17d))
+
 # [1.26.0](https://github.com/eburairu/baby/compare/v1.25.0...v1.26.0) (2026-02-18)
 
 
