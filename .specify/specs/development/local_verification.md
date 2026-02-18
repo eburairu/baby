@@ -1,9 +1,11 @@
 # ローカル環境動作確認仕様書
 
 ## 概要
+
 本ドキュメントは、Baby App のローカル開発環境におけるセットアップおよび動作確認の手順を規定する。
 
 ## 前提条件
+
 - Python 3.10 以上（`.python-version` で 3.10.12 を指定）
 - Node.js 20 以上
 - pnpm（フロントエンドのパッケージマネージャ）
@@ -12,7 +14,9 @@
 ## セットアップ手順
 
 ### 1. 環境変数の設定
+
 `.env.example` をコピーして `.env` を作成し、必要に応じて値を書き換える。
+
 ```bash
 cp .env.example .env
 ```
@@ -33,7 +37,9 @@ cp .env.example .env
 ※ シェルで `source .env` する場合は値をダブルクォートで囲むこと。
 
 ### 2. バックエンドのセットアップ
+
 仮想環境を作成し、依存ライブラリをインストールして、マイグレーションを実行する。
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -44,12 +50,15 @@ alembic upgrade head
 ```
 
 ### 3. テストユーザーの作成（初回のみ）
+
 ローカル環境でログインするためのテストユーザーを作成する。
+
 ```bash
 python scripts/seed_test_user.py
 ```
 
 ### 4. フロントエンドのセットアップ
+
 ```bash
 cd frontend
 pnpm install
@@ -67,33 +76,41 @@ pnpm install
 ## 動作確認手順
 
 ### 1. 全テストの実行（バックエンド & フロントエンド）
+
 プロジェクト全体のテストを一つのコマンドで実行する。
+
 ```bash
 npm test
 ```
 
 ### 2. バックエンド・ユニットテストの個別実行
+
 ```bash
 npm run test:backend
 ```
 
 ### 3. フロントエンド・ユニットテストの個別実行
+
 ```bash
 npm run test:frontend
 ```
 
 ### 4. フロントエンドのビルド確認
+
 ```bash
 cd frontend && pnpm build
 ```
 
 ### 5. フロントエンドの Lint 確認
+
 ```bash
 cd frontend && pnpm lint
 ```
 
 ### 6. OpenAPI スキーマ & 型生成
+
 バックエンドの API スキーマからフロントエンドの TypeScript 型を生成する。
+
 ```bash
 npm run types:generate
 ```
@@ -101,32 +118,42 @@ npm run types:generate
 ### 7. 開発サーバーの起動と動作確認
 
 #### a. バックエンド + フロントエンド（開発モード）
+
 開発時はバックエンドとフロントエンドを別々に起動する。
 
 1. バックエンドサーバーの起動:
+
    ```bash
    uvicorn app.main:app --reload
    ```
+
    - API: `http://localhost:8000/api`
    - Swagger UI: `http://localhost:8000/docs`
 
 2. フロントエンド開発サーバーの起動（別ターミナル）:
+
    ```bash
    cd frontend && pnpm dev
    ```
+
    - Frontend: `http://localhost:3000`
 
 #### b. 統合動作確認（Single Service 構成）
+
 FastAPI がフロントエンドの静的ビルド（`frontend/out/`）を配信する構成を確認する。
 
 1. フロントエンドをビルド:
+
    ```bash
    cd frontend && pnpm build
    ```
+
 2. バックエンドサーバーの起動:
+
    ```bash
    uvicorn app.main:app --reload
    ```
+
 3. 以下を確認:
    - `http://localhost:8000/api/health` → `{"status": "ok"}` が返る
    - `http://localhost:8000/docs` → Swagger UI が表示される
@@ -146,6 +173,7 @@ FastAPI がフロントエンドの静的ビルド（`frontend/out/`）を配信
 | `npm run types:generate` | スキーマ生成 + TypeScript 型生成 |
 
 ## 異常時の対応
+
 - **データベース接続エラー**: `DATABASE_URL` の設定を確認。Neon ダッシュボードでブランチのステータスを確認。
 - **マイグレーションエラー**: `alembic upgrade head` が成功しているか確認。
 - **フロントエンドビルドエラー**: `frontend/node_modules` を削除して `pnpm install` を再実行。

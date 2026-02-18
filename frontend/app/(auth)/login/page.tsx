@@ -58,8 +58,8 @@ export default function LoginPage() {
     return (
         <Card className="rounded-2xl shadow-sm border-0">
             <CardHeader>
-                <CardTitle>Baby App にログイン</CardTitle>
-                <CardDescription>ユーザー名を入力してログインしてください</CardDescription>
+                <CardTitle data-sentry-unmask>Baby App にログイン</CardTitle>
+                <CardDescription data-sentry-unmask>ユーザー名を入力してログインしてください</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
                 <Form {...form}>
@@ -91,10 +91,11 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <Button 
-                            type="submit" 
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11" 
+                        <Button
+                            type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
                             loading={form.formState.isSubmitting}
+                            data-sentry-unmask
                         >
                             ログイン
                         </Button>

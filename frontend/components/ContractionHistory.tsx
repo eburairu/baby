@@ -50,16 +50,19 @@ interface ContractionHistoryProps {
 export default function ContractionHistory({ contractions, onDeleted, onUpdated, canWrite = true }: ContractionHistoryProps) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [editTarget, setEditTarget] = useState<ContractionRecord | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
     const [isUpdating, setIsUpdating] = useState(false)
 
     const handleDelete = useCallback(async () => {
         if (deleteTargetId === null) return
+        setIsDeleting(true)
         try {
             await api.delete(`/contractions/${deleteTargetId}`)
             onDeleted()
         } catch (err) {
             console.error("Failed to delete contraction", err)
         } finally {
+            setIsDeleting(false)
             setDeleteTargetId(null)
         }
     }, [deleteTargetId, onDeleted])
@@ -240,8 +243,8 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

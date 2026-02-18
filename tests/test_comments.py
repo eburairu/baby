@@ -27,13 +27,23 @@ def test_viewer_can_comment(client, auth_client, db):
         "password": "viewerpassword123"
     })
     assert res.status_code == 200
-    
-    # ログイン
+    viewer_id = res.json()["id"]
+
+    # ADMINとして戻り、VIEWERに赤ちゃん + 授乳の閲覧権限を付与（デフォルト拒否のため）
+    admin_client.post("/api/auth/login", json={"username": "admin_user", "password": "testpassword123"})
+    admin_client.put(f"/api/babies/{baby_id}/permissions", json={
+        "permissions": [
+            {"user_id": viewer_id, "record_type": "baby", "can_view": True},
+            {"user_id": viewer_id, "record_type": "feeding", "can_view": True},
+        ]
+    })
+
+    # 再度VIEWERとしてログイン
     viewer_client.post("/api/auth/login", json={
         "username": "viewer_user",
         "password": "viewerpassword123"
     })
-    
+
     # 3. Viewer がコメントを投稿
     res = viewer_client.post(f"/api/records/feeding/{record_id}/comments", json={
         "content": "Well done, Baby A!"

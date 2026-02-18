@@ -156,6 +156,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                             type="submit"
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
                             disabled={isSubmitting}
+                            data-sentry-unmask
                         >
                             {isSubmitting ? "保存中..." : "保存する"}
                         </Button>

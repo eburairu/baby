@@ -1,14 +1,16 @@
 "use client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info } from "lucide-react"
+import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useUser } from "@/hooks/useAuth"
+import { useFamilyMembers } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { useState } from "react"
 import { AppInfoDialog } from "@/components/settings/AppInfoDialog"
 import { useAppVersion } from "@/hooks/useAppVersion"
+import { UserRole } from "@/lib/constants"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,6 +31,7 @@ const menuItems = [
         description: "表示名の変更",
         color: "text-blue-500",
         bg: "bg-blue-50 dark:bg-blue-950/30",
+        adminOnly: false,
     },
     {
         href: "/settings/notifications",
@@ -37,6 +40,7 @@ const menuItems = [
         description: "プッシュ通知の構成",
         color: "text-amber-500",
         bg: "bg-amber-50 dark:bg-amber-950/30",
+        adminOnly: false,
     },
     {
         href: "/settings/family",
@@ -45,6 +49,7 @@ const menuItems = [
         description: "家族名・招待コード・メンバー管理",
         color: "text-violet-600",
         bg: "bg-violet-50 dark:bg-violet-950/30",
+        adminOnly: false,
     },
     {
         href: "/settings/babies",
@@ -53,14 +58,28 @@ const menuItems = [
         description: "赤ちゃんの情報追加・編集・削除",
         color: "text-pink-500",
         bg: "bg-pink-50 dark:bg-pink-950/30",
+        adminOnly: false,
+    },
+    {
+        href: "/settings/permissions",
+        icon: ShieldCheck,
+        label: "権限管理",
+        description: "メンバーの閲覧アクセス設定",
+        color: "text-emerald-600",
+        bg: "bg-emerald-50 dark:bg-emerald-950/30",
+        adminOnly: true,
     },
 ]
 
 export default function SettingsPage() {
-    const { mutate } = useUser()
+    const { user, mutate } = useUser()
+    const { members } = useFamilyMembers()
     const router = useRouter()
     const [appInfoOpen, setAppInfoOpen] = useState(false)
     const { appVersion } = useAppVersion()
+
+    const currentMember = members?.find((m) => m.username === user?.username)
+    const isAdmin = currentMember?.role === UserRole.ADMIN
 
     const handleLogout = async () => {
         try {
@@ -71,6 +90,10 @@ export default function SettingsPage() {
             console.error("Logout failed", e)
         }
     }
+
+    const visibleItems = menuItems.filter(
+        (item) => !item.adminOnly || isAdmin
+    )
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
@@ -96,7 +119,7 @@ export default function SettingsPage() {
                 <section className="space-y-3 pt-4">
                     <h2 className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider ml-1 mb-1">アカウント・管理</h2>
                     <div className="space-y-2">
-                        {menuItems.map((item) => {
+                        {visibleItems.map((item) => {
                             const Icon = item.icon
                             return (
                                 <Link key={item.href} href={item.href}>

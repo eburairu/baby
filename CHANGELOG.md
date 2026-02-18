@@ -1,3 +1,17 @@
+## [1.29.1](https://github.com/eburairu/baby/compare/v1.29.0...v1.29.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* add missing @radix-ui/react-collapsible dependency ([d5403b8](https://github.com/eburairu/baby/commit/d5403b8ae4400665100872a575e23c50265d015a))
+
+# [1.29.0](https://github.com/eburairu/baby/compare/v1.28.0...v1.29.0) (2026-02-18)
+
+
+### Features
+
+* 各ダッシュボードページに育児ヒントカード（TipsCard）を追加 ([952909e](https://github.com/eburairu/baby/commit/952909e4f7fc1deff884c7ce4ec7362a42a8942a))
+
 # [1.28.0](https://github.com/eburairu/baby/compare/v1.27.0...v1.28.0) (2026-02-18)
 
 

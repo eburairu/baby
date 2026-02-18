@@ -8,7 +8,13 @@ Sentry.init({
   dsn: "https://df57b075f6f01f47246f03f44fb7f5d6@o4510904857526272.ingest.us.sentry.io/4510904861065216",
 
   // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
+  integrations: [
+    Sentry.replayIntegration({
+      maskAllText: true,                            // デフォルト全マスク（安全側を維持）
+      blockAllMedia: true,                          // 画像・メディアもデフォルトでブロック
+      unmask: ["[data-sentry-unmask]"],               // この属性の要素のみ表示する
+    }),
+  ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,

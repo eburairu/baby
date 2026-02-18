@@ -55,13 +55,18 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
 
 export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingHistoryProps) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return;
+        setIsDeleting(true);
         try {
             await onDelete(deleteTargetId);
-        } finally {
             setDeleteTargetId(null);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -157,8 +162,8 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

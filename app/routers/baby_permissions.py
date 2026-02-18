@@ -37,7 +37,7 @@ def get_baby_permissions(
         FamilyUser.role.in_([UserRole.MEMBER, UserRole.VIEWER])
     ).all()
 
-    record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule"]
+    record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
     
     # 3. 全メンバーの BabyPermission を一括取得（N+1 の解消）
     member_user_ids = [u.id for _, u in members]
@@ -61,7 +61,7 @@ def get_baby_permissions(
         for rt in record_types:
             user_perms.append(BabyPermissionItem(
                 record_type=rt,
-                can_view=perm_dict.get(rt, True)  # デフォルト許可
+                can_view=perm_dict.get(rt, False)  # デフォルト拒否
             ))
             
         response_members.append(UserPermissionSet(
@@ -91,7 +91,7 @@ def update_baby_permissions(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can manage permissions")
 
     # 2. リクエストの各エントリについて検証
-    valid_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule"]
+    valid_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
     for entry in update_in.permissions:
         if entry.record_type not in valid_types:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid record_type: {entry.record_type}")

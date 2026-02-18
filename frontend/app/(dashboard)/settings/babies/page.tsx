@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react"
-import Link from "next/link"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/hooks/useAuth"
@@ -37,7 +36,6 @@ export default function BabySettingsPage() {
 
     const currentMember = members?.find((m) => m.username === user.username)
     const isAdmin = currentMember?.role === UserRole.ADMIN
-    const hasMemberUsers = members?.some((m) => m.role === UserRole.MEMBER || m.role === UserRole.VIEWER) ?? false
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
@@ -78,7 +76,6 @@ export default function BabySettingsPage() {
                             key={baby.id}
                             baby={baby}
                             isAdmin={isAdmin}
-                            hasMemberUsers={hasMemberUsers}
                             onEdit={setEditTarget}
                             onDelete={setDeleteTarget}
                         />
