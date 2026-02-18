@@ -47,13 +47,13 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
         return (
             <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1">
+                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1" data-sentry-unmask>
                         💤 睡眠
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center py-6">
                     <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-600">閲覧制限中</p>
+                    <p className="text-[10px] text-gray-400 dark:text-zinc-600" data-sentry-unmask>閲覧制限中</p>
                 </CardContent>
             </Card>
         )
@@ -94,7 +94,7 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
     return (
         <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium text-indigo-500 dark:text-indigo-400 flex items-center gap-1">
+                <CardTitle className="text-sm font-medium text-indigo-500 dark:text-indigo-400 flex items-center gap-1" data-sentry-unmask>
                     💤 睡眠
                     {isSleeping ? (
                         <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
@@ -116,7 +116,7 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
                 <div>
                     {isSleeping ? (
                         <>
-                            <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">睡眠中</p>
+                            <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
                             <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
                         </>
                     ) : (
@@ -138,6 +138,7 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
                                 : "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
                             }`}
                         variant="outline"
+                        data-sentry-unmask
                     >
                         {isSleeping ? "睡眠終了" : "睡眠開始"}
                     </Button>

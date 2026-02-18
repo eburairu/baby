@@ -123,12 +123,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </SheetTrigger>
                                 <SheetContent side="left" className="dark:bg-zinc-900 dark:border-zinc-800">
                                     <SheetHeader>
-                                        <SheetTitle className="dark:text-zinc-100">メニュー</SheetTitle>
+                                        <SheetTitle className="dark:text-zinc-100" data-sentry-unmask>メニュー</SheetTitle>
                                         <SheetDescription className="dark:text-zinc-400">
                                             機能を選択してください
                                         </SheetDescription>
                                     </SheetHeader>
-                                    <nav className="mt-6 flex flex-col gap-2">
+                                    <nav className="mt-6 flex flex-col gap-2" data-sentry-unmask>
                                         {ALL_NAV_ITEMS
                                             .filter(item => {
                                                 const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
@@ -149,7 +149,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </Sheet>
                         )}
                         <Link href="/">
-                            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-zinc-100">Baby App</h1>
+                            <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-zinc-100" data-sentry-unmask>Baby App</h1>
                         </Link>
                     </div>
                     <div className="flex items-center gap-4">

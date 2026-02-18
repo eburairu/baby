@@ -188,8 +188,8 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
             <CardContent className="pt-6">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedingType)} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="BREAST">🤱 母乳</TabsTrigger>
-                        <TabsTrigger value="BOTTLE">🍼 ミルク</TabsTrigger>
+                        <TabsTrigger value="BREAST" data-sentry-unmask>🤱 母乳</TabsTrigger>
+                        <TabsTrigger value="BOTTLE" data-sentry-unmask>🍼 ミルク</TabsTrigger>
                     </TabsList>
 
                     <Form {...form}>
@@ -389,7 +389,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" data-sentry-unmask>
                                 <Save className="w-4 h-4 mr-2" />
                                 記録する
                             </Button>

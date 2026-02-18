@@ -109,3 +109,100 @@ export default withSentryConfig(withPWA(nextConfig), {
 - `tracesSampleRate` を本番では `0.2`（20%）程度に下げてコスト・負荷を削減する。
 - ユーザーのメールアドレスを `Sentry.setUser()` でセットし、エラー発生ユーザーを特定可能にする。
 - アラートルールを設定し、エラー急増時に Slack 通知を受け取る。
+
+## 10. Session Replay プライバシー設定
+
+### 10.1. 設計方針
+
+**「デフォルト全マスク・安全な要素のみ明示的にアンマスク」** を採用する。
+
+- Sentry のデフォルト `maskAllText: true` を維持し、安全側を優先する
+- `data-sentry-unmask` 属性を付与した要素のみ Session Replay に表示する
+- 属性を持たないすべての要素は自動的にマスクされる
+
+### 10.2. マスク対象 / 非マスク対象の分類
+
+| カテゴリ | 具体例 | 方針 |
+| :--- | :--- | :--- |
+| ナビゲーションラベル | ホーム、授乳、おむつ、睡眠、成長、陣痛、日記、設定 | **アンマスク** |
+| ボタン・アクションラベル | 保存、キャンセル、削除、編集、記録する | **アンマスク** |
+| 静的ページ見出し | "Baby App"、"授乳記録"、"おむつ記録" など | **アンマスク** |
+| 記録タイプラベル | 授乳、睡眠、おむつ、成長、メモ | **アンマスク** |
+| ユーザー入力フィールド | ユーザー名、パスワード、表示名、家族名 | **マスク（デフォルト）** |
+| 赤ちゃんの名前 | ユーザーが登録した任意の名前 | **マスク（デフォルト）** |
+| 育児記録の数値 | 授乳量（ml）、睡眠時間、体重、身長、頭囲 | **マスク（デフォルト）** |
+| フリーテキストメモ | 授乳メモ、睡眠メモ、育児日誌テキスト | **マスク（デフォルト）** |
+| 招待コード | 家族の招待コード | **マスク（デフォルト）** |
+
+### 10.3. 実装方法
+
+#### replayIntegration のオプション設定
+
+```typescript
+// frontend/instrumentation-client.ts
+Sentry.init({
+  integrations: [
+    Sentry.replayIntegration({
+      maskAllText: true,                              // デフォルト全マスク（安全側を維持）
+      blockAllMedia: true,                            // 画像・メディアもデフォルトでブロック
+      unmask: ["[data-sentry-unmask]"],               // この属性の要素のみ表示する
+    }),
+  ],
+  // ...
+});
+```
+
+#### コンポーネントでの `data-sentry-unmask` 属性の付与
+
+静的な UI 文字列（ナビゲーション、ボタン、ページタイトルなど）には
+`data-sentry-unmask` 属性を付与する。
+
+```tsx
+// ナビゲーションアイテム
+<span data-sentry-unmask>ホーム</span>
+<span data-sentry-unmask>授乳</span>
+
+// ボタン
+<Button data-sentry-unmask>記録する</Button>
+<Button data-sentry-unmask>保存</Button>
+
+// ページ見出し（静的テキストのみ）
+<h1 data-sentry-unmask>授乳記録</h1>
+```
+
+ユーザー入力・動的データには属性を付与しない（マスクのまま）。
+
+```tsx
+// マスクされる（属性なし）
+<Input value={username} />             // ユーザー名入力
+<span>{baby.name}</span>               // 赤ちゃんの名前（動的データ）
+<span>{feeding.amount_ml} ml</span>    // 授乳量
+<Textarea value={notes} />             // メモ
+```
+
+### 10.4. 対象コンポーネント一覧
+
+`data-sentry-unmask` を追加する主なファイルと対象要素。
+
+| ファイル | 対象要素 |
+| :--- | :--- |
+| `frontend/app/(dashboard)/layout.tsx` | ナビゲーションラベル（ホーム、授乳、おむつ…） |
+| `frontend/components/dashboard/*Widget.tsx` | ウィジェットのタイトル（🍼 授乳、💤 睡眠…） |
+| `frontend/components/*/` 各フォーム | ボタン（保存、キャンセル、記録する、削除） |
+| `frontend/app/(auth)/login/page.tsx` | ページ見出し（"Baby App にログイン"） |
+| `frontend/app/(auth)/register/page.tsx` | ページ見出し（"家族を新規作成"、"家族に参加"） |
+
+### 10.5. 実装チェックリスト
+
+- [ ] `frontend/instrumentation-client.ts`: `replayIntegration` にオプション追加
+- [ ] `frontend/app/(dashboard)/layout.tsx`: ナビゲーションに `data-sentry-unmask` 追加
+- [ ] `frontend/components/dashboard/FeedingWidget.tsx`: タイトルに追加
+- [ ] `frontend/components/dashboard/SleepWidget.tsx`: タイトルに追加
+- [ ] `frontend/components/dashboard/DiaperWidget.tsx`: タイトルに追加
+- [ ] `frontend/components/dashboard/GrowthWidget.tsx`: タイトルに追加
+- [ ] `frontend/components/feeding/feeding-form.tsx`: ボタンに追加
+- [ ] `frontend/components/sleep/sleep-form.tsx`: ボタンに追加
+- [ ] `frontend/components/diaper/DiaperForm.tsx`: ボタンに追加
+- [ ] `frontend/components/growth/GrowthRecordForm.tsx`: ボタンに追加
+- [ ] `frontend/app/(auth)/login/page.tsx`: ページ見出しに追加
+- [ ] `frontend/app/(auth)/register/page.tsx`: ページ見出しに追加

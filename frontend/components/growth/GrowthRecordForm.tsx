@@ -173,10 +173,10 @@ export function GrowthRecordForm({
                     )}
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={onClose}>
+                        <Button type="button" variant="outline" onClick={onClose} data-sentry-unmask>
                             キャンセル
                         </Button>
-                        <Button type="submit" disabled={isSubmitting}>
+                        <Button type="submit" disabled={isSubmitting} data-sentry-unmask>
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {record ? "更新" : "保存"}
                         </Button>
