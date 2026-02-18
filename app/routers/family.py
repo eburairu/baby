@@ -153,5 +153,14 @@ def delete_member(
     )
     if not target:
         raise HTTPException(status_code=404, detail="Member not found")
+    # 最後の admin を削除しないようガード
+    if target.role == UserRole.ADMIN:
+        admin_count = (
+            db.query(FamilyUser)
+            .filter(FamilyUser.family_id == family_user.family_id, FamilyUser.role == UserRole.ADMIN)
+            .count()
+        )
+        if admin_count <= 1:
+            raise HTTPException(status_code=400, detail="At least one admin is required")
     db.delete(target)
     db.commit()

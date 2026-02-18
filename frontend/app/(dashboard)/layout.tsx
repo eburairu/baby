@@ -15,6 +15,7 @@ import { Check, ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { cn, getDisplayName } from "@/lib/utils"
+import { isBorn } from "@/lib/babyUtils"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
     Sheet,
@@ -27,16 +28,16 @@ import {
 } from "@/components/ui/sheet"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
-const NAV_ITEMS = [
-    { label: "ホーム", href: "/", icon: "🏠" },
-    { label: "授乳", href: "/feeding", icon: "🍼" },
-    { label: "おむつ", href: "/diaper", icon: "👶" },
-    { label: "睡眠", href: "/sleep", icon: "💤" },
-    { label: "成長", href: "/growth", icon: "📏" },
-    { label: "陣痛", href: "/contraction", icon: "⏱️" },
-    { label: "日記", href: "/diary", icon: "📝" },
-    { label: "メモ一覧", href: "/note", icon: "📋" },
-    { label: "設定", href: "/settings", icon: "⚙️" },
+const ALL_NAV_ITEMS = [
+    { label: "ホーム", href: "/", icon: "🏠", prenatal: true, postnatal: true },
+    { label: "授乳", href: "/feeding", icon: "🍼", prenatal: false, postnatal: true },
+    { label: "おむつ", href: "/diaper", icon: "👶", prenatal: false, postnatal: true },
+    { label: "睡眠", href: "/sleep", icon: "💤", prenatal: false, postnatal: true },
+    { label: "成長", href: "/growth", icon: "📏", prenatal: false, postnatal: true },
+    { label: "陣痛", href: "/contraction", icon: "⏱️", prenatal: true, postnatal: false },
+    { label: "日記", href: "/diary", icon: "📝", prenatal: true, postnatal: true },
+    { label: "メモ一覧", href: "/note", icon: "📋", prenatal: true, postnatal: true },
+    { label: "設定", href: "/settings", icon: "⚙️", prenatal: true, postnatal: true },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -128,16 +129,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         </SheetDescription>
                                     </SheetHeader>
                                     <nav className="mt-6 flex flex-col gap-2">
-                                        {NAV_ITEMS.map((item) => (
-                                            <SheetClose asChild key={item.href}>
-                                                <Link href={item.href} className="w-full">
-                                                    <Button variant="ghost" className="w-full justify-start text-lg h-12 dark:text-zinc-300 dark:hover:bg-zinc-800" aria-label={item.label}>
-                                                        <span className="mr-3 text-xl">{item.icon}</span>
-                                                        {item.label}
-                                                    </Button>
-                                                </Link>
-                                            </SheetClose>
-                                        ))}
+                                        {ALL_NAV_ITEMS
+                                            .filter(item => {
+                                                const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
+                                                return born ? item.postnatal : item.prenatal
+                                            })
+                                            .map((item) => (
+                                                <SheetClose asChild key={item.href}>
+                                                    <Link href={item.href} className="w-full">
+                                                        <Button variant="ghost" className="w-full justify-start text-lg h-12 dark:text-zinc-300 dark:hover:bg-zinc-800" aria-label={item.label}>
+                                                            <span className="mr-3 text-xl">{item.icon}</span>
+                                                            {item.label}
+                                                        </Button>
+                                                    </Link>
+                                                </SheetClose>
+                                            ))}
                                     </nav>
                                 </SheetContent>
                             </Sheet>

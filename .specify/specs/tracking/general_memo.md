@@ -142,6 +142,6 @@ class Note(Base):
 
 ## 参照先ドキュメント
 
-- `.specify/specs/ai_daily_summary.md` — AI日誌生成の詳細仕様
-- `.specify/specs/system_design.md` — 全体アーキテクチャ
-- `.specify/specs/baby_permissions.md` — 権限制御
+- `.specify/specs/ai/ai_daily_summary.md` — AI日誌生成の詳細仕様
+- `.specify/specs/infrastructure/system_design.md` — 全体アーキテクチャ
+- `.specify/specs/settings/baby_permissions.md` — 権限制御

@@ -15,6 +15,8 @@ import { SleepWidget } from "@/components/dashboard/SleepWidget"
 import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
 import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
+import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistrationDialog"
+import { isBorn } from "@/lib/babyUtils"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
@@ -175,6 +177,8 @@ export default function Dashboard() {
     if (!effectiveId) return null
 
     const babiesWithStrId = babies.map((b) => ({ ...b, id: String(b.id) }))
+    const selectedBaby = babies?.find((b) => String(b.id) === effectiveId)
+    const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
@@ -186,12 +190,21 @@ export default function Dashboard() {
                     onSelect={(id) => setSelectedBabyId(id)}
                 />
 
+                {/* 出生前: 「生まれた！」ボタン */}
+                {!born && selectedBaby && (
+                    <BirthRegistrationDialog
+                        babyId={effectiveId}
+                        babyName={selectedBaby.name}
+                        onSuccess={() => mutateBabies()}
+                    />
+                )}
+
                 {/* ウィジェットグリッド */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <FeedingWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />
-                    <SleepWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />
-                    <DiaperWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />
-                    <GrowthWidget babyId={effectiveId} records={records} isError={recordsError} />
+                    {born && <FeedingWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />}
+                    {born && <SleepWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />}
+                    {born && <DiaperWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />}
+                    {born && <GrowthWidget babyId={effectiveId} records={records} isError={recordsError} />}
                     <NoteWidget babyId={effectiveId} records={records} isLoading={recordsLoading} />
                 </div>
 
@@ -200,17 +213,19 @@ export default function Dashboard() {
                     📔 育児日誌
                 </Link>
 
-                {/* 陣痛タイマーへのリンク */}
-                <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-medium shadow-sm transition-colors flex items-center justify-center">
-                    🤰 陣痛タイマー
-                </Link>
+                {/* 陣痛タイマーへのリンク（出生前のみ） */}
+                {!born && (
+                    <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-medium shadow-sm transition-colors flex items-center justify-center">
+                        🤰 陣痛タイマー
+                    </Link>
+                )}
 
                 {/* Recent Activity */}
-                <RecentActivityFeed 
-                    babyId={effectiveId} 
-                    records={records} 
-                    isLoading={recordsLoading} 
-                    mutate={mutateRecords} 
+                <RecentActivityFeed
+                    babyId={effectiveId}
+                    records={records}
+                    isLoading={recordsLoading}
+                    mutate={mutateRecords}
                 />
             </div>
         </div>

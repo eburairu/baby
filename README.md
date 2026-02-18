@@ -83,6 +83,14 @@ baby-app/
 ├── alembic/               # DB マイグレーション
 ├── tests/                 # テスト（pytest / vitest）
 ├── .specify/specs/        # 仕様書（SDD）
+│   ├── tracking/          #   育児記録機能
+│   ├── ai/                #   AI機能
+│   ├── settings/          #   設定・管理画面
+│   ├── ui/                #   UI/UX・表示
+│   ├── auth/              #   認証・権限
+│   ├── infrastructure/    #   インフラ・DevOps
+│   ├── development/       #   開発プロセス
+│   └── social/            #   コミュニケーション
 └── verification/          # 動作確認スクリプト
 ```
 
@@ -251,11 +259,15 @@ Baby (belongs to Family)
 - `Dockerfile` — フロントエンドビルド + FastAPI 実行のマルチステージビルド
 - `render.yaml` — Render Web Service 設定（`DATABASE_URL` は Dashboard 側で設定）
 
-## 仕様書
+仕様駆動（SDD）で開発しています。詳細は `.specify/specs/` 配下を参照:
 
-仕様駆動（SDD）で開発しています。詳細は以下を参照:
-
-- `.specify/specs/system_design.md`
-- `.specify/specs/dashboard.md`
-- `.specify/specs/*_tracker.md`
-- `.specify/specs/ai_daily_summary.md`
+| カテゴリ | パス | 内容 |
+| ---- | ---- | ---- |
+| 育児記録 | `tracking/` | 授乳・睡眠・おむつ・成長・陣痛・スケジュール・メモ |
+| AI | `ai/` | AI日誌生成・チャットボット |
+| 設定 | `settings/` | プロフィール・家族・赤ちゃん・権限管理 |
+| UI/UX | `ui/` | デザインシステム・ダッシュボード・ダークモード |
+| 認証 | `auth/` | セッション管理・VIEWERロール |
+| インフラ | `infrastructure/` | システム設計・PWA・Sentry・リリース |
+| 開発 | `development/` | ローカル検証・OpenAPI型生成 |
+| ソーシャル | `social/` | コメント・画像アップロード |

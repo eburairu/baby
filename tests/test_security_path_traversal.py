@@ -1,48 +1,59 @@
 import os
+
 import pytest
-from app.main import serve_frontend, frontend_build_path
 from fastapi.responses import FileResponse
 
+from app.main import serve_frontend
+
+
+@pytest.fixture
+def frontend_dir(tmp_path, monkeypatch):
+    """tmp_path 内にフロントエンドビルドのダミーディレクトリを作成する。"""
+    out_dir = tmp_path / "frontend" / "out"
+    out_dir.mkdir(parents=True)
+    (out_dir / "index.html").write_text("<html>Index</html>")
+    monkeypatch.setattr("app.main.frontend_build_path", str(out_dir))
+    return out_dir
+
+
 @pytest.mark.anyio
-async def test_path_traversal_blocked():
-    # Setup
-    os.makedirs("frontend/out", exist_ok=True)
-    with open("frontend/out/index.html", "w") as f:
-        f.write("<html>Index</html>")
+async def test_path_traversal_blocked(frontend_dir, tmp_path):
+    # プロジェクトルート外の機密ファイルを tmp_path 内に作成
+    sensitive_file = tmp_path / "sensitive.txt"
+    sensitive_file.write_text("SECRET_DATA")
 
-    # Create sensitive file outside
-    with open("sensitive.txt", "w") as f:
-        f.write("SECRET_DATA")
-
-    # Test logic directly with malicious input
+    # パストラバーサル攻撃のシミュレーション
     malicious_path = "../../sensitive.txt"
 
     response = await serve_frontend(malicious_path)
 
-    # Assert
+    # フォールバックとして index.html が返されることを検証
     assert isinstance(response, FileResponse)
 
-    # We expect it to resolve to index.html (fallback) instead of sensitive file
     resolved_path = os.path.abspath(response.path)
-    expected_fallback_path = os.path.abspath(os.path.join(frontend_build_path, "index.html"))
+    expected_fallback_path = os.path.abspath(
+        os.path.join(str(frontend_dir), "index.html")
+    )
 
-    assert resolved_path == expected_fallback_path, f"Expected fallback to index.html, but got {resolved_path}"
+    assert resolved_path == expected_fallback_path, (
+        f"Expected fallback to index.html, but got {resolved_path}"
+    )
 
-    # Ensure sensitive file is NOT accessed
-    expected_sensitive_path = os.path.abspath("sensitive.txt")
-    assert resolved_path != expected_sensitive_path, "VULNERABILITY: Sensitive file was accessed!"
+    # 機密ファイルにアクセスされていないことを検証
+    assert resolved_path != str(sensitive_file.resolve()), (
+        "VULNERABILITY: Sensitive file was accessed!"
+    )
+
 
 @pytest.mark.anyio
-async def test_serve_valid_file():
-    # Setup
-    os.makedirs("frontend/out", exist_ok=True)
-    with open("frontend/out/test.js", "w") as f:
-        f.write("console.log('test')")
+async def test_serve_valid_file(frontend_dir):
+    # 有効なファイルを配置
+    (frontend_dir / "test.js").write_text("console.log('test')")
 
     response = await serve_frontend("test.js")
 
     assert isinstance(response, FileResponse)
     resolved_path = os.path.abspath(response.path)
-    expected_path = os.path.abspath(os.path.join(frontend_build_path, "test.js"))
+    expected_path = os.path.abspath(os.path.join(str(frontend_dir), "test.js"))
 
     assert resolved_path == expected_path
