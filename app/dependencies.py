@@ -92,23 +92,23 @@ def verify_baby_access(
     if family_user.role == UserRole.ADMIN:
         return baby
 
-    # "baby" レベルの可視性チェック（record_type != "baby" のときも先にチェック）
+    # "baby" レベルの可視性チェック（デフォルト拒否）
     baby_perm = db.query(BabyPermission).filter(
         BabyPermission.baby_id == baby_id,
         BabyPermission.user_id == user_id,
         BabyPermission.record_type == "baby",
     ).first()
-    if baby_perm and not baby_perm.can_view:
+    if not baby_perm or not baby_perm.can_view:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
 
-    # 記録タイプ別の可視性チェック（"baby" 以外の record_type が指定された場合）
+    # 記録タイプ別の可視性チェック（"baby" 以外の record_type が指定された場合、デフォルト拒否）
     if record_type != "baby":
         type_perm = db.query(BabyPermission).filter(
             BabyPermission.baby_id == baby_id,
             BabyPermission.user_id == user_id,
             BabyPermission.record_type == record_type,
         ).first()
-        if type_perm and not type_perm.can_view:
+        if not type_perm or not type_perm.can_view:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Access denied to {record_type} records for this baby"

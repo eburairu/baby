@@ -2,21 +2,23 @@
 
 ## 概要
 
-家族のメンバー（`member` ロール）ごとに、各赤ちゃんの閲覧可否および記録タイプ別の閲覧可否を admin が制御できる機能。
+家族のメンバー（`member` / `viewer` ロール）ごとに、各赤ちゃんの閲覧可否および記録タイプ別の閲覧可否を admin が管理する機能。
 
-設定画面は `/settings/babies` の各赤ちゃんカードに「アクセス権限」ボタンとして統合する。
+**設計方針（opt-in 型）**:
+
+- 新規参加ユーザーは**何も見えない状態**でスタートする（デフォルト拒否）
+- Admin が権限管理ページ（`/settings/permissions`）で明示的にアクセスを**許可**する
+- 設定はメンバー中心の専用ページで管理し、メンバーが増えても扱いやすい UI を提供する
 
 ---
 
 ## 背景・既存の状態
 
 - `BabyPermission` テーブル（`app/models/baby.py`）はすでに DB に存在する。
-  - フィールド: `id`, `baby_id`, `user_id`, `record_type`, `can_view`
-  - ユニーク制約: `(baby_id, user_id, record_type)`
-- しかし `verify_baby_access()`（`app/dependencies.py`）は `BabyPermission` を参照しておらず、ファミリー所属チェックのみ行っている。
-- 各記録系エンドポイント（`/api/feedings/`, `/api/sleeps/` 等）も `BabyPermission` を参照していない。
-
-本機能の実装により、既存の `BabyPermission` テーブルをフル活用する。
+    - フィールド: `id`, `baby_id`, `user_id`, `record_type`, `can_view`
+    - ユニーク制約: `(baby_id, user_id, record_type)`
+- `verify_baby_access()`（`app/dependencies.py`）は `BabyPermission` を参照して権限チェックを行う。
+- **デフォルト拒否**: `BabyPermission` レコードが存在しない場合、アクセスは**拒否**とみなす。
 
 ---
 
@@ -25,8 +27,8 @@
 | 用語 | 定義 |
 |------|------|
 | `record_type` | 権限制御の単位となる記録の種類。後述の有効値一覧を参照 |
-| "baby" record_type | 赤ちゃん自体の可視性を制御する特殊な record_type |
-| デフォルト許可 | `BabyPermission` レコードが存在しない場合、その操作は **許可** とみなす（既存動作を維持） |
+| `"baby"` record_type | 赤ちゃん自体の可視性を制御する特殊な record_type |
+| デフォルト拒否 | `BabyPermission` レコードが存在しない場合、その操作は**拒否**とみなす |
 | admin 免除 | `admin` ロールのユーザーは常にすべてにアクセス可能。権限制御の対象外 |
 
 ---
@@ -69,14 +71,21 @@ Baby（赤ちゃん全体の可視性）
 
 1. U のロールが "admin" → アクセス許可（以降のチェックを省略）
 2. BabyPermission に (baby_id=B, user_id=U, record_type="baby") のレコードが存在し can_view=false → アクセス拒否（赤ちゃん全体が非表示）
-3. BabyPermission に (baby_id=B, user_id=U, record_type=R) のレコードが存在し can_view=false → アクセス拒否（当該記録タイプのみ非表示）
-4. 上記いずれにも該当しない → アクセス許可（デフォルト許可）
+3. BabyPermission に (baby_id=B, user_id=U, record_type=R) のレコードが存在し can_view=true → アクセス許可
+4. 上記いずれにも該当しない → アクセス拒否（デフォルト拒否）
 ```
 
-### 既存動作との互換性
+### 既存ユーザーとの互換性
 
-- `BabyPermission` レコードが存在しない場合 = すべて許可（現在の動作を維持）。
-- 本機能の導入前後でユーザーの体験は変わらない（admin が明示的に設定した場合のみ制限される）。
+- デフォルト拒否への変更に伴い、**Alembic マイグレーション**で既存ユーザーの現状を維持する。
+- マイグレーションで既存の MEMBER / VIEWER × 全 Baby × 全 record_type の組み合わせに `can_view=true` の `BabyPermission` レコードを一括挿入する（ON CONFLICT DO NOTHING で重複を回避）。
+- 既存ユーザーの閲覧体験は変わらない。
+
+### Baby 新規追加時の挙動
+
+- Admin が新しい Baby を追加した場合、既存の MEMBER / VIEWER にはその Baby の `BabyPermission` レコードが存在しない（デフォルト拒否）。
+- Admin が権限管理ページで明示的にアクセスを許可するまで、既存メンバーにもその Baby は見えない。
+- 権限管理ページでは未設定の Baby を持つメンバーを目立たせる（⚠️ バナー表示）。
 
 ---
 
@@ -100,62 +109,129 @@ class BabyPermission(Base):
     )
 ```
 
-**スキーマ変更は不要**。Alembic マイグレーションも不要。
+**スキーマ変更は不要**。
+
+### データマイグレーション（後方互換性）
+
+既存ユーザーへの影響を防ぐため、Alembic マイグレーションを実行する。
+
+```sql
+-- 既存の MEMBER/VIEWER × Baby × 全 record_type に can_view=true を挿入
+INSERT INTO baby_permissions (baby_id, user_id, record_type, can_view)
+SELECT b.id, fu.user_id, r.record_type, true
+FROM babies b
+JOIN family_users fu ON fu.family_id = b.family_id AND fu.role != 'admin'
+CROSS JOIN (
+    VALUES ('baby'),('feeding'),('sleep'),('diaper'),('growth'),('contraction'),('schedule'),('note')
+) AS r(record_type)
+ON CONFLICT (baby_id, user_id, record_type) DO NOTHING;
+```
 
 ---
 
 ## バックエンド設計
 
-### 新規ファイル
+### `dependencies.py` の変更
 
-- `app/routers/baby_permissions.py` — 権限管理 API エンドポイント
-- `app/schemas/baby_permission.py` — Pydantic スキーマ
-
-### Pydantic スキーマ
+#### `verify_baby_access()` の変更（デフォルト拒否化）
 
 ```python
-# app/schemas/baby_permission.py
+def verify_baby_access(
+    db: Session,
+    baby_id: int,
+    user_id: int,
+    record_type: str = "baby",
+    require_write: bool = False
+) -> Baby:
+    """
+    baby_id がユーザーのファミリーに属するか検証し、
+    BabyPermission による閲覧権限もチェックする（デフォルト拒否）。
+    失敗時 403 を raise。
+    """
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
+    if not family_user:
+        raise HTTPException(status_code=403, detail="Not in a family")
 
-from pydantic import BaseModel
-from typing import List, Literal
+    if require_write and family_user.role == UserRole.VIEWER:
+        raise HTTPException(status_code=403, detail="Viewer role cannot write")
 
+    baby = db.query(Baby).filter(
+        Baby.id == baby_id,
+        Baby.family_id == family_user.family_id,
+    ).first()
+    if not baby:
+        raise HTTPException(status_code=403, detail="Access denied to this baby")
 
-VALID_RECORD_TYPES = Literal["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
+    # admin は常に許可
+    if family_user.role == UserRole.ADMIN:
+        return baby
 
+    # "baby" レベルの可視性チェック
+    baby_perm = db.query(BabyPermission).filter(
+        BabyPermission.baby_id == baby_id,
+        BabyPermission.user_id == user_id,
+        BabyPermission.record_type == "baby",
+    ).first()
+    # can_view=true のレコードがない → デフォルト拒否
+    if not baby_perm or not baby_perm.can_view:
+        raise HTTPException(status_code=403, detail="Access denied to this baby")
 
-class BabyPermissionItem(BaseModel):
-    """単一の権限レコード（1ユーザー × 1record_type）"""
-    record_type: str
-    can_view: bool
+    # 記録タイプ別の可視性チェック（"baby" 以外の record_type が指定された場合）
+    if record_type != "baby":
+        type_perm = db.query(BabyPermission).filter(
+            BabyPermission.baby_id == baby_id,
+            BabyPermission.user_id == user_id,
+            BabyPermission.record_type == record_type,
+        ).first()
+        # can_view=true のレコードがない → デフォルト拒否
+        if not type_perm or not type_perm.can_view:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Access denied to {record_type} records for this baby"
+            )
 
-
-class UserPermissionSet(BaseModel):
-    """1ユーザーに対するすべての record_type の権限セット"""
-    user_id: int
-    username: str
-    permissions: List[BabyPermissionItem]
-
-
-class BabyPermissionsResponse(BaseModel):
-    """GET レスポンス: 赤ちゃん 1 体の全メンバー権限"""
-    baby_id: int
-    baby_name: str
-    members: List[UserPermissionSet]
-
-
-class BabyPermissionUpdate(BaseModel):
-    """PUT リクエストボディ: 赤ちゃん 1 体の全権限を一括更新"""
-    permissions: List[UserPermissionEntry]
-
-
-class UserPermissionEntry(BaseModel):
-    """PUT 用: 1ユーザー × 1record_type の更新エントリ"""
-    user_id: int
-    record_type: str  # 有効値は VALID_RECORD_TYPES
-    can_view: bool
+    return baby
 ```
 
-### API エンドポイント
+### `GET /api/babies/` のフィルタロジック変更
+
+```python
+@router.get("/", response_model=List[BabyResponse])
+def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    if not family_user:
+        return []
+
+    babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
+
+    # admin は全件返す
+    if family_user.role == UserRole.ADMIN:
+        return babies
+
+    # member/viewer: can_view=true の BabyPermission が存在する赤ちゃんのみ返す（デフォルト拒否）
+    allowed_baby_ids = set(
+        perm.baby_id for perm in db.query(BabyPermission).filter(
+            BabyPermission.user_id == current_user.id,
+            BabyPermission.record_type == "baby",
+            BabyPermission.can_view == True,
+        ).all()
+    )
+    return [b for b in babies if b.id in allowed_baby_ids]
+```
+
+### `GET /api/babies/{baby_id}/permissions` のデフォルト値変更
+
+```python
+# BabyPermission レコードが存在しない場合 → can_view: false（デフォルト拒否）
+for record_type in VALID_RECORD_TYPES:
+    perm = existing_perms.get(record_type)
+    permissions.append(BabyPermissionItem(
+        record_type=record_type,
+        can_view=perm.can_view if perm else False  # ← 変更: True → False
+    ))
+```
+
+### API エンドポイント（変更なし）
 
 #### `GET /api/babies/{baby_id}/permissions`
 
@@ -163,7 +239,8 @@ class UserPermissionEntry(BaseModel):
 
 **権限**: admin のみ
 
-**レスポンス例**:
+**レスポンス例**（デフォルト拒否を反映）:
+
 ```json
 {
   "baby_id": 1,
@@ -179,7 +256,8 @@ class UserPermissionEntry(BaseModel):
         { "record_type": "diaper",      "can_view": true  },
         { "record_type": "growth",      "can_view": true  },
         { "record_type": "contraction", "can_view": true  },
-        { "record_type": "schedule",    "can_view": true  }
+        { "record_type": "schedule",    "can_view": true  },
+        { "record_type": "note",        "can_view": true  }
       ]
     },
     {
@@ -187,6 +265,8 @@ class UserPermissionEntry(BaseModel):
       "username": "山田 次郎",
       "permissions": [
         { "record_type": "baby",        "can_view": false },
+        { "record_type": "feeding",     "can_view": false },
+        { "record_type": "sleep",       "can_view": false },
         ...
       ]
     }
@@ -195,10 +275,11 @@ class UserPermissionEntry(BaseModel):
 ```
 
 **処理詳細**:
-1. `verify_baby_access()` でアクセス検証（admin ロール確認を追加）。
-2. 同一ファミリーの `member` ロールユーザー全員を `FamilyUser` から取得（自身 = admin は除外）。
-3. 各ユーザーについて `BabyPermission` を検索し、7種類すべての `record_type` の `can_view` を組み立てる。
-   - `BabyPermission` レコードが存在しない record_type は `can_view: true`（デフォルト許可）として返す。
+
+1. admin ロール確認。
+2. 同一ファミリーの全 MEMBER / VIEWER ユーザーを `FamilyUser` から取得（admin は除外）。
+3. 各ユーザーについて `BabyPermission` を検索し、8種類すべての `record_type` の `can_view` を組み立てる。
+   - `BabyPermission` レコードが存在しない record_type は `can_view: false`（デフォルト拒否）として返す。
 
 ---
 
@@ -209,190 +290,15 @@ class UserPermissionEntry(BaseModel):
 **権限**: admin のみ
 
 **リクエストボディ例**:
+
 ```json
 {
   "permissions": [
-    { "user_id": 2, "record_type": "sleep",       "can_view": false },
-    { "user_id": 2, "record_type": "baby",        "can_view": true  },
-    { "user_id": 3, "record_type": "baby",        "can_view": false }
+    { "user_id": 2, "record_type": "baby",    "can_view": true  },
+    { "user_id": 2, "record_type": "feeding", "can_view": true  },
+    { "user_id": 3, "record_type": "baby",    "can_view": false }
   ]
 }
-```
-
-**処理詳細**:
-1. `verify_baby_access()` でアクセス検証（admin ロール確認を追加）。
-2. リクエストの各エントリについて `record_type` の有効値チェック。
-3. `user_id` が同一ファミリーの `member` ロールであることを確認（他ファミリーや admin への操作を拒否）。
-4. 各エントリを `INSERT ... ON CONFLICT DO UPDATE`（upsert）で処理:
-   ```python
-   # SQLAlchemy での upsert
-   existing = db.query(BabyPermission).filter(
-       BabyPermission.baby_id == baby_id,
-       BabyPermission.user_id == entry.user_id,
-       BabyPermission.record_type == entry.record_type
-   ).first()
-   if existing:
-       existing.can_view = entry.can_view
-   else:
-       db.add(BabyPermission(
-           baby_id=baby_id,
-           user_id=entry.user_id,
-           record_type=entry.record_type,
-           can_view=entry.can_view
-       ))
-   ```
-5. `db.commit()` 後、更新後の権限一覧を `BabyPermissionsResponse` 形式で返す（GET と同じ形式）。
-
-**エラーレスポンス**:
-- `403 Forbidden`: admin 以外がアクセス
-- `400 Bad Request`: 無効な `record_type`、または対象 `user_id` が同一ファミリーの member でない
-- `404 Not Found`: 指定 `baby_id` が存在しない・アクセス不可
-
----
-
-### `dependencies.py` の変更
-
-#### `verify_baby_access()` の拡張
-
-既存の `verify_baby_access()` を拡張し、`record_type` 引数を追加する。
-
-```python
-def verify_baby_access(
-    db: Session,
-    baby_id: int,
-    user_id: int,
-    record_type: str = "baby"
-) -> Baby:
-    """
-    baby_id がユーザーのファミリーに属するか検証し、
-    BabyPermission による閲覧制限もチェックする。
-    失敗時 403 を raise。
-    """
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
-    if not family_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-
-    baby = db.query(Baby).filter(
-        Baby.id == baby_id,
-        Baby.family_id == family_user.family_id,
-    ).first()
-    if not baby:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
-
-    # admin は常に許可
-    if family_user.role == "admin":
-        return baby
-
-    # "baby" レベルの可視性チェック（record_type != "baby" のときも先にチェック）
-    baby_perm = db.query(BabyPermission).filter(
-        BabyPermission.baby_id == baby_id,
-        BabyPermission.user_id == user_id,
-        BabyPermission.record_type == "baby",
-    ).first()
-    if baby_perm and not baby_perm.can_view:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
-
-    # 記録タイプ別の可視性チェック（"baby" 以外の record_type が指定された場合）
-    if record_type != "baby":
-        type_perm = db.query(BabyPermission).filter(
-            BabyPermission.baby_id == baby_id,
-            BabyPermission.user_id == user_id,
-            BabyPermission.record_type == record_type,
-        ).first()
-        if type_perm and not type_perm.can_view:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied to {record_type} records for this baby"
-            )
-
-    return baby
-```
-
-**後方互換性**: 既存の呼び出し元は `record_type` を渡していないため、デフォルト値 `"baby"` が使用される。既存動作に影響なし。
-
----
-
-### 既存エンドポイントの変更
-
-各記録系 router で `verify_baby_access()` の呼び出しに `record_type` を追加する。
-
-| ファイル | 変更箇所 | `record_type` 引数 |
-|---------|---------|-------------------|
-| `app/routers/feeding.py` | `verify_baby_access(db, baby_id, current_user.id)` | `"feeding"` |
-| `app/routers/sleep.py` | 同上 | `"sleep"` |
-| `app/routers/diaper.py` | 同上 | `"diaper"` |
-| `app/routers/growth.py` | 同上 | `"growth"` |
-| `app/routers/contraction.py` | 同上 | `"contraction"` |
-| `app/routers/schedule.py` | 同上 | `"schedule"` |
-| `app/routers/baby.py` | `GET /api/babies/` は **追加変更あり（後述）** | — |
-
-#### `GET /api/babies/` の変更
-
-全赤ちゃん一覧取得時に、`record_type="baby"` で `can_view=false` の赤ちゃんをフィルタする。
-
-```python
-@router.get("/", response_model=List[BabyResponse])
-def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
-        return []
-
-    babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
-
-    # admin は全件返す
-    if family_user.role == "admin":
-        return babies
-
-    # member: BabyPermission で can_view=false の赤ちゃんを除外
-    hidden_baby_ids = set(
-        perm.baby_id for perm in db.query(BabyPermission).filter(
-            BabyPermission.user_id == current_user.id,
-            BabyPermission.record_type == "baby",
-            BabyPermission.can_view == False,
-        ).all()
-    )
-    return [b for b in babies if b.id not in hidden_baby_ids]
-```
-
-#### `app/routers/baby.py` の `GET /{baby_id}/records` の変更
-
-`verify_baby_access()` の呼び出しはそのままだが、返すレコード一覧で record_type ごとにフィルタする。
-
-```python
-@router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
-def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # "baby" レベルのアクセスチェック（record_type="baby" はデフォルトなので変更不要）
-    verify_baby_access(db, baby_id, current_user.id)
-
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    is_admin = family_user and family_user.role == "admin"
-
-    def can_view_type(rt: str) -> bool:
-        if is_admin:
-            return True
-        perm = db.query(BabyPermission).filter(
-            BabyPermission.baby_id == baby_id,
-            BabyPermission.user_id == current_user.id,
-            BabyPermission.record_type == rt,
-        ).first()
-        return perm is None or perm.can_view
-
-    records: List[UnifiedRecord] = []
-
-    if can_view_type("feeding"):
-        # ... 既存の feeding 取得ロジック
-    if can_view_type("sleep"):
-        # ... 既存の sleep 取得ロジック
-    # 以降同様
-```
-
----
-
-### `app/main.py` への router 登録
-
-```python
-from app.routers import baby_permissions
-app.include_router(baby_permissions.router)
 ```
 
 ---
@@ -401,167 +307,118 @@ app.include_router(baby_permissions.router)
 
 ### 設計方針
 
-- `/settings/babies` の既存 `BabyCard` に「アクセス権限」ボタンを追加。
-- ボタンタップで `BabyPermissionDialog` を開く（ページ遷移なし）。
-- admin のみボタンを表示する。
-- ファミリーに `member` ロールのユーザーが 0 人の場合はボタンを非表示（設定対象が存在しない）。
+- **専用ページ** `/settings/permissions` を新設する（ダイアログ型から移行）。
+- **メンバー中心**の管理 UI：メンバーを軸に、各メンバーが閲覧できる赤ちゃんを設定する。
+- メンバーが多い場合でも扱いやすいよう、検索・アコーディオン・一括操作を備える。
+
+### 画面構成
+
+```
+┌─────────────────────────────────────────┐
+│ ← 戻る    権限管理                     │   ← sticky header h-14
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ 🔒 赤ちゃんへのアクセス権限                             │
+│ メンバーがどの赤ちゃんの情報を見られるか管理します       │
+│                                                         │
+│ [🔍 メンバーを検索...]                                  │
+│                                                         │
+│ ── 田中 花子 (メンバー) ─────────────────────────────  │
+│ 👶 レンくん      [全て許可 ✅]  [詳細設定 ▼]           │
+│    └ 授乳:✅  睡眠:✅  おむつ:❌  成長:✅  ...（展開時）│
+│ 👶 はなちゃん    [アクセスなし ❌] [許可する]           │
+│                                                         │
+│ ── 山田 次郎 (閲覧者) ───────────────────────────────  │
+│ ⚠️ すべての赤ちゃんへのアクセスが未設定です             │
+│ 👶 レンくん      [許可する]                             │
+│ 👶 はなちゃん    [許可する]                             │
+└─────────────────────────────────────────────────────────┘
+```
+
+**スケーラビリティ対応**:
+
+- **検索機能**: メンバー名で絞り込み（メンバーが 5 人以上の場合に有効）
+- **未設定バナー**: アクセス未設定の Baby を持つメンバーを ⚠️ で目立たせる
+- **アコーディオン型**: Baby 毎の記録タイプ別詳細設定は折りたたみ（展開時のみ表示）
+- **一括操作**: Baby 毎の「全て許可」（`baby` + 全 record_type を `can_view=true`）ボタン
 
 ### コンポーネント構成
 
 ```
-frontend/
-  components/settings/
-    BabyCard.tsx                    ← 既存（アクセス権限ボタンを追加）
-    BabyPermissionDialog.tsx        ← 新規作成
-      PermissionUserSection.tsx     ← 新規作成（1ユーザー分の権限切り替えUI）
-  hooks/
-    useBabyPermissions.ts           ← 新規作成（SWR フック）
+新設:
+  frontend/app/(dashboard)/settings/permissions/page.tsx
+    ← 権限管理専用ページ（Admin のみアクセス）
+
+  frontend/components/settings/MemberPermissionCard.tsx
+    ← 1メンバー分の権限管理UI（アコーディオン型）
+
+  frontend/components/settings/BabyAccessRow.tsx
+    ← MemberPermissionCard 内の Baby 毎の行コンポーネント
+    ← 「全て許可」「アクセスなし」「詳細設定▼」を含む
+
+  frontend/hooks/usePermissionsPage.ts
+    ← useSWR で GET /api/babies/{baby_id}/permissions を取得するフック
+
+廃止:
+  frontend/components/settings/BabyPermissionDialog.tsx
+  (BabyCard.tsx の「アクセス権限」ボタンも削除)
+
+変更:
+  frontend/components/settings/BabyCard.tsx
+    ← 「アクセス権限」ボタンを削除（専用ページで管理）
+
+  frontend/app/(dashboard)/settings/page.tsx（または navigation）
+    ← 「権限管理」メニュー項目を追加（Admin のみ表示）
 ```
 
-### `BabyCard.tsx` への変更
+### `MemberPermissionCard.tsx` の UI 仕様
 
-```tsx
-// admin かつ member が 1 人以上いる場合のみ表示
-{isAdmin && hasMemberUsers && (
-  <Button
-    variant="outline"
-    size="sm"
-    onClick={() => setPermissionDialogOpen(true)}
-    className="text-violet-600 border-violet-200 hover:bg-violet-50"
-  >
-    <ShieldCheck className="w-4 h-4 mr-1" />
-    アクセス権限
-  </Button>
-)}
-
-<BabyPermissionDialog
-  baby={baby}
-  open={permissionDialogOpen}
-  onOpenChange={setPermissionDialogOpen}
-/>
+```
+── 田中 花子 (メンバー) ──────────────────────────────────
+👶 レンくん      [全て許可 ✅]  [詳細設定 ▼]
+   ▼ 展開時:
+   授乳  [toggle: ON ]
+   睡眠  [toggle: ON ]
+   おむつ [toggle: OFF]
+   成長  [toggle: ON ]
+   陣痛  [toggle: ON ]
+   スケジュール [toggle: ON ]
+   メモ  [toggle: ON ]
+👶 はなちゃん    [アクセスなし ❌]  [許可する]
 ```
 
-### `BabyPermissionDialog.tsx`
+**操作フロー**:
 
-**ダイアログの構成**:
-```
-┌─────────────────────────────────────────────┐
-│  🔒 「レンくん」のアクセス権限              │
-│  メンバーごとに閲覧できる記録を設定します    │
-│                                             │
-│  ── 田中 花子 ──────────────────────────── │
-│  [赤ちゃん全体]  ● 表示  ○ 非表示           │
-│                                             │
-│  記録タイプ別設定（赤ちゃんが表示の場合のみ有効）│
-│  授乳     [toggle: ON ]                     │
-│  睡眠     [toggle: OFF]                     │
-│  おむつ   [toggle: ON ]                     │
-│  成長     [toggle: ON ]                     │
-│  陣痛     [toggle: ON ]                     │
-│  スケジュール [toggle: ON ]                  │
-│                                             │
-│  ── 山田 次郎 ──────────────────────────── │
-│  [赤ちゃん全体]  ○ 表示  ● 非表示           │
-│                                             │
-│  記録タイプ別設定（グレーアウト・操作不可）   │
-│  授乳     [toggle: -- ]                     │
-│  ...                                        │
-│                                             │
-│              [キャンセル] [保存]             │
-└─────────────────────────────────────────────┘
-```
-
-**UI 仕様**:
-- 「赤ちゃん全体」を **非表示** にした場合、記録タイプ別トグルはすべてグレーアウトし操作不可にする（赤ちゃん自体が見えないため）。
-- 変更はダイアログ内でローカルステートに保持し、「保存」ボタンで一括送信する。
-- 保存後: ダイアログを閉じ、成功トーストを表示。`useBabies()` の mutate は不要（赤ちゃんデータ自体は変わらない）。
-
-### `useBabyPermissions.ts`
-
-```typescript
-// hooks/useBabyPermissions.ts
-
-import useSWR from "swr";
-
-export type PermissionItem = {
-  record_type: string;
-  can_view: boolean;
-};
-
-export type UserPermissionSet = {
-  user_id: number;
-  username: string;
-  permissions: PermissionItem[];
-};
-
-export type BabyPermissionsData = {
-  baby_id: number;
-  baby_name: string;
-  members: UserPermissionSet[];
-};
-
-export function useBabyPermissions(babyId: number | null) {
-  const { data, error, isLoading, mutate } = useSWR<BabyPermissionsData>(
-    babyId ? `/api/babies/${babyId}/permissions` : null,
-    { revalidateOnFocus: false }
-  );
-  return { data, error, isLoading, mutate };
-}
-
-export async function updateBabyPermissions(
-  babyId: number,
-  permissions: { user_id: number; record_type: string; can_view: boolean }[]
-): Promise<void> {
-  const res = await fetch(`/api/babies/${babyId}/permissions`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ permissions }),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail ?? "権限の更新に失敗しました");
-  }
-}
-```
+- 「許可する」: `baby` + 全 record_type を `can_view=true` で一括 PUT
+- 「全て許可 ✅」をクリック: `baby` + 全 record_type を `can_view=true` で一括 PUT（確認ダイアログなし）
+- 「詳細設定 ▼」: アコーディオン展開。各記録タイプのトグルを個別に変更（変更のたびに即時 PUT）
+- 「アクセスなし ❌」状態では詳細設定トグルはグレーアウト（操作不可）
 
 ### ダッシュボード・記録ページへの影響
 
-フロントエンドでも権限に基づいた表示制御が必要。
-
 #### `GET /api/babies/` レスポンスによるダッシュボード制御
 
-- バックエンドが `GET /api/babies/` で `can_view=false` の赤ちゃんを除外するため、ダッシュボードのベビー選択肢から自動的に除外される。
-- フロントエンド側での追加フィルタ処理は不要。
+- バックエンドが `GET /api/babies/` で `can_view=true` の赤ちゃんのみ返す。
+- ダッシュボードの Baby 選択肢は自動的に制御される。フロントエンド側での追加フィルタ処理は不要。
 
 #### 記録ページでのエラーハンドリング
 
-- バックエンドが `403` を返した場合（記録タイプ別制限）、ページ上に「この記録は閲覧できません」メッセージを表示する。
-- 具体的な実装: SWR の `error` ステータスが `403` の場合の専用 UI を各記録ページに追加。
-
-```tsx
-if (error?.status === 403) {
-  return (
-    <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-      <ShieldOff className="w-12 h-12 mb-3" />
-      <p>この記録は閲覧できません</p>
-    </div>
-  );
-}
-```
+- バックエンドが `403` を返した場合（記録タイプ別制限）、「この記録は閲覧できません」メッセージを表示する。
+- 実装: SWR の `error` ステータスが `403` の場合の専用 UI を各記録ページに追加（既実装）。
 
 ---
 
 ## 権限制御まとめ
 
-| 操作 | admin | member（許可） | member（制限） |
-|------|-------|--------------|--------------|
-| `GET /api/babies/` | 全件返す | `can_view=false` 以外を返す | `can_view=false` の赤ちゃんは返さない |
+| 操作 | admin | member/viewer（許可済み） | member/viewer（未設定・拒否） |
+|------|-------|------------------------|---------------------------|
+| `GET /api/babies/` | 全件返す | `can_view=true` の赤ちゃんのみ返す | 返さない |
 | `GET /api/babies/{id}/permissions` | ✅ | ❌ 403 | ❌ 403 |
 | `PUT /api/babies/{id}/permissions` | ✅ | ❌ 403 | ❌ 403 |
-| `GET /api/feedings/?baby_id={id}` | ✅ | ✅ | `can_view=false` の場合 403 |
-| 他記録系エンドポイント | ✅ | ✅ | `can_view=false` の場合 403 |
-| ダッシュボードの赤ちゃん選択 | 全件表示 | 全件表示 | 非表示の赤ちゃんは選択肢に出ない |
+| `GET /api/feedings/?baby_id={id}` | ✅ | ✅ | 403 |
+| 他記録系エンドポイント | ✅ | ✅ | 403 |
+| ダッシュボードの赤ちゃん選択 | 全件表示 | 許可済みのみ表示 | 表示されない |
 
 ---
 
@@ -569,10 +426,10 @@ if (error?.status === 403) {
 
 | エラー条件 | バックエンド | フロントエンド |
 |-----------|------------|--------------|
-| 非 admin ユーザーが権限設定 API にアクセス | `403 Forbidden` | ボタン非表示（UI 制御）、かつ 403 発生時はトーストでエラー表示 |
+| 非 admin ユーザーが権限設定 API にアクセス | `403 Forbidden` | ページ自体が Admin のみ表示のため到達しない |
 | 無効な `record_type` | `400 Bad Request` | トースト「無効な値が含まれています」 |
-| 別ファミリーの `user_id` を指定 | `400 Bad Request` | ダイアログ内にエラートースト |
-| 存在しない `baby_id` | `404 Not Found` | ダイアログが開かないよう操作起点でハンドリング |
+| 別ファミリーの `user_id` を指定 | `400 Bad Request` | 発生しない（同一ファミリーのメンバーのみ表示） |
+| 存在しない `baby_id` | `404 Not Found` | 発生しない（同一ファミリーの Baby のみ表示） |
 | ネットワークエラー | — | トースト「通信エラーが発生しました」 |
 
 ---
@@ -583,66 +440,68 @@ if (error?.status === 403) {
 
 | ファイル | 変更種別 | 内容 |
 |---------|---------|------|
-| `app/schemas/baby_permission.py` | **新規作成** | `BabyPermissionItem`, `UserPermissionSet`, `BabyPermissionsResponse`, `BabyPermissionUpdate`, `UserPermissionEntry` |
-| `app/routers/baby_permissions.py` | **新規作成** | `GET /api/babies/{baby_id}/permissions`, `PUT /api/babies/{baby_id}/permissions` |
-| `app/dependencies.py` | **変更** | `verify_baby_access()` に `record_type: str = "baby"` 引数を追加、`BabyPermission` チェックを追加 |
-| `app/routers/baby.py` | **変更** | `GET /api/babies/` に member 向けフィルタ追加。`GET /{baby_id}/records` に record_type 別フィルタ追加 |
-| `app/routers/feeding.py` | **変更** | `verify_baby_access()` 呼び出しに `record_type="feeding"` を追加 |
-| `app/routers/sleep.py` | **変更** | 同上 `"sleep"` |
-| `app/routers/diaper.py` | **変更** | 同上 `"diaper"` |
-| `app/routers/growth.py` | **変更** | 同上 `"growth"` |
-| `app/routers/contraction.py` | **変更** | 同上 `"contraction"` |
-| `app/routers/schedule.py` | **変更** | 同上 `"schedule"` |
-| `app/main.py` | **変更** | `baby_permissions` router を `include_router` |
+| `app/dependencies.py` | **変更** | `verify_baby_access()` をデフォルト拒否に変更 |
+| `app/routers/baby.py` | **変更** | `GET /api/babies/` を allowed_baby_ids フィルタに変更 |
+| `app/routers/baby_permissions.py` | **変更** | `GET` レスポンスのデフォルト値を `can_view: false` に変更 |
+| `alembic/versions/xxxx_default_deny_migration.py` | **新規作成** | 既存ユーザーに `can_view=true` を一括付与するマイグレーション |
 
 ### フロントエンド
 
 | ファイル | 変更種別 | 内容 |
 |---------|---------|------|
-| `frontend/hooks/useBabyPermissions.ts` | **新規作成** | `useBabyPermissions` SWR フック、`updateBabyPermissions` 関数 |
-| `frontend/components/settings/BabyPermissionDialog.tsx` | **新規作成** | 権限設定ダイアログ（ユーザー別 × record_type 別トグル） |
-| `frontend/components/settings/BabyCard.tsx` | **変更** | 「アクセス権限」ボタン追加（admin かつ member 存在時のみ表示） |
-| 各記録ページ (`app/(dashboard)/[record]/page.tsx` 等) | **変更** | SWR エラーが `403` の場合に「閲覧制限」UI を表示 |
+| `frontend/app/(dashboard)/settings/permissions/page.tsx` | **新規作成** | 権限管理専用ページ |
+| `frontend/components/settings/MemberPermissionCard.tsx` | **新規作成** | メンバー毎の権限管理UI（アコーディオン型） |
+| `frontend/components/settings/BabyAccessRow.tsx` | **新規作成** | Baby 毎の行コンポーネント |
+| `frontend/hooks/usePermissionsPage.ts` | **新規作成** | 権限管理ページ用 SWR フック |
+| `frontend/components/settings/BabyPermissionDialog.tsx` | **削除** | 専用ページに移行のため廃止 |
+| `frontend/components/settings/BabyCard.tsx` | **変更** | 「アクセス権限」ボタンを削除 |
+| 設定メニュー（nav または settings/page.tsx） | **変更** | 「権限管理」メニュー項目を追加（Admin のみ） |
 
 ---
 
 ## 実装チェックリスト
 
-### バックエンド
+### バックエンド（実装済み）
 
-- [ ] `app/schemas/baby_permission.py` 作成（上記スキーマ定義）
-- [ ] `app/routers/baby_permissions.py` 作成
-  - [ ] `GET /api/babies/{baby_id}/permissions` 実装
-  - [ ] `PUT /api/babies/{baby_id}/permissions` 実装
-  - [ ] admin ロールガード実装
-  - [ ] 同一ファミリーの member のみ操作可能な検証実装
-- [ ] `app/dependencies.py` の `verify_baby_access()` を拡張
-  - [ ] `record_type: str = "baby"` 引数追加
-  - [ ] `BabyPermission` の "baby" レベルチェック追加
-  - [ ] `BabyPermission` の record_type レベルチェック追加
-  - [ ] 既存の呼び出し元への後方互換性を確認
-- [ ] `app/routers/baby.py` の変更
-  - [ ] `GET /api/babies/` に hidden_baby_ids フィルタ追加
-  - [ ] `GET /{baby_id}/records` に record_type 別フィルタ追加
-- [ ] 各記録系 router（feeding, sleep, diaper, growth, contraction, schedule）に `record_type` 引数を追加
-- [ ] `app/main.py` に `baby_permissions` router を登録
-- [ ] `alembic upgrade head` で DB マイグレーション確認（スキーマ変更なし → 不要のはず）
+以下は旧仕様（デフォルト許可）で実装済み。デフォルト拒否への移行が必要。
 
-### フロントエンド
+- [x] `app/dependencies.py` の `verify_baby_access()` 実装（現在はデフォルト許可）
+- [x] `app/routers/baby.py` の `GET /api/babies/` に `hidden_baby_ids` フィルタ実装（opt-out 型）
+- [x] `app/routers/baby_permissions.py` の `GET/PUT` エンドポイント実装（GET のデフォルト値は `True`）
+- [x] `app/models/baby.py` の `BabyPermission` テーブル定義
+- [x] `app/schemas/baby_permission.py` の Pydantic スキーマ定義
 
-- [ ] `frontend/hooks/useBabyPermissions.ts` 作成
-- [ ] `frontend/components/settings/BabyPermissionDialog.tsx` 作成
-  - [ ] `useBabyPermissions` フックでデータ取得
-  - [ ] ユーザーごとに「赤ちゃん全体」ラジオボタン実装
-  - [ ] 記録タイプ別トグルスイッチ 6 個実装
-  - [ ] 「赤ちゃん全体」が非表示の場合、記録タイプ別トグルをグレーアウト
-  - [ ] ローカルステートで変更を管理し、「保存」で一括 PUT
-  - [ ] 保存成功時: ダイアログを閉じ、成功トースト表示
-  - [ ] エラー時: トースト表示
-- [ ] `frontend/components/settings/BabyCard.tsx` に「アクセス権限」ボタン追加
-  - [ ] admin かつ family に member が 1 人以上いる場合のみ表示
-  - [ ] `BabyPermissionDialog` の開閉状態を `useState` で管理
-- [ ] 各記録ページに 403 エラー時の「閲覧制限」UI を追加
+### バックエンド（未実装 — デフォルト拒否への移行）
+
+- [ ] `app/dependencies.py` の `verify_baby_access()` をデフォルト拒否に変更
+    - [ ] `baby_perm` が存在しない、または `can_view=false` の場合に 403 を返す
+    - [ ] `type_perm` が存在しない、または `can_view=false` の場合に 403 を返す
+- [ ] `app/routers/baby.py` の `GET /api/babies/` を `allowed_baby_ids` フィルタ（opt-in 型）に変更
+- [ ] `app/routers/baby_permissions.py` の `GET` レスポンスのデフォルト値を `False` に変更
+- [ ] Alembic マイグレーション作成・実行（既存 MEMBER/VIEWER への `can_view=true` 一括付与）
+- [ ] 既存テスト（`test_viewer_role.py` 等）をデフォルト拒否前提に更新
+
+### フロントエンド（実装済み — 旧 UI、移行後に廃止）
+
+- [x] `frontend/hooks/useBabyPermissions.ts`（SWR フック、GET/PUT を呼び出す）
+- [x] `frontend/components/settings/BabyPermissionDialog.tsx`（Baby 毎のダイアログ型 UI）
+- [x] `frontend/components/settings/BabyCard.tsx` に「アクセス権限」ボタン統合済み
+
+### フロントエンド（未実装 — 新 UI への移行）
+
+- [ ] `frontend/app/(dashboard)/settings/permissions/page.tsx` 作成
+    - [ ] Admin のみアクセス可能（非 admin はリダイレクト or 非表示）
+    - [ ] メンバー一覧を表示（検索機能付き）
+    - [ ] 未設定メンバーへの ⚠️ バナー表示
+- [ ] `frontend/components/settings/MemberPermissionCard.tsx` 作成
+    - [ ] Baby 毎の「全て許可」「アクセスなし」ボタン
+    - [ ] 「詳細設定 ▼」アコーディオン（記録タイプ別トグル）
+    - [ ] 即時 PUT で変更を反映
+- [ ] `frontend/components/settings/BabyAccessRow.tsx` 作成
+- [ ] `frontend/hooks/usePermissionsPage.ts` 作成（SWR フック）
+- [ ] `BabyPermissionDialog.tsx` 削除
+- [ ] `BabyCard.tsx` の「アクセス権限」ボタン削除
+- [ ] 設定ナビゲーションに「権限管理」メニュー追加（Admin のみ表示）
 - [ ] `cd frontend && pnpm build` でビルド確認
 
 ---
@@ -650,7 +509,7 @@ if (error?.status === 403) {
 ## 参照先ドキュメント
 
 - `.specify/specs/settings/family_settings.md` — 家族設定・メンバー管理
-- `.specify/specs/settings/baby_settings.md` — 赤ちゃん管理画面（BabyCard, BabyEditDialog 等）
+- `.specify/specs/settings/baby_settings.md` — 赤ちゃん管理画面（BabyCard 等）
 - `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/baby.py` — `Baby`, `BabyPermission` モデル
 - `app/dependencies.py` — `verify_baby_access()` 実装

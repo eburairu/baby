@@ -103,8 +103,9 @@ class UserRole(str, enum.Enum):
 | `/api/notifications/test` | POST | ✅ | ✅ | ✅ |
 
 > [!NOTE]
-> - ※1: `BabyPermission` で `can_view=false` に設定された赤ちゃんは結果から除外される（ADMIN は免除）
-> - ※2: `BabyPermission` で当該 `record_type` の `can_view=false` が設定されている場合は `403` を返す（ADMIN は免除）
+>
+> - ※1: `BabyPermission` で `can_view=true` が設定された赤ちゃんのみ返す（デフォルト拒否。レコードが存在しない場合も返さない。ADMIN は免除）
+> - ※2: `BabyPermission` で当該 `record_type` の `can_view=true` が設定されていない場合は `403` を返す（デフォルト拒否。ADMIN は免除）
 > - ※3: ADMIN は他ユーザーのコメントも削除可能
 > - ※4: 自分のコメントのみ削除可能
 > - ※5: 認証前のエンドポイント。RBAC のロールチェック対象外（未認証ユーザーがアクセス）
@@ -220,17 +221,19 @@ export function usePermissions() {
 
 ## BabyPermission との関係
 
-RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細かい閲覧制限** を `BabyPermission` テーブルで制御する。詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
+RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細かい閲覧権限** を `BabyPermission` テーブルで制御する。詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
 
 - ADMIN は `BabyPermission` の制約を受けない（常にすべてにアクセス可能）
-- MEMBER / VIEWER は `can_view=false` が設定された赤ちゃん・記録タイプにアクセスできない
-- `BabyPermission` レコードが存在しない場合はデフォルト許可
+- MEMBER / VIEWER は `can_view=true` が設定された赤ちゃん・記録タイプのみアクセスできる
+- `BabyPermission` レコードが存在しない場合は**デフォルト拒否**（アクセス不可）
+- 新規参加ユーザーは `BabyPermission` レコードが存在しないため、何も見えない状態でスタートする
+- ADMIN が明示的にアクセスを許可した赤ちゃん・記録タイプのみ閲覧可能になる（opt-in 型）
 
 ---
 
 ## 実装チェックリスト
 
-### バックエンド
+### バックエンド（実装済み）
 
 - [x] `UserRole` enum の定義（`app/models/family.py`）
 - [x] `join_family` のデフォルトロールを `VIEWER` に設定（`app/routers/auth.py`）
@@ -240,18 +243,39 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] `update_member_role` で VIEWER への変更を許可（`app/routers/family.py`）
 - [x] 最終 ADMIN の降格防止ガード
 - [x] 最終 ADMIN の自己削除防止ガード（`app/routers/family.py` `delete_member`）
+- [x] `GET /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
+- [x] `PUT /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
 
-### フロントエンド
+### バックエンド（未実装 — デフォルト拒否への移行）
+
+- [ ] `verify_baby_access()` をデフォルト拒否に変更（BabyPermission が存在しない場合に 403）
+- [ ] `GET /api/babies/` を `allowed_baby_ids` フィルタ（opt-in 型）に変更
+- [ ] `GET /api/babies/{baby_id}/permissions` の BabyPermission 未設定時のデフォルト値を `False` に変更
+- [ ] Alembic マイグレーション（既存 MEMBER/VIEWER への `can_view=true` 一括付与）
+
+詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
+
+### フロントエンド（実装済み）
 
 - [x] `UserRole` 定数の定義（`frontend/lib/constants.ts`）
 - [x] `usePermissions` フックの実装（`frontend/hooks/usePermissions.ts`）
 - [x] 各記録画面の FAB・編集/削除ボタンの表示制御
 - [x] `RecordDetailDialog` での VIEWER 制限（保存・削除非表示、入力無効化）
 - [x] ファミリー設定画面でのロール表示と変更機能
+- [x] `BabyPermissionDialog.tsx`（旧 UI。`/settings/babies` の各 BabyCard に統合済み）
 
-### テスト
+### フロントエンド（未実装 — 権限管理 UI の刷新）
 
-#### 実装済み（`tests/test_viewer_role.py`, `tests/test_role_validation.py`）
+- [ ] `/settings/permissions` 専用ページ（メンバー中心の管理 UI）
+- [ ] `MemberPermissionCard.tsx`（アコーディオン型、Baby 毎のアクセス設定）
+- [ ] `BabyPermissionDialog.tsx` の廃止
+- [ ] 設定ナビゲーションに「権限管理」メニュー追加（ADMIN のみ）
+
+詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
+
+### テスト（実装済み）
+
+#### `tests/test_viewer_role.py`, `tests/test_role_validation.py`
 
 - [x] VIEWER ロールで `join_family` されることを確認（`test_viewer_default_on_join`）
 - [x] VIEWER ロールが GET エンドポイント（閲覧）にアクセスできることを確認（`test_viewer_read_only_access`）
@@ -259,7 +283,7 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] ADMIN が VIEWER を MEMBER に変更でき、MEMBER が記録を作成できることを確認（`test_admin_can_change_role`）
 - [x] 無効なロール値での更新が `422` で拒否されることを確認（`test_update_role_with_invalid_value`）
 
-#### 実装済み（`tests/test_rbac_constraints.py`）
+#### `tests/test_rbac_constraints.py`
 
 - [x] 最終 ADMIN の降格が拒否されることを確認（`test_last_admin_demotion_rejected`）
 - [x] 最終 ADMIN の自己削除が拒否されることを確認（`test_last_admin_self_delete_rejected`）
@@ -268,12 +292,37 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] MEMBER / VIEWER が他者のコメントを削除できないことを確認（`test_member_cannot_delete_others_comment`）
 - [x] 通知系エンドポイントに全ロールがアクセスできることを確認（`test_all_roles_can_access_notifications`）
 
+### テスト（未実装）
+
+- [ ] デフォルト拒否を前提とした既存テストの更新（`test_viewer_read_only_access` 等）
+- [ ] 新規参加ユーザーに Baby が表示されないことを確認するテスト
+
 ---
 
 ## 影響範囲・互換性
 
-- 既存の MEMBER ユーザーには影響なし（既存ユーザーのロールは維持される）
-- 新規参加ユーザーのみ、初期状態が VIEWER（閲覧のみ）に制限される
+### デフォルト拒否への変更とマイグレーション
+
+`BabyPermission` のデフォルト動作を**デフォルト許可**から**デフォルト拒否**に変更した。
+
+**既存ユーザーへの影響**:
+
+- 既存の ADMIN ユーザーには影響なし（ADMIN は BabyPermission チェックをスキップ）
+- 既存の MEMBER / VIEWER ユーザーは Alembic マイグレーションで全 Baby × 全 record_type に `can_view=true` の `BabyPermission` レコードを一括付与する。これにより、デフォルト拒否に変更した後も既存ユーザーの閲覧体験は維持される。
+
+**新規参加ユーザー（デフォルト拒否の効果）**:
+
+- 招待コードで参加した新規ユーザーは `BabyPermission` レコードが存在しないため、何も見えない状態でスタートする
+- ADMIN が `/settings/permissions` ページで明示的にアクセスを許可した赤ちゃん・記録タイプのみ閲覧できる
+
+**Baby 新規追加時の挙動**:
+
+- ADMIN が新しい Baby を追加した場合、既存の MEMBER / VIEWER にはその Baby の `BabyPermission` レコードが存在しない（デフォルト拒否）
+- ADMIN が権限管理ページで明示的にアクセスを許可するまで、既存メンバーにもその Baby は見えない
+
+### ロール互換性
+
+- 既存のロール（ADMIN / MEMBER / VIEWER）は維持される
 - 認証仕様については [authentication.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/auth/authentication.md) を参照
 
 ---
