@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/eburairu/baby/compare/v1.28.0...v1.29.0) (2026-02-18)
+
+
+### Features
+
+* 各ダッシュボードページに育児ヒントカード（TipsCard）を追加 ([952909e](https://github.com/eburairu/baby/commit/952909e4f7fc1deff884c7ce4ec7362a42a8942a))
+
 # [1.28.0](https://github.com/eburairu/baby/compare/v1.27.0...v1.28.0) (2026-02-18)
 
 
