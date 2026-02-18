@@ -290,6 +290,24 @@
         "title": "Body_upload_image_api_upload_image_post",
         "type": "object"
       },
+      "BottleContentType": {
+        "enum": [
+          "FORMULA",
+          "EXPRESSED_MILK",
+          "MIXED"
+        ],
+        "title": "BottleContentType",
+        "type": "string"
+      },
+      "BreastSide": {
+        "enum": [
+          "LEFT",
+          "RIGHT",
+          "BOTH"
+        ],
+        "title": "BreastSide",
+        "type": "string"
+      },
       "CommentCreate": {
         "properties": {
           "content": {
@@ -919,6 +937,14 @@
         "title": "FamilyUpdate",
         "type": "object"
       },
+      "FeedingCompletion": {
+        "enum": [
+          "FULL",
+          "PARTIAL"
+        ],
+        "title": "FeedingCompletion",
+        "type": "string"
+      },
       "FeedingCreate": {
         "properties": {
           "amount_ml": {
@@ -936,6 +962,16 @@
             "title": "Baby Id",
             "type": "integer"
           },
+          "bottle_content_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BottleContentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "duration_minutes": {
             "anyOf": [
               {
@@ -947,6 +983,16 @@
             ],
             "title": "Duration Minutes"
           },
+          "feeding_completion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FeedingCompletion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "feeding_time": {
             "format": "date-time",
             "title": "Feeding Time",
@@ -954,6 +1000,27 @@
           },
           "feeding_type": {
             "$ref": "#/components/schemas/FeedingType"
+          },
+          "last_breast_side": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BreastSide"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "left_breast_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Breast Minutes"
           },
           "notes": {
             "anyOf": [
@@ -965,6 +1032,17 @@
               }
             ],
             "title": "Notes"
+          },
+          "right_breast_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Breast Minutes"
           }
         },
         "required": [
@@ -992,6 +1070,16 @@
             "title": "Baby Id",
             "type": "integer"
           },
+          "bottle_content_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BottleContentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "duration_minutes": {
             "anyOf": [
               {
@@ -1002,6 +1090,16 @@
               }
             ],
             "title": "Duration Minutes"
+          },
+          "feeding_completion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FeedingCompletion"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "feeding_time": {
             "format": "date-time",
@@ -1015,6 +1113,27 @@
             "title": "Id",
             "type": "integer"
           },
+          "last_breast_side": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BreastSide"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "left_breast_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Breast Minutes"
+          },
           "notes": {
             "anyOf": [
               {
@@ -1025,6 +1144,17 @@
               }
             ],
             "title": "Notes"
+          },
+          "right_breast_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Breast Minutes"
           },
           "user_id": {
             "title": "User Id",
@@ -1063,6 +1193,16 @@
             ],
             "title": "Amount Ml"
           },
+          "bottle_content_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BottleContentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "duration_minutes": {
             "anyOf": [
               {
@@ -1073,6 +1213,16 @@
               }
             ],
             "title": "Duration Minutes"
+          },
+          "feeding_completion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FeedingCompletion"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "feeding_time": {
             "anyOf": [
@@ -1096,6 +1246,27 @@
               }
             ]
           },
+          "last_breast_side": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BreastSide"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "left_breast_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Breast Minutes"
+          },
           "notes": {
             "anyOf": [
               {
@@ -1106,6 +1277,17 @@
               }
             ],
             "title": "Notes"
+          },
+          "right_breast_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Breast Minutes"
           }
         },
         "title": "FeedingUpdate",
