@@ -62,9 +62,11 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
         setIsDeleting(true);
         try {
             await onDelete(deleteTargetId);
+            setDeleteTargetId(null);
+        } catch (e) {
+            console.error(e);
         } finally {
             setIsDeleting(false);
-            setDeleteTargetId(null);
         }
     };
 
