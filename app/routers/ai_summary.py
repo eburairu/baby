@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 import openai
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -23,6 +23,14 @@ def create_or_get_daily_summary(
 ):
     """日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。"""
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=True)
+
+    # 未来日付チェック（JST基準）
+    today_jst = datetime.now(timezone(timedelta(hours=9))).date()
+    if body.summary_date > today_jst:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="未来の日付では日誌を生成できません。",
+        )
 
     existing = (
         db.query(DailySummary)
