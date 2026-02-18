@@ -1009,6 +1009,21 @@ export interface components {
             /** Name */
             name: string;
         };
+        /**
+         * BreastSide
+         * @enum {string}
+         */
+        BreastSide: "LEFT" | "RIGHT" | "BOTH";
+        /**
+         * BottleContentType
+         * @enum {string}
+         */
+        BottleContentType: "FORMULA" | "EXPRESSED_MILK" | "MIXED";
+        /**
+         * FeedingCompletion
+         * @enum {string}
+         */
+        FeedingCompletion: "FULL" | "PARTIAL";
         /** FeedingCreate */
         FeedingCreate: {
             /** Baby Id */
@@ -1025,6 +1040,13 @@ export interface components {
             duration_minutes?: number | null;
             /** Notes */
             notes?: string | null;
+            /** Left Breast Minutes */
+            left_breast_minutes?: number | null;
+            /** Right Breast Minutes */
+            right_breast_minutes?: number | null;
+            last_breast_side?: components["schemas"]["BreastSide"] | null;
+            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
         };
         /** FeedingResponse */
         FeedingResponse: {
@@ -1042,6 +1064,13 @@ export interface components {
             duration_minutes?: number | null;
             /** Notes */
             notes?: string | null;
+            /** Left Breast Minutes */
+            left_breast_minutes?: number | null;
+            /** Right Breast Minutes */
+            right_breast_minutes?: number | null;
+            last_breast_side?: components["schemas"]["BreastSide"] | null;
+            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
             /** Id */
             id: number;
             /** User Id */
@@ -1063,6 +1092,13 @@ export interface components {
             duration_minutes?: number | null;
             /** Notes */
             notes?: string | null;
+            /** Left Breast Minutes */
+            left_breast_minutes?: number | null;
+            /** Right Breast Minutes */
+            right_breast_minutes?: number | null;
+            last_breast_side?: components["schemas"]["BreastSide"] | null;
+            bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
         };
         /** GrowthCreate */
         GrowthCreate: {

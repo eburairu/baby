@@ -1,7 +1,7 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 from typing import Optional
 from datetime import datetime
-from app.models.feeding import FeedingType
+from app.models.feeding import FeedingType, BreastSide, BottleContentType, FeedingCompletion
 
 
 class FeedingCreate(BaseModel):
@@ -11,6 +11,20 @@ class FeedingCreate(BaseModel):
     amount_ml: Optional[float] = None
     duration_minutes: Optional[int] = None
     notes: Optional[str] = None
+    # Phase 1
+    left_breast_minutes: Optional[int] = None
+    right_breast_minutes: Optional[int] = None
+    last_breast_side: Optional[BreastSide] = None
+    # Phase 2
+    bottle_content_type: Optional[BottleContentType] = None
+    feeding_completion: Optional[FeedingCompletion] = None
+
+    @model_validator(mode="after")
+    def auto_calc_duration(self) -> "FeedingCreate":
+        """左右の分数が両方指定された場合、duration_minutesを自動計算する"""
+        if self.left_breast_minutes is not None and self.right_breast_minutes is not None:
+            self.duration_minutes = self.left_breast_minutes + self.right_breast_minutes
+        return self
 
 
 class FeedingResponse(FeedingCreate):
@@ -26,3 +40,10 @@ class FeedingUpdate(BaseModel):
     amount_ml: Optional[float] = None
     duration_minutes: Optional[int] = None
     notes: Optional[str] = None
+    # Phase 1
+    left_breast_minutes: Optional[int] = None
+    right_breast_minutes: Optional[int] = None
+    last_breast_side: Optional[BreastSide] = None
+    # Phase 2
+    bottle_content_type: Optional[BottleContentType] = None
+    feeding_completion: Optional[FeedingCompletion] = None
