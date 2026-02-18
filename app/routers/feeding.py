@@ -31,6 +31,11 @@ def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), cur
         amount_ml=feeding_in.amount_ml,
         duration_minutes=feeding_in.duration_minutes,
         notes=feeding_in.notes,
+        left_breast_minutes=feeding_in.left_breast_minutes,
+        right_breast_minutes=feeding_in.right_breast_minutes,
+        last_breast_side=feeding_in.last_breast_side,
+        bottle_content_type=feeding_in.bottle_content_type,
+        feeding_completion=feeding_in.feeding_completion,
     )
     db.add(new_feeding)
     db.commit()

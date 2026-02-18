@@ -24,6 +24,35 @@ interface FeedingHistoryProps {
     canWrite?: boolean;
 }
 
+const BOTTLE_CONTENT_LABEL: Record<string, string> = {
+    FORMULA: "粉ミルク",
+    EXPRESSED_MILK: "搾母乳",
+    MIXED: "混合",
+};
+
+const COMPLETION_STYLE: Record<string, { label: string; className: string }> = {
+    FULL: { label: "しっかり飲んだ", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+    PARTIAL: { label: "途中でやめた", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
+};
+
+function BreastDuration({ feeding }: { feeding: Feeding }) {
+    const { left_breast_minutes, right_breast_minutes, duration_minutes } = feeding;
+    const hasLeftRight = left_breast_minutes != null || right_breast_minutes != null;
+
+    if (hasLeftRight) {
+        const left = left_breast_minutes ?? 0;
+        const right = right_breast_minutes ?? 0;
+        const total = left + right;
+        if (left > 0 && right > 0) {
+            return <span>左: {left}分 / 右: {right}分 (合計{total}分)</span>;
+        }
+        if (left > 0) return <span>左: {left}分</span>;
+        if (right > 0) return <span>右: {right}分</span>;
+    }
+    if (duration_minutes) return <span>{duration_minutes}分</span>;
+    return null;
+}
+
 export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingHistoryProps) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
@@ -59,31 +88,47 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                     {feedings.map((feeding) => (
                         <div
                             key={feeding.id}
-                            className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+                            className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0"
                         >
-                            <div className="flex items-center space-x-4">
-                                <div className={`p-2 rounded-full ${feeding.feeding_type === 'BREAST' ? 'bg-pink-100 text-pink-600' : 'bg-blue-100 text-blue-600'}`}>
+                            <div className="flex items-start space-x-4">
+                                <div className={`p-2 rounded-full shrink-0 mt-0.5 ${feeding.feeding_type === 'BREAST' ? 'bg-pink-100 text-pink-600' : 'bg-blue-100 text-blue-600'}`}>
                                     {feeding.feeding_type === 'BREAST' ? <Baby className="w-5 h-5" /> : <Milk className="w-5 h-5" />}
                                 </div>
-                                <div>
+                                <div className="space-y-1">
                                     <div className="font-medium">
                                         {format(new Date(feeding.feeding_time), "HH:mm", { locale: ja })}
                                         <span className="ml-2 text-sm text-muted-foreground">
                                             {feeding.feeding_type === 'BREAST' ? '母乳' : feeding.feeding_type === 'BOTTLE' ? 'ミルク' : '混合'}
                                         </span>
                                     </div>
-                                    <div className="text-sm text-gray-500">
-                                        {feeding.feeding_type === 'BREAST' && feeding.duration_minutes && `${feeding.duration_minutes}分`}
-                                        {feeding.feeding_type === 'BOTTLE' && feeding.amount_ml && `${feeding.amount_ml}ml`}
-                                        {feeding.notes && <span className="ml-2 text-xs text-gray-400">({feeding.notes})</span>}
+                                    <div className="text-sm text-gray-500 dark:text-zinc-400">
+                                        {feeding.feeding_type === 'BREAST' && <BreastDuration feeding={feeding} />}
+                                        {feeding.feeding_type === 'BOTTLE' && feeding.amount_ml && (
+                                            <span>
+                                                {feeding.amount_ml}ml
+                                                {feeding.bottle_content_type && (
+                                                    <span className="ml-1 text-xs text-gray-400">
+                                                        ({BOTTLE_CONTENT_LABEL[feeding.bottle_content_type]})
+                                                    </span>
+                                                )}
+                                            </span>
+                                        )}
+                                        {feeding.notes && (
+                                            <span className="ml-2 text-xs text-gray-400">({feeding.notes})</span>
+                                        )}
                                     </div>
+                                    {feeding.feeding_completion && (
+                                        <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${COMPLETION_STYLE[feeding.feeding_completion].className}`}>
+                                            {COMPLETION_STYLE[feeding.feeding_completion].label}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                             {canWrite && (
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="text-gray-400 hover:text-red-500"
+                                    className="text-gray-400 hover:text-red-500 shrink-0"
                                     onClick={() => setDeleteTargetId(feeding.id)}
                                 >
                                     <Trash2 className="w-4 h-4" />
