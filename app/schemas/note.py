@@ -19,5 +19,6 @@ class NoteResponse(NoteBase):
     user_id: Optional[int]
     created_at: datetime
     updated_at: datetime
+    recorded_by_display_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

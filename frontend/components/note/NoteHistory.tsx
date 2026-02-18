@@ -7,7 +7,7 @@ import * as z from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Note, deleteNote, updateNote } from "@/hooks/useNotes"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, Calendar, Save } from "lucide-react"
+import { Trash2, Pencil, Calendar, Save, User } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import {
@@ -127,9 +127,17 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                             className="p-4 rounded-xl border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm space-y-2"
                         >
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-zinc-400 font-medium">
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    {format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}
+                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-400 font-medium">
+                                    <span className="flex items-center gap-1.5">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        {format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}
+                                    </span>
+                                    {note.recorded_by_display_name && (
+                                        <span className="flex items-center gap-1 text-gray-400 dark:text-zinc-500">
+                                            <User className="h-3 w-3" />
+                                            {note.recorded_by_display_name}
+                                        </span>
+                                    )}
                                 </div>
                                 {canWrite && (
                                     <div className="flex gap-1">

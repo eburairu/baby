@@ -14,6 +14,11 @@ from app.models.baby import Baby
 
 router = APIRouter(prefix="/api", tags=["notes"])
 
+def _build_note_response(note: Note, user_map: dict) -> NoteResponse:
+    r = NoteResponse.model_validate(note)
+    r.recorded_by_display_name = user_map.get(note.user_id)
+    return r
+
 @router.get("/babies/{baby_id}/notes", response_model=List[NoteResponse])
 def get_notes(
     baby_id: int,
@@ -22,7 +27,11 @@ def get_notes(
 ):
     """メモ一覧取得（履歴）"""
     verify_baby_access(db, baby_id, current_user.id, record_type="note")
-    return db.query(Note).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).all()
+    records = db.query(Note).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).all()
+    user_ids = {r.user_id for r in records if r.user_id is not None}
+    users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
+    user_map = {u.id: u.display_name or u.username for u in users}
+    return [_build_note_response(r, user_map) for r in records]
 
 @router.post("/babies/{baby_id}/notes", response_model=NoteResponse, status_code=status.HTTP_201_CREATED)
 def create_note(
@@ -53,22 +62,24 @@ def create_note(
     db.add(db_note)
     db.commit()
     db.refresh(db_note)
-    
+
     # 家族に通知
     baby = db.query(Baby).filter(Baby.id == baby_id).first()
     if baby:
         display_name = current_user.display_name or current_user.username
         notify_family_members(
-            db, 
-            baby.family_id, 
-            current_user.id, 
-            title="メモの投稿", 
+            db,
+            baby.family_id,
+            current_user.id,
+            title="メモの投稿",
             body=f"{display_name}さんが新しいメモを投稿しました。",
             url=f"/note",
             category="family_record"
         )
-        
-    return db_note
+
+    response = NoteResponse.model_validate(db_note)
+    response.recorded_by_display_name = current_user.display_name or current_user.username
+    return response
 
 @router.patch("/notes/{note_id}", response_model=NoteResponse)
 def update_note(
@@ -103,7 +114,10 @@ def update_note(
 
     db.commit()
     db.refresh(db_note)
-    return db_note
+    recorder = db.query(User).filter(User.id == db_note.user_id).first() if db_note.user_id else None
+    response = NoteResponse.model_validate(db_note)
+    response.recorded_by_display_name = (recorder.display_name or recorder.username) if recorder else None
+    return response
 
 @router.delete("/notes/{note_id}")
 def delete_note(

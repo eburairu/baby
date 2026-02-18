@@ -9,6 +9,7 @@ export type Note = {
   note_time: string;
   created_at: string;
   updated_at: string;
+  recorded_by_display_name?: string | null;
 };
 
 export function useNotes(babyId: number | null) {
