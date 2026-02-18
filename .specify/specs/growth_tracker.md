@@ -29,7 +29,7 @@
 ### F2: 成長記録一覧 (History)
 
 - 過去の記録を時系列（新しい順）でリスト表示。
-- 各行に計測日、身長、体重、頭囲、メモを表示。
+- 各行に計測日、身長、体重、頭囲、**記録者名**（`recorded_by_display_name`）、メモを表示。`null`（削除済みユーザー）の場合は「不明」または表示省略。
 - 編集ボタン、削除ボタンを配置。
 
 ### F3: 成長曲線グラフ (Growth Chart)
@@ -67,12 +67,12 @@
 └─────────────────────────────────┘
 
 [ 履歴リスト ]
-┌───────────────────────────────────────────────┐
-│ 日付       │ 身長    │ 体重    │ 頭囲    │ 操作 │
-├───────────────────────────────────────────────┤
-│ 2026/02/10 │ 50.5 cm │ 3200 g  │ 34.0 cm │ ✎ 🗑️│
-│ 2026/01/15 │ 48.0 cm │ 2900 g  │ 33.5 cm │ ✎ 🗑️│
-└───────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ 日付       │ 身長    │ 体重    │ 頭囲    │ 記録者 │ 操作 │
+├──────────────────────────────────────────────────────────┤
+│ 2026/02/10 │ 50.5 cm │ 3200 g  │ 34.0 cm │ ママ   │ ✎ 🗑️│
+│ 2026/01/15 │ 48.0 cm │ 2900 g  │ 33.5 cm │ パパ   │ ✎ 🗑️│
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## データモデル
@@ -81,6 +81,7 @@
 
 - `id`: Integer (PK)
 - `baby_id`: Integer (FK -> babies.id)
+- `user_id`: Integer (FK -> users.id) - 記録者
 - `date`: Date (計測日)
 - `height`: Float (cm, Nullable)
 - `weight`: Integer (g, Nullable) ※g単位で保存
@@ -98,6 +99,23 @@
     - 編集更新。
 - `DELETE /api/growth_records/{id}`
     - 削除。
+
+### レスポンススキーマ (`GrowthResponse`)
+
+```typescript
+interface GrowthResponse {
+  id: number
+  baby_id: number
+  user_id: number
+  date: string
+  height: number | null
+  weight: number | null
+  head_circumference: number | null
+  notes: string | null
+  created_at: string
+  recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+}
+```
 
 ## 技術設計
 

@@ -48,6 +48,7 @@
         - 母乳: `left_breast_minutes` がある場合は `左: 8分 / 右: 7分 (合計15分)` のように左右別で表示。旧データは `duration_minutes` で従来通り表示。
         - ミルク: `100ml (搾母乳)` のようにコンテンツタイプを表示。
     - **授乳完全度バッジ（新規・MEDIUM）**: `[しっかり飲んだ]` / `[途中でやめた]` を表示（設定がある場合のみ）。
+    - **記録者名**: `recorded_by_display_name` を表示（例：「ママ」「パパ」）。`null`（削除済みユーザー）の場合は表示省略または「不明」と表示。
     - メモ（あれば）
 - 記録の削除機能。
 
@@ -107,8 +108,8 @@
 │  最近の記録                                   │
 │  ──────────────────────────────────          │
 │  15:15  🤱 母乳  左: 8分 / 右: 7分 (合計15分) │
-│         [しっかり飲んだ]                      │
-│  12:00  🍼 ミルク  100ml (搾母乳)             │
+│         [しっかり飲んだ]  👤 ママ              │
+│  12:00  🍼 ミルク  100ml (搾母乳)  👤 パパ    │
 │  ...                                         │
 └─────────────────────────────────────────────┘
 ```
@@ -182,6 +183,27 @@ class FeedingCompletion(str, Enum):
   bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED", // 新規（MEDIUM）
   feeding_completion?: "FULL" | "PARTIAL",                   // 新規（MEDIUM）
   notes?: string
+}
+```
+
+### レスポンススキーマ (`FeedingResponse`)
+
+```typescript
+interface FeedingResponse {
+  id: number
+  baby_id: number
+  user_id: number
+  feeding_time: string
+  feeding_type: "BREAST" | "BOTTLE" | "MIXED"
+  amount_ml: number | null
+  duration_minutes: number | null
+  left_breast_minutes: number | null
+  right_breast_minutes: number | null
+  last_breast_side: "LEFT" | "RIGHT" | "BOTH" | null
+  bottle_content_type: "FORMULA" | "EXPRESSED_MILK" | "MIXED" | null
+  feeding_completion: "FULL" | "PARTIAL" | null
+  notes: string | null
+  recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
 }
 ```
 
