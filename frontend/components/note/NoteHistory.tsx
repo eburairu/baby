@@ -50,6 +50,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
     const [editingNote, setEditingNote] = useState<Note | null>(null)
     const [isEditing, setIsEditing] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -97,6 +98,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return
+        setIsDeleting(true)
         try {
             await deleteNote(deleteTargetId)
             onRefresh()
@@ -104,6 +106,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
             console.error(e)
             alert("削除に失敗しました")
         } finally {
+            setIsDeleting(false)
             setDeleteTargetId(null)
         }
     }
@@ -247,8 +250,8 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>
