@@ -1,4 +1,3 @@
-import json
 import os
 import time
 from typing import Optional
@@ -9,14 +8,6 @@ from fastapi import APIRouter
 from app.schemas.version import VersionResponse
 
 router = APIRouter(prefix="/api", tags=["version"])
-
-# package.json からバージョンを読み込む（起動時に一度だけ）
-_package_json_path = os.path.join(os.path.dirname(__file__), "../../frontend/package.json")
-try:
-    with open(_package_json_path) as f:
-        _app_version: str = json.load(f)["version"]
-except Exception:
-    _app_version = "unknown"
 
 # GitHub API キャッシュ（TTL: 30分）
 _cache: dict = {}
@@ -40,7 +31,11 @@ async def _fetch_latest_release() -> dict:
             resp = await client.get(_GITHUB_API_URL, headers=headers)
             if resp.status_code == 200:
                 body = resp.json()
+                tag: str = body.get("tag_name", "")
+                # "v1.2.3" -> "1.2.3"
+                version = tag.lstrip("v") if tag else "unknown"
                 data = {
+                    "version": version,
                     "release_notes": body.get("body"),
                     "published_at": body.get("published_at"),
                     "html_url": body.get("html_url"),
@@ -57,7 +52,7 @@ async def _fetch_latest_release() -> dict:
 async def get_version() -> VersionResponse:
     release = await _fetch_latest_release()
     return VersionResponse(
-        version=_app_version,
+        version=release.get("version") or "unknown",
         release_notes=release.get("release_notes"),
         published_at=release.get("published_at"),
         html_url=release.get("html_url"),
