@@ -26,12 +26,20 @@ interface FeedingHistoryProps {
 
 export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingHistoryProps) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = async () => {
-        if (deleteTargetId === null) return;
+        if (deleteTargetId === null || isDeleting) return;
+        
+        setIsDeleting(true);
         try {
             await onDelete(deleteTargetId);
+        } catch (error) {
+            // Silently handle errors (e.g., 404 if record was already deleted)
+            // This prevents unhandled errors from being reported to Sentry
+            console.error('Delete operation failed:', error);
         } finally {
+            setIsDeleting(false);
             setDeleteTargetId(null);
         }
     };
@@ -105,7 +113,14 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogAction 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete();
+                            }} 
+                            className="bg-red-600 hover:bg-red-700"
+                            disabled={isDeleting}
+                        >
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>
