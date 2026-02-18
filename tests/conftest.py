@@ -1,3 +1,8 @@
+import os
+
+# app.database のインポート前に DATABASE_URL を設定しないと RuntimeError になる
+os.environ.setdefault("DATABASE_URL", "sqlite://")
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
