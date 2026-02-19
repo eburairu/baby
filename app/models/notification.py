@@ -1,6 +1,24 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, func
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, Text, func
 from sqlalchemy.orm import relationship
 from app.models.base import Base
+
+
+class AppNotification(Base):
+    __tablename__ = "app_notifications"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    type = Column(String(50), nullable=False)
+    # 'family_record' | 'comment' | 'daily_summary'
+    # | 'feeding_reminder' | 'diaper_reminder' | 'system'
+    title = Column(String(255), nullable=False)
+    body = Column(Text, nullable=True)
+    url = Column(String(512), nullable=True)
+    is_read = Column(Boolean, nullable=False, server_default="false", default=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    user = relationship("User", back_populates="app_notifications")
+
 
 class PushSubscription(Base):
     __tablename__ = "push_subscriptions"

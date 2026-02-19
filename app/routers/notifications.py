@@ -3,15 +3,92 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
-from app.models.notification import PushSubscription, NotificationSetting
+from app.models.notification import AppNotification, PushSubscription, NotificationSetting
 from app.schemas.notification import (
+    AppNotificationResponse,
+    UnreadCountResponse,
     PushSubscriptionCreate,
     PushSubscriptionResponse,
     NotificationSettingsResponse,
-    NotificationSettingsUpdate
+    NotificationSettingsUpdate,
 )
 
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
+
+
+# ---- アプリ内通知センター ----
+
+@router.get("", response_model=List[AppNotificationResponse])
+def get_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """最新 20 件の通知を降順で返す"""
+    notifications = (
+        db.query(AppNotification)
+        .filter(AppNotification.user_id == current_user.id)
+        .order_by(AppNotification.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    return notifications
+
+
+@router.get("/unread-count", response_model=UnreadCountResponse)
+def get_unread_count(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """未読通知数を返す"""
+    count = (
+        db.query(AppNotification)
+        .filter(
+            AppNotification.user_id == current_user.id,
+            AppNotification.is_read == False,  # noqa: E712
+        )
+        .count()
+    )
+    return {"count": count}
+
+
+@router.patch("/{notification_id}/read", response_model=AppNotificationResponse)
+def mark_as_read(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """個別通知を既読にする"""
+    notification = (
+        db.query(AppNotification)
+        .filter(
+            AppNotification.id == notification_id,
+            AppNotification.user_id == current_user.id,
+        )
+        .first()
+    )
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    notification.is_read = True
+    db.commit()
+    db.refresh(notification)
+    return notification
+
+
+@router.patch("/read-all")
+def mark_all_as_read(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """ログインユーザーの全通知を一括既読にする"""
+    db.query(AppNotification).filter(
+        AppNotification.user_id == current_user.id,
+        AppNotification.is_read == False,  # noqa: E712
+    ).update({"is_read": True})
+    db.commit()
+    return {"message": "All notifications marked as read"}
+
+
+# ---- PWA プッシュ通知 ----
 
 @router.post("/subscribe", response_model=PushSubscriptionResponse)
 def subscribe(
