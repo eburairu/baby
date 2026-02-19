@@ -106,6 +106,8 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
+    # Normalize invite code to uppercase to handle case-insensitive input
+    invite_code = invite_code.upper()
     family = db.query(Family).filter(Family.invite_code == invite_code).first()
     if not family:
         raise HTTPException(status_code=404, detail="Invalid invite code")
