@@ -47,16 +47,21 @@ else
 fi
 
 # 2. 依存関係の共有（シンボリックリンク作成）
+# 絶対パスを使用することで、ブランチ名にスラッシュが含まれるか否かに関わらず
+# 正しいリンクが作成される（相対パスはディレクトリ深度に依存するため不使用）
+# pwd ではなく git rev-parse --show-toplevel でリポジトリルートを取得することで
+# スクリプトをサブディレクトリから呼び出した場合も正しく動作する
 echo "Setting up symlinks for shared dependencies..."
+ROOT_DIR="$(git rev-parse --show-toplevel)"
 
 # Python venv
-ln -sf ../../../.venv "$WORKTREE_DIR/.venv"
+ln -sf "$ROOT_DIR/.venv" "$WORKTREE_DIR/.venv"
 
 # Root node_modules
-ln -sf ../../../node_modules "$WORKTREE_DIR/node_modules"
+ln -sf "$ROOT_DIR/node_modules" "$WORKTREE_DIR/node_modules"
 
 # .env (Database settings)
-ln -sf ../../../.env "$WORKTREE_DIR/.env"
+ln -sf "$ROOT_DIR/.env" "$WORKTREE_DIR/.env"
 
 # ワークツリー専用の .gitignore を作成して誤入力を防ぐ
 cat <<EOF > "$WORKTREE_DIR/.gitignore"
@@ -69,8 +74,19 @@ echo "Created $WORKTREE_DIR/.gitignore for safety."
 
 # Frontend node_modules（絶対パスで作成して Turbopack のシンボリックリンク問題を回避）
 if [ -d "$WORKTREE_DIR/frontend" ]; then
-  FRONTEND_NM="$(pwd)/frontend/node_modules"
+  FRONTEND_NM="$ROOT_DIR/frontend/node_modules"
   ln -sf "$FRONTEND_NM" "$WORKTREE_DIR/frontend/node_modules"
+fi
+
+# 3. ワークツリーの .git ファイルを解決して pre-commit hook をインストール
+# git worktree の .git は通常ファイル（"gitdir: ..."）なので、実際のパスを取得する
+WORKTREE_GIT_DIR=$(git -C "$WORKTREE_DIR" rev-parse --git-dir 2>/dev/null)
+if [ -n "$WORKTREE_GIT_DIR" ]; then
+  # 相対パスの場合は絶対パスに変換
+  if [[ "$WORKTREE_GIT_DIR" != /* ]]; then
+    WORKTREE_GIT_DIR="$WORKTREE_DIR/$WORKTREE_GIT_DIR"
+  fi
+  sh "$ROOT_DIR/scripts/install_hooks.sh" "$WORKTREE_GIT_DIR"
 fi
 
 echo ""
@@ -80,3 +96,4 @@ echo ""
 echo "📋 作業中の develop 同期リマインダー:"
 echo "  - 長時間作業時は定期的に: git merge origin/${BASE_BRANCH}"
 echo "  - PR 作成前に必ず: git fetch origin ${BASE_BRANCH} && git merge origin/${BASE_BRANCH}"
+echo "  - PR 作成前の全チェック: sh scripts/verify_all.sh"
