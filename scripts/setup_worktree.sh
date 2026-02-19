@@ -58,6 +58,15 @@ ln -sf ../../../node_modules "$WORKTREE_DIR/node_modules"
 # .env (Database settings)
 ln -sf ../../../.env "$WORKTREE_DIR/.env"
 
+# ワークツリー専用の .gitignore を作成して誤入力を防ぐ
+cat <<EOF > "$WORKTREE_DIR/.gitignore"
+# Shared dependencies symlinks (Must not be committed)
+.venv
+node_modules
+.env
+EOF
+echo "Created $WORKTREE_DIR/.gitignore for safety."
+
 # Frontend node_modules（絶対パスで作成して Turbopack のシンボリックリンク問題を回避）
 if [ -d "$WORKTREE_DIR/frontend" ]; then
   FRONTEND_NM="$(pwd)/frontend/node_modules"
