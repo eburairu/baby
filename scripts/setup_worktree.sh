@@ -73,6 +73,17 @@ if [ -d "$WORKTREE_DIR/frontend" ]; then
   ln -sf "$FRONTEND_NM" "$WORKTREE_DIR/frontend/node_modules"
 fi
 
+# 3. ワークツリーの .git ファイルを解決して pre-commit hook をインストール
+# git worktree の .git は通常ファイル（"gitdir: ..."）なので、実際のパスを取得する
+WORKTREE_GIT_DIR=$(git -C "$WORKTREE_DIR" rev-parse --git-dir 2>/dev/null)
+if [ -n "$WORKTREE_GIT_DIR" ]; then
+  # 相対パスの場合は絶対パスに変換
+  if [[ "$WORKTREE_GIT_DIR" != /* ]]; then
+    WORKTREE_GIT_DIR="$WORKTREE_DIR/$WORKTREE_GIT_DIR"
+  fi
+  sh "$(pwd)/scripts/install_hooks.sh" "$WORKTREE_GIT_DIR"
+fi
+
 echo ""
 echo "Worktree setup complete!"
 echo "To start working, run: cd $WORKTREE_DIR"
@@ -80,3 +91,4 @@ echo ""
 echo "📋 作業中の develop 同期リマインダー:"
 echo "  - 長時間作業時は定期的に: git merge origin/${BASE_BRANCH}"
 echo "  - PR 作成前に必ず: git fetch origin ${BASE_BRANCH} && git merge origin/${BASE_BRANCH}"
+echo "  - PR 作成前の全チェック: sh scripts/verify_all.sh"
