@@ -30,7 +30,6 @@ import {
     SheetClose,
 } from "@/components/ui/sheet"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { PageLoading } from "@/components/ui/page-loading"
 
 const ALL_NAV_ITEMS = [
     { label: "ホーム", href: "/", icon: "🏠", prenatal: true, postnatal: true },
@@ -44,8 +43,10 @@ const ALL_NAV_ITEMS = [
     { label: "設定", href: "/settings", icon: "⚙️", prenatal: true, postnatal: true },
 ]
 
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { user, isLoading, mutate, isError } = useUser()
+    const { user, isLoading } = useUser()
     const { appVersion } = useAppVersion()
     const router = useRouter()
     const pathname = usePathname()
@@ -58,7 +59,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const selectedBaby = babies?.find((b) => String(b.id) === effectiveId)
 
     useEffect(() => {
-        setMounted(true)
+        const timer = setTimeout(() => setMounted(true), 0)
+        return () => clearTimeout(timer)
+    }, [])
+
+    useEffect(() => {
         // 10秒待っても読み込み中ならタイムアウトを表示
         const timer = setTimeout(() => {
             if (isLoading) setShowTimeoutError(true)
@@ -72,11 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
     }, [mounted, isLoading, user, router])
 
-    if (!mounted || (isLoading && !showTimeoutError)) return (
-        <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
-            <PageLoading message="読み込み中..." />
-        </div>
-    )
+    const isSettingsSubPage = pathname.startsWith("/settings/") && pathname !== "/settings"
 
     if (showTimeoutError && isLoading) {
         return (
@@ -101,9 +102,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )
     }
 
-    if (!user) return null
-
-    const isSettingsSubPage = pathname.startsWith("/settings/") && pathname !== "/settings"
+    // マウント前または読み込み中はスケルトンを含むレイアウトを返す
+    const showSkeleton = !mounted || (isLoading && !showTimeoutError)
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 font-sans transition-colors duration-300">
@@ -160,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         )}
                     </div>
                     <div className="flex items-center gap-4">
-                        {isLoading ? (
+                        {showSkeleton ? (
                             <div className="h-8 w-24 bg-gray-100 dark:bg-zinc-800 animate-pulse rounded-full" />
                         ) : user ? (
                             <>
@@ -213,7 +213,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </header>
             <main>
                 <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-                    {children}
+                    {showSkeleton ? <DashboardSkeleton /> : children}
                 </div>
             </main>
             <ScrollToTopButton />

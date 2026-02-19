@@ -68,8 +68,11 @@ export interface BabyRecord {
     recorded_by_display_name?: string | null;
 }
 
-export function useRecords(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR<BabyRecord[]>(babyId ? `/babies/${babyId}/records` : null, fetcher);
+export function useRecords(baby_id: string | null, limit?: number) {
+    const { data, error, isLoading, mutate } = useSWR<BabyRecord[]>(
+        baby_id ? `/babies/${baby_id}/records${limit ? `?limit=${limit}` : ""}` : null,
+        fetcher
+    );
     return {
         records: data,
         isLoading,

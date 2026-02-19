@@ -17,13 +17,14 @@ import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
 import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistrationDialog"
 import { isBorn } from "@/lib/babyUtils"
-import { PageLoading } from "@/components/ui/page-loading"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
     loading: () => <div className="h-32 animate-pulse bg-gray-100 dark:bg-zinc-800 rounded-2xl" />,
     ssr: false
 })
+
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 
 export default function Dashboard() {
     const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
@@ -39,8 +40,8 @@ export default function Dashboard() {
     // 最初の赤ちゃんをデフォルト選択
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
-    // 記録の一括取得
-    const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(effectiveId)
+    // 記録の一括取得（ダッシュボード用に最新50件に制限）
+    const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(effectiveId, 50)
 
     const handleAddBaby = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -64,11 +65,7 @@ export default function Dashboard() {
     }
 
     if (babiesLoading) {
-        return (
-            <div className="min-h-64 flex items-center justify-center">
-                <PageLoading message="データを読み込んでいます..." />
-            </div>
-        )
+        return <DashboardSkeleton />
     }
 
     // オンボーディング: 赤ちゃん未登録
