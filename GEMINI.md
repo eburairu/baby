@@ -110,6 +110,9 @@ cd frontend && pnpm build
         **STEP 5: コミットする**
         ```bash
         git status                 # 必ず確認（シンボリックリンク・秘密鍵が含まれていないか）
+        # 【必須】禁止ファイル（.venv, node_modules等）が混入していないか最終チェック
+        sh scripts/check_staged_files.sh
+        
         git add <ファイルを個別指定>
         git commit -m "feat: 日本語で説明する"
         ```
@@ -117,6 +120,9 @@ cd frontend && pnpm build
         **STEP 6: PR作成前に develop をマージする**
         ```bash
         git fetch origin develop && git merge origin/develop
+        # 【必須】プッシュ前に禁止ファイルが含まれていないか再確認
+        sh scripts/check_staged_files.sh
+        
         git push origin feat/xxx
         ```
 
