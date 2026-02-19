@@ -125,6 +125,7 @@ Cookie ベースのセッション管理（HttpOnly）。`UserSession` テーブ
 
 - **Git Worktree (Autonomous Workflow)**: 開発は必ず `git worktree` を作成して行う。
   - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` で作業すること。
+  - **【注意】シンボリックリンク**: ワークツリー作成時にルートディレクトリの `node_modules` や `.venv` へのシンボリックリンクが作成されますが、これらは絶対にコミットに含めないこと。`git status` で `new file: .venv` や `new file: node_modules` が表示されている場合は、`git add` 前に確認すること。
   - **【必須】作業開始前**: スクリプト実行後に表示される `develop` の最新 15 コミットを確認し、実装予定の機能が既にマージ済みでないか確認すること。重複実装はコンフリクトの原因になる。
     ```bash
     # 手動確認する場合

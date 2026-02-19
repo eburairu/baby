@@ -83,6 +83,19 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
 | ウィジェット内クイックボタン | `rounded-lg h-8` |
 | アイコンラッパー | `rounded-full` |
 
+### 1.4 Z-Index 階層
+
+重なり順の不整合を防ぐため、以下の階層を厳守する。
+
+| 階層 | クラス | 用途 |
+|------|-------|------|
+| ベース | `z-0` | 通常のページコンテンツ |
+| ページ内スティッキー | `z-10` | 詳細ページのサブヘッダー等 |
+| サブヘッダー | `z-40` | `SettingsHeader` 等のページ固有ヘッダー |
+| グローバルヘッダー | `z-50` | `DashboardLayout` のメインヘッダー |
+| ポップアップ | `z-[100]` | 通知センター、ドロップダウン、ツールチップ |
+| オーバーレイ | `z-[200]` | モーダル、ダイアログ、ドロワー |
+
 ---
 
 ## 2. ページ構造
@@ -388,7 +401,7 @@ export function SettingsHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center px-4 gap-3">
+    <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center px-4 gap-3">
       <Link
         href="/settings"
         className="p-1 -ml-1 text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-100 transition-colors"

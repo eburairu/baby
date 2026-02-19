@@ -92,6 +92,7 @@ git branch -D <branch-name>
 ## 注意点
 
 - **共有リソースの変更**: `.env` や `.venv`、`node_modules` の内容は全ワークツリーで共有されるため、依存パッケージの追加や環境変数の変更は慎重に行うこと。
+- **シンボリックリンクのコミット禁止**: `setup_worktree.sh` が作成する `.venv` や `node_modules` などのシンボリックリンクは、**絶対にコミットに含めないこと**。`git add .` を実行する前に `git status` を確認し、これらのリンクが `new file:` としてリストされていないかチェックすること。もし含まれている場合は、`git rm --cached <link>` で除外するか、個別にファイルを指定して `git add` すること。
 - **Turbopack の制限**: Turbopack を使用した `next build` では、`node_modules` がプロジェクトルート外にあることを許容しない場合がある。その際は、ワークツリー内の `frontend` ディレクトリで `pnpm install` を実行し、ローカルに `node_modules` を構築すること（`pnpm` のハードリンク機能によりディスク消費は最小限に抑えられる）。
 - **クリーンアップ**: 作業完了後は、ディスク容量節約と Git 管理の簡素化のため、速やかに `git worktree remove` を実行すること。
 
