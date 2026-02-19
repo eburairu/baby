@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import { fetcher, api } from "@/lib/api"
+import { fetcher, api, ApiError } from "@/lib/api"
 
 export type AppNotification = {
     id: number
@@ -36,8 +36,11 @@ export async function markAsRead(id: number): Promise<AppNotification> {
 }
 
 export async function markAllAsRead(): Promise<void> {
-    await fetch(`${API_BASE}/notifications/read-all`, {
+    const res = await fetch(`${API_BASE}/notifications/read-all`, {
         method: "PATCH",
         credentials: "include",
     })
+    if (!res.ok) {
+        throw new ApiError("Failed to mark all notifications as read", res.statusText, res.status)
+    }
 }
