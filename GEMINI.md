@@ -6,6 +6,72 @@ This file provides guidance to Gemini assistants (including Antigravity, gemini-
 
 Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、おむつ、成長、陣痛、スケジュール）を共同管理する招待制 Web アプリ。FastAPI（バックエンド）と Next.js（フロントエンド）を単一 Docker コンテナでデプロイするシングルサービス構成。
 
+## 絶対に守るべきルール（必読・例外なし）
+
+### ルール1: コミットメッセージは必ず日本語で書く
+
+```
+# 正しい形式
+feat: ヘッダーに通知センターを追加
+fix: z-indexの重なり順を修正
+chore: 依存パッケージを更新
+
+# NG（英語で書かない）
+feat: add notification center to header  ← ダメ
+```
+
+- プレフィックス（`feat:`, `fix:`, `chore:`, `docs:` 等）は英語のまま
+- コロン以降の説明文は**日本語**で書く
+- `Co-Authored-By:` 行は英語のまま維持
+
+### ルール2: PRは必ず `--base develop` を指定する
+
+```bash
+# 正しい（必ず --base develop を指定）
+gh pr create --base develop --title "feat: タイトル" --body "..."
+
+# NG
+gh pr create                 # ← デフォルトが main になる場合があるので禁止
+gh pr create --base main     # ← 絶対にやってはいけない
+```
+
+- `develop` → `main` へのマージはユーザーが判断・実行する。エージェントは勝手にマージしない。
+- `main` に直接 PR を作るとデプロイ（Render）に直結するため**絶対禁止**
+
+### ルール3: バックエンド変更後は openapi.json を必ず更新する
+
+`app/models/`・`app/schemas/`・`app/routers/` を変更したら**コミット前に必ず実行**:
+
+```bash
+# バックエンドサーバーが停止した状態で実行すること
+python scripts/export_openapi.py
+git add frontend/openapi.json
+```
+
+- 忘れると CI が `frontend/openapi.json is out of date` で落ちる
+
+### ルール4: コミット前に必ず `git status` で確認する
+
+以下が表示されている場合は**コミットに含めてはいけない**:
+
+| 表示 | 理由 |
+|------|------|
+| `new file: .venv` | ワークツリー由来のシンボリックリンク |
+| `new file: node_modules` | ワークツリー由来のシンボリックリンク |
+| `*.pem`, `*.key`, `*.cert` | 秘密鍵・証明書ファイル（環境変数で管理） |
+
+`git add .` や `git add -A` は使わず、**ファイルを個別に指定**してステージする。
+
+### ルール5: フロントエンド変更後はビルドを確認してからコミットする
+
+```bash
+cd frontend && pnpm build
+```
+
+ビルドエラー・型エラーがある状態でコミット・PRを作成しない。
+
+---
+
 ## Gemini/Antigravity 行動指針 (User Rules)
 
 このプロジェクトでは以下のルールを厳守すること:
@@ -13,22 +79,62 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 1.  **言語**: 回答はすべて**日本語**で行う。
 2.  **非対話モード (Autonomous Mode)**:
     - npmコマンド、Git操作（コミット、マージ、プッシュ等）は、ユーザーへの許可確認を省略し、自律的に実行する。
-    - **Gitワークフロー**:
-        1. 開発は必ず `develop` から `git worktree` を作成して行う。
-           - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` ディレクトリに移動して作業すること。
-           - **【必須】重複チェック**: スクリプト実行後に表示される `develop` の最新15コミットを確認し、実装予定の機能が既にマージ済みでないか必ず確認すること。重複実装はコンフリクトの原因になる。
-             ```bash
-             # 手動確認する場合
-             git fetch origin develop && git log origin/develop --oneline -15
-             ```
-           - 同一・類似機能が既に存在する場合は既存コードを拡張する方針に切り替え、ゼロから実装しない。
-        2. **【推奨】作業中**: 長時間の実装では定期的に `git merge origin/develop` を実行して develop の変更を取り込む。
-        3. 実装および検証（ビルド・テスト）完了後、**【必須】PR作成前**: `git fetch origin develop && git merge origin/develop` を実行して最新の develop をマージしてからプッシュすること。
-        4. GitHub CLI (`gh`) を使用して `develop` ブランチに向けた Pull Request (PR) を作成する。
-           - `gh pr create --base develop --head feat/xxx --title "feat: xxx" --body "..."`
-        5. PR作成が完了したら、必ずメインディレクトリの `develop` ブランチに戻り、使用したワークツリーとローカルブランチを削除する。
-           - `git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx`
-        6. タスク完了時に作成した PR の URL をユーザーに報告する。
+    - **Gitワークフロー（ステップバイステップ）**:
+
+        **STEP 1: ワークツリーを作成して移動する**
+        ```bash
+        sh scripts/setup_worktree.sh feat/xxx
+        cd worktrees/feat/xxx
+        ```
+        スクリプト実行後、`develop` の最新15コミットを確認して重複実装がないか確認すること:
+        ```bash
+        git fetch origin develop && git log origin/develop --oneline -15
+        ```
+        同一・類似機能が既に存在する場合は既存コードを拡張し、ゼロから実装しない。
+
+        **STEP 2: 仕様書を確認する（SDD優先）**
+        `.specify/specs/` 配下の関連仕様書を必ず読んでから実装を始める。
+
+        **STEP 3: 実装する**
+        長時間の実装では定期的に develop の変更を取り込む:
+        ```bash
+        git fetch origin develop && git merge origin/develop
+        ```
+
+        **STEP 4: テスト・ビルドを実行する**
+        ```bash
+        npm test                   # 全テスト
+        cd frontend && pnpm build  # ビルド確認（必須）
+        ```
+
+        **STEP 5: コミットする**
+        ```bash
+        git status                 # 必ず確認（シンボリックリンク・秘密鍵が含まれていないか）
+        git add <ファイルを個別指定>
+        git commit -m "feat: 日本語で説明する"
+        ```
+
+        **STEP 6: PR作成前に develop をマージする**
+        ```bash
+        git fetch origin develop && git merge origin/develop
+        git push origin feat/xxx
+        ```
+
+        **STEP 7: 最終レビュー（仕様確認）**
+        `spec-checker` サブエージェントを呼び出し、実装内容が仕様通りか確認する。
+        指摘があればワークツリー内で修正してから次のステップへ。
+
+        **STEP 8: PRを作成する**
+        ```bash
+        gh pr create --base develop --title "feat: タイトル（日本語）" --body "..."
+        ```
+        `--base develop` は省略禁止。PR の URL をユーザーに報告する。
+
+        **STEP 9: クリーンアップ（PR マージ後またはユーザー承認後）**
+        ```bash
+        git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx
+        ```
+
 3.  **仕様駆動開発 (SDD)**:
     - 開発の起点は常に `.specify/specs/` 配下の仕様書とする。
     - 仕様書作成 -> 実装 -> `spec-checker` によるレビュー のサイクルを回す。
@@ -36,8 +142,9 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
     - コード変更後は、**必ず**ビルド (`cd frontend && pnpm build`) やテスト (`npm test`) を実行し、成功を確認してから報告する。
     - `qa-agent` または `qa-engineer` スキルの `run_checks.sh` が利用可能な場合は活用する。
 5.  **コミット管理**:
-    - コミットメッセージは Conventional Commits 形式 (`feat:`, `fix:`, `chore:` 等) で自動生成する。
+    - コミットメッセージは Conventional Commits 形式 (`feat:`, `fix:`, `chore:` 等) で書く。説明文は**日本語**。
     - ユーザーへの文面確認は省略する。
+    - `git add .` や `git add -A` は使わず、ファイルを個別にステージする。
 
 ## 技術スタック
 

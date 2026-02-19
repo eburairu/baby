@@ -526,6 +526,46 @@ export interface paths {
         patch: operations["update_note_api_notes__note_id__patch"];
         trace?: never;
     };
+    "/api/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Notifications
+         * @description 最新20件の通知を返す
+         */
+        get: operations["list_notifications_api_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Mark All As Read
+         * @description 全通知を一括既読にする
+         */
+        patch: operations["mark_all_as_read_api_notifications_read_all_patch"];
+        trace?: never;
+    };
     "/api/notifications/settings": {
         parameters: {
             query?: never;
@@ -581,6 +621,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unread Count
+         * @description 未読通知数を返す
+         */
+        get: operations["unread_count_api_notifications_unread_count_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/notifications/unsubscribe": {
         parameters: {
             query?: never;
@@ -596,6 +656,26 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Mark As Read
+         * @description 個別通知を既読にする
+         */
+        patch: operations["mark_as_read_api_notifications__notification_id__read_patch"];
         trace?: never;
     };
     "/api/records/{record_type}/{record_id}/comments": {
@@ -707,10 +787,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Version */
+        get: operations["get_version_api_version_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AppNotificationResponse */
+        AppNotificationResponse: {
+            /** Body */
+            body?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Is Read */
+            is_read: boolean;
+            /** Title */
+            title: string;
+            type: components["schemas"]["NotificationType"];
+            /** Url */
+            url?: string | null;
+        };
         /** BabyCreate */
         BabyCreate: {
             /** Birthday */
@@ -1258,6 +1374,11 @@ export interface components {
             /** System Notice Enabled */
             system_notice_enabled?: boolean | null;
         };
+        /**
+         * NotificationType
+         * @enum {string}
+         */
+        NotificationType: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system";
         /** PushSubscriptionCreate */
         PushSubscriptionCreate: {
             /** Auth */
@@ -1404,6 +1525,11 @@ export interface components {
             /** Type */
             type: string;
         };
+        /** UnreadCountResponse */
+        UnreadCountResponse: {
+            /** Count */
+            count: number;
+        };
         /** UploadResponse */
         UploadResponse: {
             /** Filename */
@@ -1480,6 +1606,17 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VersionResponse */
+        VersionResponse: {
+            /** Html Url */
+            html_url?: string | null;
+            /** Published At */
+            published_at?: string | null;
+            /** Release Notes */
+            release_notes?: string | null;
+            /** Version */
+            version: string;
         };
     };
     responses: never;
@@ -2079,7 +2216,9 @@ export interface operations {
     };
     get_records_api_babies__baby_id__records_get: {
         parameters: {
-            query?: never;
+            query?: {
+                limit?: number;
+            };
             header?: never;
             path: {
                 baby_id: number;
@@ -2937,6 +3076,44 @@ export interface operations {
             };
         };
     };
+    list_notifications_api_notifications_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppNotificationResponse"][];
+                };
+            };
+        };
+    };
+    mark_all_as_read_api_notifications_read_all_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     get_settings_api_notifications_settings_get: {
         parameters: {
             query?: never;
@@ -3043,6 +3220,26 @@ export interface operations {
             };
         };
     };
+    unread_count_api_notifications_unread_count_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadCountResponse"];
+                };
+            };
+        };
+    };
     unsubscribe_api_notifications_unsubscribe_post: {
         parameters: {
             query: {
@@ -3061,6 +3258,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_as_read_api_notifications__notification_id__read_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppNotificationResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3396,6 +3624,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_version_api_version_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionResponse"];
                 };
             };
         };

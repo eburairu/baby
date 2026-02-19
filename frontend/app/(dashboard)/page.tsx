@@ -222,6 +222,7 @@ export default function Dashboard() {
 
                 {/* Recent Activity */}
                 <RecentActivityFeed
+                    key={effectiveId}
                     babyId={effectiveId}
                     records={records}
                     isLoading={recordsLoading}

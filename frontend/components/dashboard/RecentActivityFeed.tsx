@@ -44,11 +44,6 @@ export function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
     const sentinelRef = useRef<HTMLDivElement>(null)
 
-    // babyId が変わったら表示件数をリセット
-    useEffect(() => {
-        setVisibleCount(PAGE_SIZE)
-    }, [babyId])
-
     const allRecords = records ?? []
     const recent = allRecords.slice(0, visibleCount)
     const hasMore = visibleCount < allRecords.length

@@ -85,10 +85,11 @@ export function TipsCard({ storageKey, color, tips }: TipsCardProps) {
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey)
-    if (saved === "closed") {
-      setIsOpen(false)
-    }
-    setMounted(true)
+    const timer = setTimeout(() => {
+      setIsOpen(saved !== "closed")
+      setMounted(true)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [storageKey])
 
   const handleOpenChange = (open: boolean) => {
