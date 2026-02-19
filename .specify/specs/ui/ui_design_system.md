@@ -90,11 +90,15 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
 | 階層 | クラス | 用途 |
 |------|-------|------|
 | ベース | `z-0` | 通常のページコンテンツ |
-| ページ内スティッキー | `z-10` | 詳細ページのサブヘッダー等 |
-| サブヘッダー | `z-40` | `SettingsHeader` 等のページ固有ヘッダー |
+| ページ内スティッキー | `z-10` | 詳細ページのセクションヘッダー等 |
+| サブヘッダー | `z-40` | `SettingsHeader` や各ページ固有のヘッダー |
 | グローバルヘッダー | `z-50` | `DashboardLayout` のメインヘッダー |
 | ポップアップ | `z-[100]` | 通知センター、ドロップダウン、ツールチップ |
 | オーバーレイ | `z-[200]` | モーダル、ダイアログ、ドロワー |
+
+**注意点**:
+- 通知センター（`NotificationBell`）のドロップダウンは必ず `z-[100]` を指定し、どのページヘッダー（`z-40`以下）よりも前面に表示されるようにする。
+- ページ固有のヘッダーに `z-50` 以上を指定してはならない。グローバルヘッダーとの競合を避けるため、最大でも `z-40` とする。
 
 ---
 
@@ -107,7 +111,7 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
 ```
 <div className="min-h-screen bg-slate-50">
   {/* 共通ページヘッダー */}
-  <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+  <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
     <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
       <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
         {/* カテゴリーアイコン（Lucide React） + タイトル */}
@@ -126,7 +130,7 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
 
 #### ヘッダーの設計意図
 
-- **`sticky top-0 z-10`**: スクロール時にヘッダーが追従し、常にページタイトルが見える
+- **`sticky top-0 z-40`**: スクロール時にヘッダーが追従し、常にページタイトルが見える
 - **`bg-white/80 backdrop-blur-sm`**: Glassmorphism 効果で上品な透過表示
 - **`border-b border-gray-100 shadow-sm`**: コンテンツとの境界を明確化
 - **`h-14`**: 全ページで統一した高さ（タップ可能な十分なサイズ）
@@ -573,7 +577,7 @@ export function SettingsHeader({
 
 ```tsx
 // app/(dashboard)/sleep/page.tsx
-<header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+<header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
   <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
     <h1 className="text-base font-semibold text-gray-800 flex items-center gap-1.5">
       <Moon className="h-4 w-4 text-indigo-500" />
@@ -591,7 +595,7 @@ export function SettingsHeader({
 
 ### ページヘッダー
 
-- [x] 全詳細ページで `sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm` を適用
+- [x] 全詳細ページで `sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm` を適用
 - [x] 全詳細ページで `h-14` のヘッダー高さを統一
 - [x] 全詳細ページのタイトルを `text-base font-semibold text-gray-800` に統一
 - [x] 全詳細ページから冗長な戻るボタンを削除し、タイトルを中央寄せ（または適切に配置）
