@@ -73,3 +73,30 @@ git branch -D <branch-name>
 ## AI エージェントへの適用
 
 Gemini CLI および Claude Code などのエージェントは、`GEMINI.md` および `CLAUDE.md` に記載されたルールに従い、常にこのワークツリーフローを使用してタスクを遂行する。
+
+## 自律的エージェントワークフロー (Autonomous Agent Workflow)
+
+AI エージェントは、特定のタスク（Directive）を受けた際、以下のステップを自律的に実行して PR 作成までを完遂させる。
+
+1. **環境構築**:
+   - `sh scripts/setup_worktree.sh <branch-name>` を実行。
+   - `worktrees/<branch-name>` に移動。
+   - `cd frontend && pnpm install` を実行し、環境を確定させる。
+
+2. **実装と内部検証**:
+   - 仕様（SDD）に基づいた実装を行う。
+   - ユニットテスト（Backend/Frontend）を追加・実行する。
+   - フロントエンドのビルド (`pnpm build`) とリンター (`pnpm lint`) が通ることを確認する。
+
+3. **プルリクエストの作成**:
+   - 作業が完了し、検証が成功したことを確認後、GitHub CLI (`gh`) を使用して `develop` ブランチに対する PR を作成する。
+   - まず変更をリモートにプッシュする: `git push -u origin <branch-name>`
+   - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
+
+4. **事後処理**:
+   - PR 作成の成功を確認後、メインディレクトリに戻る。
+   - ワークツリーを削除する: `git worktree remove --force worktrees/<branch-name>`
+   - ローカルブランチを削除する: `git branch -D <branch-name>`
+   - 最終的な PR の URL を報告してタスクを完了とする。
+
+※ エージェントは、これらの一連の操作においてユーザーの許可確認を最小限にし、自律的に完遂することが期待される。

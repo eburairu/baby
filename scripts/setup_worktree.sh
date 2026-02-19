@@ -14,6 +14,10 @@ fi
 
 WORKTREE_DIR="worktrees/$BRANCH_NAME"
 
+# 0. 最新のコードをフェッチ
+echo "Fetching latest changes from origin..."
+git fetch origin "$BASE_BRANCH:$BASE_BRANCH"
+
 # 1. ワークツリーの作成
 echo "Creating worktree for $BRANCH_NAME at $WORKTREE_DIR..."
 if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
