@@ -16,11 +16,19 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
     - **Gitワークフロー**:
         1. 開発は必ず `develop` から `git worktree` を作成して行う。
            - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` ディレクトリに移動して作業すること。
-        2. 実装および検証（ビルド・テスト）完了後、GitHub CLI (`gh`) を使用して `develop` ブランチに向けた Pull Request (PR) を作成する。
+           - **【必須】重複チェック**: スクリプト実行後に表示される `develop` の最新15コミットを確認し、実装予定の機能が既にマージ済みでないか必ず確認すること。重複実装はコンフリクトの原因になる。
+             ```bash
+             # 手動確認する場合
+             git fetch origin develop && git log origin/develop --oneline -15
+             ```
+           - 同一・類似機能が既に存在する場合は既存コードを拡張する方針に切り替え、ゼロから実装しない。
+        2. **【推奨】作業中**: 長時間の実装では定期的に `git merge origin/develop` を実行して develop の変更を取り込む。
+        3. 実装および検証（ビルド・テスト）完了後、**【必須】PR作成前**: `git fetch origin develop && git merge origin/develop` を実行して最新の develop をマージしてからプッシュすること。
+        4. GitHub CLI (`gh`) を使用して `develop` ブランチに向けた Pull Request (PR) を作成する。
            - `gh pr create --base develop --head feat/xxx --title "feat: xxx" --body "..."`
-        3. PR作成が完了したら、必ずメインディレクトリの `develop` ブランチに戻り、使用したワークツリーとローカルブランチを削除する。
+        5. PR作成が完了したら、必ずメインディレクトリの `develop` ブランチに戻り、使用したワークツリーとローカルブランチを削除する。
            - `git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx`
-        4. タスク完了時に作成した PR の URL をユーザーに報告する。
+        6. タスク完了時に作成した PR の URL をユーザーに報告する。
 3.  **仕様駆動開発 (SDD)**:
     - 開発の起点は常に `.specify/specs/` 配下の仕様書とする。
     - 仕様書作成 -> 実装 -> `spec-checker` によるレビュー のサイクルを回す。

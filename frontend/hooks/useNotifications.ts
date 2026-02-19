@@ -1,9 +1,10 @@
+import { useEffect } from "react"
 import useSWR from "swr"
 import { fetcher, api, ApiError } from "@/lib/api"
 
 export type AppNotification = {
     id: number
-    type: "family_record" | "comment" | "daily_summary" | "system"
+    type: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system"
     title: string
     body: string | null
     url: string | null
@@ -19,6 +20,23 @@ export function useUnreadCount() {
         fetcher,
         { refreshInterval: 30000 }
     )
+
+    // Service Worker からの BroadcastChannel メッセージを受信して未読数を更新
+    useEffect(() => {
+        let channel: BroadcastChannel | null = null
+        try {
+            channel = new BroadcastChannel("notifications")
+            channel.onmessage = (event) => {
+                if (event.data?.type === "PUSH_RECEIVED") {
+                    mutate()
+                }
+            }
+        } catch {
+            // BroadcastChannel 非対応ブラウザはポーリングにフォールバック
+        }
+        return () => channel?.close()
+    }, [mutate])
+
     return { count: data?.count ?? 0, mutate }
 }
 

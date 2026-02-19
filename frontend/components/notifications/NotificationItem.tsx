@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { Baby, MessageCircle, Sparkles, Bell } from "lucide-react"
+import { Baby, MessageCircle, Sparkles, Bell, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AppNotification } from "@/hooks/useNotifications"
 import { markAsRead } from "@/hooks/useNotifications"
@@ -9,6 +9,8 @@ const TYPE_ICON: Record<AppNotification["type"], React.ReactNode> = {
     family_record: <Baby className="h-4 w-4 text-rose-500" />,
     comment: <MessageCircle className="h-4 w-4 text-indigo-500" />,
     daily_summary: <Sparkles className="h-4 w-4 text-amber-500" />,
+    feeding_reminder: <Clock className="h-4 w-4 text-orange-500" />,
+    diaper_reminder: <Clock className="h-4 w-4 text-orange-500" />,
     system: <Bell className="h-4 w-4 text-gray-400" />,
 }
 

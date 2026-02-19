@@ -8,6 +8,8 @@ class NotificationType(str, Enum):
     family_record = "family_record"
     comment = "comment"
     daily_summary = "daily_summary"
+    feeding_reminder = "feeding_reminder"
+    diaper_reminder = "diaper_reminder"
     system = "system"
 
 
@@ -26,19 +28,23 @@ class AppNotificationResponse(BaseModel):
 class UnreadCountResponse(BaseModel):
     count: int
 
+
+# ---- PWA プッシュ通知 ----
+
 class PushSubscriptionCreate(BaseModel):
     endpoint: str
     p256dh: str
     auth: str
     user_agent: Optional[str] = None
 
+
 class PushSubscriptionResponse(BaseModel):
     id: int
     endpoint: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+
 
 class NotificationSettingsResponse(BaseModel):
     family_record_enabled: bool
@@ -49,8 +55,8 @@ class NotificationSettingsResponse(BaseModel):
     dnd_start_time: Optional[time] = None
     dnd_end_time: Optional[time] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
+
 
 class NotificationSettingsUpdate(BaseModel):
     family_record_enabled: Optional[bool] = None

@@ -27,6 +27,24 @@
 
 新しいブランチで開発を開始する際は、必ず `./scripts/setup_worktree.sh` を使用して環境を構築する。
 
+### 0. 【必須】作業開始前の重複実装チェック
+
+> **この手順を省略すると、develop にマージ済みの機能を重複実装してコンフリクトを招く。**
+
+`setup_worktree.sh` は `develop` の最新 15 コミットを表示するので、**実装予定の機能が既に含まれていないか必ず確認する**。
+
+```bash
+# スクリプト実行前に手動確認する場合
+git fetch origin develop
+git log origin/develop --oneline -15
+```
+
+確認事項：
+- 実装予定と同一・類似のコミットメッセージがないか
+- 実装予定のファイル（モデル、ルーター、コンポーネント）が既に存在しないか
+
+既に実装されていた場合は **既存コードを拡張** する方針に切り替え、ゼロから実装しない。
+
 ### 1. ワークツリーの作成
 
 ```bash
@@ -34,12 +52,13 @@
 ```
 
 このスクリプトは以下の処理を自動的に行う：
-1. `git worktree add` を実行。
-2. メインディレクトリから以下の共有リソースへのシンボリックリンクを作成：
+1. `git fetch origin develop` で最新化してから最新 15 コミットを表示（重複チェック用）。
+2. `git worktree add` を実行（`origin/develop` の最新コミットから分岐）。
+3. メインディレクトリから以下の共有リソースへのシンボリックリンクを作成：
    - `.venv` -> `../../../.venv`
    - `node_modules` -> `../../../node_modules`
    - `.env` -> `../../../.env`
-   - `frontend/node_modules` -> `../../../../frontend/node_modules`
+   - `frontend/node_modules` -> 絶対パスで作成（Turbopack シンボリックリンク問題を回避）
 
 ### 2. 依存関係の確定
 
@@ -55,8 +74,14 @@ pnpm install
 1. **開始**: 開発者はメインディレクトリ（`develop` ブランチ）で `scripts/setup_worktree.sh` を実行。
 2. **実装・検証**: `worktrees/<branch-name>` 内でコードの修正、ビルド、テストを実施。
 3. **コミット**: ワークツリー内で変更をステージ・コミット。
-4. **マージ**: メインディレクトリに戻り、ワークツリーのブランチを `develop` にマージ。
-5. **クリーンアップ**: ワークツリーを削除。
+4. **PR 作成**: リモートにプッシュし、`develop` ブランチへの PR を作成する。
+
+```bash
+git push -u origin <branch-name>
+gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
+```
+
+5. **クリーンアップ**: PR 作成後、ワークツリーとローカルブランチを削除。
 
 ```bash
 # クリーンアップコマンド（メインディレクトリで実行）
