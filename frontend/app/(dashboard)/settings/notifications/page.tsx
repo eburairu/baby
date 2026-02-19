@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ChevronLeft, Bell, BellOff, Shield, Clock } from "lucide-react";
+import { Bell, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { usePushNotification } from "@/hooks/usePushNotification";
+import { SettingsHeader } from "@/components/settings/SettingsHeader";
 
 interface NotificationSettings {
   family_record_enabled: boolean;
@@ -20,7 +20,6 @@ interface NotificationSettings {
 }
 
 export default function NotificationsPage() {
-  const router = useRouter();
   const { permission, requestPermission, subscribeUser, sendSubscriptionToBackend } = usePushNotification();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +42,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const updateSetting = async (key: keyof NotificationSettings, value: any) => {
+  const updateSetting = async (key: keyof NotificationSettings, value: boolean | string | null) => {
     if (!settings) return;
 
     const newSettings = { ...settings, [key]: value };
@@ -57,7 +56,7 @@ export default function NotificationsPage() {
       });
       if (!response.ok) throw new Error();
       toast.success("設定を更新しました");
-    } catch (error) {
+    } catch {
       toast.error("設定の更新に失敗しました");
       fetchSettings(); // ロールバック
     }
@@ -104,7 +103,7 @@ export default function NotificationsPage() {
       case "granted": return "許可されています";
       case "denied": return "ブロックされています";
       case "default": return "未設定（クリックで許可を求める）";
-      case "unsupported" as any: return "非対応（ホーム画面に追加してください）";
+      case "unsupported" as unknown: return "非対応（ホーム画面に追加してください）";
       default: return "不明な状態";
     }
   };
@@ -113,12 +112,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center px-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">通知設定</h1>
-      </header>
+      <SettingsHeader title="通知設定" />
 
       <div className="max-w-2xl mx-auto p-4 space-y-6 pb-20">
         <Card className="dark:bg-zinc-900 dark:border-zinc-800">
