@@ -5,6 +5,7 @@ import { formatElapsed } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, StickyNote } from "lucide-react"
 import { BabyRecord } from "@/hooks/useData"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 
 interface Props {
   babyId: string
@@ -38,7 +39,9 @@ export function NoteWidget({ babyId, records, isLoading }: Props) {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-xs text-gray-400 animate-pulse">読み込み中...</p>
+          <div className="flex justify-center py-2">
+            <BabyBottleLoading className="w-6 h-6 text-amber-400" />
+          </div>
         ) : lastNote ? (
           <div className="space-y-1">
             <p className="text-xs text-gray-500 dark:text-zinc-400">{elapsed}</p>

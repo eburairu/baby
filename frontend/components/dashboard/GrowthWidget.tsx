@@ -5,14 +5,16 @@ import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
 import { isApiError } from "@/lib/api"
 import { BabyRecord } from "@/hooks/useData"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 
 interface Props {
     babyId: string
     records?: BabyRecord[]
     isError?: unknown
+    isLoading?: boolean
 }
 
-export function GrowthWidget({ babyId, records, isError }: Props) {
+export function GrowthWidget({ babyId, records, isError, isLoading }: Props) {
     const isAccessDenied = isApiError(isError) && isError.status === 403
 
     if (isAccessDenied) {
@@ -54,7 +56,11 @@ export function GrowthWidget({ babyId, records, isError }: Props) {
                 </Link>
             </CardHeader>
             <CardContent className="space-y-3">
-                {latest ? (
+                {isLoading ? (
+                    <div className="flex justify-center py-4">
+                        <BabyBottleLoading className="w-8 h-8 text-emerald-400" />
+                    </div>
+                ) : latest ? (
                     <div className="space-y-1">
                         {weight != null && (
                             <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">

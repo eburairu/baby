@@ -8,15 +8,17 @@ import { formatElapsed, formatDuration, isToday } from "@/lib/ageUtils"
 import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
 import { BabyRecord } from "@/hooks/useData"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 
 interface Props {
     babyId: string
     records?: BabyRecord[]
     isError?: unknown
     mutate?: () => void
+    isLoading?: boolean
 }
 
-export function SleepWidget({ babyId, records, isError, mutate }: Props) {
+export function SleepWidget({ babyId, records, isError, mutate, isLoading }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -114,19 +116,24 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
             </CardHeader>
             <CardContent className="space-y-3">
                 <div>
-                    {isSleeping ? (
+                    {isLoading ? (
+                        <div className="flex justify-center py-4">
+                            <BabyBottleLoading className="w-8 h-8 text-indigo-400" />
+                        </div>
+                    ) : isSleeping ? (
                         <>
                             <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
                             <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
                         </>
                     ) : (
                         <>
                             <p className="text-sm text-gray-500 dark:text-zinc-400">
                                 {lastElapsed ? `${lastElapsed}に起床` : "記録なし"}
                             </p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
                         </>
                     )}
-                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
                 </div>
                 {canWrite ? (
                     <Button
@@ -134,8 +141,8 @@ export function SleepWidget({ babyId, records, isError, mutate }: Props) {
                         loading={loading}
                         onClick={isSleeping ? handleEnd : handleStart}
                         className={`w-full text-xs h-8 border-0 transition-colors ${isSleeping
-                                ? "bg-indigo-500 dark:bg-indigo-600 text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"
-                                : "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
+                            ? "bg-indigo-500 dark:bg-indigo-600 text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"
+                            : "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
                             }`}
                         variant="outline"
                         data-sentry-unmask

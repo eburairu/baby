@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { BabyRecord } from "@/hooks/useData"
 import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User } from "lucide-react"
@@ -82,7 +83,9 @@ export function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <p className="text-sm text-gray-400 dark:text-zinc-500">読み込み中...</p>
+                        <div className="flex justify-center py-8">
+                            <BabyBottleLoading className="w-8 h-8 text-indigo-400" />
+                        </div>
                     ) : recent.length > 0 ? (
                         <>
                             <ul className="space-y-3">

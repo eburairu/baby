@@ -29,6 +29,7 @@ import {
     SheetClose,
 } from "@/components/ui/sheet"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { PageLoading } from "@/components/ui/page-loading"
 
 const ALL_NAV_ITEMS = [
     { label: "ホーム", href: "/", icon: "🏠", prenatal: true, postnatal: true },
@@ -72,10 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (!mounted || (isLoading && !showTimeoutError)) return (
         <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
-            <div className="flex flex-col items-center gap-4">
-                <div className="h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-gray-500 animate-pulse">読み込み中...</p>
-            </div>
+            <PageLoading message="読み込み中..." />
         </div>
     )
 
