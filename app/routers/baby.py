@@ -129,7 +129,12 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
 
 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
-def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_records(
+    baby_id: int,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     # "baby" レベルのアクセスチェック（record_type="baby" はデフォルトなので変更不要）
     verify_baby_access(db, baby_id, current_user.id)
 
@@ -175,7 +180,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
     raw_records: list[tuple] = []  # (model_instance, type, timestamp, details_builder)
 
     if can_view_type("feeding"):
-        for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).all():
+        for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(limit).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -188,7 +193,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             ))
 
     if can_view_type("sleep"):
-        for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).all():
+        for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(limit).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
@@ -199,7 +204,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             ))
 
     if can_view_type("diaper"):
-        for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).all():
+        for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(limit).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
@@ -210,7 +215,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             ))
 
     if can_view_type("growth"):
-        for growth in db.query(Growth).filter(Growth.baby_id == baby_id).all():
+        for growth in db.query(Growth).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(limit).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -224,7 +229,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             ))
 
     if can_view_type("note"):
-        for note in db.query(Note).filter(Note.baby_id == baby_id).all():
+        for note in db.query(Note).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(limit).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
@@ -234,7 +239,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             ))
 
     if can_view_type("contraction"):
-        for c in db.query(Contraction).filter(Contraction.baby_id == baby_id).all():
+        for c in db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(limit).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {
@@ -268,7 +273,7 @@ def get_records(baby_id: int, db: Session = Depends(get_db), current_user: User 
             r.timestamp = r.timestamp.replace(tzinfo=JST)
 
     records.sort(key=lambda r: r.timestamp, reverse=True)
-    return records
+    return records[:limit]
 
 
 @router.post("/{baby_id}/records", response_model=UnifiedRecord)

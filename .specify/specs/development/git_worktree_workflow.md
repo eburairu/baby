@@ -120,8 +120,12 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
    - まず変更をリモートにプッシュする: `git push -u origin <branch-name>`
    - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
 
-4. **事後処理**:
-   - PR 作成の成功を確認後、メインディレクトリに戻る。
+4. **仕様との整合性確認 (Review)**:
+   - **【重要】ワークツリーを削除する前**に、必ず `spec-checker` サブエージェントを呼び出し、実装内容が仕様（`.specify/specs/`）と矛盾していないか、また実装プラン通りに完了しているかの最終レビューを受ける。
+   - レビューで指摘事項がある場合は、ワークツリー内で修正・追加コミットを行い、再度 PR を更新する。
+
+5. **事後処理**:
+   - PR 作成および `spec-checker` による最終確認の完了後、メインディレクトリに戻る。
    - ワークツリーを削除する: `git worktree remove --force worktrees/<branch-name>`
    - ローカルブランチを削除する: `git branch -D <branch-name>`
    - 最終的な PR の URL を報告してタスクを完了とする。

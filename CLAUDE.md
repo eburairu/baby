@@ -134,6 +134,7 @@ Cookie ベースのセッション管理（HttpOnly）。`UserSession` テーブ
   - **【推奨】作業中**: 長時間の実装では定期的に `git merge origin/develop` で develop の変更を取り込む。
   - **【必須】PR作成前**: `git fetch origin develop && git merge origin/develop` を実行して最新の develop をマージしてからプッシュする。
   - 実装と検証が完了したら `gh pr create --base develop` で PR を作成する。
+  - **【必須】最終レビュー**: **ワークツリーを削除する前**に必ず `spec-checker` サブエージェントを呼び出し、実装内容が仕様通りか最終確認を行う。
   - 作業完了後はワークツリーとブランチを削除する: `git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx`
 - **SDD 優先**: コード変更前に `.specify/specs/` 配下の仕様書を確認・必要に応じて更新する
 - **Python**: 型ヒント必須、PEP 8 準拠
