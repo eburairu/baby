@@ -64,7 +64,7 @@ cd frontend
 pnpm install
 ```
 
-> **注意**: `git worktree` 環境を使用している場合、メインディレクトリの `node_modules` へのシンボリックリンクは Turbopack の制限によりビルドエラーを引き起こすことがあります。その場合は、ワークツリー内の `frontend` ディレクトリで `pnpm install` を実行し、ローカルに `node_modules` を構築してください。
+> **注意**: `git worktree` 環境を使用する場合のセットアップおよび検証の詳細は [Git Worktree 開発フロー仕様書](./git_worktree_workflow.md) を参照してください。
 
 ## DB 環境（Neon ブランチ構成）
 
