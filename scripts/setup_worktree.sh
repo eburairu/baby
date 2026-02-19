@@ -49,8 +49,10 @@ fi
 # 2. 依存関係の共有（シンボリックリンク作成）
 # 絶対パスを使用することで、ブランチ名にスラッシュが含まれるか否かに関わらず
 # 正しいリンクが作成される（相対パスはディレクトリ深度に依存するため不使用）
+# pwd ではなく git rev-parse --show-toplevel でリポジトリルートを取得することで
+# スクリプトをサブディレクトリから呼び出した場合も正しく動作する
 echo "Setting up symlinks for shared dependencies..."
-ROOT_DIR="$(pwd)"
+ROOT_DIR="$(git rev-parse --show-toplevel)"
 
 # Python venv
 ln -sf "$ROOT_DIR/.venv" "$WORKTREE_DIR/.venv"
@@ -72,7 +74,7 @@ echo "Created $WORKTREE_DIR/.gitignore for safety."
 
 # Frontend node_modules（絶対パスで作成して Turbopack のシンボリックリンク問題を回避）
 if [ -d "$WORKTREE_DIR/frontend" ]; then
-  FRONTEND_NM="$(pwd)/frontend/node_modules"
+  FRONTEND_NM="$ROOT_DIR/frontend/node_modules"
   ln -sf "$FRONTEND_NM" "$WORKTREE_DIR/frontend/node_modules"
 fi
 
@@ -84,7 +86,7 @@ if [ -n "$WORKTREE_GIT_DIR" ]; then
   if [[ "$WORKTREE_GIT_DIR" != /* ]]; then
     WORKTREE_GIT_DIR="$WORKTREE_DIR/$WORKTREE_GIT_DIR"
   fi
-  sh "$(pwd)/scripts/install_hooks.sh" "$WORKTREE_GIT_DIR"
+  sh "$ROOT_DIR/scripts/install_hooks.sh" "$WORKTREE_GIT_DIR"
 fi
 
 echo ""
