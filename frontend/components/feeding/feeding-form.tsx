@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -113,7 +113,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
         }
     }
 
-    const resetAllTimers = () => {
+    const resetAllTimers = useCallback(() => {
         setActiveBreastSide(null)
         leftBaseRef.current = null
         rightBaseRef.current = null
@@ -121,7 +121,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
         setRightSeconds(0)
         form.setValue("left_breast_minutes", 0)
         form.setValue("right_breast_minutes", 0)
-    }
+    }, [form])
 
     const formatTimer = (seconds: number) => {
         const mins = Math.floor(seconds / 60)
@@ -131,7 +131,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
 
     const totalSeconds = leftSeconds + rightSeconds
 
-    const onSubmit = async (values: FeedingFormValues) => {
+    const onSubmit = useCallback(async (values: FeedingFormValues) => {
         const leftMin = values.left_breast_minutes || 0
         const rightMin = values.right_breast_minutes || 0
 
@@ -181,7 +181,10 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
         resetAllTimers()
         setFeedingCompletion(null)
         setBottleContentType(null)
-    }
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, resetAllTimers])
+
+    // eslint-disable-next-line react-hooks/refs
+    const handleFormSubmit = form.handleSubmit(onSubmit)
 
     return (
         <Card>
@@ -193,7 +196,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                     </TabsList>
 
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <form onSubmit={handleFormSubmit} className="space-y-4">
 
                             {/* Common: Time */}
                             <FormField

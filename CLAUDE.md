@@ -121,23 +121,169 @@ Cookie ベースのセッション管理（HttpOnly）。`UserSession` テーブ
 - `app/routers/` — API エンドポイント（`/api/*`）
 - `app/services/` — ビジネスロジック（パスワードハッシュ等）
 
+## 絶対に守るべきルール（AIエージェント必読）
+
+### コミットメッセージは必ず日本語で書く
+
+```
+# 正しい形式
+feat: ヘッダーに通知センターを追加
+fix: z-indexの重なり順を修正
+chore: 依存パッケージを更新
+
+# NG（英語はダメ）
+feat: add notification center to header
+```
+
+- 種別プレフィックス（`feat:`, `fix:`, `chore:`, `docs:` 等）は英語のまま
+- 説明文は日本語
+- `Co-Authored-By:` 行は英語のまま維持
+
+### PRは必ず `develop` ブランチに向けて作成する
+
+```bash
+# 正しい
+gh pr create --base develop
+
+# NG（main に直接 PR を作るな）
+gh pr create --base main  # ← 絶対にやってはいけない
+gh pr create              # ← デフォルトが main になる場合があるので明示必須
+```
+
+- ブランチフロー: `feat/*` → `develop` → `main`
+- `develop` → `main` へのマージはユーザーが判断・実行する（エージェントが勝手にマージしない）
+- `main` に直接 PR を作るとデプロイ（Render）に直結するため絶対禁止
+
+### バックエンド変更後は openapi.json を必ず更新する
+
+`app/models/`・`app/schemas/`・`app/routers/` を変更したら**コミット前に必ず実行**:
+
+```bash
+python scripts/export_openapi.py
+# 出力が frontend/openapi.json に書き込まれる
+git add frontend/openapi.json
+```
+
+- 忘れると CI が `frontend/openapi.json is out of date` で落ちる
+- このスクリプトはバックエンドサーバーが **停止した状態** で実行すること
+
+### コミット前の必須チェック
+
+```bash
+git status  # 必ず確認してからステージする
+```
+
+以下が `git status` に表示されている場合は**絶対にコミットしない**:
+
+- `new file: .venv` — シンボリックリンク（ワークツリー由来）
+- `new file: node_modules` — シンボリックリンク（ワークツリー由来）
+- `*.pem`、`*.key`、`*.cert` — 秘密鍵・証明書ファイル（環境変数で管理すること）
+
+### フロントエンド変更後は必ずビルドを確認する
+
+```bash
+cd frontend && pnpm build
+```
+
+- ビルドエラーがある状態でコミット・PRを作成しない
+- 型エラーもビルド時に検出される（`tsc --noEmit` 相当）
+
+---
+
 ## コーディング規約
 
-- **Git Worktree (Autonomous Workflow)**: 開発は必ず `git worktree` を作成して行う。
-  - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` で作業すること。
-  - **【注意】シンボリックリンク**: ワークツリー作成時にルートディレクトリの `node_modules` や `.venv` へのシンボリックリンクが作成されますが、これらは絶対にコミットに含めないこと。`git status` で `new file: .venv` や `new file: node_modules` が表示されている場合は、`git add` 前に確認すること。
-  - **【必須】作業開始前**: スクリプト実行後に表示される `develop` の最新 15 コミットを確認し、実装予定の機能が既にマージ済みでないか確認すること。重複実装はコンフリクトの原因になる。
-    ```bash
-    # 手動確認する場合
-    git fetch origin develop && git log origin/develop --oneline -15
-    ```
-  - **【推奨】作業中**: 長時間の実装では定期的に `git merge origin/develop` で develop の変更を取り込む。
-  - **【必須】PR作成前**: `git fetch origin develop && git merge origin/develop` を実行して最新の develop をマージしてからプッシュする。
-  - 実装と検証が完了したら `gh pr create --base develop` で PR を作成する。
-  - **【必須】最終レビュー**: **ワークツリーを削除する前**に必ず `spec-checker` サブエージェントを呼び出し、実装内容が仕様通りか最終確認を行う。指摘があればワークツリー内で修正する。
-  - **クリーンアップ**: PR がマージされた、またはユーザーから最終承認を得た後にワークツリーとブランチを削除する: `git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx`
-- **SDD 優先**: コード変更前に `.specify/specs/` 配下の仕様書を確認・必要に応じて更新する
+### Git Worktree（自律ワークフロー）— ステップバイステップ
+
+**開発は必ずワークツリーを作成してから始める。ルートディレクトリで直接作業しない。**
+
+#### STEP 1: ワークツリーを作成して移動する
+
+```bash
+# リポジトリルートで実行
+sh scripts/setup_worktree.sh feat/xxx
+cd worktrees/feat/xxx
+```
+
+スクリプト実行後に `develop` の最新コミットが表示されるので、**実装予定の機能が既にマージされていないか必ず確認する**。
+
+```bash
+# 手動確認コマンド
+git fetch origin develop && git log origin/develop --oneline -15
+```
+
+重複実装はコンフリクトの原因になる。マージ済みなら作業不要。
+
+#### STEP 2: 仕様書を確認する（SDD 優先）
+
+```bash
+# 関連仕様書を確認
+ls .specify/specs/
+```
+
+コード変更前に `.specify/specs/` 配下の仕様書を読み、必要に応じて更新する。
+
+#### STEP 3: 実装する
+
 - **Python**: 型ヒント必須、PEP 8 準拠
 - **TypeScript**: strict モード、関数コンポーネント + Hooks
-- **コミット**: Conventional Commits 形式（`feat:`, `fix:`, `chore:`, `docs:` 等）
-- **変更後**: 必ず `cd frontend && pnpm build` でビルド確認してから報告する
+- 長時間の実装では定期的に develop の変更を取り込む:
+  ```bash
+  git fetch origin develop && git merge origin/develop
+  ```
+
+#### STEP 4: 動作確認・テストを実行する
+
+```bash
+# バックエンドテスト
+source .venv/bin/activate && set -a && source .env && set +a
+npm run test:backend
+
+# フロントエンドテスト
+npm run test:frontend
+
+# フロントエンドビルド（必須）
+cd frontend && pnpm build
+```
+
+#### STEP 5: コミットする
+
+```bash
+git status  # シンボリックリンク・秘密鍵が含まれていないか確認
+git add <ファイル名>  # -A や . は使わず個別にステージ
+git commit -m "feat: 実装内容を日本語で説明"
+```
+
+#### STEP 6: PR 作成前に develop をマージする
+
+```bash
+git fetch origin develop && git merge origin/develop
+# コンフリクトがあれば解消してから続行
+git push origin feat/xxx
+```
+
+#### STEP 7: 最終レビュー（仕様確認）
+
+`spec-checker` サブエージェントを呼び出し、実装内容が仕様通りか確認する。指摘があればワークツリー内で修正してから次のステップへ。
+
+#### STEP 8: PR を作成する
+
+```bash
+gh pr create --base develop --title "feat: タイトルを日本語で" --body "..."
+```
+
+`--base develop` は**省略禁止**。
+
+#### STEP 9: クリーンアップ（PR マージ後またはユーザー承認後）
+
+```bash
+git worktree remove --force worktrees/feat/xxx
+git branch -D feat/xxx
+```
+
+---
+
+### その他のコーディング規約
+
+- **Python**: 型ヒント必須、PEP 8 準拠
+- **TypeScript**: strict モード、関数コンポーネント + Hooks
+- **コミット**: Conventional Commits 形式（`feat:`, `fix:`, `chore:`, `docs:` 等）、説明文は日本語

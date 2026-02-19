@@ -58,12 +58,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const selectedBaby = babies?.find((b) => String(b.id) === effectiveId)
 
     useEffect(() => {
-        setMounted(true)
-        // 10秒待っても読み込み中ならタイムアウトを表示
         const timer = setTimeout(() => {
-            if (isLoading) setShowTimeoutError(true)
-        }, 10000)
+            setMounted(true)
+        }, 0)
         return () => clearTimeout(timer)
+    }, [])
+
+    useEffect(() => {
+        // 10秒待っても読み込み中ならタイムアウトを表示
+        let timer: NodeJS.Timeout | null = null
+        if (isLoading) {
+            timer = setTimeout(() => {
+                setShowTimeoutError(true)
+            }, 10000)
+        } else {
+            const clearTimer = setTimeout(() => {
+                setShowTimeoutError(false)
+            }, 0)
+            return () => {
+                clearTimeout(clearTimer)
+            }
+        }
+        return () => {
+            if (timer) clearTimeout(timer)
+        }
     }, [isLoading])
 
     useEffect(() => {
