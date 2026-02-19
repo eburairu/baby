@@ -201,10 +201,10 @@ export default function Dashboard() {
 
                 {/* ウィジェットグリッド */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {born && <FeedingWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />}
-                    {born && <SleepWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />}
-                    {born && <DiaperWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} />}
-                    {born && <GrowthWidget babyId={effectiveId} records={records} isError={recordsError} />}
+                    {born && <FeedingWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} isLoading={recordsLoading} />}
+                    {born && <SleepWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} isLoading={recordsLoading} />}
+                    {born && <DiaperWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} isLoading={recordsLoading} />}
+                    {born && <GrowthWidget babyId={effectiveId} records={records} isError={recordsError} isLoading={recordsLoading} />}
                     <NoteWidget babyId={effectiveId} records={records} isLoading={recordsLoading} />
                 </div>
 
