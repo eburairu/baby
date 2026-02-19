@@ -27,9 +27,10 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
         3. 実装および検証（ビルド・テスト）完了後、**【必須】PR作成前**: `git fetch origin develop && git merge origin/develop` を実行して最新の develop をマージしてからプッシュすること。
         4. GitHub CLI (`gh`) を使用して `develop` ブランチに向けた Pull Request (PR) を作成する。
            - `gh pr create --base develop --head feat/xxx --title "feat: xxx" --body "..."`
-        5. PR作成が完了したら、必ずメインディレクトリの `develop` ブランチに戻り、使用したワークツリーとローカルブランチを削除する。
+        5. **【必須】最終レビュー**: PR作成後、**ワークツリーを削除する前**に必ず `spec-checker` サブエージェントを呼び出し、実装が仕様通りか最終確認を行うこと。指摘があればワークツリー内で修正する。
+        6. **クリーンアップ**: タスクの完全な完了（PRのマージまたはユーザーからのクリーンアップ許可）を確認した後、メインディレクトリの `develop` ブランチに戻り、使用したワークツリーとローカルブランチを削除する。
            - `git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx`
-        6. タスク完了時に作成した PR の URL をユーザーに報告する。
+        7. タスク完了時に作成した PR の URL をユーザーに報告する。
 3.  **仕様駆動開発 (SDD)**:
     - 開発の起点は常に `.specify/specs/` 配下の仕様書とする。
     - 仕様書作成 -> 実装 -> `spec-checker` によるレビュー のサイクルを回す。
