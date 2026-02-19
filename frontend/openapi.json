@@ -32,16 +32,7 @@
             "type": "string"
           },
           "type": {
-            "enum": [
-              "family_record",
-              "comment",
-              "daily_summary",
-              "feeding_reminder",
-              "diaper_reminder",
-              "system"
-            ],
-            "title": "Type",
-            "type": "string"
+            "$ref": "#/components/schemas/NotificationType"
           },
           "url": {
             "anyOf": [
@@ -1903,6 +1894,18 @@
         },
         "title": "NotificationSettingsUpdate",
         "type": "object"
+      },
+      "NotificationType": {
+        "enum": [
+          "family_record",
+          "comment",
+          "daily_summary",
+          "feeding_reminder",
+          "diaper_reminder",
+          "system"
+        ],
+        "title": "NotificationType",
+        "type": "string"
       },
       "PushSubscriptionCreate": {
         "properties": {
@@ -4503,8 +4506,8 @@
     },
     "/api/notifications": {
       "get": {
-        "description": "最新 20 件の通知を降順で返す",
-        "operationId": "get_notifications_api_notifications_get",
+        "description": "最新20件の通知を返す",
+        "operationId": "list_notifications_api_notifications_get",
         "responses": {
           "200": {
             "content": {
@@ -4513,7 +4516,7 @@
                   "items": {
                     "$ref": "#/components/schemas/AppNotificationResponse"
                   },
-                  "title": "Response Get Notifications Api Notifications Get",
+                  "title": "Response List Notifications Api Notifications Get",
                   "type": "array"
                 }
               }
@@ -4521,7 +4524,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Get Notifications",
+        "summary": "List Notifications",
         "tags": [
           "notifications"
         ]
@@ -4529,15 +4532,10 @@
     },
     "/api/notifications/read-all": {
       "patch": {
-        "description": "ログインユーザーの全通知を一括既読にする",
+        "description": "全通知を一括既読にする",
         "operationId": "mark_all_as_read_api_notifications_read_all_patch",
         "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
+          "204": {
             "description": "Successful Response"
           }
         },
@@ -4671,7 +4669,7 @@
     "/api/notifications/unread-count": {
       "get": {
         "description": "未読通知数を返す",
-        "operationId": "get_unread_count_api_notifications_unread_count_get",
+        "operationId": "unread_count_api_notifications_unread_count_get",
         "responses": {
           "200": {
             "content": {
@@ -4684,7 +4682,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Get Unread Count",
+        "summary": "Unread Count",
         "tags": [
           "notifications"
         ]

@@ -4,17 +4,18 @@ from app.models.base import Base
 
 
 class AppNotification(Base):
+    """アプリ内通知センター用テーブル"""
     __tablename__ = "app_notifications"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     type = Column(String(50), nullable=False)
     # 'family_record' | 'comment' | 'daily_summary'
     # | 'feeding_reminder' | 'diaper_reminder' | 'system'
     title = Column(String(255), nullable=False)
     body = Column(Text, nullable=True)
     url = Column(String(512), nullable=True)
-    is_read = Column(Boolean, nullable=False, server_default="false", default=False)
+    is_read = Column(Boolean, nullable=False, default=False, server_default="false")
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="app_notifications")

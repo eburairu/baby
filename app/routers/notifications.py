@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
-from app.models.notification import AppNotification, PushSubscription, NotificationSetting
+from app.models.notification import PushSubscription, NotificationSetting, AppNotification
 from app.schemas.notification import (
     AppNotificationResponse,
     UnreadCountResponse,
@@ -19,11 +19,11 @@ router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 # ---- アプリ内通知センター ----
 
 @router.get("", response_model=List[AppNotificationResponse])
-def get_notifications(
+def list_notifications(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """最新 20 件の通知を降順で返す"""
+    """最新20件の通知を返す"""
     notifications = (
         db.query(AppNotification)
         .filter(AppNotification.user_id == current_user.id)
@@ -35,7 +35,7 @@ def get_notifications(
 
 
 @router.get("/unread-count", response_model=UnreadCountResponse)
-def get_unread_count(
+def unread_count(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -48,7 +48,7 @@ def get_unread_count(
         )
         .count()
     )
-    return {"count": count}
+    return UnreadCountResponse(count=count)
 
 
 @router.patch("/{notification_id}/read", response_model=AppNotificationResponse)
@@ -58,14 +58,10 @@ def mark_as_read(
     current_user: User = Depends(get_current_user),
 ):
     """個別通知を既読にする"""
-    notification = (
-        db.query(AppNotification)
-        .filter(
-            AppNotification.id == notification_id,
-            AppNotification.user_id == current_user.id,
-        )
-        .first()
-    )
+    notification = db.query(AppNotification).filter(
+        AppNotification.id == notification_id,
+        AppNotification.user_id == current_user.id,
+    ).first()
     if not notification:
         raise HTTPException(status_code=404, detail="Notification not found")
     notification.is_read = True
@@ -74,18 +70,17 @@ def mark_as_read(
     return notification
 
 
-@router.patch("/read-all")
+@router.patch("/read-all", status_code=status.HTTP_204_NO_CONTENT)
 def mark_all_as_read(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """ログインユーザーの全通知を一括既読にする"""
+    """全通知を一括既読にする"""
     db.query(AppNotification).filter(
         AppNotification.user_id == current_user.id,
         AppNotification.is_read == False,  # noqa: E712
     ).update({"is_read": True})
     db.commit()
-    return {"message": "All notifications marked as read"}
 
 
 # ---- PWA プッシュ通知 ----
@@ -100,7 +95,7 @@ def subscribe(
     existing = db.query(PushSubscription).filter(
         PushSubscription.endpoint == subscription_in.endpoint
     ).first()
-    
+
     if existing:
         # ユーザーが違う場合は所有権を更新
         existing.user_id = current_user.id
@@ -123,6 +118,7 @@ def subscribe(
     db.refresh(new_sub)
     return new_sub
 
+
 @router.post("/unsubscribe")
 def unsubscribe(
     endpoint: str,
@@ -133,13 +129,14 @@ def unsubscribe(
         PushSubscription.endpoint == endpoint,
         PushSubscription.user_id == current_user.id
     ).first()
-    
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
-    
+
     db.delete(subscription)
     db.commit()
     return {"message": "Unsubscribed successfully"}
+
 
 @router.get("/settings", response_model=NotificationSettingsResponse)
 def get_settings(
@@ -149,15 +146,16 @@ def get_settings(
     settings = db.query(NotificationSetting).filter(
         NotificationSetting.user_id == current_user.id
     ).first()
-    
+
     if not settings:
         # デフォルト設定を作成
         settings = NotificationSetting(user_id=current_user.id)
         db.add(settings)
         db.commit()
         db.refresh(settings)
-    
+
     return settings
+
 
 @router.patch("/settings", response_model=NotificationSettingsResponse)
 def update_settings(
@@ -168,7 +166,7 @@ def update_settings(
     settings = db.query(NotificationSetting).filter(
         NotificationSetting.user_id == current_user.id
     ).first()
-    
+
     if not settings:
         settings = NotificationSetting(user_id=current_user.id)
         db.add(settings)
@@ -176,7 +174,7 @@ def update_settings(
     update_data = settings_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(settings, field, value)
-    
+
     db.commit()
     db.refresh(settings)
     return settings
@@ -189,11 +187,11 @@ def send_test_notification(
 ):
     """テスト通知を自分自身に送信する"""
     from app.utils.notifications import send_push_notification
-    
+
     subscriptions = db.query(PushSubscription).filter(
         PushSubscription.user_id == current_user.id
     ).all()
-    
+
     if not subscriptions:
         return {
             "success": False,
@@ -201,7 +199,7 @@ def send_test_notification(
             "subscription_count": 0,
             "results": []
         }
-    
+
     results = []
     for sub in subscriptions:
         success = send_push_notification(
@@ -216,7 +214,7 @@ def send_test_notification(
             "endpoint_preview": sub.endpoint[:60] + "...",
             "success": success
         })
-    
+
     all_success = all(r["success"] for r in results)
     return {
         "success": all_success,
@@ -224,4 +222,3 @@ def send_test_notification(
         "subscription_count": len(subscriptions),
         "results": results
     }
-
