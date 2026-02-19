@@ -11,6 +11,7 @@ import { SleepForm } from "@/components/sleep/sleep-form"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PageLoading } from "@/components/ui/page-loading"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { sleepTips } from "@/lib/tips-data"
@@ -23,7 +24,7 @@ export default function SleepPage() {
     const { canWrite } = usePermissions()
 
     const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-    const { isError: sleepError } = useSleeps(effectiveId)
+    const { isError: sleepError, isLoading: sleepsLoading } = useSleeps(effectiveId)
 
     if (isLoading) return <PageLoading />
     if (!effectiveId) return <div className="p-8 text-center text-gray-500">赤ちゃんが登録されていません</div>
@@ -51,6 +52,10 @@ export default function SleepPage() {
 
                 {isAccessDenied ? (
                     <AccessDenied />
+                ) : sleepsLoading ? (
+                    <div className="flex justify-center py-12">
+                        <BabyBottleLoading className="w-12 h-12 text-indigo-400" />
+                    </div>
                 ) : (
                     <>
                         <SleepStats babyId={effectiveId} />

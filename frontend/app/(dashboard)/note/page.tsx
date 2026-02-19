@@ -10,6 +10,7 @@ import { useBabyStore } from "@/stores/babyStore"
 import { NoteForm } from "@/components/note/NoteForm"
 import { NoteHistory } from "@/components/note/NoteHistory"
 import { PageLoading } from "@/components/ui/page-loading"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { noteTips } from "@/lib/tips-data"
@@ -64,13 +65,15 @@ export default function NotePage() {
 
                         {canWrite && (
                             <NoteForm
-                                babyId={babyId} 
-                                onAddSuccess={() => mutateNotes()} 
+                                babyId={babyId}
+                                onAddSuccess={() => mutateNotes()}
                             />
                         )}
 
                         {notesLoading ? (
-                            <div className="text-center py-10 text-gray-400">読み込み中...</div>
+                            <div className="flex justify-center py-10">
+                                <BabyBottleLoading className="w-10 h-10 text-amber-400" />
+                            </div>
                         ) : (
                             <NoteHistory
                                 notes={notes || []}

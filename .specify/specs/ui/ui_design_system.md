@@ -302,17 +302,19 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 
 ### 4.1 `PageLoading`
 
-ページ全体のローディング状態を表示する共通コンポーネント。
+ページ全体のローディング状態を表示する共通コンポーネント。ユーザー体験向上のため、静的なスピナーではなく、動的なアニメーション（揺れる哺乳瓶）を採用する。
 
 **ファイルパス**: `frontend/components/ui/page-loading.tsx`
 
 ```tsx
 // 仕様
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+
 export function PageLoading({ message = "読み込み中..." }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 text-gray-400">
-      <Loader2 className="h-8 w-8 animate-spin" />
-      <p className="text-sm">{message}</p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-gray-400 dark:text-zinc-500 transition-colors">
+      <BabyBottleLoading className="h-12 w-12 text-indigo-400" />
+      <p className="text-sm font-medium animate-pulse">{message}</p>
     </div>
   );
 }
@@ -324,7 +326,25 @@ export function PageLoading({ message = "読み込み中..." }: { message?: stri
 - `<div className="flex items-center justify-center min-h-64 text-gray-400">読み込み中...</div>`（Dashboard）
 - `<div className="flex justify-center py-12 text-muted-foreground">読み込み中...</div>`（Contraction）
 
-### 4.2 `ErrorMessage`
+### 4.2 `BabyBottleLoading` (New)
+
+哺乳瓶のアニメーションを用いたローディングコンポーネント。ダッシュボードやデータ取得時の待機表示に使用する。
+
+**ファイルパス**: `frontend/components/ui/baby-bottle-loading.tsx`
+
+```tsx
+// 使用例
+<BabyBottleLoading className="w-24 h-24" />
+```
+
+**特徴**:
+- `React.useId()` を使用してユニークなSVG IDを生成するため、同一ページに複数配置してもアニメーションが競合しない。
+- `className` でサイズ調整が可能。
+- ミニマルで可愛らしいデザイン。
+- 哺乳瓶全体が半透明で、中のミルク（液体）が透けて見える表現。
+- ミルクが減っていくアニメーション付き。
+
+### 4.3 `ErrorMessage`
 
 エラーを表示する共通コンポーネント。`alert()` によるエラー表示を廃止する。
 
@@ -347,6 +367,49 @@ export function ErrorMessage({ message }: { message: string }) {
 - `alert("エラーが発生しました")`（DiaperForm）
 - `{error && <div className="text-red-500 text-sm">{error}</div>}`
   → `{error && <ErrorMessage message={error} />}` に統一
+
+### 4.4 `SettingsHeader` (New)
+
+設定画面の各サブページ（プロフィール、通知、家族など）で共通して使用するヘッダーコンポーネント。
+ダッシュボードの設定メニュー階層に戻るためのナビゲーションを提供する。
+
+**ファイルパス**: `frontend/components/settings/SettingsHeader.tsx`
+
+```tsx
+// 仕様
+export function SettingsHeader({ 
+  title, 
+  icon: Icon, 
+  children 
+}: { 
+  title: string; 
+  icon?: LucideIcon;
+  children?: React.ReactNode;
+}) {
+  return (
+    <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center px-4 gap-3">
+      <Link
+        href="/settings"
+        className="p-1 -ml-1 text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-100 transition-colors"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Link>
+      <div className="flex items-center gap-2 flex-1">
+        {Icon && <Icon className="h-4 w-4 text-violet-600" />}
+        <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
+          {title}
+        </h1>
+      </div>
+      {children && <div>{children}</div>}
+    </header>
+  );
+}
+```
+
+**適用ルール**:
+- すべての設定サブページでこのコンポーネントを使用する。
+- 戻る先は常に `/settings` とする。
+- タイトルとアイコンはページ内容に合わせて設定する。
 
 ---
 
@@ -546,3 +609,9 @@ export function ErrorMessage({ message }: { message: string }) {
 
 - [x] サブページ内の「ダッシュボードへ戻る」ボタンを廃止し、グローバルヘッダーに集約
 - [x] Contraction の旧スタイル（`<a href="/">← ダッシュボード</a>`）を廃止
+
+### 設定画面
+
+- [ ] `SettingsHeader` コンポーネント新規作成
+- [ ] Profile, Notification, Family, Babies, Permissions 各ページで `SettingsHeader` を適用
+- [ ] 各ページの個別実装ヘッダーを削除

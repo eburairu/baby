@@ -1,11 +1,11 @@
 "use client"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { useUser } from "@/hooks/useAuth"
 import { useFamilySettings, useFamilyMembers } from "@/hooks/useData"
 import { FamilyNameForm } from "@/components/settings/FamilyNameForm"
 import { InviteCodeCard } from "@/components/settings/InviteCodeCard"
 import { MemberList } from "@/components/settings/MemberList"
+
+import { SettingsHeader } from "@/components/settings/SettingsHeader"
 
 export default function FamilySettingsPage() {
     const { user, isLoading: userLoading } = useUser()
@@ -29,7 +29,6 @@ export default function FamilySettingsPage() {
     const handleFamilyUpdated = () => {
         mutateFamily()
     }
-
     const handleMembersUpdated = () => {
         mutateMembers()
     }
@@ -37,9 +36,7 @@ export default function FamilySettingsPage() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             {/* sticky header */}
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center justify-center px-4">
-                <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">家族設定</h1>
-            </header>
+            <SettingsHeader title="家族設定" />
 
             <div className="max-w-2xl mx-auto p-4 space-y-4">
                 {/* 家族名 */}
