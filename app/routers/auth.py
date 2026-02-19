@@ -34,12 +34,18 @@ def _create_session(db: Session, user_id: int) -> str:
 @router.post("/change-password", status_code=204)
 def change_password(
     req: PasswordChangeRequest,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> None:
     if not verify_password(req.current_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     current_user.hashed_password = get_password_hash(req.new_password)
+    current_token = request.cookies.get("access_token")
+    db.query(UserSession).filter(
+        UserSession.user_id == current_user.id,
+        UserSession.token != current_token,
+    ).delete()
     db.commit()
 
 

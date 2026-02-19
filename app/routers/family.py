@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies import get_db, get_current_user
-from app.models.user import User
+from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser, UserRole
 from app.schemas.family import (
     FamilyResponse,
@@ -162,6 +162,7 @@ def reset_member_password(
         raise HTTPException(status_code=404, detail="User not found")
     temporary_password = secrets.token_urlsafe(9)  # ~12 chars
     target_user.hashed_password = get_password_hash(temporary_password)
+    db.query(UserSession).filter(UserSession.user_id == user_id).delete()
     db.commit()
     return PasswordResetResponse(temporary_password=temporary_password)
 
