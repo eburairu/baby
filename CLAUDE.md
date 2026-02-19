@@ -123,6 +123,9 @@ Cookie ベースのセッション管理（HttpOnly）。`UserSession` テーブ
 
 ## コーディング規約
 
+- **Git Worktree**: 開発は必ず `git worktree` を作成して行う。
+  - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` で作業すること。
+  - 作業完了後はワークツリーを削除する: `git worktree remove worktrees/feat/xxx`
 - **SDD 優先**: コード変更前に `.specify/specs/` 配下の仕様書を確認・必要に応じて更新する
 - **Python**: 型ヒント必須、PEP 8 準拠
 - **TypeScript**: strict モード、関数コンポーネント + Hooks
