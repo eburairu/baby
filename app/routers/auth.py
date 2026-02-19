@@ -73,9 +73,9 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    invite_code = secrets.token_hex(4).upper()
+    invite_code = secrets.token_hex(8).upper()
     while db.query(Family).filter(Family.invite_code == invite_code).first():
-        invite_code = secrets.token_hex(4).upper()
+        invite_code = secrets.token_hex(8).upper()
 
     new_family = Family(name=family_in.name, invite_code=invite_code)
     db.add(new_family)
@@ -112,6 +112,8 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
+    # Normalize invite code to uppercase to handle case-insensitive input
+    invite_code = invite_code.upper()
     family = db.query(Family).filter(Family.invite_code == invite_code).first()
     if not family:
         raise HTTPException(status_code=404, detail="Invalid invite code")
