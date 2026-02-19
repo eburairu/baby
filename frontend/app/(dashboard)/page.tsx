@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useBabies, useRecords } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import Link from "next/link"
@@ -29,6 +29,13 @@ export default function Dashboard() {
     const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
     const { isAdmin } = usePermissions()
+
+    // selectedBabyId を auto-persist: 2回目以降の訪問で useBabies と useRecords を並列フェッチ
+    useEffect(() => {
+        if (!selectedBabyId && babies && babies.length > 0) {
+            setSelectedBabyId(String(babies[0].id))
+        }
+    }, [babies, selectedBabyId, setSelectedBabyId])
 
     const [newBabyName, setNewBabyName] = useState("")
     const [newBabyBirthday, setNewBabyBirthday] = useState("")

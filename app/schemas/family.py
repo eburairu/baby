@@ -44,3 +44,7 @@ class FamilyMemberResponse(BaseModel):
 
 class MemberRoleUpdate(BaseModel):
     role: UserRole
+
+
+class PasswordResetResponse(BaseModel):
+    temporary_password: str

@@ -13,6 +13,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { MemberRoleDialog } from "./MemberRoleDialog"
+import { MemberPasswordResetDialog } from "./MemberPasswordResetDialog"
 import { api } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
 import { UserRole } from "@/lib/constants"
@@ -40,6 +41,7 @@ function formatDate(iso: string) {
 export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props) {
     const [roleDialogTarget, setRoleDialogTarget] = useState<Member | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<Member | null>(null)
+    const [passwordResetTarget, setPasswordResetTarget] = useState<Member | null>(null)
     const [deleting, setDeleting] = useState(false)
 
     const handleDelete = async () => {
@@ -101,12 +103,27 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                     >
                                         削除
                                     </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-xs dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                                        onClick={() => setPasswordResetTarget(member)}
+                                    >
+                                        PW再発行
+                                    </Button>
                                 </div>
                             )}
                         </div>
                     )
                 })}
             </div>
+
+            {/* パスワード再発行ダイアログ */}
+            <MemberPasswordResetDialog
+                member={passwordResetTarget}
+                open={!!passwordResetTarget}
+                onClose={() => setPasswordResetTarget(null)}
+            />
 
             {/* ロール変更ダイアログ */}
             <MemberRoleDialog

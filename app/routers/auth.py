@@ -9,7 +9,7 @@ from app.database import SessionLocal
 from app.dependencies import get_db, get_current_user
 from app.schemas.auth import LoginRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
-from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate
+from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser, UserRole
 from app.services.auth import verify_password, get_password_hash
@@ -29,6 +29,24 @@ def _create_session(db: Session, user_id: int) -> str:
     db.add(session)
     db.commit()
     return token
+
+
+@router.post("/change-password", status_code=204)
+def change_password(
+    req: PasswordChangeRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    if not verify_password(req.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    current_user.hashed_password = get_password_hash(req.new_password)
+    current_token = request.cookies.get("access_token")
+    db.query(UserSession).filter(
+        UserSession.user_id == current_user.id,
+        UserSession.token != current_token,
+    ).delete()
+    db.commit()
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -55,9 +73,9 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    invite_code = secrets.token_hex(4).upper()
+    invite_code = secrets.token_hex(8).upper()
     while db.query(Family).filter(Family.invite_code == invite_code).first():
-        invite_code = secrets.token_hex(4).upper()
+        invite_code = secrets.token_hex(8).upper()
 
     new_family = Family(name=family_in.name, invite_code=invite_code)
     db.add(new_family)
@@ -94,6 +112,8 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
+    # Normalize invite code to uppercase to handle case-insensitive input
+    invite_code = invite_code.upper()
     family = db.query(Family).filter(Family.invite_code == invite_code).first()
     if not family:
         raise HTTPException(status_code=404, detail="Invalid invite code")

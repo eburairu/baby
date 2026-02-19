@@ -12,3 +12,8 @@
 **Vulnerability:** User-related schemas (`UserCreate`, `FamilyCreate`, `LoginRequest`) lacked input validation for length and complexity. This could allow attackers to perform DoS attacks by sending massive payloads (e.g., extremely long passwords that take significant time to hash) or bypass expected security standards for passwords.
 **Learning:** Pydantic models should always include reasonable `min_length`, `max_length`, and `pattern` constraints for user-supplied data to prevent resource exhaustion and ensure data integrity.
 **Prevention:** Use Pydantic's `Field` with `min_length`, `max_length`, and `pattern` (regex) to enforce constraints. For login schemas, prioritize `max_length` for DoS protection while ensuring compatibility with existing users.
+
+## 2026-02-16 - Weak and Inconsistent Invite Code Generation
+**Vulnerability:** Family invite codes were generated with low/inconsistent entropy (32-bit `token_hex(4)` in `auth.py` vs ~48-bit `token_urlsafe(8)` in `family.py`) and lacked collision checks during regeneration. This increased the risk of brute-force attacks and code guessing.
+**Learning:** Security-critical tokens should have consistent high entropy across the application. Relying on short tokens for user-friendly features can compromise security if not properly balanced with rate limiting or sufficient length.
+**Prevention:** Standardized on 64-bit entropy (16-character uppercase hex strings) using `secrets.token_hex(8).upper()` and enforced uniqueness checks for all generation paths.

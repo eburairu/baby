@@ -8,13 +8,13 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: "https://df57b075f6f01f47246f03f44fb7f5d6@o4510904857526272.ingest.us.sentry.io/4510904861065216",
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // 本番環境では20%のみサンプリングしてネットワーク帯域を節約
+  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.2 : 1,
 
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
-  // Enable sending user PII (Personally Identifiable Information)
+  // PII（個人識別情報）の送信を無効化
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-  sendDefaultPii: true,
+  sendDefaultPii: false,
 });
