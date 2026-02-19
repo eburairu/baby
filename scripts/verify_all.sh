@@ -21,9 +21,6 @@ fi
 if [ -d ".venv" ]; then
     echo -e "${GREEN}✓ 仮想環境 (.venv) を検出しました${NC}"
     source .venv/bin/activate
-elif [ -d "venv" ]; then
-    echo -e "${GREEN}✓ 仮想環境 (venv) を検出しました${NC}"
-    source venv/bin/activate
 else
     echo -e "${RED}✗ 仮想環境が見つかりません。'uv venv .venv' 等で作成してください。${NC}"
     exit 1
@@ -38,7 +35,7 @@ set +a
 echo -e "
 ${YELLOW}--- [1/5] バックエンドテスト実行中... ---${NC}"
 # 仮想環境の python を使用
-python -m pytest
+python -m pytest tests/
 
 # 3. OpenAPI スキーマの更新
 echo -e "

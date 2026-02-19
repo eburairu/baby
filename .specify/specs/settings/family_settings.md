@@ -29,6 +29,7 @@ Baby App の家族設定画面（`/settings/family`）の仕様。
 - 今どのメンバーが家族に参加しているか一覧で確認したい。
 - メンバーのロールを member から admin に昇格させたい。
 - 退会したメンバーを家族グループから削除したい。
+- パートナーがパスワードを忘れてログインできなくなった。代わりに仮パスワードを発行して伝えたい。
 
 ## 機能要件
 
@@ -81,6 +82,38 @@ Baby App の家族設定画面（`/settings/family`）の仕様。
 - タップするとセーフガード付き確認ダイアログを表示する。
 - 削除後はメンバー一覧から即時除去する。
 
+### FF8: メンバーのパスワード再発行
+
+- admin ユーザーのみ操作可能。
+- 対象: 自分自身を除く全メンバー（member / viewer / admin 問わず）。
+- 各メンバー行に「パスワード再発行」ボタンを表示（ただし自分自身には非表示）。
+- タップすると確認ダイアログを表示する（「{表示名} のパスワードを再発行しますか？」）。
+- 確認後、バックエンドで 12 文字のランダム仮パスワードを生成してハッシュ化して保存する。
+- 生成した仮パスワードを結果ダイアログに 1 度だけ表示する（コピーボタン付き）。
+- 結果ダイアログには「この画面を閉じると確認できなくなります。本人に安全な方法で伝えてください。」と警告を表示する。
+- admin は仮パスワードを本人に伝える責任を負う（アプリ外での連絡を前提とする）。
+
+#### パスワード再発行フロー
+
+```
+1. admin がメンバー行の「パスワード再発行」をタップ
+2. 確認ダイアログ:「{表示名} のパスワードを再発行しますか？元のパスワードは無効になります」
+3. 「再発行する」をタップ → POST /api/family/members/{user_id}/reset-password
+4. 結果ダイアログ（仮パスワード表示）:
+   ┌──────────────────────────────────┐
+   │ 🔑 仮パスワードが発行されました  │
+   │ ──────────────────────────────── │
+   │  Xk9mP2vLqR5n          [コピー]  │
+   │                                  │
+   │ ⚠️ この画面を閉じると確認できなく │
+   │    なります。本人に安全な方法で  │
+   │    伝えてください。              │
+   │                        [閉じる]  │
+   └──────────────────────────────────┘
+5. admin がメンバーに仮パスワードを伝える
+6. メンバーが仮パスワードでログイン後、プロフィール設定でパスワードを変更する
+```
+
 ## 画面構成案
 
 ```
@@ -107,10 +140,10 @@ Baby App の家族設定画面（`/settings/family`）の仕様。
 │  田中 太郎    [admin]  2024/01/01   │
 │                                     │  ← 自分自身: ボタンなし
 │  田中 花子    [member] 2024/02/15   │
-│              [ロール変更] [削除]    │  ← admin のみボタン表示
+│   [ロール変更] [削除] [PW再発行]   │  ← admin のみボタン表示
 │                                     │
 │  山田 次郎    [viewer] 2024/03/10   │
-│              [ロール変更] [削除]    │
+│   [ロール変更] [削除] [PW再発行]   │
 └─────────────────────────────────────┘
 ```
 
@@ -150,6 +183,7 @@ useFamilyMembers()     // GET /api/family/members → メンバー一覧
 | GET | `/api/family/members` | ✅ 実装済み | メンバー一覧取得 |
 | PATCH | `/api/family/members/{user_id}/role` | ✅ 実装済み | ロール変更 |
 | DELETE | `/api/family/members/{user_id}` | ✅ 実装済み | メンバー削除 |
+| POST | `/api/family/members/{user_id}/reset-password` | ✅ 実装済み | パスワード再発行（admin 専用） |
 
 #### 新規スキーマ（追加が必要）
 
@@ -170,7 +204,30 @@ class FamilyMemberResponse(BaseModel):
 
 class MemberRoleUpdate(BaseModel):
     role: str  # "admin" | "member"
+
+class PasswordResetResponse(BaseModel):
+    temporary_password: str  # バックエンドが生成した平文仮パスワード（1度だけ返す）
 ```
+
+#### `POST /api/family/members/{user_id}/reset-password` 設計
+
+```python
+@router.post("/members/{user_id}/reset-password", response_model=PasswordResetResponse)
+def reset_member_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # 1. 呼び出し元が admin であることを確認
+    # 2. 対象ユーザーが同じ家族に属することを確認
+    # 3. 自分自身を対象にできないことを確認
+    # 4. secrets.token_urlsafe(9) などで 12 文字の仮パスワードを生成
+    # 5. bcrypt でハッシュ化して User.hashed_password を更新
+    # 6. 平文仮パスワードをレスポンスで返す（DBには保存しない）
+```
+
+- **セキュリティ注意点**: 仮パスワードはレスポンスで 1 度だけ返す。DBには平文を保存しない。
+- HTTPS 通信前提（Cookie と同様）。
 
 #### エラーハンドリング
 
@@ -189,6 +246,7 @@ class MemberRoleUpdate(BaseModel):
 | メンバー一覧の閲覧 | ✅ | ✅ | ✅ |
 | メンバーのロール変更 | ✅（自分自身を除く） | ❌（ボタン非表示） | ❌ |
 | メンバーの削除 | ✅（自分自身を除く） | ❌（ボタン非表示） | ❌ |
+| メンバーのパスワード再発行 | ✅（自分自身を除く） | ❌（ボタン非表示） | ❌ |
 | 権限管理ページへの遷移 | ✅（リンク表示） | ❌（リンク非表示） | ❌ |
 
 権限チェックはフロントエンドの UI 制御（ボタン非表示）とバックエンドの両方で実施する。
@@ -203,9 +261,17 @@ class MemberRoleUpdate(BaseModel):
 - [x] `GET /api/family/members` エンドポイント実装
 - [x] `PATCH /api/family/members/{user_id}/role` エンドポイント実装
 - [x] `DELETE /api/family/members/{user_id}` エンドポイント実装
+- [x] `POST /api/family/members/{user_id}/reset-password` エンドポイント実装
+    - [x] admin ロールガード（呼び出し元が admin であることを確認）
+    - [x] 自分自身への操作を禁止するガード
+    - [x] 同一家族メンバーであることの確認
+    - [x] `secrets.token_urlsafe` 等で仮パスワード生成（12文字以上）
+    - [x] bcrypt でハッシュ化して `User.hashed_password` を更新
+    - [x] 平文パスワードをレスポンスで返す（DBには保存しない）
 - [x] 最後の admin 降格をガードするバリデーション
 - [x] 各エンドポイントに admin ロールガード追加
 - [x] `FamilyUpdate`, `FamilyMemberResponse`, `MemberRoleUpdate` スキーマ追加
+- [x] `PasswordResetResponse` スキーマ追加
 
 ### フロントエンド
 
@@ -214,6 +280,11 @@ class MemberRoleUpdate(BaseModel):
 - [x] `InviteCodeCard.tsx` 作成（表示・コピー・再生成）
 - [x] `MemberList.tsx` 作成（一覧テーブル）
 - [x] `MemberRoleDialog.tsx` 作成（ロール変更ダイアログ）
+- [x] `MemberPasswordResetDialog.tsx` 作成（パスワード再発行フロー）
+    - [x] 確認ダイアログ（「{表示名} のパスワードを再発行しますか？」）
+    - [x] 結果ダイアログ（仮パスワード表示 + コピーボタン + 警告メッセージ）
+    - [x] `POST /api/family/members/{user_id}/reset-password` 呼び出し
+- [x] `MemberList.tsx` に「パスワード再発行」ボタン追加（admin かつ自分自身でない行のみ）
 - [x] `useFamilySettings` SWR フック作成
 - [x] `useFamilyMembers` SWR フック作成
 - [x] ダッシュボードヘッダーに Settings アイコン追加 → `/settings/family` へのリンク
