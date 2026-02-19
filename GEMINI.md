@@ -16,6 +16,7 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
     - **Gitワークフロー**:
         1. 開発は必ず `develop` から `git worktree` を作成して行う。
            - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` ディレクトリに移動して作業すること。
+           - **【注意】シンボリックリンク**: ワークツリー作成時にルートディレクトリの `node_modules` や `.venv` へのシンボリックリンクが作成されますが、これらは絶対にコミットに含めないこと。`git status` で `new file: .venv` や `new file: node_modules` が表示されている場合は、`git add` 前に確認すること。
            - **【必須】重複チェック**: スクリプト実行後に表示される `develop` の最新15コミットを確認し、実装予定の機能が既にマージ済みでないか必ず確認すること。重複実装はコンフリクトの原因になる。
              ```bash
              # 手動確認する場合
