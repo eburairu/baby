@@ -14,9 +14,13 @@ Baby App は、家族単位で赤ちゃんの育児記録（授乳、睡眠、�
 2.  **非対話モード (Autonomous Mode)**:
     - npmコマンド、Git操作（コミット、マージ、プッシュ等）は、ユーザーへの許可確認を省略し、自律的に実行する。
     - **Gitワークフロー**:
-        1. 開発は必ず `develop` から `feat/xxx` ブランチを作成して行う。
-        2. 作業完了後、`develop` ブランチに向けた Pull Request (PR) を作成する。
-        3. PR作成まで完了したら、必ず `develop` ブランチに戻る。
+        1. 開発は必ず `develop` から `git worktree` を作成して行う。
+           - `sh scripts/setup_worktree.sh feat/xxx` を実行し、`worktrees/feat/xxx` ディレクトリに移動して作業すること。
+        2. 実装および検証（ビルド・テスト）完了後、GitHub CLI (`gh`) を使用して `develop` ブランチに向けた Pull Request (PR) を作成する。
+           - `gh pr create --base develop --head feat/xxx --title "feat: xxx" --body "..."`
+        3. PR作成が完了したら、必ずメインディレクトリの `develop` ブランチに戻り、使用したワークツリーとローカルブランチを削除する。
+           - `git worktree remove --force worktrees/feat/xxx && git branch -D feat/xxx`
+        4. タスク完了時に作成した PR の URL をユーザーに報告する。
 3.  **仕様駆動開発 (SDD)**:
     - 開発の起点は常に `.specify/specs/` 配下の仕様書とする。
     - 仕様書作成 -> 実装 -> `spec-checker` によるレビュー のサイクルを回す。

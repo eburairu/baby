@@ -64,6 +64,8 @@ cd frontend
 pnpm install
 ```
 
+> **注意**: `git worktree` 環境を使用する場合のセットアップおよび検証の詳細は [Git Worktree 開発フロー仕様書](./git_worktree_workflow.md) を参照してください。
+
 ## DB 環境（Neon ブランチ構成）
 
 | ブランチ名 | 用途 |

@@ -16,6 +16,7 @@ class User(Base):
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
     push_subscriptions = relationship("PushSubscription", back_populates="user", cascade="all, delete-orphan")
     notification_setting = relationship("NotificationSetting", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    app_notifications = relationship("AppNotification", back_populates="user", cascade="all, delete-orphan")
 
 
 class UserSession(Base):
