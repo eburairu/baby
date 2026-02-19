@@ -100,13 +100,13 @@ def create_record_comment(
     if baby:
         display_name = current_user.display_name or current_user.username
         notify_family_members(
-            db, 
-            baby.family_id, 
-            current_user.id, 
-            title="新しいコメント", 
+            db,
+            baby.family_id,
+            current_user.id,
+            title="新しいコメント",
             body=f"{display_name}さんが記録にコメントしました。",
             url=f"/{record_type}",
-            category="family_record"
+            category="comment",
         )
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()

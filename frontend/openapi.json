@@ -1900,6 +1900,8 @@
           "family_record",
           "comment",
           "daily_summary",
+          "feeding_reminder",
+          "diaper_reminder",
           "system"
         ],
         "title": "NotificationType",

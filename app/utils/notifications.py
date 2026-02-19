@@ -3,7 +3,7 @@ import json
 import logging
 from pywebpush import webpush, WebPushException
 from sqlalchemy.orm import Session
-from app.models.notification import PushSubscription, NotificationSetting
+from app.models.notification import AppNotification, PushSubscription, NotificationSetting
 from datetime import datetime, time
 
 logger = logging.getLogger(__name__)
@@ -16,11 +16,11 @@ def is_within_dnd(settings: NotificationSetting) -> bool:
     """おやすみモード内かどうかを判定する"""
     if not settings.dnd_start_time or not settings.dnd_end_time:
         return False
-    
+
     now = datetime.now().time()
     start = settings.dnd_start_time
     end = settings.dnd_end_time
-    
+
     if start <= end:
         return start <= now <= end
     else: # 日を跨ぐ場合 (例: 22:00 - 07:00)
@@ -38,9 +38,9 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             "body": body,
             "url": url
         }
-        
+
         logger.info(f"Sending push notification to subscription id={subscription.id}, endpoint={subscription.endpoint[:60]}...")
-        
+
         webpush(
             subscription_info={
                 "endpoint": subscription.endpoint,
@@ -84,11 +84,29 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
         logger.error(f"Unexpected error sending push to subscription id={subscription.id}: {type(ex).__name__}: {ex}")
         return False
 
+
+# category → notification_settings カラムのマッピング
+_CATEGORY_SETTING_MAP: dict[str, str] = {
+    "family_record": "family_record_enabled",
+    "comment": "family_record_enabled",  # comment も family_record 設定に従う
+    "feeding_reminder": "feeding_reminder_enabled",
+    "diaper_reminder": "diaper_reminder_enabled",
+    "daily_summary": "daily_summary_enabled",
+    "system": "system_notice_enabled",
+}
+
+
 def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/", category: str = "system"):
-    """ユーザーの全デバイスに通知を送信する（設定を確認した上で）"""
+    """
+    ユーザーに通知を送信する。
+
+    1. notification_settings でカテゴリの ON/OFF を確認
+    2. app_notifications テーブルに INSERT（おやすみモードに関係なく常時）
+    3. おやすみモード中でなければ PWA プッシュ通知も送信
+    """
     settings = db.query(NotificationSetting).filter(NotificationSetting.user_id == user_id).first()
     if not settings:
-        # 設定がない場合はデフォルト設定を自動作成（family_record_enabled=True がデフォルト）
+        # 設定がない場合はデフォルト設定を自動作成（全カテゴリ有効がデフォルト）
         logger.info(f"No notification settings for user {user_id}, creating defaults")
         settings = NotificationSetting(user_id=user_id)
         db.add(settings)
@@ -99,43 +117,51 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
             logger.error(f"Failed to create default notification settings for user {user_id}: {ex}")
             db.rollback()
             return
-    else:
-        # カテゴリごとのON/OFF確認
-        enabled_map = {
-            "family_record": settings.family_record_enabled,
-            "feeding_reminder": settings.feeding_reminder_enabled,
-            "diaper_reminder": settings.diaper_reminder_enabled,
-            "daily_summary": settings.daily_summary_enabled,
-            "system": settings.system_notice_enabled
-        }
-        if not enabled_map.get(category, True):
-            logger.info(f"Skipping {category} notification for user {user_id}: category disabled")
-            return
 
-        # おやすみモード確認
-        if is_within_dnd(settings):
-            logger.info(f"Skipping notification for user {user_id} due to DND.")
-            return
-
-    subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
-    logger.info(f"Sending {category} notification to user {user_id}: {len(subscriptions)} subscription(s) found")
-    if not subscriptions:
-        logger.warning(f"No push subscriptions found for user {user_id}")
+    # カテゴリごとの ON/OFF 確認（オフなら app_notifications にも INSERT しない）
+    setting_col = _CATEGORY_SETTING_MAP.get(category)
+    if setting_col and not getattr(settings, setting_col, True):
+        logger.info(f"Skipping {category} notification for user {user_id}: category disabled")
         return
+
+    # ① アプリ内通知センターへの INSERT（時間帯に関係なく常に行う）
+    app_notif = AppNotification(
+        user_id=user_id,
+        type=category,
+        title=title,
+        body=body,
+        url=url,
+    )
+    db.add(app_notif)
+    try:
+        db.commit()
+    except Exception as ex:
+        logger.error(f"Failed to insert app_notification for user {user_id}: {ex}")
+        db.rollback()
+        return
+
+    # ② おやすみモード確認（プッシュ通知のみスキップ）
+    if is_within_dnd(settings):
+        logger.info(f"Skipping push notification for user {user_id} due to DND.")
+        return
+
+    # ③ PWA プッシュ通知を全デバイスに送信
+    subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
+    logger.info(f"Sending {category} push to user {user_id}: {len(subscriptions)} subscription(s)")
     for sub in subscriptions:
         send_push_notification(sub, title, body, url, db=db)
+
 
 def notify_family_members(db: Session, family_id: int, exclude_user_id: int, title: str, body: str, url: str = "/", category: str = "family_record"):
     """家族メンバー全員（本人を除く）に通知を送信する"""
     from app.models.family import FamilyUser
-    
+
     members = db.query(FamilyUser).filter(
         FamilyUser.family_id == family_id,
         FamilyUser.user_id != exclude_user_id
     ).all()
-    
+
     logger.info(f"Notifying {len(members)} family member(s) in family {family_id} (excluding user {exclude_user_id})")
-    
+
     for member in members:
         notify_user(db, member.user_id, title, body, url, category)
-
