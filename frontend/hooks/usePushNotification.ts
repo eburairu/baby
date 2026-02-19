@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export function usePushNotification() {
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export function usePushNotification() {
 
   const requestPermission = async () => {
     if (!("Notification" in window)) {
-      setPermission("unsupported" as any);
+      setPermission("unsupported");
       return "unsupported";
     }
     try {
