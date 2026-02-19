@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { User, Loader2 } from "lucide-react"
+import { User, Loader2, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useUser, User as UserType } from "@/hooks/useAuth"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { toast } from "sonner"
 import { getDisplayName } from "@/lib/utils"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
@@ -16,6 +16,13 @@ export default function ProfileSettingsPage() {
     const [isEditing, setIsEditing] = useState(false)
     const [displayName, setDisplayName] = useState("")
     const [isSaving, setIsSaving] = useState(false)
+
+    const [isChangingPassword, setIsChangingPassword] = useState(false)
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [newPassword, setNewPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [passwordError, setPasswordError] = useState<string | null>(null)
+    const [isSavingPassword, setIsSavingPassword] = useState(false)
 
     // 初期値をセット
     const handleEditStart = () => {
@@ -40,6 +47,48 @@ export default function ProfileSettingsPage() {
             })
         } finally {
             setIsSaving(false)
+        }
+    }
+
+    const handlePasswordChangeStart = () => {
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+        setPasswordError(null)
+        setIsChangingPassword(true)
+    }
+
+    const handlePasswordSave = async () => {
+        setPasswordError(null)
+        if (newPassword !== confirmPassword) {
+            setPasswordError("新しいパスワードが一致しません")
+            return
+        }
+        if (newPassword.length < 8) {
+            setPasswordError("パスワードは8文字以上で入力してください")
+            return
+        }
+        setIsSavingPassword(true)
+        try {
+            await api.post("/auth/change-password", {
+                current_password: currentPassword,
+                new_password: newPassword,
+            })
+            setIsChangingPassword(false)
+            toast.success("パスワードを変更しました")
+        } catch (e: unknown) {
+            if (isApiError(e)) {
+                const detail = (e.info as { detail?: string })?.detail
+                if (detail === "Current password is incorrect") {
+                    setPasswordError("現在のパスワードが正しくありません")
+                } else {
+                    setPasswordError(detail || "パスワードの変更に失敗しました")
+                }
+            } else {
+                setPasswordError("パスワードの変更に失敗しました")
+            }
+        } finally {
+            setIsSavingPassword(false)
         }
     }
 
@@ -119,6 +168,76 @@ export default function ProfileSettingsPage() {
                                 </div>
                             )}
                         </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Lock className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
+                            <Label className="dark:text-zinc-300">パスワード</Label>
+                        </div>
+                        {isChangingPassword ? (
+                            <div className="space-y-3">
+                                <div className="space-y-1">
+                                    <Label htmlFor="currentPassword" className="text-xs text-gray-500 dark:text-zinc-500">現在のパスワード</Label>
+                                    <Input
+                                        id="currentPassword"
+                                        type="password"
+                                        value={currentPassword}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        autoFocus
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="newPassword" className="text-xs text-gray-500 dark:text-zinc-500">新しいパスワード（8文字以上、英字・数字を含む）</Label>
+                                    <Input
+                                        id="newPassword"
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label htmlFor="confirmPassword" className="text-xs text-gray-500 dark:text-zinc-500">新しいパスワード（確認）</Label>
+                                    <Input
+                                        id="confirmPassword"
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                                    />
+                                </div>
+                                {passwordError && (
+                                    <p className="text-red-500 text-xs">{passwordError}</p>
+                                )}
+                                <div className="flex gap-2">
+                                    <Button
+                                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
+                                        onClick={handlePasswordSave}
+                                        disabled={isSavingPassword}
+                                    >
+                                        {isSavingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        変更する
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                                        onClick={() => setIsChangingPassword(false)}
+                                        disabled={isSavingPassword}
+                                    >
+                                        キャンセル
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex justify-between items-center bg-gray-50 dark:bg-zinc-800/50 p-3 rounded-md border border-gray-200 dark:border-zinc-800">
+                                <span className="text-gray-400 dark:text-zinc-600 text-sm italic">••••••••</span>
+                                <Button variant="ghost" size="sm" onClick={handlePasswordChangeStart} className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30">
+                                    変更
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

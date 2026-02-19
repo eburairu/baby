@@ -12,7 +12,9 @@ from app.schemas.family import (
     FamilyUpdate,
     FamilyMemberResponse,
     MemberRoleUpdate,
+    PasswordResetResponse,
 )
+from app.services.auth import get_password_hash
 
 router = APIRouter(prefix="/api/family", tags=["family"])
 
@@ -133,6 +135,35 @@ def update_member_role(
         role=target.role,
         joined_at=target.joined_at,
     )
+
+
+@router.post("/members/{user_id}/reset-password", response_model=PasswordResetResponse)
+def reset_member_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> PasswordResetResponse:
+    family_user = _get_family_user(db, current_user)
+    _require_admin(family_user)
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot reset your own password here")
+    target_family_user = (
+        db.query(FamilyUser)
+        .filter(
+            FamilyUser.family_id == family_user.family_id,
+            FamilyUser.user_id == user_id,
+        )
+        .first()
+    )
+    if not target_family_user:
+        raise HTTPException(status_code=404, detail="Member not found")
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    temporary_password = secrets.token_urlsafe(9)  # ~12 chars
+    target_user.hashed_password = get_password_hash(temporary_password)
+    db.commit()
+    return PasswordResetResponse(temporary_password=temporary_password)
 
 
 @router.delete("/members/{user_id}", status_code=204)
