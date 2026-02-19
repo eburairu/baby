@@ -20,9 +20,11 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Pencil, Trash2, Moon, User } from "lucide-react"
+import { Pencil, Trash2, Moon, User, MessageCircle } from "lucide-react"
 import { formatDuration } from "@/lib/ageUtils"
 import { Sleep } from "@/types/sleep"
+import { useUser } from "@/hooks/useAuth"
+import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 
 interface Props {
     babyId: string
@@ -30,11 +32,13 @@ interface Props {
 }
 
 export function SleepHistory({ babyId, canWrite = true }: Props) {
+    const { user } = useUser()
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
 
     const history = useMemo(() => {
         return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
@@ -113,6 +117,13 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                                                     {sleep.recorded_by_display_name}
                                                 </span>
                                             )}
+                                            <button
+                                                onClick={() => setCommentTarget({ id: sleep.id, title: `睡眠 ${format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}` })}
+                                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                            >
+                                                <MessageCircle className="w-3 h-3" />
+                                                {(sleep.comment_count ?? 0) > 0 && <span>{sleep.comment_count}</span>}
+                                            </button>
                                         </div>
                                         {sleep.notes && (
                                             <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">
@@ -167,6 +178,18 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* コメントダイアログ */}
+            {commentTarget && (
+                <RecordCommentDialog
+                    open={commentTarget !== null}
+                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    recordType="sleep"
+                    recordId={commentTarget.id}
+                    title={commentTarget.title}
+                    currentUserId={user?.id}
+                />
+            )}
 
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogContent className="dark:bg-zinc-900 dark:border-zinc-800">

@@ -10,6 +10,7 @@ export type Note = {
   created_at: string;
   updated_at: string;
   recorded_by_display_name?: string | null;
+  comment_count?: number;
 };
 
 export function useNotes(babyId: number | null) {
