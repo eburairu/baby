@@ -17,3 +17,8 @@
 **Vulnerability:** Family invite codes were generated with low/inconsistent entropy (32-bit `token_hex(4)` in `auth.py` vs ~48-bit `token_urlsafe(8)` in `family.py`) and lacked collision checks during regeneration. This increased the risk of brute-force attacks and code guessing.
 **Learning:** Security-critical tokens should have consistent high entropy across the application. Relying on short tokens for user-friendly features can compromise security if not properly balanced with rate limiting or sufficient length.
 **Prevention:** Standardized on 64-bit entropy (16-character uppercase hex strings) using `secrets.token_hex(8).upper()` and enforced uniqueness checks for all generation paths.
+
+## 2025-02-23 - [Insecure File Upload & Error Leakage]
+**Vulnerability:** File upload endpoint relied solely on content-type header and extension, allowing potential file masquerading. Additionally, internal server errors leaked stack trace/implementation details.
+**Learning:** Checking `file.content_type` is insufficient as it is client-controlled. Always validate file content (magic bytes).
+**Prevention:** Implement server-side content validation using magic bytes. Use generic error messages for 500 responses.
