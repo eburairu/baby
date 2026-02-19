@@ -47,7 +47,7 @@ export default function NotePage() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20 transition-colors">
-            <header className="sticky top-0 z-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
+            <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
                 <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
                     <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
                         <StickyNote className="h-4 w-4 text-amber-500 dark:text-amber-400" />
