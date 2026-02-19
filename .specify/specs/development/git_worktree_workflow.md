@@ -81,7 +81,9 @@ git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
 ```
 
-5. **クリーンアップ**: PR 作成後、ワークツリーとローカルブランチを削除。
+5. **最終レビューと待機**: PR作成後、`spec-checker` による最終レビューを受け、ユーザーのフィードバックやコードレビューに対応できるよう、環境を維持する。
+
+6. **クリーンアップ**: PR がマージされた、またはユーザーからクリーンアップの最終承認を得た後に、ワークツリーとローカルブランチを削除する。
 
 ```bash
 # クリーンアップコマンド（メインディレクトリで実行）
