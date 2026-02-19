@@ -368,6 +368,49 @@ export function ErrorMessage({ message }: { message: string }) {
 - `{error && <div className="text-red-500 text-sm">{error}</div>}`
   → `{error && <ErrorMessage message={error} />}` に統一
 
+### 4.4 `SettingsHeader` (New)
+
+設定画面の各サブページ（プロフィール、通知、家族など）で共通して使用するヘッダーコンポーネント。
+ダッシュボードの設定メニュー階層に戻るためのナビゲーションを提供する。
+
+**ファイルパス**: `frontend/components/settings/SettingsHeader.tsx`
+
+```tsx
+// 仕様
+export function SettingsHeader({ 
+  title, 
+  icon: Icon, 
+  children 
+}: { 
+  title: string; 
+  icon?: LucideIcon;
+  children?: React.ReactNode;
+}) {
+  return (
+    <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center px-4 gap-3">
+      <Link
+        href="/settings"
+        className="p-1 -ml-1 text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-100 transition-colors"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Link>
+      <div className="flex items-center gap-2 flex-1">
+        {Icon && <Icon className="h-4 w-4 text-violet-600" />}
+        <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
+          {title}
+        </h1>
+      </div>
+      {children && <div>{children}</div>}
+    </header>
+  );
+}
+```
+
+**適用ルール**:
+- すべての設定サブページでこのコンポーネントを使用する。
+- 戻る先は常に `/settings` とする。
+- タイトルとアイコンはページ内容に合わせて設定する。
+
 ---
 
 ## 5. アイコン使用ルール
@@ -566,3 +609,9 @@ export function ErrorMessage({ message }: { message: string }) {
 
 - [x] サブページ内の「ダッシュボードへ戻る」ボタンを廃止し、グローバルヘッダーに集約
 - [x] Contraction の旧スタイル（`<a href="/">← ダッシュボード</a>`）を廃止
+
+### 設定画面
+
+- [ ] `SettingsHeader` コンポーネント新規作成
+- [ ] Profile, Notification, Family, Babies, Permissions 各ページで `SettingsHeader` を適用
+- [ ] 各ページの個別実装ヘッダーを削除

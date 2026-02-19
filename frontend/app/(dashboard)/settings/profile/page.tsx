@@ -1,7 +1,4 @@
-"use client"
 import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { User, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,10 +7,10 @@ import { useUser, User as UserType } from "@/hooks/useAuth"
 import { api } from "@/lib/api"
 import { toast } from "sonner"
 import { getDisplayName } from "@/lib/utils"
+import { SettingsHeader } from "@/components/settings/SettingsHeader"
 
 export default function ProfileSettingsPage() {
     const { user, mutate } = useUser()
-    const router = useRouter()
     const [isEditing, setIsEditing] = useState(false)
     const [displayName, setDisplayName] = useState("")
     const [isSaving, setIsSaving] = useState(false)
@@ -35,7 +32,7 @@ export default function ProfileSettingsPage() {
             toast.success("プロフィールを更新しました", {
                 description: "表示名が変更されました",
             })
-        } catch (e) {
+        } catch {
             toast.error("エラーが発生しました", {
                 description: "プロフィールの更新に失敗しました",
             })
@@ -48,9 +45,7 @@ export default function ProfileSettingsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center justify-center px-4">
-                <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">プロフィール設定</h1>
-            </header>
+            <SettingsHeader title="プロフィール設定" />
 
             <div className="max-w-md mx-auto p-4">
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 space-y-6">
