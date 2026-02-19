@@ -9,6 +9,14 @@ NC='\033[0m' # No Color
 
 echo -e "${YELLOW}=== 検証プロセスを開始します ===${NC}"
 
+# 0. コミット禁止ファイルのチェック（追加）
+echo -e "${YELLOW}--- [0/6] ステージング済みファイルの最終チェック... ---${NC}"
+sh scripts/check_staged_files.sh
+if [ $? -ne 0 ]; then
+    echo -e "${RED}✗ 誤ったファイルがステージングされています。修正してください。${NC}"
+    exit 1
+fi
+
 # 1. 仮想環境の確認とアクティベート
 if [ -d ".venv" ]; then
     echo -e "${GREEN}✓ 仮想環境 (.venv) を検出しました${NC}"
@@ -29,7 +37,8 @@ set +a
 # 2. バックエンドテスト
 echo -e "
 ${YELLOW}--- [1/5] バックエンドテスト実行中... ---${NC}"
-npm run test:backend
+# 仮想環境の python を使用
+python -m pytest
 
 # 3. OpenAPI スキーマの更新
 echo -e "
