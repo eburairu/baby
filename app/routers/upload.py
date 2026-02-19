@@ -61,6 +61,22 @@ async def upload_image(
             detail=f"ファイルサイズが大きすぎます（上限 5MB）。",
         )
 
+    # Validate magic bytes
+    # JPEG: FF D8 FF
+    # PNG: 89 50 4E 47 0D 0A 1A 0A
+    # GIF: 47 49 46 38
+    # WebP: RIFF ... WEBP
+    if not (
+        content.startswith(b"\xFF\xD8\xFF")
+        or content.startswith(b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
+        or content.startswith(b"\x47\x49\x46\x38")
+        or (content.startswith(b"RIFF") and len(content) >= 12 and content[8:12] == b"WEBP")
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="無効な画像ファイル形式です。",
+        )
+
     original_ext = os.path.splitext(file.filename or "")[1].lower() or ".webp"
     object_key = f"{uuid.uuid4()}{original_ext}"
 
@@ -79,7 +95,7 @@ async def upload_image(
         logger.error("R2 upload failed: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"画像のアップロードに失敗しました: {e.response['Error']['Code']} - {e.response['Error']['Message']}",
+            detail="画像のアップロードに失敗しました。",
         )
 
     public_url = f"{public_endpoint.rstrip('/')}/{object_key}"
