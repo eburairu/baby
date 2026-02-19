@@ -65,7 +65,9 @@ def regenerate_invite_code(
     family_user = _get_family_user(db, current_user)
     _require_admin(family_user)
     family = db.query(Family).filter(Family.id == family_user.family_id).first()
-    new_code = secrets.token_urlsafe(8)
+    new_code = secrets.token_hex(8).upper()
+    while db.query(Family).filter(Family.invite_code == new_code).first():
+        new_code = secrets.token_hex(8).upper()
     family.invite_code = new_code
     db.commit()
     db.refresh(family)

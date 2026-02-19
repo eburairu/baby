@@ -67,9 +67,9 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    invite_code = secrets.token_hex(4).upper()
+    invite_code = secrets.token_hex(8).upper()
     while db.query(Family).filter(Family.invite_code == invite_code).first():
-        invite_code = secrets.token_hex(4).upper()
+        invite_code = secrets.token_hex(8).upper()
 
     new_family = Family(name=family_in.name, invite_code=invite_code)
     db.add(new_family)

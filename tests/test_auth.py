@@ -14,6 +14,10 @@ def test_register_family(client):
     data = response.json()
     assert data["name"] == "Tanaka Family"
     assert "invite_code" in data
+    invite_code = data["invite_code"]
+    # Check for 16-character uppercase hex string (64-bit entropy)
+    assert len(invite_code) == 16
+    assert all(c in "0123456789ABCDEF" for c in invite_code)
     assert "access_token" in client.cookies
 
 def test_login_success(client):
