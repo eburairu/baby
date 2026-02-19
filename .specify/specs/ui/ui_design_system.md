@@ -140,6 +140,7 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
 - **左側**: ハンバーガーメニュー（モバイル）またはアプリロゴ
 - **右側**:
     - 選択中の赤ちゃんのバッジ（任意）
+    - 通知ベルアイコン（`NotificationBell`）← 詳細は [`notification_center.md`](./notification_center.md) を参照
     - ダークモード切り替え (`ThemeToggle`)
     - 設定ページへのリンク（ギアアイコン）
 
