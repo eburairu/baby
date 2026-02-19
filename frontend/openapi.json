@@ -1,6 +1,61 @@
 {
   "components": {
     "schemas": {
+      "AppNotificationResponse": {
+        "properties": {
+          "body": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_read": {
+            "title": "Is Read",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/NotificationType"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "is_read",
+          "created_at"
+        ],
+        "title": "AppNotificationResponse",
+        "type": "object"
+      },
       "BabyCreate": {
         "properties": {
           "birthday": {
@@ -1840,6 +1895,16 @@
         "title": "NotificationSettingsUpdate",
         "type": "object"
       },
+      "NotificationType": {
+        "enum": [
+          "family_record",
+          "comment",
+          "daily_summary",
+          "system"
+        ],
+        "title": "NotificationType",
+        "type": "string"
+      },
       "PushSubscriptionCreate": {
         "properties": {
           "auth": {
@@ -2203,6 +2268,19 @@
           "details"
         ],
         "title": "UnifiedRecord",
+        "type": "object"
+      },
+      "UnreadCountResponse": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count"
+        ],
+        "title": "UnreadCountResponse",
         "type": "object"
       },
       "UploadResponse": {
@@ -4424,6 +4502,47 @@
         ]
       }
     },
+    "/api/notifications": {
+      "get": {
+        "description": "最新20件の通知を返す",
+        "operationId": "list_notifications_api_notifications_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AppNotificationResponse"
+                  },
+                  "title": "Response List Notifications Api Notifications Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Notifications",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/read-all": {
+      "patch": {
+        "description": "全通知を一括既読にする",
+        "operationId": "mark_all_as_read_api_notifications_read_all_patch",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Mark All As Read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/notifications/settings": {
       "get": {
         "operationId": "get_settings_api_notifications_settings_get",
@@ -4545,6 +4664,28 @@
         ]
       }
     },
+    "/api/notifications/unread-count": {
+      "get": {
+        "description": "未読通知数を返す",
+        "operationId": "unread_count_api_notifications_unread_count_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Unread Count",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/notifications/unsubscribe": {
       "post": {
         "operationId": "unsubscribe_api_notifications_unsubscribe_post",
@@ -4580,6 +4721,49 @@
           }
         },
         "summary": "Unsubscribe",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/{notification_id}/read": {
+      "patch": {
+        "description": "個別通知を既読にする",
+        "operationId": "mark_as_read_api_notifications__notification_id__read_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "notification_id",
+            "required": true,
+            "schema": {
+              "title": "Notification Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppNotificationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mark As Read",
         "tags": [
           "notifications"
         ]

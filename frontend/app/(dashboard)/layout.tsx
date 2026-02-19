@@ -18,6 +18,7 @@ import { useBabyStore } from "@/stores/babyStore"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
 import {
     Sheet,
@@ -197,6 +198,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     Welcome, {getDisplayName(user)}
                                 </span>
                                 <div className="flex items-center gap-1">
+                                    <NotificationBell />
                                     <ThemeToggle />
                                     <Link href="/settings">
                                         <Button variant="ghost" size="icon" className="text-gray-500 dark:text-zinc-400" aria-label="設定">

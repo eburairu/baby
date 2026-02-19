@@ -1,6 +1,30 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel
+from typing import Optional, List
 from datetime import datetime, time
+from enum import Enum
+
+
+class NotificationType(str, Enum):
+    family_record = "family_record"
+    comment = "comment"
+    daily_summary = "daily_summary"
+    system = "system"
+
+
+class AppNotificationResponse(BaseModel):
+    id: int
+    type: NotificationType
+    title: str
+    body: Optional[str] = None
+    url: Optional[str] = None
+    is_read: bool
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class UnreadCountResponse(BaseModel):
+    count: int
 
 class PushSubscriptionCreate(BaseModel):
     endpoint: str
