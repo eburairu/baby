@@ -47,16 +47,19 @@ else
 fi
 
 # 2. 依存関係の共有（シンボリックリンク作成）
+# 絶対パスを使用することで、ブランチ名にスラッシュが含まれるか否かに関わらず
+# 正しいリンクが作成される（相対パスはディレクトリ深度に依存するため不使用）
 echo "Setting up symlinks for shared dependencies..."
+ROOT_DIR="$(pwd)"
 
 # Python venv
-ln -sf ../../../.venv "$WORKTREE_DIR/.venv"
+ln -sf "$ROOT_DIR/.venv" "$WORKTREE_DIR/.venv"
 
 # Root node_modules
-ln -sf ../../../node_modules "$WORKTREE_DIR/node_modules"
+ln -sf "$ROOT_DIR/node_modules" "$WORKTREE_DIR/node_modules"
 
 # .env (Database settings)
-ln -sf ../../../.env "$WORKTREE_DIR/.env"
+ln -sf "$ROOT_DIR/.env" "$WORKTREE_DIR/.env"
 
 # ワークツリー専用の .gitignore を作成して誤入力を防ぐ
 cat <<EOF > "$WORKTREE_DIR/.gitignore"
