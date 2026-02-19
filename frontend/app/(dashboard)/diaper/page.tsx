@@ -9,6 +9,7 @@ import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
 import { Diaper } from "@/types/diaper"
 import { PageLoading } from "@/components/ui/page-loading"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaperTips } from "@/lib/tips-data"
@@ -50,6 +51,10 @@ export default function DiaperPage() {
             <main className="p-4 max-w-2xl mx-auto space-y-6">
                 {isAccessDenied ? (
                     <AccessDenied />
+                ) : diapersLoading ? (
+                    <div className="flex justify-center py-12">
+                        <BabyBottleLoading className="w-12 h-12 text-amber-400" />
+                    </div>
                 ) : (
                     <>
                         <DiaperStats diapers={diapers || []} />

@@ -10,6 +10,7 @@ import ContractionWaveGraph from "@/components/ContractionWaveGraph"
 import { Button } from "@/components/ui/button"
 import type { ContractionRecord } from "@/types/contraction"
 import { PageLoading } from "@/components/ui/page-loading"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { contractionTips } from "@/lib/tips-data"
@@ -101,7 +102,9 @@ export default function ContractionPage() {
 
                         {/* 履歴 */}
                         {contractionsLoading ? (
-                            <div className="text-center py-4 text-muted-foreground">記録を読み込み中...</div>
+                            <div className="flex justify-center py-4">
+                                <BabyBottleLoading className="w-8 h-8 text-red-400" />
+                            </div>
                         ) : (
                             <ContractionHistory
                                 contractions={typedContractions}

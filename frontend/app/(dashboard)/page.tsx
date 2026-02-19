@@ -17,6 +17,7 @@ import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
 import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistrationDialog"
 import { isBorn } from "@/lib/babyUtils"
+import { PageLoading } from "@/components/ui/page-loading"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
@@ -64,9 +65,8 @@ export default function Dashboard() {
 
     if (babiesLoading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-64 gap-4">
-                <div className="h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm text-gray-500 animate-pulse">データを読み込んでいます...</p>
+            <div className="min-h-64 flex items-center justify-center">
+                <PageLoading message="データを読み込んでいます..." />
             </div>
         )
     }

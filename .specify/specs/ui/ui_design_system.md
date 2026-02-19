@@ -302,17 +302,19 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 
 ### 4.1 `PageLoading`
 
-ページ全体のローディング状態を表示する共通コンポーネント。
+ページ全体のローディング状態を表示する共通コンポーネント。ユーザー体験向上のため、静的なスピナーではなく、動的なアニメーション（揺れる哺乳瓶）を採用する。
 
 **ファイルパス**: `frontend/components/ui/page-loading.tsx`
 
 ```tsx
 // 仕様
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+
 export function PageLoading({ message = "読み込み中..." }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 text-gray-400">
-      <Loader2 className="h-8 w-8 animate-spin" />
-      <p className="text-sm">{message}</p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-gray-400 dark:text-zinc-500 transition-colors">
+      <BabyBottleLoading className="h-12 w-12 text-indigo-400" />
+      <p className="text-sm font-medium animate-pulse">{message}</p>
     </div>
   );
 }

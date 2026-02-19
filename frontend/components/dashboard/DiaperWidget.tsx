@@ -9,15 +9,17 @@ import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
 import { DiaperType } from "@/types/diaper"
 import { BabyRecord } from "@/hooks/useData"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 
 interface Props {
     babyId: string
     records?: BabyRecord[]
     isError?: unknown
     mutate?: () => void
+    isLoading?: boolean
 }
 
-export function DiaperWidget({ babyId, records, isError, mutate }: Props) {
+export function DiaperWidget({ babyId, records, isError, mutate, isLoading }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -89,14 +91,22 @@ export function DiaperWidget({ babyId, records, isError, mutate }: Props) {
             </CardHeader>
             <CardContent className="space-y-3">
                 <div>
-                    {elapsed ? (
-                        <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
+                    {isLoading ? (
+                        <div className="flex justify-center py-4">
+                            <BabyBottleLoading className="w-8 h-8 text-amber-400" />
+                        </div>
                     ) : (
-                        <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
+                        <>
+                            {elapsed ? (
+                                <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
+                            ) : (
+                                <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
+                            )}
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                今日: 💧{wetCount} / 💩{dirtyCount}
+                            </p>
+                        </>
                     )}
-                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                        今日: 💧{wetCount} / 💩{dirtyCount}
-                    </p>
                 </div>
                 {canWrite ? (
                     <div className="flex gap-2">

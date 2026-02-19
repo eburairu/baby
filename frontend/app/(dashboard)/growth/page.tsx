@@ -12,6 +12,7 @@ import { GrowthHistoryList } from "@/components/growth/GrowthHistoryList"
 import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageLoading } from "@/components/ui/page-loading"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { growthTips } from "@/lib/tips-data"
@@ -44,7 +45,6 @@ export default function GrowthPage() {
         setIsFormOpen(true)
     }
 
-    if (isLoading) return <PageLoading />
 
     if (!babyId) {
         return (
@@ -85,7 +85,9 @@ export default function GrowthPage() {
                         </div>
 
                         {isLoading ? (
-                            <div className="text-center py-12 text-muted-foreground">読み込み中...</div>
+                            <div className="flex justify-center py-12">
+                                <BabyBottleLoading className="w-12 h-12 text-emerald-400" />
+                            </div>
                         ) : (
                             <>
                                 <GrowthChart
