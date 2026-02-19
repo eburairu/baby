@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useId } from "react"
 
 interface BabyBottleLoadingProps {
     className?: string
@@ -9,6 +10,9 @@ interface BabyBottleLoadingProps {
 }
 
 export function BabyBottleLoading({ className, color = "currentColor" }: BabyBottleLoadingProps) {
+    const id = useId()
+    const clipId = `bottle-liquid-clip-${id.replace(/:/g, "")}`
+
     return (
         <div className={cn("relative flex items-center justify-center", className)}>
             <motion.svg
@@ -41,34 +45,20 @@ export function BabyBottleLoading({ className, color = "currentColor" }: BabyBot
                 }}
             >
                 <defs>
-                    <clipPath id="bottle-liquid-clip">
+                    <clipPath id={clipId}>
                         <path d="M7 8v10a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8H7z" />
                     </clipPath>
                 </defs>
 
-                {/* Nipple */}
-                <path d="M10 5V4a2 2 0 0 1 4 0v1" strokeWidth="2" />
-
-                {/* Collar */}
-                <rect x="7" y="5" width="10" height="3" rx="1" strokeWidth="2" />
-
-                {/* Bottle Body */}
-                <path d="M7 8v10a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8H7z" strokeWidth="2" />
-
-                {/* Measurement Lines */}
-                <path d="M14 11h-2" className="opacity-40" strokeWidth="1.5" />
-                <path d="M14 14h-2" className="opacity-40" strokeWidth="1.5" />
-                <path d="M14 17h-2" className="opacity-40" strokeWidth="1.5" />
-
-                {/* Liquid Group */}
-                <g clipPath="url(#bottle-liquid-clip)">
+                {/* Liquid Group - Rendered First (Behind) */}
+                <g clipPath={`url(#${clipId})`}>
                     {/* Liquid Fill */}
                     <motion.rect
                         x="0"
                         y="12"
                         width="24"
                         height="12"
-                        className="fill-indigo-200 dark:fill-indigo-900/50 stroke-none"
+                        className="fill-indigo-100 dark:fill-indigo-900/60 stroke-none"
                         animate={{
                             y: [12, 10, 12],
                             rotate: [5, -5, 5]
@@ -87,7 +77,7 @@ export function BabyBottleLoading({ className, color = "currentColor" }: BabyBot
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="1.5"
-                        className="text-indigo-400 dark:text-indigo-300"
+                        className="text-indigo-300 dark:text-indigo-400"
                         animate={{
                             d: [
                                 "M5 12 q 7 2 14 0",
@@ -102,6 +92,26 @@ export function BabyBottleLoading({ className, color = "currentColor" }: BabyBot
                         }}
                     />
                 </g>
+
+                {/* Nipple */}
+                <path d="M10 5V4a2 2 0 0 1 4 0v1" strokeWidth="2" />
+
+                {/* Collar */}
+                <rect x="7" y="5" width="10" height="3" rx="1" strokeWidth="2" className="fill-white dark:fill-gray-800" />
+
+                {/* Bottle Body - Semi-transparent container */}
+                <path
+                    d="M7 8v10a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8H7z"
+                    strokeWidth="2"
+                    className="fill-white/30 dark:fill-gray-700/30"
+                />
+
+                {/* Measurement Lines */}
+                <path d="M14 11h-2" className="opacity-40" strokeWidth="1.5" />
+                <path d="M14 14h-2" className="opacity-40" strokeWidth="1.5" />
+                <path d="M14 17h-2" className="opacity-40" strokeWidth="1.5" />
+
+
             </motion.svg>
         </div>
     )
