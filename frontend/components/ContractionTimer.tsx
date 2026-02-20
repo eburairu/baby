@@ -59,7 +59,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
             <CardContent className="flex flex-col items-center gap-6 py-8">
                 {/* タイマー表示 */}
                 <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">
+                    <p className="text-sm text-muted-foreground mb-2" data-sentry-unmask>
                         {isTiming ? "計測中..." : "ボタンを押して計測開始"}
                     </p>
                     <div className={`text-6xl font-mono font-bold tabular-nums tracking-wider ${isTiming ? "text-red-600 dark:text-red-400" : "text-muted-foreground/40"}`}>
@@ -70,7 +70,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
                 {/* ボタン群 */}
                 <div className="w-full space-y-3">
                     <Button
-                        onClick={() => handleToggle(0)}
+                        data-sentry-unmask onClick={() => handleToggle(0)}
                         size="lg"
                         className={`h-20 w-full text-2xl font-bold rounded-2xl transition-all duration-200 ${isTiming
                                 ? "bg-gray-700 hover:bg-gray-800 text-white"
@@ -82,7 +82,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
 
                     {!isTiming && (
                         <Button
-                            onClick={() => handleToggle(60000)}
+                            data-sentry-unmask onClick={() => handleToggle(60000)}
                             variant="outline"
                             className="w-full h-12 text-lg font-medium border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20"
                         >
@@ -92,7 +92,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
                 </div>
 
                 {isTiming && (
-                    <p className="text-xs text-muted-foreground animate-pulse">
+                    <p className="text-xs text-muted-foreground animate-pulse" data-sentry-unmask>
                         陣痛が終わったらボタンを押してください
                     </p>
                 )}

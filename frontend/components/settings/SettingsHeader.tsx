@@ -24,7 +24,7 @@ export function SettingsHeader({
             </Link>
             <div className="flex items-center gap-2 flex-1">
                 {Icon && <Icon className="h-4 w-4 text-violet-600" />}
-                <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
+                <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100" data-sentry-unmask>
                     {title}
                 </h1>
             </div>
