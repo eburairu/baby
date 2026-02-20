@@ -16,6 +16,7 @@ import { diaperTips } from "@/lib/tips-data"
 import { Smile, Droplets } from "lucide-react"
 import Link from "next/link"
 import { isApiError } from "@/lib/api"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 export default function DiaperPage() {
     const router = useRouter()
@@ -32,6 +33,7 @@ export default function DiaperPage() {
     const effectiveBabyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
     const { diapers, isLoading: diapersLoading, isError: diaperError, mutate } = useDiapers(effectiveBabyId)
+    const { triggerFeedback } = useRecordFeedback(effectiveBabyId)
 
     if (babiesLoading) return <PageLoading />
     if (!effectiveBabyId) return <div className="p-4 text-center mt-10">赤ちゃんが登録されていません</div>
@@ -65,7 +67,10 @@ export default function DiaperPage() {
                         {canWrite && (
                             <DiaperForm
                                 babyId={effectiveBabyId}
-                                onSuccess={() => mutate()}
+                                onSuccess={(recordId) => {
+                                    mutate()
+                                    if (recordId) triggerFeedback("diaper", recordId)
+                                }}
                             />
                         )}
 

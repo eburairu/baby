@@ -30,7 +30,7 @@ allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 from app.routers import auth, family, baby, notifications
-from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments
+from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments, ai_feedback
 from app.routers import version
 
 app.include_router(version.router)
@@ -47,6 +47,7 @@ app.include_router(schedule.router)
 app.include_router(note.router)
 app.include_router(baby_permissions.router)
 app.include_router(ai_summary.router)
+app.include_router(ai_feedback.router)
 app.include_router(upload.router)
 app.include_router(comments.router)
 

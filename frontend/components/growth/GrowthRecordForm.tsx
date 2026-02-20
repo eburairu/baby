@@ -37,7 +37,7 @@ interface GrowthRecordFormProps {
     record?: Growth | null
     isOpen: boolean
     onClose: () => void
-    onSuccess: () => void
+    onSuccess: (recordId?: number) => void
 }
 
 export function GrowthRecordForm({
@@ -94,10 +94,11 @@ export function GrowthRecordForm({
 
             if (record) {
                 await api.put(`/growths/${record.id}`, payload)
+                onSuccess()
             } else {
-                await api.post("/growths/", payload)
+                const newRecord = await api.post<{ id: number }>("/growths/", payload)
+                onSuccess(newRecord?.id)
             }
-            onSuccess()
             onClose()
         } catch (error) {
             console.error("Failed to save growth record:", error)

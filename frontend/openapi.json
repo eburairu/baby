@@ -378,6 +378,17 @@
       },
       "CommentResponse": {
         "properties": {
+          "ai_has_concern": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Has Concern"
+          },
           "content": {
             "title": "Content",
             "type": "string"
@@ -391,6 +402,11 @@
             "title": "Id",
             "type": "integer"
           },
+          "is_ai_generated": {
+            "default": false,
+            "title": "Is Ai Generated",
+            "type": "boolean"
+          },
           "user_display_name": {
             "anyOf": [
               {
@@ -403,8 +419,15 @@
             "title": "User Display Name"
           },
           "user_id": {
-            "title": "User Id",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
           },
           "user_role": {
             "title": "User Role",
@@ -2042,6 +2065,69 @@
         "title": "RecordCreate",
         "type": "object"
       },
+      "RecordFeedbackRequest": {
+        "properties": {
+          "record_id": {
+            "title": "Record Id",
+            "type": "integer"
+          },
+          "record_type": {
+            "enum": [
+              "feeding",
+              "diaper",
+              "growth",
+              "note"
+            ],
+            "title": "Record Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_type",
+          "record_id"
+        ],
+        "title": "RecordFeedbackRequest",
+        "type": "object"
+      },
+      "RecordFeedbackResponse": {
+        "properties": {
+          "analyzed_at": {
+            "format": "date-time",
+            "title": "Analyzed At",
+            "type": "string"
+          },
+          "comment_id": {
+            "title": "Comment Id",
+            "type": "integer"
+          },
+          "feedback": {
+            "title": "Feedback",
+            "type": "string"
+          },
+          "has_concern": {
+            "title": "Has Concern",
+            "type": "boolean"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "record_type": {
+            "title": "Record Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feedback",
+          "has_concern",
+          "comment_id",
+          "record_type",
+          "analyzed_at",
+          "model_name"
+        ],
+        "title": "RecordFeedbackResponse",
+        "type": "object"
+      },
       "ScheduleCreate": {
         "properties": {
           "baby_id": {
@@ -3446,6 +3532,59 @@
         "summary": "Update Baby Permissions",
         "tags": [
           "baby_permissions"
+        ]
+      }
+    },
+    "/api/babies/{baby_id}/record-feedback": {
+      "post": {
+        "description": "直近24時間の記録をAIが分析し、コメントとして保存する",
+        "operationId": "create_record_feedback_api_babies__baby_id__record_feedback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordFeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordFeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Record Feedback",
+        "tags": [
+          "ai-feedback"
         ]
       }
     },

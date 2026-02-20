@@ -18,6 +18,8 @@ import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { feedingTips } from "@/lib/tips-data"
 import { isApiError } from "@/lib/api"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
+import { FeedingCreate } from "@/types/feeding"
 
 export default function FeedingPage() {
     const router = useRouter()
@@ -42,6 +44,15 @@ export default function FeedingPage() {
         deleteFeeding,
         refresh: refreshFeedings,
     } = useFeeding(babyId)
+
+    const { triggerFeedback } = useRecordFeedback(babyId)
+
+    const handleAddFeeding = async (data: FeedingCreate): Promise<void> => {
+        const newRecord = await addFeeding(data)
+        if (newRecord) {
+            triggerFeedback("feeding", newRecord.id)
+        }
+    }
 
     if (babiesLoading) {
         return <PageLoading />
@@ -77,7 +88,7 @@ export default function FeedingPage() {
 
                         <TipsCard {...feedingTips} />
 
-                        {canWrite && <FeedingForm babyId={babyId} onAdd={addFeeding} />}
+                        {canWrite && <FeedingForm babyId={babyId} onAdd={handleAddFeeding} />}
 
                         <FeedingHistory
                             feedings={feedings || []}

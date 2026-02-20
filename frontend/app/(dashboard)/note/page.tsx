@@ -15,6 +15,7 @@ import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { noteTips } from "@/lib/tips-data"
 import { isApiError } from "@/lib/api"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 export default function NotePage() {
     const searchParams = useSearchParams()
@@ -34,6 +35,7 @@ export default function NotePage() {
         isError: notesError,
         mutate: mutateNotes
     } = useNotes(babyId)
+    const { triggerFeedback } = useRecordFeedback(babyId)
 
     if (babiesLoading) {
         return <PageLoading />
@@ -70,7 +72,10 @@ export default function NotePage() {
                         {canWrite && (
                             <NoteForm
                                 babyId={babyId}
-                                onAddSuccess={() => mutateNotes()}
+                                onAddSuccess={(recordId) => {
+                                    mutateNotes()
+                                    if (recordId) triggerFeedback("note", recordId)
+                                }}
                             />
                         )}
 
