@@ -132,6 +132,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
           placeholder="お疲れ様！応援メッセージを送ろう"
           className="text-sm min-h-[60px] resize-none"
         />
