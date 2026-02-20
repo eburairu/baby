@@ -146,6 +146,9 @@ def delete_comment(
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
 
+    # コメントに紐づく baby へのアクセス権を検証（ファミリー間の分離を保証）
+    verify_baby_access(db, comment.baby_id, current_user.id)
+
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if comment.user_id != current_user.id and (family_user is None or family_user.role != UserRole.ADMIN):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
