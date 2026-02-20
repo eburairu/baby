@@ -10,6 +10,9 @@ function calculateSummaryOriginal(feedings: Feeding[]): FeedingSummary {
             today_amount: 0,
             last_feeding_time: null,
             last_feeding_type: null,
+            last_breast_side: null,
+            today_left_duration: 0,
+            today_right_duration: 0,
         };
     }
 
@@ -42,6 +45,9 @@ function calculateSummaryOriginal(feedings: Feeding[]): FeedingSummary {
         today_amount: totalAmount,
         last_feeding_time: lastFeeding?.feeding_time ?? null,
         last_feeding_type: lastFeeding?.feeding_type ?? null,
+        last_breast_side: lastFeeding?.last_breast_side ?? null,
+        today_left_duration: todayFeedings.reduce((sum, f) => sum + (f.left_breast_minutes || 0), 0),
+        today_right_duration: todayFeedings.reduce((sum, f) => sum + (f.right_breast_minutes || 0), 0),
     };
 }
 
@@ -54,6 +60,9 @@ function calculateSummaryOptimized(feedings: Feeding[]): FeedingSummary {
             today_amount: 0,
             last_feeding_time: null,
             last_feeding_type: null,
+            last_breast_side: null,
+            today_left_duration: 0,
+            today_right_duration: 0,
         };
     }
 
@@ -65,6 +74,8 @@ function calculateSummaryOptimized(feedings: Feeding[]): FeedingSummary {
     let todayCount = 0;
     let todayDuration = 0;
     let todayAmount = 0;
+    let todayLeftDuration = 0;
+    let todayRightDuration = 0;
 
     for (const f of feedings) {
         const d = new Date(f.feeding_time);
@@ -78,6 +89,8 @@ function calculateSummaryOptimized(feedings: Feeding[]): FeedingSummary {
             if (type === 'BOTTLE' || type === 'MIXED') {
                 todayAmount += (f.amount_ml || 0);
             }
+            todayLeftDuration += (f.left_breast_minutes || 0);
+            todayRightDuration += (f.right_breast_minutes || 0);
         }
     }
 
@@ -89,6 +102,9 @@ function calculateSummaryOptimized(feedings: Feeding[]): FeedingSummary {
         today_amount: todayAmount,
         last_feeding_time: lastFeeding?.feeding_time ?? null,
         last_feeding_type: lastFeeding?.feeding_type ?? null,
+        last_breast_side: lastFeeding?.last_breast_side ?? null,
+        today_left_duration: todayLeftDuration,
+        today_right_duration: todayRightDuration,
     };
 }
 
@@ -114,6 +130,7 @@ const generateFeedings = (count: number): Feeding[] => {
             feeding_type: i % 3 === 0 ? 'BREAST' : i % 3 === 1 ? 'BOTTLE' : 'MIXED',
             duration_minutes: 15,
             amount_ml: 100,
+            comment_count: 0,
         });
     }
     return feedings;

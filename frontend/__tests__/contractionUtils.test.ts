@@ -19,6 +19,7 @@ function makeRecord(
         duration_seconds: null,
         interval_seconds: null,
         notes: null,
+        comment_count: 0,
         ...overrides,
     }
 }
