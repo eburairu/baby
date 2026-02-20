@@ -49,8 +49,8 @@ export function useNotifications() {
     return { notifications: data ?? [], mutate, isLoading }
 }
 
-export async function markAsRead(id: number): Promise<AppNotification> {
-    return api.patch<AppNotification, Record<string, never>>(`/notifications/${id}/read`, {})
+export async function markAsRead(id: number): Promise<void> {
+    await api.patch<void, Record<string, never>>(`/notifications/${id}/read`, {})
 }
 
 export async function markAllAsRead(): Promise<void> {

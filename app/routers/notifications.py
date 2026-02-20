@@ -51,7 +51,7 @@ def unread_count(
     return UnreadCountResponse(count=count)
 
 
-@router.patch("/{notification_id}/read", response_model=AppNotificationResponse)
+@router.patch("/{notification_id}/read", status_code=status.HTTP_204_NO_CONTENT)
 def mark_as_read(
     notification_id: int,
     db: Session = Depends(get_db),
@@ -66,8 +66,6 @@ def mark_as_read(
         raise HTTPException(status_code=404, detail="Notification not found")
     notification.is_read = True
     db.commit()
-    db.refresh(notification)
-    return notification
 
 
 @router.patch("/read-all", status_code=status.HTTP_204_NO_CONTENT)
