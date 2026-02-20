@@ -141,15 +141,15 @@ export function GrowthHistoryList({
             <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>記録を削除しますか？</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle data-sentry-unmask>記録を削除しますか？</AlertDialogTitle>
+                        <AlertDialogDescription data-sentry-unmask>
                             この操作は取り消せません。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-destructive text-white hover:bg-destructive/90"
+                            data-sentry-unmask className="bg-destructive text-white hover:bg-destructive/90"
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >

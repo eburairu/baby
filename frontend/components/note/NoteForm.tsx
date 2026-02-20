@@ -74,7 +74,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
             <Button 
                 onClick={() => setIsExpanded(true)}
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-6 shadow-sm flex gap-2 transition-all duration-200"
-                aria-label="新しいメモを入力する"
+                aria-label="新しいメモを入力する" data-sentry-unmask
             >
                 <Plus className="h-5 w-5" />
                 メモを追加する
@@ -94,7 +94,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             name="note_time"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400">日時</FormLabel>
+                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask>日時</FormLabel>
                                     <FormControl>
                                         <Input 
                                             type="datetime-local" 
@@ -112,7 +112,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             name="content"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400">内容</FormLabel>
+                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask>内容</FormLabel>
                                     <FormControl>
                                         <Textarea 
                                             placeholder="今日の出来事や赤ちゃんの様子など..." 
@@ -134,7 +134,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                                     setIsExpanded(false)
                                     setError(null)
                                 }}
-                                className="flex-1 dark:text-zinc-400"
+                                data-sentry-unmask className="flex-1 dark:text-zinc-400"
                                 disabled={submitting}
                             >
                                 キャンセル
@@ -142,7 +142,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             <Button
                                 type="submit"
                                 disabled={submitting}
-                                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                                data-sentry-unmask className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {submitting ? "保存中..." : "保存する"}

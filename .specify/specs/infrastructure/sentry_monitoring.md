@@ -155,9 +155,10 @@ export default withSentryConfig(withPWA(nextConfig), {
 | カテゴリ | 具体例 | 方針 |
 | :--- | :--- | :--- |
 | ナビゲーションラベル | ホーム、授乳、おむつ、睡眠、成長、陣痛、日記、設定 | **アンマスク** |
-| ボタン・アクションラベル | 保存、キャンセル、削除、編集、記録する | **アンマスク** |
-| 静的ページ見出し | "Baby App"、"授乳記録"、"おむつ記録" など | **アンマスク** |
+| ボタン・アクションラベル | 保存、キャンセル、削除、編集、記録する、メモを追加する | **アンマスク** |
+| 静的ページ見出し | "Baby App"、"授乳記録"、"おむつ記録"、"メモの編集" など | **アンマスク** |
 | 記録タイプラベル | 授乳、睡眠、おむつ、成長、メモ | **アンマスク** |
+| フォームラベル | 日時、内容、開始日時、終了日時、メモ | **アンマスク** |
 | ユーザー入力フィールド | ユーザー名、パスワード、表示名、家族名 | **マスク（デフォルト）** |
 | 赤ちゃんの名前 | ユーザーが登録した任意の名前 | **マスク（デフォルト）** |
 | 育児記録の数値 | 授乳量（ml）、睡眠時間、体重、身長、頭囲 | **マスク（デフォルト）** |
@@ -218,9 +219,17 @@ Sentry.init({
 | :--- | :--- |
 | `frontend/app/(dashboard)/layout.tsx` | ナビゲーションラベル（ホーム、授乳、おむつ…） |
 | `frontend/components/dashboard/*Widget.tsx` | ウィジェットのタイトル（🍼 授乳、💤 睡眠…） |
-| `frontend/components/*/` 各フォーム | ボタン（保存、キャンセル、記録する、削除） |
+| `frontend/components/*/RecordForm.tsx` | ボタン（保存、キャンセル、記録する） |
 | `frontend/app/(auth)/login/page.tsx` | ページ見出し（"Baby App にログイン"） |
 | `frontend/app/(auth)/register/page.tsx` | ページ見出し（"家族を新規作成"、"家族に参加"） |
+| `frontend/components/note/NoteForm.tsx` | ボタン（追加、キャンセル、保存）、ラベル（日時、内容） |
+| `frontend/components/settings/SettingsHeader.tsx` | ページタイトル |
+| `frontend/components/diary/DiaryEditDialog.tsx` | ダイアログタイトル、補助テキスト、ボタン |
+| `frontend/components/ContractionTimer.tsx` | ステータス表示、操作ボタン |
+| `frontend/components/*/*History*.tsx` | 削除確認ダイアログ（タイトル、説明、ボタン） |
+| `frontend/components/sleep/sleep-history.tsx` | 編集ダイアログ（タイトル、ラベル、保存ボタン） |
+| `frontend/components/diaper/DiaperEditDialog.tsx` | 編集ダイアログ（タイトル、ボタン） |
+| `frontend/components/note/NoteHistory.tsx` | 編集ダイアログ（タイトル、ラベル、ボタン） |
 
 ### 10.5. 実装チェックリスト
 

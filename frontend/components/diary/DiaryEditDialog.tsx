@@ -104,7 +104,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-lg rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle className="text-base">育児日誌を編集</DialogTitle>
+                    <DialogTitle className="text-base" data-sentry-unmask>育児日誌を編集</DialogTitle>
                 </DialogHeader>
 
                 <Textarea
@@ -114,7 +114,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                     className="resize-none rounded-xl text-sm"
                     placeholder="育児日誌の内容を入力..."
                 />
-                <p className="text-xs text-gray-400">空欄で保存すると AI 生成文に戻ります。</p>
+                <p className="text-xs text-gray-400" data-sentry-unmask>空欄で保存すると AI 生成文に戻ります。</p>
 
                 {/* 画像セクション */}
                 {canWrite && (
@@ -125,7 +125,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="h-8 rounded-xl text-xs gap-1"
+                                data-sentry-unmask className="h-8 rounded-xl text-xs gap-1"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUploading || pendingImages.length >= MAX_IMAGES}
                             >
@@ -179,14 +179,14 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                 <DialogFooter className="gap-2">
                     <Button
                         variant="outline"
-                        onClick={() => onOpenChange(false)}
+                        data-sentry-unmask onClick={() => onOpenChange(false)}
                         disabled={saving || isUploading}
                         className="rounded-xl"
                     >
                         キャンセル
                     </Button>
                     <Button
-                        onClick={handleSave}
+                        data-sentry-unmask onClick={handleSave}
                         disabled={saving || isUploading}
                         className="rounded-xl"
                     >
