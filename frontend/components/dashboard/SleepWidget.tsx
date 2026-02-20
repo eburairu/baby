@@ -94,7 +94,7 @@ export function SleepWidget({ babyId, records, isError, mutate, isLoading }: Pro
     }
 
     return (
-        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
+        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium text-indigo-500 dark:text-indigo-400 flex items-center gap-1" data-sentry-unmask>
                     💤 睡眠
