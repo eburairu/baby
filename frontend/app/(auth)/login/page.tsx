@@ -102,12 +102,15 @@ export default function LoginPage() {
                     </form>
                 </Form>
             </CardContent>
-            <CardFooter className="justify-center">
+            <CardFooter className="flex-col gap-2 justify-center">
                 <p className="text-sm text-muted-foreground">
                     アカウントをお持ちでないですか？{" "}
                     <Link href="/register" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
                         新規登録
                     </Link>
+                </p>
+                <p className="text-sm text-muted-foreground text-center">
+                    パスワードをお忘れの場合は、家族の管理者にお問い合わせください。
                 </p>
             </CardFooter>
         </Card>
