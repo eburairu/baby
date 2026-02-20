@@ -1,5 +1,4 @@
 import { BabyRecord } from '@/hooks/useData'
-import { isToday } from '@/lib/ageUtils'
 
 /**
  * Compares two arrays of BabyRecords to determine if they are effectively equal for a specific record type.

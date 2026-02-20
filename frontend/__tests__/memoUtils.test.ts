@@ -54,7 +54,7 @@ describe("areRecordsEqual", () => {
     })
 
     it("ignores different types", () => {
-        const records1 = [baseRecord, { ...baseRecord, id: 2, type: 'diaper' } as any]
+        const records1 = [baseRecord, { ...baseRecord, id: 2, type: 'diaper' } as unknown as BabyRecord]
         const records2 = [baseRecord]
         // Filtering by 'feeding' should result in identical lists
         expect(areRecordsEqual(records1, records2, 'feeding')).toBe(true)
