@@ -22,3 +22,8 @@
 **Vulnerability:** File upload endpoint relied solely on content-type header and extension, allowing potential file masquerading. Additionally, internal server errors leaked stack trace/implementation details.
 **Learning:** Checking `file.content_type` is insufficient as it is client-controlled. Always validate file content (magic bytes).
 **Prevention:** Implement server-side content validation using magic bytes. Use generic error messages for 500 responses.
+
+## 2026-03-01 - Timing Attack Vulnerability in Login Endpoint
+**Vulnerability:** The login endpoint (`/api/auth/login`) was vulnerable to user enumeration via timing attacks. When a user was not found, the function returned immediately without verifying a password hash, whereas a valid user (with incorrect password) would undergo a time-consuming bcrypt verification. This difference in response time allowed attackers to determine if a username exists.
+**Learning:** Security controls like password hashing can introduce side channels if not applied consistently. Always ensure that sensitive operations like authentication take a similar amount of time regardless of the outcome (success/failure).
+**Prevention:** Implemented a dummy hash verification that runs when a user is not found, ensuring that `verify_password` is called in both scenarios to equalize execution time.
