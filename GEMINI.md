@@ -144,13 +144,31 @@ gemini --resume latest
 
 # セッション一覧を確認
 gemini --list-sessions
+
+### AI エージェント専用ガードレール（Mandatory）
+
+Gemini CLI には **BeforeTool フック** (`.gemini/settings.json`) が設定されており、AI エージェントが `/worktrees/` 配下以外で `write_file` や `replace` を実行しようとすると、ツール自体の実行が自動的にブロックされる。
+
+開発作業を行う際は、必ず `sh scripts/setup_worktree.sh` を使用してワークツリーを作成し、そのディレクトリ内で作業すること。
 ```
+
+### AI エージェント専用ガードレール（Mandatory）
+
+Gemini CLI には **BeforeTool フック** (`.gemini/settings.json`) が設定されており、AI エージェントが `/worktrees/` 配下以外で `write_file` や `replace` を実行しようとすると、ツール自体の実行が自動的にブロックされる。
+
+開発作業を行う際は、必ず `sh scripts/setup_worktree.sh` を使用してワークツリーを作成し、そのディレクトリ内で作業すること。
 
 ---
 
 ## 自律実装フロー（`--yolo` 使用時）
 
 Gemini が `--yolo` で実装を行う場合の標準手順:
+
+**STEP 0: 現在位置の物理チェック (MANDATORY)**
+```bash
+pwd
+```
+出力が `/worktrees/` 配下でない場合、**直ちに作業を停止し**、STEP 1 に進んでワークツリーを作成すること。ルートディレクトリでの直接編集は絶対に許可されない。
 
 **STEP 1: 重複実装チェックとワークツリー作成**
 ```bash
@@ -195,7 +213,7 @@ git push -u origin feat/xxx
 gh pr create --base develop --title "feat: タイトル（日本語）" --body "..."
 
 # 重要: PR 作成後の帰還手順
-cd ../..
+cd "$(git rev-parse --git-common-dir)/.."
 git checkout develop
 git pull origin develop
 ```
