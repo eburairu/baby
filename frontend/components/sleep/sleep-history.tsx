@@ -188,6 +188,7 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
                     recordId={commentTarget.id}
                     title={commentTarget.title}
                     currentUserId={user?.id}
+                    onCommentChange={() => mutate()}
                 />
             )}
 

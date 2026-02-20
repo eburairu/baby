@@ -204,6 +204,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                     recordId={commentTarget.id}
                     title={commentTarget.title}
                     currentUserId={user?.id}
+                    onCommentChange={onDeleteSuccess}
                 />
             )}
         </>

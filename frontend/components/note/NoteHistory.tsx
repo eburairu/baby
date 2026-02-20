@@ -193,6 +193,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                     recordId={commentTarget.id}
                     title={commentTarget.title}
                     currentUserId={user?.id}
+                    onCommentChange={onRefresh}
                 />
             )}
 

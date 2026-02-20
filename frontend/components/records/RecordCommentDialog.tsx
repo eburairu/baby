@@ -10,6 +10,7 @@ interface RecordCommentDialogProps {
   recordId: number;
   title: string;
   currentUserId?: number;
+  onCommentChange?: () => void;
 }
 
 export function RecordCommentDialog({
@@ -19,6 +20,7 @@ export function RecordCommentDialog({
   recordId,
   title,
   currentUserId,
+  onCommentChange,
 }: RecordCommentDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,6 +32,7 @@ export function RecordCommentDialog({
           recordType={recordType}
           recordId={recordId}
           currentUserId={currentUserId}
+          onCommentChange={onCommentChange}
         />
       </DialogContent>
     </Dialog>

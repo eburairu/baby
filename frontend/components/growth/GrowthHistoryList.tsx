@@ -134,6 +134,7 @@ export function GrowthHistoryList({
                     recordId={commentTarget.id}
                     title={commentTarget.title}
                     currentUserId={user?.id}
+                    onCommentChange={onDeleteSuccess}
                 />
             )}
 

@@ -23,6 +23,7 @@ import {
 interface FeedingHistoryProps {
     feedings: Feeding[];
     onDelete: (id: number) => Promise<void>;
+    onRefresh?: () => void;
     canWrite?: boolean;
 }
 
@@ -55,7 +56,7 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
     return null;
 }
 
-export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingHistoryProps) {
+export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true }: FeedingHistoryProps) {
     const { user } = useUser();
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -190,6 +191,7 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                     recordId={commentTarget.id}
                     title={commentTarget.title}
                     currentUserId={user?.id}
+                    onCommentChange={onRefresh}
                 />
             )}
         </>
