@@ -37,7 +37,7 @@ def create_record_feedback(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="AIサービスの利用上限に達しました。しばらく時間をおいてから再試行してください。",
         )
-    except openai.APIError:
+    except openai.OpenAIError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="AIサービスでエラーが発生しました。時間をおいて再試行してください。",
