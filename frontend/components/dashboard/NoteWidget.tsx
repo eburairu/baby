@@ -19,7 +19,7 @@ export function NoteWidget({ babyId, records, isLoading }: Props) {
   const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
 
   return (
-    <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-colors">
+    <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm font-medium text-amber-600 dark:text-amber-500 flex items-center gap-1">
           <StickyNote className="h-4 w-4" />
