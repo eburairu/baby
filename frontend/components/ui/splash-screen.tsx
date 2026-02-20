@@ -27,6 +27,14 @@ export function SplashScreen() {
         }
     }, [isMounted, isLoading])
 
+    useEffect(() => {
+        // ネットワーク障害等でローディングが永久にハングした場合のフォールバック
+        const fallback = setTimeout(() => {
+            setIsVisible(false)
+        }, 5000)
+        return () => clearTimeout(fallback)
+    }, [])
+
     if (!isMounted) return null
 
     return (
