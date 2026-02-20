@@ -33,6 +33,7 @@ export function useBabies(options?: { fallbackData?: Baby[] }) {
         shouldRetryOnError: false,
         revalidateOnFocus: true,
         revalidateOnMount: true,
+        keepPreviousData: true,
     });
     return {
         babies: data,
@@ -45,7 +46,8 @@ export function useBabies(options?: { fallbackData?: Baby[] }) {
 function useBabyResource<T>(endpoint: string, babyId: string | number | null) {
     const { data, error, isLoading, mutate } = useSWR<T[]>(
         babyId ? `/${endpoint}/?baby_id=${babyId}` : null,
-        fetcher
+        fetcher,
+        { keepPreviousData: true }
     );
     return {
         data,
@@ -69,7 +71,11 @@ export interface BabyRecord {
 }
 
 export function useRecords(babyId: string | null) {
-    const { data, error, isLoading, mutate } = useSWR<BabyRecord[]>(babyId ? `/babies/${babyId}/records` : null, fetcher);
+    const { data, error, isLoading, mutate } = useSWR<BabyRecord[]>(
+        babyId ? `/babies/${babyId}/records` : null, 
+        fetcher,
+        { keepPreviousData: true }
+    );
     return {
         records: data,
         isLoading,

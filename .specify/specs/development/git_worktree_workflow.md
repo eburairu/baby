@@ -79,6 +79,12 @@ pnpm install
 ```bash
 git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
+
+4. **ルートディレクトリへの復帰 (Return to Root)**: 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
+
 ```
 
 5. **最終レビューと待機**: PR作成後、`spec-checker` による最終レビューを受け、ユーザーのフィードバックやコードレビューに対応できるよう、環境を維持する。
@@ -122,15 +128,27 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
    - まず変更をリモートにプッシュする: `git push -u origin <branch-name>`
    - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
 
-4. **仕様との整合性確認 (Review)**:
-   - PR作成後、**ワークツリーを削除する前**に、必ず `spec-checker` サブエージェントを呼び出し、実装内容が仕様（`.specify/specs/`）と矛盾していないか、また実装プラン通りに完了しているかの最終レビューを受ける。
-   - レビューで指摘事項がある場合は、ワークツリー内で修正・追加コミットを行い、再度 PR を更新する。
+4. **ルートディレクトリへの復帰 (Return to Root)**: 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
 
-5. **完了報告と待機**:
+
+4. **ルートディレクトリへの復帰 (Return to Root)**:
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."`
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop`
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。
+
+5. **仕様との整合性確認 (Review)**:
+   - PR作成後、**ワークツリーを削除する前**に、必ず `spec-checker` サブエージェントを呼び出し、実装内容が仕様（`.specify/specs/`）と矛盾していないか、また実装プラン通りに完了しているかの最終レビューを受ける。
+   - レビューで指摘事項がある場合は、ワークツリー内（`worktrees/<branch-name>`）に戻って修正・追加コミットを行い、再度 PR を更新する。
+
+6. **完了報告と待機**:
    - PR の URL をユーザーに報告し、タスクの完了を伝える。
+   - メインディレクトリ（ルート）が `develop` ブランチであることを確認してから完了報告を行うこと。
    - **この時点ではワークツリーを削除しない。** ユーザーからのフィードバックやコードレビューによる指摘、修正依頼に即座に対応できるよう、環境を維持する。
 
-6. **事後処理 (Cleanup)**:
+7. **事後処理 (Cleanup)**:
    - PR がマージされた、またはユーザーから「完了（クリーンアップしてよい）」の最終承認を得た場合にのみ、以下のクリーンアップを実行する。
    - メインディレクトリ（`develop` ブランチ）に戻る。
    - ワークツリーを削除する: `git worktree remove --force worktrees/<branch-name>`

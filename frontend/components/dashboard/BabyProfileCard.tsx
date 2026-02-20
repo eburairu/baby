@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
 
@@ -15,7 +16,7 @@ interface Props {
     selectedBabyId: string
 }
 
-export function BabyProfileCard({ babies, selectedBabyId }: Props) {
+export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, selectedBabyId }: Props) {
     const selected = babies.find((b) => b.id === selectedBabyId)
     const age = selected?.birthday ? calcAge(selected.birthday) : null
     const prenatalLabel = !selected?.birthday ? getPrenatalLabel(selected?.due_date) : null
@@ -46,4 +47,4 @@ export function BabyProfileCard({ babies, selectedBabyId }: Props) {
             </div>
         </div>
     )
-}
+})

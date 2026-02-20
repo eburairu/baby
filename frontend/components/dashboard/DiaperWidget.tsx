@@ -11,6 +11,7 @@ import { ArrowRight, ShieldOff } from "lucide-react"
 import { DiaperType } from "@/types/diaper"
 import { BabyRecord } from "@/hooks/useData"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { toast } from "sonner"
 
 interface Props {
     babyId: string
@@ -57,16 +58,20 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
     const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
+        if (loading) return
         setLoading(true)
+        const typeLabel = diaperType === DiaperType.WET ? "おしっこ" : "うんち"
         try {
             await api.post("/diapers/", {
                 baby_id: Number(babyId),
                 diaper_type: diaperType,
                 change_time: new Date().toISOString(),
             })
+            toast.success(`${typeLabel}を記録しました`)
             if (mutate) mutate()
         } catch (e) {
             console.error(e)
+            toast.error(`${typeLabel}の記録に失敗しました`)
         } finally {
             setLoading(false)
         }
@@ -114,6 +119,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         <Button
                             size="sm"
                             loading={loading}
+                            disabled={loading}
                             onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
                             className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
                             variant="outline"
@@ -125,6 +131,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         <Button
                             size="sm"
                             loading={loading}
+                            disabled={loading}
                             onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
                             className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
                             variant="outline"

@@ -64,6 +64,13 @@ gh pr create --base develop  # --base develop は省略禁止
 - ブランチフロー: `feat/*` → `develop` → `main`
 - `develop` → `main` のマージはユーザーが判断（エージェントは勝手にマージしない）
 
+### Git Worktree の強制使用（MUST）
+
+開発作業を行う際は、**必ず `sh scripts/setup_worktree.sh` を使用して `worktrees/` 配下で作業すること**。
+
+- **禁止事項**: メインリポジトリ（ルート）での直接的な `git checkout -b` やファイル編集は厳禁。
+- **目的**: 常に `develop` の最新状態をメインディレクトリに維持し、並行開発を円滑にするため。
+
 ### バックエンド変更後は openapi.json を更新する
 
 `app/models/`・`app/schemas/`・`app/routers/` を変更したら**コミット前に必ず**（サーバー停止中に）実行:
@@ -119,7 +126,12 @@ git push origin feat/xxx
 # STEP 7: PR 作成
 gh pr create --base develop --title "feat: タイトルを日本語で" --body "..."
 
-# STEP 8: クリーンアップ（PR マージ後）
+# STEP 8: ルートディレクトリへの復帰（重要）
+cd "$(git rev-parse --git-common-dir)/.."
+git checkout develop
+git pull origin develop
+
+# STEP 9: クリーンアップ（PR マージ後またはユーザー承認後）
 git worktree remove --force worktrees/feat/xxx
 git branch -D feat/xxx
 ```
