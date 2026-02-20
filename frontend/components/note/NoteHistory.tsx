@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -46,9 +46,10 @@ interface Props {
     notes: Note[]
     onRefresh: () => void
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
-export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
+export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentRecordId }: Props) {
     const { user } = useUser()
     const [editingNote, setEditingNote] = useState<Note | null>(null)
     const [isEditing, setIsEditing] = useState(false)
@@ -57,6 +58,17 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initialCommentRecordId && notes.length > 0 && !initializedRef.current) {
+            const target = notes.find(n => n.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                setCommentTarget({ id: target.id, title: `メモ ${format(new Date(target.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
+            }
+        }
+    }, [initialCommentRecordId, notes])
 
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
@@ -201,7 +213,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800">
                     <DialogHeader>
-                        <DialogTitle>メモの編集</DialogTitle>
+                        <DialogTitle data-sentry-unmask>メモの編集</DialogTitle>
                     </DialogHeader>
                     
                     {error && <ErrorMessage message={error} className="mb-2" />}
@@ -213,7 +225,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                                 name="note_time"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>日時</FormLabel>
+                                        <FormLabel data-sentry-unmask>日時</FormLabel>
                                         <FormControl>
                                             <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
                                                 {field.value ? format(new Date(field.value), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
@@ -228,7 +240,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                                 name="content"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>内容</FormLabel>
+                                        <FormLabel data-sentry-unmask>内容</FormLabel>
                                         <FormControl>
                                             <Textarea
                                                 rows={5}
@@ -245,7 +257,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                                 <Button 
                                     type="button" 
                                     variant="outline" 
-                                    onClick={() => setIsEditing(false)}
+                                    data-sentry-unmask onClick={() => setIsEditing(false)}
                                     disabled={submitting}
                                 >
                                     キャンセル
@@ -253,7 +265,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                                 <Button 
                                     type="submit" 
                                     disabled={submitting}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                                    data-sentry-unmask className="bg-indigo-600 hover:bg-indigo-700 text-white"
                                 >
                                     <Save className="h-4 w-4 mr-2" />
                                     {submitting ? "保存中..." : "保存する"}
@@ -268,14 +280,14 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
             <AlertDialog open={deleteTargetId !== null} onOpenChange={(o) => !o && setDeleteTargetId(null)}>
                 <AlertDialogContent className="dark:bg-zinc-900 dark:border-zinc-800">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>メモの削除</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle data-sentry-unmask>メモの削除</AlertDialogTitle>
+                        <AlertDialogDescription data-sentry-unmask>
                             このメモを削除しますか？この操作は取り消せません。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

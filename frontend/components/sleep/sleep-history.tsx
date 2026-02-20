@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
@@ -29,9 +29,10 @@ import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 interface Props {
     babyId: string
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
-export function SleepHistory({ babyId, canWrite = true }: Props) {
+export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }: Props) {
     const { user } = useUser()
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
@@ -39,10 +40,21 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
 
     const history = useMemo(() => {
         return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
     }, [sleeps])
+
+    useEffect(() => {
+        if (initialCommentRecordId && history && history.length > 0 && !initializedRef.current) {
+            const target = history.find(s => s.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                setCommentTarget({ id: target.id, title: `睡眠 ${format(new Date(target.start_time), "M/d HH:mm", { locale: ja })}` })
+            }
+        }
+    }, [initialCommentRecordId, history])
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return
@@ -165,14 +177,14 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
             <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>記録の削除</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
+                        <AlertDialogDescription data-sentry-unmask>
                             この睡眠記録を削除しますか？この操作は取り消せません。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -195,33 +207,33 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogContent className="dark:bg-zinc-900 dark:border-zinc-800">
                     <DialogHeader>
-                        <DialogTitle>睡眠記録の編集</DialogTitle>
+                        <DialogTitle data-sentry-unmask>睡眠記録の編集</DialogTitle>
                     </DialogHeader>
                     {editingSleep && (
                         <form onSubmit={handleEditSave} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium dark:text-zinc-300">開始日時</label>
+                                    <label className="text-sm font-medium dark:text-zinc-300" data-sentry-unmask>開始日時</label>
                                     <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
                                         {format(new Date(editingSleep.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium dark:text-zinc-300">終了日時</label>
+                                    <label className="text-sm font-medium dark:text-zinc-300" data-sentry-unmask>終了日時</label>
                                     <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
                                         {editingSleep.end_time ? format(new Date(editingSleep.end_time), "yyyy/MM/dd HH:mm", { locale: ja }) : "現在"}
                                     </div>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium dark:text-zinc-300">メモ</label>
+                                <label className="text-sm font-medium dark:text-zinc-300" data-sentry-unmask>メモ</label>
                                 <Textarea
                                     value={editingSleep.notes || ""}
                                     onChange={(e) => setEditingSleep({ ...editingSleep, notes: e.target.value })}
                                     className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
                                 />
                             </div>
-                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-none">保存</Button>
+                            <Button type="submit" data-sentry-unmask className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-none">保存</Button>
                         </form>
                     )}
                 </DialogContent>

@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { Button } from "@/components/ui/button"
 import { Trash2, Pencil, User, MessageCircle } from "lucide-react"
@@ -34,15 +34,28 @@ interface Props {
     diapers: Diaper[]
     onDeleteSuccess: () => void
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
-export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Props) {
+export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initialCommentRecordId }: Props) {
     const { user } = useUser()
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initialCommentRecordId && diapers.length > 0 && !initializedRef.current) {
+            const target = diapers.find(d => d.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                const style = getStyles(target.diaper_type)
+                setCommentTarget({ id: target.id, title: `${style.label} ${formatDate(target.change_time)}` })
+            }
+        }
+    }, [initialCommentRecordId, diapers])
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return
@@ -174,14 +187,14 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
             <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>記録の削除</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
+                        <AlertDialogDescription data-sentry-unmask>
                             このおむつ記録を削除しますか？この操作は取り消せません。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

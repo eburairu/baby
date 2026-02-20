@@ -66,7 +66,7 @@ def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), curren
             current_user.id,
             title="成長の記録",
             body=f"{display_name}さんが{baby.name}の身長・体重を記録しました。",
-            url=f"/growth",
+            url=f"/growth?baby_id={baby.id}",
             category="family_record"
         )
 

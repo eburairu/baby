@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Edit2, Trash2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
@@ -23,6 +23,7 @@ interface GrowthHistoryListProps {
     onEdit: (record: Growth) => void
     onDeleteSuccess: () => void
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
 export function GrowthHistoryList({
@@ -30,11 +31,23 @@ export function GrowthHistoryList({
     onEdit,
     onDeleteSuccess,
     canWrite = true,
+    initialCommentRecordId,
 }: GrowthHistoryListProps) {
     const { user } = useUser()
     const [deleteId, setDeleteId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initialCommentRecordId && records.length > 0 && !initializedRef.current) {
+            const target = records.find(r => r.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                setCommentTarget({ id: target.id, title: `成長記録 ${target.date}` })
+            }
+        }
+    }, [initialCommentRecordId, records])
 
     const handleDelete = async () => {
         if (!deleteId) return
@@ -141,15 +154,15 @@ export function GrowthHistoryList({
             <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>記録を削除しますか？</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle data-sentry-unmask>記録を削除しますか？</AlertDialogTitle>
+                        <AlertDialogDescription data-sentry-unmask>
                             この操作は取り消せません。
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
+                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-destructive text-white hover:bg-destructive/90"
+                            data-sentry-unmask className="bg-destructive text-white hover:bg-destructive/90"
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >

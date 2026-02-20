@@ -7,6 +7,12 @@ import * as Sentry from "@sentry/nextjs";
 Sentry.init({
   dsn: "https://df57b075f6f01f47246f03f44fb7f5d6@o4510904857526272.ingest.us.sentry.io/4510904861065216",
 
+  integrations: [
+    // console.warn / console.error を Sentry Logs タブに送信する
+    // console.log は開発用デバッグのノイズが多いため除外（将来的な追加を検討）
+    Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
+  ],
+
   // 本番環境では20%のみサンプリングしてネットワーク帯域を節約
   // 開発環境では100%サンプリングして問題を見逃さない
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.2 : 1,

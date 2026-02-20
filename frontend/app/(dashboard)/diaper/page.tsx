@@ -21,6 +21,7 @@ export default function DiaperPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const paramBabyId = searchParams.get("baby_id")
+    const commentRecordId = searchParams.get("comment")
     const { canWrite } = usePermissions()
 
     const { babies, isLoading: babiesLoading } = useBabies()
@@ -72,6 +73,7 @@ export default function DiaperPage() {
                             diapers={diapers || []}
                             onDeleteSuccess={() => mutate()}
                             canWrite={canWrite}
+                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
                         />
                     </>
                 )}

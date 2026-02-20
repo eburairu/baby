@@ -35,12 +35,12 @@ set +a
 echo -e "
 ${YELLOW}--- [1/5] バックエンドテスト実行中... ---${NC}"
 # 仮想環境の python を使用
-python -m pytest tests/
+.venv/bin/python -m pytest tests/
 
 # 3. OpenAPI スキーマの更新
 echo -e "
 ${YELLOW}--- [2/5] OpenAPI スキーマの更新と検証... ---${NC}"
-python scripts/export_openapi.py
+.venv/bin/python scripts/export_openapi.py
 
 # 4. フロントエンド型定義の生成
 echo -e "

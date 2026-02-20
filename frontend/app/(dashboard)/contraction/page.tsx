@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import { useBabies, useContractions } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
@@ -19,12 +20,15 @@ import Link from "next/link"
 import { isApiError } from "@/lib/api"
 
 export default function ContractionPage() {
+    const searchParams = useSearchParams()
+    const commentRecordId = searchParams.get("comment")
+    const commentBabyId = searchParams.get("baby_id")
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId: storedBabyId, setSelectedBabyId: setStoredBabyId } = useBabyStore()
     const { canWrite } = usePermissions()
 
-    // ストアの文字列IDを数値に変換、未選択時は最初の赤ちゃんをフォールバック
-    const effectiveIdStr = storedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    // baby_id from URL takes priority (e.g. from notification link)
+    const effectiveIdStr = commentBabyId ?? storedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const selectedBabyId = effectiveIdStr ? parseInt(effectiveIdStr, 10) : null
 
     const { contractions, isLoading: contractionsLoading, isError: contractionError, mutate } = useContractions(selectedBabyId)
@@ -111,6 +115,7 @@ export default function ContractionPage() {
                                 onDeleted={handleDeleted}
                                 onUpdated={handleUpdated}
                                 canWrite={canWrite}
+                                initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
                             />
                         )}
                     </>

@@ -24,6 +24,7 @@ import { isApiError } from "@/lib/api"
 export default function GrowthPage() {
     const searchParams = useSearchParams()
     const paramBabyId = searchParams.get("baby_id")
+    const commentRecordId = searchParams.get("comment")
     const { canWrite } = usePermissions()
     const { babies } = useBabies()
     const { selectedBabyId } = useBabyStore()
@@ -106,6 +107,7 @@ export default function GrowthPage() {
                                             onEdit={handleEdit}
                                             onDeleteSuccess={() => mutate()}
                                             canWrite={canWrite}
+                                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
                                         />
                                     </CardContent>
                                 </Card>

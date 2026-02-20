@@ -492,6 +492,11 @@
             "title": "Baby Id",
             "type": "integer"
           },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
           "duration_seconds": {
             "anyOf": [
               {

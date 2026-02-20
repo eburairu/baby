@@ -28,7 +28,8 @@
 
 ```
 frontend/
-├── instrumentation-client.ts   # クライアント（ブラウザ）の初期化
+├── instrumentation-client.ts   # クライアント（ブラウザ）の主設定（Session Replay・PII含む）
+├── sentry.client.config.ts     # クライアント補助設定（consoleLoggingIntegration）
 ├── instrumentation.ts          # サーバー・エッジランタイムの初期化エントリポイント
 ├── sentry.server.config.ts     # Node.js ランタイム（SSR）の初期化設定
 ├── sentry.edge.config.ts       # Edge ランタイムの初期化設定
@@ -37,11 +38,12 @@ frontend/
     └── global-error.tsx        # ルートレベルのエラーバウンダリ（Sentry.captureException）
 ```
 
+> `instrumentation-client.ts` は Next.js App Router が優先的に読み込むクライアント設定エントリポイント。
+> `sentry.client.config.ts` は補助的な設定を追加するために併用している。
+
 ## 5. 機能設定
 
-### 5.1. クライアント（ブラウザ）
-
-`instrumentation-client.ts` で設定。
+### 5.1. クライアント（ブラウザ）— `instrumentation-client.ts`
 
 | 設定項目 | 値 | 説明 |
 | :--- | :--- | :--- |
@@ -51,21 +53,49 @@ frontend/
 | `enableLogs` | `true` | コンソールログを Sentry に送信 |
 | `sendDefaultPii` | `true` | ユーザー識別情報（PII）を送信 |
 
-### 5.2. サーバー / エッジ
+`replayIntegration` のプライバシーオプションも設定済み（Section 10 参照）。
 
-`sentry.server.config.ts` / `sentry.edge.config.ts` で設定。
+### 5.2. クライアント補助設定 — `sentry.client.config.ts`
 
 | 設定項目 | 値 | 説明 |
 | :--- | :--- | :--- |
-| `tracesSampleRate` | `1` | トレースを 100% サンプリング |
+| `consoleLoggingIntegration.levels` | `["warn", "error"]` | `console.warn` / `console.error` を Sentry Logs に送信 |
+| `tracesSampleRate` | 本番 `0.2` / 開発 `1` | 環境別サンプリング |
+| `enableLogs` | `true` | Sentry Logs 機能を有効化 |
+| `sendDefaultPii` | `false` | PII 送信を無効化 |
+
+### 5.3. Console Logging Integration（Sentry Logs）
+
+`sentry.client.config.ts` の `consoleLoggingIntegration` により、`console.warn` および `console.error` の呼び出しを
+Sentry の Logs タブにリアルタイム送信する。
+
+| 設定 | 値 | 理由 |
+| :--- | :--- | :--- |
+| `levels` | `["warn", "error"]` | デバッグ用 `console.log` はノイズが多いため除外 |
+
+**スモールスタートの根拠:**
+
+- 既存コードには `console.error` が 26 ファイル以上に存在し、API 失敗・認証エラー等を記録している
+- `console.log` は開発用デバッグコードが多く、本番ではノイズになる可能性が高い
+- まず `warn` と `error` のみ送信し、効果を確認してから拡張する
+
+**将来的な拡張:**
+
+- `log` レベルの追加（ユーザーアクションのトレース用途として有用と判断された場合）
+
+### 5.4. サーバー / エッジ — `sentry.server.config.ts` / `sentry.edge.config.ts`
+
+| 設定項目 | 値 | 説明 |
+| :--- | :--- | :--- |
+| `tracesSampleRate` | 本番 `0.2` / 開発 `1` | 環境別サンプリング |
 | `enableLogs` | `true` | サーバーログを Sentry に送信 |
-| `sendDefaultPii` | `true` | PII を送信 |
+| `sendDefaultPii` | `false` | PII 送信を無効化 |
 
 > **注意**: このプロジェクトは `output: 'export'`（静的エクスポート）を使用しているため、
 > サーバーサイドランタイム（`sentry.server.config.ts`）は実質的に稼働しません。
 > クライアントサイドのエラーキャプチャが主な機能になります。
 
-### 5.3. next.config.ts の統合
+### 5.5. next.config.ts の統合
 
 `withSentryConfig` で Next.js の設定をラップしています。
 
@@ -102,11 +132,11 @@ export default withSentryConfig(withPWA(nextConfig), {
 | :--- | :--- |
 | **静的エクスポート** | `output: 'export'` のため、サーバーサイドエラー監視は機能しない。クライアントエラーのみ有効。 |
 | **tunnelRoute 非対応** | 静的エクスポートでは Route Handler が使えないため、広告ブロッカーにより一部のエラーレポートがブロックされる可能性がある。 |
-| **PII の送信** | `sendDefaultPii: true` を設定しているため、ユーザー情報が Sentry に送信される。プライバシーポリシーに明記すること。 |
+| **PII の送信** | `instrumentation-client.ts` で `sendDefaultPii: true` を設定しているため、ユーザー情報が Sentry に送信される。プライバシーポリシーに明記すること。 |
 
 ## 9. 将来の改善案
 
-- `tracesSampleRate` を本番では `0.2`（20%）程度に下げてコスト・負荷を削減する。
+- `instrumentation-client.ts` の `tracesSampleRate` を本番では `0.2`（20%）程度に下げてコスト・負荷を削減する（`sentry.client.config.ts` 等では実施済み）。
 - ユーザーのメールアドレスを `Sentry.setUser()` でセットし、エラー発生ユーザーを特定可能にする。
 - アラートルールを設定し、エラー急増時に Slack 通知を受け取る。
 
@@ -125,9 +155,10 @@ export default withSentryConfig(withPWA(nextConfig), {
 | カテゴリ | 具体例 | 方針 |
 | :--- | :--- | :--- |
 | ナビゲーションラベル | ホーム、授乳、おむつ、睡眠、成長、陣痛、日記、設定 | **アンマスク** |
-| ボタン・アクションラベル | 保存、キャンセル、削除、編集、記録する | **アンマスク** |
-| 静的ページ見出し | "Baby App"、"授乳記録"、"おむつ記録" など | **アンマスク** |
+| ボタン・アクションラベル | 保存、キャンセル、削除、編集、記録する、メモを追加する | **アンマスク** |
+| 静的ページ見出し | "Baby App"、"授乳記録"、"おむつ記録"、"メモの編集" など | **アンマスク** |
 | 記録タイプラベル | 授乳、睡眠、おむつ、成長、メモ | **アンマスク** |
+| フォームラベル | 日時、内容、開始日時、終了日時、メモ | **アンマスク** |
 | ユーザー入力フィールド | ユーザー名、パスワード、表示名、家族名 | **マスク（デフォルト）** |
 | 赤ちゃんの名前 | ユーザーが登録した任意の名前 | **マスク（デフォルト）** |
 | 育児記録の数値 | 授乳量（ml）、睡眠時間、体重、身長、頭囲 | **マスク（デフォルト）** |
@@ -139,7 +170,7 @@ export default withSentryConfig(withPWA(nextConfig), {
 #### replayIntegration のオプション設定
 
 ```typescript
-// frontend/instrumentation-client.ts
+// frontend/instrumentation-client.ts（実装済み）
 Sentry.init({
   integrations: [
     Sentry.replayIntegration({
@@ -188,13 +219,21 @@ Sentry.init({
 | :--- | :--- |
 | `frontend/app/(dashboard)/layout.tsx` | ナビゲーションラベル（ホーム、授乳、おむつ…） |
 | `frontend/components/dashboard/*Widget.tsx` | ウィジェットのタイトル（🍼 授乳、💤 睡眠…） |
-| `frontend/components/*/` 各フォーム | ボタン（保存、キャンセル、記録する、削除） |
+| `frontend/components/*/RecordForm.tsx` | ボタン（保存、キャンセル、記録する） |
 | `frontend/app/(auth)/login/page.tsx` | ページ見出し（"Baby App にログイン"） |
 | `frontend/app/(auth)/register/page.tsx` | ページ見出し（"家族を新規作成"、"家族に参加"） |
+| `frontend/components/note/NoteForm.tsx` | ボタン（追加、キャンセル、保存）、ラベル（日時、内容） |
+| `frontend/components/settings/SettingsHeader.tsx` | ページタイトル |
+| `frontend/components/diary/DiaryEditDialog.tsx` | ダイアログタイトル、補助テキスト、ボタン |
+| `frontend/components/ContractionTimer.tsx` | ステータス表示、操作ボタン |
+| `frontend/components/*/*History*.tsx` | 削除確認ダイアログ（タイトル、説明、ボタン） |
+| `frontend/components/sleep/sleep-history.tsx` | 編集ダイアログ（タイトル、ラベル、保存ボタン） |
+| `frontend/components/diaper/DiaperEditDialog.tsx` | 編集ダイアログ（タイトル、ボタン） |
+| `frontend/components/note/NoteHistory.tsx` | 編集ダイアログ（タイトル、ラベル、ボタン） |
 
 ### 10.5. 実装チェックリスト
 
-- [ ] `frontend/instrumentation-client.ts`: `replayIntegration` にオプション追加
+- [x] `frontend/instrumentation-client.ts`: `replayIntegration` にオプション追加（実装済み）
 - [ ] `frontend/app/(dashboard)/layout.tsx`: ナビゲーションに `data-sentry-unmask` 追加
 - [ ] `frontend/components/dashboard/FeedingWidget.tsx`: タイトルに追加
 - [ ] `frontend/components/dashboard/SleepWidget.tsx`: タイトルに追加
@@ -206,3 +245,41 @@ Sentry.init({
 - [ ] `frontend/components/growth/GrowthRecordForm.tsx`: ボタンに追加
 - [ ] `frontend/app/(auth)/login/page.tsx`: ページ見出しに追加
 - [ ] `frontend/app/(auth)/register/page.tsx`: ページ見出しに追加
+
+## 11. 将来の実装候補（優先度順）
+
+### 優先度: High
+
+- **明示的な `Sentry.captureException()` の導入**
+  現在 try/catch で `console.error` のみ呼び出している箇所（26 ファイル以上）に
+  `Sentry.captureException(err, { tags: { ... } })` を追加する。
+  主な対象: `frontend/lib/api.ts` の fetcher 関数、各フォーム送信ハンドラ
+
+- **エラーレベルの統一分類**
+    - HTTP 5xx → `level: 'error'`（サーバー側の問題）
+    - HTTP 4xx → `level: 'warning'`（ユーザー起因）
+    - Service Worker エラー → `level: 'warning'`
+
+### 優先度: Medium
+
+- **`Sentry.setUser()` によるユーザー情報の設定**
+  ログイン成功後に `Sentry.setUser({ id: user.id })` を呼び出し、
+  エラー発生ユーザーを特定可能にする（PII 管理のため username / email は送信しない）
+
+- **Session Replay プライバシー設定の実装**
+  Section 10 の仕様に基づき `replayIntegration` のオプションを設定する（未実装）
+
+- **`data-sentry-unmask` 属性の適用**
+  Section 10.4 のリストに基づきナビゲーション・ボタン等の静的テキストに属性付与（未実装）
+
+### 優先度: Low
+
+- **`console.log` レベルの追加**
+  ユーザーアクションのトレース用途として有用と判断された場合に
+  `consoleLoggingIntegration` の `levels` に追加する
+
+- **バックエンド（FastAPI）の Sentry 統合**
+  現状はフロントエンドのみ。`sentry-sdk[fastapi]` を追加して Python 例外を監視する
+
+- **Sentry アラートルールの設定**
+  エラー急増時の Slack / Email 通知（Sentry ダッシュボードで設定）

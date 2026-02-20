@@ -1002,6 +1002,11 @@ export interface components {
         ContractionResponse: {
             /** Baby Id */
             baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** Duration Seconds */
             duration_seconds?: number | null;
             /** End Time */
