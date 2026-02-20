@@ -1,29 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bottleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#F8FAFC;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#F1F5F9;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" fill="#4F46E5" />
-  
-  <!-- Nipple -->
-  <path d="M256 100c-20 0-35 15-35 35v25h70v-25c0-20-15-35-35-35z" fill="#FBCFE8" />
-  
-  <!-- Cap -->
-  <rect x="196" y="160" width="120" height="30" rx="8" fill="#94A3B8" />
-  
-  <!-- Bottle Body -->
-  <path d="M206 190h100c8 0 15 7 15 15v170c0 25-15 45-40 45H231c-25 0-40-20-40-45V205c0-8 7-15 15-15z" fill="url(#bottleGradient)" />
-  
-  <!-- Milk level -->
-  <path d="M191 280h130v80c0 25-15 45-40 45H231c-25 0-40-20-40-45V280z" fill="#FEF9C3" opacity="0.9" />
-  
-  <!-- Scale Lines -->
-  <rect x="275" y="225" width="20" height="5" rx="2" fill="#CBD5E1" />
-  <rect x="275" y="255" width="20" height="5" rx="2" fill="#CBD5E1" />
-  <rect x="275" y="285" width="20" height="5" rx="2" fill="#94A3B8" />
-  <rect x="275" y="315" width="20" height="5" rx="2" fill="#94A3B8" />
-  <rect x="275" y="345" width="20" height="5" rx="2" fill="#94A3B8" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <style>
+        path, rect { stroke: #4F46E5; }
+        .fill-primary { fill: #4F46E5; }
+        .fill-bg { fill: #4F46E5; fill-opacity: 0.2; }
+        .stroke-none { stroke: none; }
+        .stroke-thin { stroke-width: 1.5; }
+        .opacity-40 { stroke-opacity: 0.4; }
+        @media (prefers-color-scheme: dark) {
+            path, rect { stroke: #818CF8; }
+            .fill-primary { fill: #818CF8; }
+            .fill-bg { fill: #818CF8; fill-opacity: 0.2; }
+        }
+    </style>
+    <defs>
+        <clipPath id="bottle-clip">
+            <path d="M7 8v10a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8H7z" />
+        </clipPath>
+    </defs>
+    
+    <path d="M7 8v10a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8H7z" class="stroke-none fill-bg" />
+    
+    <g clip-path="url(#bottle-clip)">
+        <path d="M5 15 q 7 2 14 0 V 24 H 5 Z" class="fill-primary stroke-none" />
+        <path d="M5 15 q 7 2 14 0" fill="none" class="stroke-thin" />
+    </g>
+
+    <path d="M10 5V4a2 2 0 0 1 4 0v1" class="fill-primary" />
+    <rect x="7" y="5" width="10" height="2" rx="1" class="fill-primary" />
+    <path d="M7 8v10a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8H7z" />
+    <path d="M14 11h-2" class="opacity-40 stroke-thin" />
+    <path d="M14 14h-2" class="opacity-40 stroke-thin" />
+    <path d="M14 17h-2" class="opacity-40 stroke-thin" />
 </svg>
