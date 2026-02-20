@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useUser } from "@/hooks/useAuth"
 import { useFamilyMembers } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { useState } from "react"
 import { AppInfoDialog } from "@/components/settings/AppInfoDialog"
@@ -73,13 +74,10 @@ const menuItems = [
 
 export default function SettingsPage() {
     const { user, mutate } = useUser()
-    const { members } = useFamilyMembers()
+    const { isAdmin, isLoading: permsLoading } = usePermissions()
     const router = useRouter()
     const [appInfoOpen, setAppInfoOpen] = useState(false)
     const { appVersion } = useAppVersion()
-
-    const currentMember = members?.find((m) => m.username === user?.username)
-    const isAdmin = currentMember?.role === UserRole.ADMIN
 
     const handleLogout = async () => {
         try {
@@ -89,6 +87,14 @@ export default function SettingsPage() {
         } catch (e) {
             console.error("Logout failed", e)
         }
+    }
+
+    if (permsLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
+                <div className="text-gray-400">読み込み中...</div>
+            </div>
+        )
     }
 
     const visibleItems = menuItems.filter(

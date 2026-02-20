@@ -5,35 +5,32 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/hooks/useAuth"
 import { useBabies } from "@/hooks/useData"
-import { useFamilyMembers } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { BabyCard } from "@/components/settings/BabyCard"
 import { BabyEditDialog } from "@/components/settings/BabyEditDialog"
 import { AddBabyDialog } from "@/components/settings/AddBabyDialog"
 import { BabyDeleteDialog } from "@/components/settings/BabyDeleteDialog"
-import { UserRole } from "@/lib/constants"
 import { Baby } from "@/types/baby"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
-import { usePermissions } from "@/hooks/usePermissions"
 
 export default function BabySettingsPage() {
-    const { user, isLoading: userLoading } = useUser()
-    const { isAdmin } = usePermissions()
-    const router = useRouter()
+    const { user } = useUser()
     const { babies, isLoading: babiesLoading, mutate } = useBabies()
-    const { members, isLoading: membersLoading } = useFamilyMembers()
+    const { isAdmin, isLoading: permsLoading } = usePermissions()
+    const router = useRouter()
 
     const [editTarget, setEditTarget] = useState<Baby | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<Baby | null>(null)
     const [addOpen, setAddOpen] = useState(false)
 
-    // 管理者以外はリダイレクト
+    // 管理者以外はリダイレクト (正確な判定に基づいた修正済みの usePermissions を使用)
     useEffect(() => {
-        if (!userLoading && !isAdmin) {
+        if (!permsLoading && !isAdmin) {
             router.push("/")
         }
-    }, [userLoading, isAdmin, router])
+    }, [permsLoading, isAdmin, router])
 
-    if (userLoading || babiesLoading || membersLoading || !isAdmin) {
+    if (permsLoading || babiesLoading) {
         return (
             <div className="flex items-center justify-center min-h-64 text-gray-400">
                 読み込み中...
@@ -41,7 +38,7 @@ export default function BabySettingsPage() {
         )
     }
 
-    if (!user) return null
+    if (!user || !isAdmin) return null
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">

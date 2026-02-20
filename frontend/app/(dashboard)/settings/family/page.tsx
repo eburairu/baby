@@ -1,6 +1,7 @@
 "use client"
 import { useUser } from "@/hooks/useAuth"
 import { useFamilySettings, useFamilyMembers } from "@/hooks/useData"
+import { usePermissions } from "@/hooks/usePermissions"
 import { FamilyNameForm } from "@/components/settings/FamilyNameForm"
 import { InviteCodeCard } from "@/components/settings/InviteCodeCard"
 import { MemberList } from "@/components/settings/MemberList"
@@ -8,11 +9,12 @@ import { MemberList } from "@/components/settings/MemberList"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
 
 export default function FamilySettingsPage() {
-    const { user, isLoading: userLoading } = useUser()
+    const { user } = useUser()
     const { family, isLoading: familyLoading, mutate: mutateFamily } = useFamilySettings()
-    const { members, isLoading: membersLoading, mutate: mutateMembers } = useFamilyMembers()
+    const { members, mutate: mutateMembers } = useFamilyMembers()
+    const { isAdmin, isLoading: permsLoading } = usePermissions()
 
-    if (userLoading || familyLoading || membersLoading) {
+    if (permsLoading || familyLoading) {
         return (
             <div className="flex items-center justify-center min-h-64 text-gray-400">
                 読み込み中...
@@ -22,9 +24,8 @@ export default function FamilySettingsPage() {
 
     if (!user || !family) return null
 
-    // 現在のユーザーのロールを取得
+    // 現在のユーザーの情報を取得（MemberListに渡すため）
     const currentMember = members?.find((m) => m.username === user.username)
-    const isAdmin = currentMember?.role === "admin"
 
     const handleFamilyUpdated = () => {
         mutateFamily()
