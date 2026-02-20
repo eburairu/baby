@@ -73,10 +73,11 @@ export function useFeeding(babyId: number | null) {
         };
     }, [feedings]);
 
-    const addFeeding = async (data: FeedingCreate) => {
-        if (!babyId) return;
-        await api.post('/feedings/', data);
+    const addFeeding = async (data: FeedingCreate): Promise<Feeding | undefined> => {
+        if (!babyId) return undefined;
+        const newRecord = await api.post<Feeding>('/feedings/', data);
         mutate();
+        return newRecord;
     };
 
     const deleteFeeding = async (id: number) => {

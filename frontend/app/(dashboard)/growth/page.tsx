@@ -20,6 +20,7 @@ import { TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { Growth } from "@/types/growth"
 import { isApiError } from "@/lib/api"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 export default function GrowthPage() {
     const searchParams = useSearchParams()
@@ -32,6 +33,7 @@ export default function GrowthPage() {
     // Priority: URL param > store selection > first baby
     const babyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const { growths, isLoading, isError: growthError, mutate } = useGrowths(babyId)
+    const { triggerFeedback } = useRecordFeedback(babyId)
 
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingRecord, setEditingRecord] = useState<Growth | null>(null)
@@ -119,7 +121,10 @@ export default function GrowthPage() {
                             record={editingRecord}
                             isOpen={isFormOpen}
                             onClose={() => setIsFormOpen(false)}
-                            onSuccess={() => mutate()}
+                            onSuccess={(recordId) => {
+                                mutate()
+                                if (recordId) triggerFeedback("growth", recordId)
+                            }}
                         />
                     </>
                 )}

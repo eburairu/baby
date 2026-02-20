@@ -31,7 +31,7 @@ type NoteFormValues = z.infer<typeof noteSchema>
 
 interface Props {
     babyId: number
-    onAddSuccess: () => void
+    onAddSuccess: (recordId?: number) => void
 }
 
 export function NoteForm({ babyId, onAddSuccess }: Props) {
@@ -51,7 +51,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
         setSubmitting(true)
         setError(null)
         try {
-            await createNote(babyId, {
+            const newNote = await createNote(babyId, {
                 content: values.content,
                 note_time: new Date(values.note_time).toISOString()
             })
@@ -60,7 +60,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                 content: "",
             })
             setIsExpanded(false)
-            onAddSuccess()
+            onAddSuccess(newNote?.id)
         } catch (err) {
             console.error(err)
             setError("メモの保存に失敗しました。時間をおいて再度お試しください。")

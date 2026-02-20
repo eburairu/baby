@@ -33,7 +33,7 @@ type DiaperFormValues = z.infer<typeof diaperSchema>
 
 interface Props {
     babyId: string
-    onSuccess: () => void
+    onSuccess: (recordId?: number) => void
 }
 
 export function DiaperForm({ babyId, onSuccess }: Props) {
@@ -55,7 +55,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
         setIsSubmitting(true)
         setError(null)
         try {
-            await api.post("/diapers/", {
+            const newRecord = await api.post<{ id: number }>("/diapers/", {
                 baby_id: Number(babyId),
                 diaper_type: values.diaper_type,
                 change_time: new Date(values.change_time).toISOString(),
@@ -66,7 +66,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                 change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
                 notes: "",
             })
-            onSuccess()
+            onSuccess(newRecord?.id)
         } catch (e) {
             console.error(e)
             setError("エラーが発生しました。もう一度お試しください。")
