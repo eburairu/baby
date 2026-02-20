@@ -3,7 +3,7 @@
 ## 概要
 
 過去の育児記録をコンテキスト（RAG）として活用し、育児に関するパーソナライズされた相談ができるチャットボット機能。
-直近 7 日分の記録サマリーをシステムプロンプトに埋め込み、OpenAI GPT-4o mini が回答を生成する。
+直近 7 日分の記録サマリーをシステムプロンプトに埋め込み、高品質な LLM（Gemini 3 Pro）が回答を生成する。
 チャット履歴はセッション単位で DB に保存し、後から参照できる。
 
 ---
@@ -14,6 +14,11 @@
 - AI は医療行為を行わない。免責事項をシステムプロンプトとフロントエンドUIに明記する。
 - 会話の文脈を保つため、直近 5 件のメッセージ履歴を LLM に渡す。
 - セッションは赤ちゃん単位で管理し、複数のトピックを分けて会話できる。
+- **モデル選択の方針 (2026年2月更新)**: 
+    - Google AI Studio (Gemini) を優先プロバイダーとする。
+    - 予算（月額1,500円程度）の範囲内で、高品質な相談が可能な **Gemini 3 Pro** をデフォルトのメインモデルとする。
+    - 速度やコスト効率を重視する場合、またはバックアップとして **Gemini 3 Flash** を活用する。
+    - 入力トークンコストが低いため、過去数日間のコンテキストを含めた高品質な分析が可能。
 
 ---
 
@@ -93,7 +98,7 @@ alembic upgrade head
 | `app/models/chatbot.py` | **新規作成** | `ChatSession`, `ChatMessage` モデル |
 | `app/schemas/chatbot.py` | **新規作成** | Pydantic スキーマ |
 | `app/routers/chatbot.py` | **新規作成** | チャット API エンドポイント |
-| `app/services/chatbot.py` | **新規作成** | RAGコンテキスト生成・OpenAI 呼び出しロジック |
+| `app/services/chatbot.py` | **新規作成** | RAGコンテキスト生成・AI API 呼び出しロジック |
 | `app/models/__init__.py` | **変更** | `ChatSession`, `ChatMessage` をインポートに追加 |
 | `app/main.py` | **変更** | `chatbot` router を `include_router` |
 
@@ -183,7 +188,7 @@ class ChatSendResponse(BaseModel):
 3. `ChatSession` を DB に作成。
 4. ユーザーメッセージを `ChatMessage` として保存（`role="user"`）。
 5. RAGコンテキストを生成（後述）。
-6. OpenAI API (`gpt-4o-mini`) に送信（システムプロンプト + 会話履歴 + ユーザーメッセージ）。
+6. Gemini API (`gemini-3-pro`) に送信（システムプロンプト + 会話履歴 + ユーザーメッセージ）。
 7. AI 応答を `ChatMessage` として保存（`role="assistant"`）。
 8. `ChatSendResponse` を返す。
 
@@ -203,7 +208,7 @@ class ChatSendResponse(BaseModel):
 
 **エラーレスポンス**:
 - `400 Bad Request`: `first_message` が空
-- `503 Service Unavailable`: OpenAI API 障害
+- `503 Service Unavailable`: AI API 障害
 
 ---
 
@@ -224,7 +229,7 @@ class ChatSendResponse(BaseModel):
 3. ユーザーメッセージを `ChatMessage` として保存。
 4. 直近 5 件の会話履歴を取得して LLM に渡す。
 5. RAGコンテキストを生成（システムプロンプト再構築）。
-6. OpenAI API を呼び出し。
+6. Gemini API を呼び出し。
 7. AI 応答を `ChatMessage` として保存。
 8. `ChatSession.updated_at` を更新。
 9. `ChatSendResponse` を返す。
@@ -232,7 +237,7 @@ class ChatSendResponse(BaseModel):
 **エラーレスポンス**:
 - `400 Bad Request`: `content` が空
 - `404 Not Found`: `session_id` が存在しない・`baby_id` に属していない
-- `503 Service Unavailable`: OpenAI API 障害
+- `503 Service Unavailable`: AI API 障害
 
 ---
 
@@ -290,9 +295,28 @@ class ChatSendResponse(BaseModel):
 # app/services/chatbot.py
 
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from sqlalchemy.orm import Session
-from openai import OpenAI, APIError
+from openai import OpenAI
+
+
+def get_llm_client() -> Tuple[OpenAI, str]:
+    """(client, model_name) を返す (ai_summary と共通化を推奨)"""
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
+    api_key = os.environ.get("LLM_API_KEY")
+    model = os.environ.get("LLM_MODEL")
+
+    if provider == "google":
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        )
+        model = model or "gemini-3-pro"
+    else:
+        client = OpenAI(api_key=api_key)
+        model = model or "gpt-4o"
+
+    return client, model
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -322,9 +346,9 @@ SYSTEM_PROMPT_TEMPLATE = """あなたは育児をサポートする専門的な�
 
 def build_rag_context(db: Session, baby_id: int, baby_name: str, birth_date: str) -> str:
     """直近7日分の記録を集計してRAGコンテキスト文字列を生成する。"""
-    today = date.today()
-    week_ago = datetime.combine(today - timedelta(days=7), datetime.min.time())
-    now = datetime.combine(today, datetime.max.time())
+    JST = timezone(timedelta(hours=9))
+    now = datetime.now(JST)
+    week_ago = now - timedelta(days=7)
 
     # 授乳
     feedings = db.query(Feeding).filter(
@@ -350,15 +374,15 @@ def build_rag_context(db: Session, baby_id: int, baby_name: str, birth_date: str
     # おむつ
     diapers = db.query(Diaper).filter(
         Diaper.baby_id == baby_id,
-        Diaper.diaper_time >= week_ago,
-        Diaper.diaper_time <= now,
+        Diaper.change_time >= week_ago,
+        Diaper.change_time <= now,
     ).all()
     avg_diaper_per_day = round(len(diapers) / 7, 1)
 
     # 成長（最新1件）
     latest_growth = db.query(Growth).filter(
         Growth.baby_id == baby_id,
-    ).order_by(Growth.recorded_at.desc()).first()
+    ).order_by(Growth.date.desc()).first()
 
     lines = [
         f"・授乳: 7日間合計{feeding_count}回（1日平均{avg_feeding_per_day}回）",
@@ -367,10 +391,10 @@ def build_rag_context(db: Session, baby_id: int, baby_name: str, birth_date: str
     ]
     if latest_growth:
         growth_parts = []
-        if latest_growth.weight_kg:
-            growth_parts.append(f"体重 {latest_growth.weight_kg}kg")
-        if latest_growth.height_cm:
-            growth_parts.append(f"身長 {latest_growth.height_cm}cm")
+        if latest_growth.weight:
+            growth_parts.append(f"体重 {latest_growth.weight / 1000:.3f}kg")
+        if latest_growth.height:
+            growth_parts.append(f"身長 {latest_growth.height}cm")
         if growth_parts:
             lines.append(f"・最新成長記録: {'、'.join(growth_parts)}")
 
@@ -410,9 +434,9 @@ def build_messages_for_llm(
     return messages
 
 
-def call_openai_chat(messages: list, model_name: str = "gpt-4o-mini") -> str:
-    """OpenAI API を呼び出してアシスタント応答テキストを返す。失敗時は APIError を raise する。"""
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+def call_llm_chat(messages: list) -> str:
+    """API を呼び出してアシスタント応答テキストを返す。失敗時は例外を raise する。"""
+    client, model_name = get_llm_client()
     try:
         response = client.chat.completions.create(
             model=model_name,
@@ -421,7 +445,7 @@ def call_openai_chat(messages: list, model_name: str = "gpt-4o-mini") -> str:
             temperature=0.7,
         )
         return response.choices[0].message.content.strip()
-    except APIError as e:
+    except Exception as e:
         raise e
 ```
 
@@ -440,7 +464,9 @@ app.include_router(chatbot.router)
 
 | 変数名 | 説明 | 必須 |
 |--------|------|------|
-| `OPENAI_API_KEY` | OpenAI API キー（AI日誌生成と共用） | ✅ |
+| `LLM_API_KEY` | Gemini または OpenAI の API キー | ✅ |
+| `LLM_PROVIDER` | `google` または `openai` | ✅ |
+| `LLM_MODEL` | 使用するモデル名 (gemini-3-pro 等) | |
 
 ---
 
@@ -785,7 +811,7 @@ export function ChatInput({ onSend, disabled }: Props) {
 
 | エラー条件 | バックエンド | フロントエンド |
 |-----------|------------|--------------|
-| OpenAI API 障害 | `503 Service Unavailable` | トースト「AIサービスが一時的に利用できません」+ 入力フォームを再度有効化 |
+| AI API 障害 | `503 Service Unavailable` | トースト「AIサービスが一時的に利用できません」+ 入力フォームを再度有効化 |
 | 空メッセージ送信 | `400 Bad Request` | 送信ボタン disabled（フロント側で事前ガード） |
 | 自分のセッション以外を削除 | `403 Forbidden` | トースト「このセッションは削除できません」 |
 | 存在しないセッション | `404 Not Found` | トースト「セッションが見つかりません」 |
@@ -805,10 +831,10 @@ export function ChatInput({ onSend, disabled }: Props) {
 - [ ] マイグレーション内容確認（2テーブル新規作成のみ）
 - [ ] `alembic upgrade head` でマイグレーション適用
 - [ ] `app/schemas/chatbot.py` 作成（上記スキーマ定義）
-- [ ] `app/services/chatbot.py` 作成
+  - [ ] `app/services/chatbot.py` 作成
   - [ ] `build_rag_context()` 実装（直近7日分の記録集計）
   - [ ] `build_messages_for_llm()` 実装（システムプロンプト + 直近5件履歴）
-  - [ ] `call_openai_chat()` 実装（OpenAI 呼び出し、`APIError` を raise）
+  - [ ] `call_llm_chat()` 実装（AI API 呼び出し、例外を raise）
 - [ ] `app/routers/chatbot.py` 作成
   - [ ] `POST /api/babies/{baby_id}/chat/sessions` 実装
   - [ ] `POST /api/babies/{baby_id}/chat/sessions/{session_id}/messages` 実装
@@ -817,12 +843,11 @@ export function ChatInput({ onSend, disabled }: Props) {
   - [ ] `DELETE /api/babies/{baby_id}/chat/sessions/{session_id}` 実装（作成者 or admin のみ）
   - [ ] 全エンドポイントで `verify_baby_access()` 呼び出しを確認
   - [ ] セッションの `baby_id` 一致チェックを確認
-  - [ ] OpenAI `APIError` を 503 に変換するエラーハンドラを確認
+  - [ ] AI API 例外を 503 に変換するエラーハンドラを確認
 - [ ] `app/main.py` に `chatbot` router を登録
-- [ ] `.env` に `OPENAI_API_KEY` を設定（AI日誌と共用）
+- [ ] `.env` に `LLM_API_KEY` を設定（AI日誌と共用）
 
 ### フロントエンド
-
 - [ ] `frontend/hooks/useChatbot.ts` 作成
   - [ ] `useChatSessions()` SWR フック
   - [ ] `useChatSession()` SWR フック
@@ -857,7 +882,7 @@ export function ChatInput({ onSend, disabled }: Props) {
 ## 参照先ドキュメント
 
 - `.specify/specs/settings/baby_permissions.md` — `verify_baby_access()` の仕様
-- `.specify/specs/ai/ai_daily_summary.md` — AI日誌生成仕様（`OPENAI_API_KEY` 共用）
+- `.specify/specs/ai/ai_daily_summary.md` — AI日誌生成仕様（`LLM_API_KEY` 共用）
 - `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/feeding.py` — `Feeding` モデル
 - `app/models/sleep.py` — `Sleep` モデル
