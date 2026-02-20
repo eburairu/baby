@@ -11,6 +11,7 @@ import { ArrowRight, ShieldOff } from "lucide-react"
 import { BabyRecord } from "@/hooks/useData"
 import { FeedingType } from "@/types/feeding"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { toast } from "sonner"
 
 interface Props {
     babyId: string
@@ -55,16 +56,20 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
+        if (loading) return
         setLoading(true)
+        const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
         try {
             await api.post("/feedings/", {
                 baby_id: Number(babyId),
                 feeding_type: feedingType.toUpperCase(),
                 feeding_time: new Date().toISOString(),
             })
+            toast.success(`${typeLabel}を記録しました`)
             if (mutate) mutate()
         } catch (e) {
             console.error(e)
+            toast.error(`${typeLabel}の記録に失敗しました`)
         } finally {
             setLoading(false)
         }
@@ -110,6 +115,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         <Button
                             size="sm"
                             loading={loading}
+                            disabled={loading}
                             onClick={(e) => handleQuickRecord("bottle", e)}
                             className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
                             variant="outline"
@@ -120,6 +126,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         <Button
                             size="sm"
                             loading={loading}
+                            disabled={loading}
                             onClick={(e) => handleQuickRecord("breast", e)}
                             className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
                             variant="outline"

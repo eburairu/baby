@@ -45,6 +45,13 @@ gh pr create --base develop --title "feat: タイトル" --body "..."
 - `develop` → `main` のマージはユーザーが判断・実行する（エージェントは勝手にマージしない）
 - `main` への直接 PR は**絶対禁止**（Render デプロイに直結）
 
+### Git Worktree の強制使用（MUST）
+
+開発作業を行う際は、**必ず `sh scripts/setup_worktree.sh` を使用して `worktrees/` 配下で作業すること**。
+
+- **禁止事項**: メインリポジトリ（ルート）での直接的な `git checkout -b` やファイル編集は厳禁。
+- **目的**: 常に `develop` の最新状態をメインディレクトリに維持し、並行開発を円滑にするため。
+
 ### バックエンド変更後は openapi.json を必ず更新する
 
 `app/models/`・`app/schemas/`・`app/routers/` を変更したら**コミット前に実行**:
@@ -125,7 +132,7 @@ cat .specify/specs/**/*.md | gemini -p "実装済みの機能と未実装の機�
 gemini --yolo "
   仕様書 .specify/specs/xxx.md に基づいて実装せよ。
   完了したら sh scripts/verify_all.sh を実行し、全チェックが通るまで修正を続けよ。
-  通ったら develop に対して PR を作成し、URL を報告せよ。
+  通ったら develop に対して PR を作成し、ルートディレクトリに戻って develop をチェックアウトしてから完了報告せよ。
 "
 ```
 
@@ -181,13 +188,19 @@ git status                     # 禁止ファイルが含まれていないか�
 git commit -m "feat: 日本語で説明"
 ```
 
-**STEP 6: develop 最新化 → プッシュ → PR 作成**
+**STEP 6: develop 最新化 → プッシュ → PR 作成 → ルート復帰**
 ```bash
 git fetch origin develop && git merge origin/develop
 git push -u origin feat/xxx
 gh pr create --base develop --title "feat: タイトル（日本語）" --body "..."
+
+# 重要: PR 作成後の帰還手順
+cd ../..
+git checkout develop
+git pull origin develop
 ```
 PR の URL をユーザーに報告する。ワークツリーはユーザーの承認後に削除する。
+メインディレクトリ（ルート）が `develop` ブランチであることを確認してから完了報告を行うこと。
 
 ---
 

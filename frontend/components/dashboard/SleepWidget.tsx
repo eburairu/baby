@@ -10,6 +10,7 @@ import Link from "next/link"
 import { ArrowRight, ShieldOff } from "lucide-react"
 import { BabyRecord } from "@/hooks/useData"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { toast } from "sonner"
 
 interface Props {
     babyId: string
@@ -65,30 +66,35 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
 
 
     const handleStart = async () => {
+        if (loading) return
         setLoading(true)
         try {
             await api.post("/sleeps/", {
                 baby_id: Number(babyId),
                 start_time: new Date().toISOString(),
             })
+            toast.success("睡眠を開始しました")
             if (mutate) mutate()
         } catch (e) {
             console.error(e)
+            toast.error("睡眠の開始に失敗しました")
         } finally {
             setLoading(false)
         }
     }
 
     const handleEnd = async () => {
-        if (!activeSleep) return
+        if (!activeSleep || loading) return
         setLoading(true)
         try {
             await api.patch(`/sleeps/${activeSleep.id}`, {
                 end_time: new Date().toISOString(),
             })
+            toast.success("睡眠を終了しました")
             if (mutate) mutate()
         } catch (e) {
             console.error(e)
+            toast.error("睡眠の終了に失敗しました")
         } finally {
             setLoading(false)
         }
@@ -140,6 +146,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                     <Button
                         size="sm"
                         loading={loading}
+                        disabled={loading}
                         onClick={isSleeping ? handleEnd : handleStart}
                         className={`w-full text-xs h-8 border-0 transition-colors ${isSleeping
                             ? "bg-indigo-500 dark:bg-indigo-600 text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"

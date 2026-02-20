@@ -42,7 +42,7 @@ interface Props {
     mutate?: () => void
 }
 
-export function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props) {
+export const RecentActivityFeed = React.memo(function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props) {
     const [selectedRecord, setSelectedRecord] = useState<BabyRecord | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -153,4 +153,4 @@ export function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props
             />
         </>
     )
-}
+})
