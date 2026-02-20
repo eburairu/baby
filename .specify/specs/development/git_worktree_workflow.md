@@ -80,6 +80,9 @@ pnpm install
 git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
 
+### ⚠️ 重要: 安全な PR 作成方法
+シェルコマンドの引数で直接マルチラインの  を渡すと改行が崩れるため、**必ず  を使用**するか、一時ファイルを作成して  で指定すること。
+
 4. **ルートディレクトリへの復帰 (Return to Root)**: 
    - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
    - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
@@ -126,7 +129,10 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
 3. **プルリクエストの作成**:
    - 作業が完了し、検証が成功したことを確認後、GitHub CLI (`gh`) を使用して `develop` ブランチに対する PR を作成する。
    - まず変更をリモートにプッシュする: `git push -u origin <branch-name>`
-   - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
+   - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
+
+### ⚠️ 重要: 安全な PR 作成方法
+シェルコマンドの引数で直接マルチラインの  を渡すと改行が崩れるため、**必ず  を使用**するか、一時ファイルを作成して  で指定すること。`
 
 4. **ルートディレクトリへの復帰 (Return to Root)**: 
    - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 

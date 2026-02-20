@@ -126,6 +126,16 @@ git push origin feat/xxx
 # STEP 7: PR 作成
 gh pr create --base develop --title "feat: タイトルを日本語で" --body "..."
 
+# ⚠️ 重要: PR 作成時の注意点
+# シェルコマンドの引数で直接マルチラインの --body を渡すと改行が崩れるため、
+# 必ず  を使用するか、一時ファイルを作成して --body-file で指定すること。
+python3 scripts/create_pr.py --base develop --head feat/xxx --title "feat: 日本語" <<EOF
+## 概要
+...
+
+Closes #XXX
+EOF
+
 # STEP 8: ルートディレクトリへの復帰（重要）
 cd "$(git rev-parse --git-common-dir)/.."
 git checkout develop

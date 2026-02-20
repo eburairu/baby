@@ -40,6 +40,16 @@ feat: add notification center to header
 
 ```bash
 gh pr create --base develop --title "feat: タイトル" --body "..."
+
+**⚠️ 重要: PR 作成時の注意点**
+シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
+
+```bash
+# 推奨される作成方法（create_pr.py を使用）
+python3 scripts/create_pr.py --base develop --head feat/xxx --title "feat: 日本語" <<EOF
+## 概要\n...\n\nCloses #XXX
+EOF
+```
 ```
 
 - `develop` → `main` のマージはユーザーが判断・実行する（エージェントは勝手にマージしない）
@@ -211,6 +221,16 @@ git commit -m "feat: 日本語で説明"
 git fetch origin develop && git merge origin/develop
 git push -u origin feat/xxx
 gh pr create --base develop --title "feat: タイトル（日本語）" --body "..."
+
+**⚠️ 重要: PR 作成時の注意点**
+シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
+
+```bash
+# 推奨される作成方法（create_pr.py を使用）
+python3 scripts/create_pr.py --base develop --head feat/xxx --title "feat: 日本語" <<EOF
+## 概要\n...\n\nCloses #XXX
+EOF
+```
 
 # 重要: PR 作成後の帰還手順
 cd "$(git rev-parse --git-common-dir)/.."

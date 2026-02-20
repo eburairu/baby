@@ -1,28 +1,4 @@
-# 環境変数（シークレット含む）
+# Shared dependencies symlinks (Must not be committed)
+.venv
+node_modules
 .env
-
-# Python
-**/__pycache__/
-*.py[cod]
-**/.venv/
-*.egg-info/
-
-# フロントエンドビルド成果物
-frontend/out/
-frontend/.next/
-**/node_modules/
-
-# SQLite（ローカルテスト用）
-*.db
-
-# その他
-.DS_Store
-
-# 秘密鍵・証明書
-*.pem
-
-# Sentry Config File
-.env.sentry-build-plugin
-
-# Git Worktree
-worktrees/
