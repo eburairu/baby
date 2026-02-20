@@ -12,4 +12,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         # CSP: Allow self, unsafe-inline/eval for dev/Next.js compatibility, and common external sources for images/connect
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:;"
+
+        # Permissions Policy: Disable sensitive features by default
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), browsing-topics=(), interest-cohort=(), payment=()"
+
+        # Cache Control for API endpoints to prevent sensitive data caching
+        if request.url.path.startswith("/api/"):
+            response.headers["Cache-Control"] = "no-store"
+
         return response
