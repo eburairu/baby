@@ -191,11 +191,10 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             <div className="max-w-2xl mx-auto p-4 space-y-4">
-                {/* プロフィールカード & 赤ちゃん切替 */}
+                {/* プロフィールカード */}
                 <BabyProfileCard
                     babies={babiesWithStrId}
                     selectedBabyId={effectiveId}
-                    onSelect={(id) => setSelectedBabyId(id)}
                 />
 
                 {/* 出生前: 「生まれた！」ボタン */}

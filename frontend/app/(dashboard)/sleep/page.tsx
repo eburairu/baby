@@ -52,7 +52,6 @@ export default function SleepPage() {
                 <BabyProfileCard
                     babies={babiesWithStrId}
                     selectedBabyId={effectiveId}
-                    onSelect={(id) => setSelectedBabyId(id)}
                 />
 
                 {isAccessDenied ? (

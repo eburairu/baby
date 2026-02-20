@@ -1,7 +1,5 @@
-## 2026-02-14 - Button Accessibility and Feedback
-**Learning:** Icon-only buttons (like those using Lucide icons) are often missed by screen readers if they lack `aria-label`. Also, async actions in widgets often used `disabled={loading}` which lacks visual feedback compared to `loading={loading}` which shows a spinner.
-**Action:** Always verify icon-only buttons have `aria-label` or `title`. Prefer `loading={loading}` over `disabled={loading}` for `Button` components to provide immediate visual feedback.
+# Palette's UX Journal
 
-## 2026-02-14 - Navigation Context Awareness
-**Learning:** Users may have different mental models for "Back" vs "Menu" depending on the context. In deep hierarchies like Settings, a "Back" button is expected, while in flat feature areas (Dashboard, Feeding, etc.), a "Menu" button is preferred for lateral navigation.
-**Action:** Implement dynamic navigation headers that switch between "Back" and "Hamburger Menu" based on the current path depth and context, rather than forcing a single pattern globally.
+## 2026-02-20 - [Password Visibility Toggle Pattern]
+**Learning:** Adding a password visibility toggle requires careful positioning relative to the input field. While implementing this directly in the page works, it leads to code duplication and inconsistent positioning across different forms (Login vs Register).
+**Action:** In the future, advocate for extending the base `Input` component to support an `endAdornment` prop or creating a dedicated `PasswordInput` component in the design system to encapsulate this pattern and ensure accessibility consistency.
