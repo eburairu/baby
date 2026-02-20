@@ -226,6 +226,28 @@ class UnifiedRecord(BaseModel):
 
 ---
 
+## 既知のバグ・改善事項
+
+### モバイルでキーボード表示時に入力テキストが隠れる問題
+
+**現象**: モバイルでコメント入力欄をタップしてキーボードが表示されると、`RecordCommentDialog` 内の `Textarea` がキーボードの下に隠れて入力中のテキストが見えなくなる。
+
+**原因**: `RecordCommentDialog` が shadcn/ui の `Dialog` コンポーネントを使用しており、バーチャルキーボード表示時のビューポート縮小（`window.innerHeight` 減少）に対応していない。`DialogContent` はキーボード高さを考慮しないため、コンテンツが下にはみ出す。
+
+**修正方針**:
+
+1. **Drawer パターンの採用（モバイル）**: モバイルでは `Dialog` の代わりに `vaul` ベースの `Drawer`（shadcn/ui の `drawer` コンポーネント）を使用する。`Drawer` はスクリーン下部からスライドアップするシートとして表示されるため、キーボード表示時に自然にスクロール可能になる。
+
+2. **Responsive 切り替え**: `useMediaQuery` や `useIsMobile` フックを使って、モバイルでは `Drawer`、デスクトップでは `Dialog` を出し分ける。
+
+3. **`DialogContent` の改善（暫定案）**: `max-h-[var(--dialog-content-height,85dvh)]` + `overflow-y-auto` を付与し、`dvh`（dynamic viewport height）でキーボード表示時の高さ変化に追従させる。
+
+**対象ファイル**:
+- `frontend/components/records/RecordCommentDialog.tsx`: Drawer 対応に変更
+- `frontend/components/records/CommentSection.tsx`: 入力欄の `Textarea` にフォーカス時の `scrollIntoView` を追加（補助的）
+
+---
+
 ## 将来の拡張性（任意）
 
 - **通知**: コメントがついた際に、admin/member にプッシュ通知やメールで知らせる機能。
