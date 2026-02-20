@@ -26,11 +26,11 @@ def test_app_notification_indexes(setup_db):
     index_map = {idx["name"]: idx["column_names"] for idx in indexes}
 
     # 複合インデックスの存在確認
-    assert "idx_notification_user_created" in index_map, "idx_notification_user_created missing"
-    assert index_map["idx_notification_user_created"] == ["user_id", "created_at"]
+    assert "idx_app_notifications_user_created" in index_map, "idx_app_notifications_user_created missing"
+    assert index_map["idx_app_notifications_user_created"] == ["user_id", "created_at"]
 
-    assert "idx_notification_user_unread" in index_map, "idx_notification_user_unread missing"
-    assert index_map["idx_notification_user_unread"] == ["user_id", "is_read"]
+    assert "idx_app_notifications_user_unread" in index_map, "idx_app_notifications_user_unread missing"
+    assert index_map["idx_app_notifications_user_unread"] == ["user_id", "is_read"]
 
     # user_id単体のインデックスも確認
     # 名前は環境依存の可能性があるため、カラム構成で探す
