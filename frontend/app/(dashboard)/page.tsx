@@ -51,7 +51,24 @@ export default function Dashboard() {
     const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(effectiveId)
 
     const handleAddBaby = async (e: React.FormEvent) => {
-        // ... (保持)
+        e.preventDefault()
+        if (!newBabyName) return
+        setSubmitting(true)
+        try {
+            setError(null)
+            const body: Record<string, string> = { name: newBabyName, gender: newBabyGender }
+            if (newBabyBirthday) body.birthday = newBabyBirthday
+            await api.post("/babies/", body)
+            setNewBabyName("")
+            setNewBabyBirthday("")
+            setNewBabyGender("unknown")
+            mutateBabies()
+        } catch (err: unknown) {
+            console.error("赤ちゃんの追加に失敗しました", err)
+            setError(isApiError(err) ? ((err.info as { detail?: string })?.detail || "赤ちゃんの追加に失敗しました") : "赤ちゃんの追加に失敗しました")
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     if (babiesLoading || permsLoading) {

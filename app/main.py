@@ -63,6 +63,14 @@ async def health_check():
     return {"status": "ok"}
 
 
+@app.get("/ads.txt", include_in_schema=False)
+async def serve_ads_txt():
+    ads_txt_path = os.path.join(frontend_build_path, "ads.txt")
+    if os.path.exists(ads_txt_path):
+        return FileResponse(ads_txt_path)
+    return {"error": "ads.txt not found"}
+
+
 @app.get("/{full_path:path}", include_in_schema=False)
 async def serve_frontend(full_path: str):
     if not os.path.exists(frontend_build_path):
