@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
@@ -29,9 +29,10 @@ import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 interface Props {
     babyId: string
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
-export function SleepHistory({ babyId, canWrite = true }: Props) {
+export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }: Props) {
     const { user } = useUser()
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
@@ -39,10 +40,21 @@ export function SleepHistory({ babyId, canWrite = true }: Props) {
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
 
     const history = useMemo(() => {
         return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
     }, [sleeps])
+
+    useEffect(() => {
+        if (initialCommentRecordId && history && history.length > 0 && !initializedRef.current) {
+            const target = history.find(s => s.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                setCommentTarget({ id: target.id, title: `睡眠 ${format(new Date(target.start_time), "M/d HH:mm", { locale: ja })}` })
+            }
+        }
+    }, [initialCommentRecordId, history])
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return

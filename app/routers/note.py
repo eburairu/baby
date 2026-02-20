@@ -83,7 +83,7 @@ def create_note(
             current_user.id,
             title="メモの投稿",
             body=f"{display_name}さんが新しいメモを投稿しました。",
-            url=f"/note",
+            url=f"/note?baby_id={baby.id}",
             category="family_record"
         )
 

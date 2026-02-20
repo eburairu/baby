@@ -297,6 +297,32 @@ async def notify_reminder(
 
 記録保存の各エンドポイント（`app/routers/feeding.py` 等）において、DB へのコミット後に `notify_family_record()` を非同期で呼び出す。
 
+### 6.4 通知 URL 設計
+
+通知の `url` フィールドは、ユーザーが通知をタップした際の遷移先を示す。以下のパターンで設計する。
+
+| 通知 type | URL パターン | 遷移先の挙動 |
+|-----------|-------------|-------------|
+| `family_record` | `/{record_type}` | 該当の記録一覧ページへ遷移 |
+| `comment` | `/{record_type}?comment={record_id}` | 該当記録のコメントダイアログを自動起動 |
+| `daily_summary` | `/diary` | AI 日誌ページへ遷移 |
+| `feeding_reminder` | `/feeding` | 授乳記録一覧ページへ遷移 |
+| `diaper_reminder` | `/diaper` | おむつ記録一覧ページへ遷移 |
+| `system` | 任意（省略時は `null`） | URLが `null` の場合は遷移しない |
+
+**`{record_type}` の対応表**:
+
+| 記録種別 | `record_type` | フロントエンド URL |
+|---------|--------------|-----------------|
+| 授乳 | `feeding` | `/feeding` |
+| 睡眠 | `sleep` | `/sleep` |
+| おむつ | `diaper` | `/diaper` |
+| 成長 | `growth` | `/growth` |
+| 陣痛 | `contraction` | `/contraction` |
+| メモ | `note` | `/note` |
+
+> **注意**: 授乳記録の URL は `/babies/{id}/feedings` ではなく `/feeding` を使用する（フロントエンドに `/babies/[id]/feedings` ルートは存在しない）。
+
 ---
 
 ## 7. 実装ステップ

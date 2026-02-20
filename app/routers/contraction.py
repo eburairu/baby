@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 from datetime import timezone, timedelta
 
@@ -18,9 +19,10 @@ JST = timezone(timedelta(hours=9))
 _MAX_INTERVAL_SECONDS = 3600  # 1時間超は新セッションとして扱わない
 
 
-def _build_contraction_response(record: Contraction, user_map: dict) -> ContractionResponse:
+def _build_contraction_response(record: Contraction, user_map: dict, comment_count_map: dict) -> ContractionResponse:
     r = ContractionResponse.model_validate(record)
     r.recorded_by_display_name = user_map.get(record.user_id)
+    r.comment_count = comment_count_map.get(record.id, 0)
     return r
 
 
@@ -28,10 +30,18 @@ def _build_contraction_response(record: Contraction, user_map: dict) -> Contract
 def get_contractions(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="contraction")
     records = db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).all()
+    record_ids = [r.id for r in records]
+    comment_count_map: dict = {}
+    if record_ids:
+        rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
+            RecordComment.record_type == "contraction",
+            RecordComment.record_id.in_(record_ids)
+        ).group_by(RecordComment.record_id).all()
+        comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}
     users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
     user_map = {u.id: u.display_name or u.username for u in users}
-    return [_build_contraction_response(r, user_map) for r in records]
+    return [_build_contraction_response(r, user_map, comment_count_map) for r in records]
 
 
 def _calculate_interval_seconds(current_start: object, last_start: object) -> int | None:
@@ -81,7 +91,7 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
             current_user.id,
             title="陣痛タイマー",
             body=f"{display_name}さんが陣痛を計測しました。",
-            url=f"/contraction",
+            url=f"/contraction?baby_id={baby.id}",
             category="family_record"
         )
 

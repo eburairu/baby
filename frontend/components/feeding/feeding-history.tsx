@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Feeding } from "@/types/feeding";
@@ -25,6 +25,7 @@ interface FeedingHistoryProps {
     onDelete: (id: number) => Promise<void>;
     onRefresh?: () => void;
     canWrite?: boolean;
+    initialCommentRecordId?: number | null;
 }
 
 const BOTTLE_CONTENT_LABEL: Record<string, string> = {
@@ -56,11 +57,22 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
     return null;
 }
 
-export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true }: FeedingHistoryProps) {
+export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true, initialCommentRecordId }: FeedingHistoryProps) {
     const { user } = useUser();
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null);
+    const initializedRef = useRef(false);
+
+    useEffect(() => {
+        if (initialCommentRecordId && feedings.length > 0 && !initializedRef.current) {
+            const target = feedings.find(f => f.id === initialCommentRecordId);
+            if (target) {
+                initializedRef.current = true;
+                setCommentTarget({ id: target.id, title: `授乳 ${format(new Date(target.feeding_time), "HH:mm", { locale: ja })}` });
+            }
+        }
+    }, [initialCommentRecordId, feedings]);
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return;

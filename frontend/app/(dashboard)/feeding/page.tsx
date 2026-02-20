@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Baby as BabyIcon } from "lucide-react"
 import Link from "next/link"
 
@@ -21,12 +21,16 @@ import { isApiError } from "@/lib/api"
 
 export default function FeedingPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const commentRecordId = searchParams.get("comment")
+    const commentBabyId = searchParams.get("baby_id")
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId } = useBabyStore()
     const { canWrite } = usePermissions()
 
     // Default to first baby, prefer store selection
-    const effectiveBabyIdStr = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    // baby_id from URL takes priority (e.g. from notification link)
+    const effectiveBabyIdStr = commentBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
     const babyId = effectiveBabyIdStr ? parseInt(effectiveBabyIdStr, 10) : null
 
     const {
@@ -80,6 +84,7 @@ export default function FeedingPage() {
                             onDelete={deleteFeeding}
                             onRefresh={refreshFeedings}
                             canWrite={canWrite}
+                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
                         />
                     </>
                 )}

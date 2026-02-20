@@ -70,7 +70,7 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
             current_user.id,
             title="オムツの記録",
             body=f"{display_name}さんが{baby.name}のオムツを替えました。",
-            url=f"/diaper",
+            url=f"/diaper?baby_id={baby.id}",
             category="family_record"
         )
 
