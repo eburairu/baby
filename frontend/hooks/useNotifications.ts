@@ -54,11 +54,5 @@ export async function markAsRead(id: number): Promise<AppNotification> {
 }
 
 export async function markAllAsRead(): Promise<void> {
-    const res = await fetch(`${API_BASE}/notifications/read-all`, {
-        method: "PATCH",
-        credentials: "include",
-    })
-    if (!res.ok) {
-        throw new ApiError("Failed to mark all notifications as read", res.statusText, res.status)
-    }
+    await api.patch<void, Record<string, never>>(`/notifications/read-all`, {})
 }

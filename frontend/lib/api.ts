@@ -36,6 +36,7 @@ export const fetcher = async <T = unknown>(url: string): Promise<T> => {
             res.status
         );
     }
+    if (res.status === 204) return null as T;
     return res.json() as Promise<T>;
 };
 
@@ -52,6 +53,7 @@ export const api = {
         if (!res.ok) {
             throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
+        if (res.status === 204) return null as TRes;
         return res.json() as Promise<TRes>;
     },
     put: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
@@ -66,6 +68,7 @@ export const api = {
         if (!res.ok) {
             throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
+        if (res.status === 204) return null as TRes;
         return res.json() as Promise<TRes>;
     },
     patch: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
@@ -80,6 +83,7 @@ export const api = {
         if (!res.ok) {
             throw new ApiError('API Error', await parseErrorBody(res), res.status);
         }
+        if (res.status === 204) return null as TRes;
         return res.json() as Promise<TRes>;
     },
     delete: async <TRes = unknown>(url: string): Promise<TRes | null> => {
