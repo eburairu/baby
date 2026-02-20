@@ -1,5 +1,6 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/hooks/useAuth"
@@ -12,9 +13,12 @@ import { BabyDeleteDialog } from "@/components/settings/BabyDeleteDialog"
 import { UserRole } from "@/lib/constants"
 import { Baby } from "@/types/baby"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
+import { usePermissions } from "@/hooks/usePermissions"
 
 export default function BabySettingsPage() {
     const { user, isLoading: userLoading } = useUser()
+    const { isAdmin } = usePermissions()
+    const router = useRouter()
     const { babies, isLoading: babiesLoading, mutate } = useBabies()
     const { members, isLoading: membersLoading } = useFamilyMembers()
 
@@ -22,7 +26,14 @@ export default function BabySettingsPage() {
     const [deleteTarget, setDeleteTarget] = useState<Baby | null>(null)
     const [addOpen, setAddOpen] = useState(false)
 
-    if (userLoading || babiesLoading || membersLoading) {
+    // 管理者以外はリダイレクト
+    useEffect(() => {
+        if (!userLoading && !isAdmin) {
+            router.push("/")
+        }
+    }, [userLoading, isAdmin, router])
+
+    if (userLoading || babiesLoading || membersLoading || !isAdmin) {
         return (
             <div className="flex items-center justify-center min-h-64 text-gray-400">
                 読み込み中...
@@ -31,9 +42,6 @@ export default function BabySettingsPage() {
     }
 
     if (!user) return null
-
-    const currentMember = members?.find((m) => m.username === user.username)
-    const isAdmin = currentMember?.role === UserRole.ADMIN
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">

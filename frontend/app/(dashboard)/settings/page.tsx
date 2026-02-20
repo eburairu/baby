@@ -58,7 +58,7 @@ const menuItems = [
         description: "赤ちゃんの情報追加・編集・削除",
         color: "text-pink-500",
         bg: "bg-pink-50 dark:bg-pink-950/30",
-        adminOnly: false,
+        adminOnly: true,
     },
     {
         href: "/settings/permissions",
