@@ -213,7 +213,7 @@ git push -u origin feat/xxx
 gh pr create --base develop --title "feat: タイトル（日本語）" --body "..."
 
 # 重要: PR 作成後の帰還手順
-cd ../..
+cd "$(git rev-parse --git-common-dir)/.."
 git checkout develop
 git pull origin develop
 ```

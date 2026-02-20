@@ -127,7 +127,7 @@ git push origin feat/xxx
 gh pr create --base develop --title "feat: タイトルを日本語で" --body "..."
 
 # STEP 8: ルートディレクトリへの復帰（重要）
-cd ../..
+cd "$(git rev-parse --git-common-dir)/.."
 git checkout develop
 git pull origin develop
 

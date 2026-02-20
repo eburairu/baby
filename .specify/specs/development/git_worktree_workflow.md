@@ -81,7 +81,7 @@ git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
 
 4. **ルートディレクトリへの復帰 (Return to Root)**: 
-   - PR 作成後、直ちにルートディレクトリに移動する: `cd ../..` 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
    - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
    - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
 
@@ -129,13 +129,13 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
    - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
 
 4. **ルートディレクトリへの復帰 (Return to Root)**: 
-   - PR 作成後、直ちにルートディレクトリに移動する: `cd ../..` 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
    - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
    - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
 
 
 4. **ルートディレクトリへの復帰 (Return to Root)**:
-   - PR 作成後、直ちにルートディレクトリに移動する: `cd ../..`
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."`
    - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop`
    - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。
 
