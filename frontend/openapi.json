@@ -809,6 +809,11 @@
             "title": "Change Time",
             "type": "string"
           },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
           "diaper_type": {
             "$ref": "#/components/schemas/DiaperType"
           },
@@ -1157,6 +1162,11 @@
               }
             ]
           },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
           "duration_minutes": {
             "anyOf": [
               {
@@ -1450,6 +1460,11 @@
             "title": "Baby Id",
             "type": "integer"
           },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
           "date": {
             "format": "date",
             "title": "Date",
@@ -1660,6 +1675,11 @@
         "properties": {
           "baby_id": {
             "title": "Baby Id",
+            "type": "integer"
+          },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
             "type": "integer"
           },
           "content": {
@@ -2159,6 +2179,11 @@
         "properties": {
           "baby_id": {
             "title": "Baby Id",
+            "type": "integer"
+          },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
             "type": "integer"
           },
           "end_time": {

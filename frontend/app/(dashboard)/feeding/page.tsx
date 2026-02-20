@@ -35,7 +35,8 @@ export default function FeedingPage() {
         error: feedingError,
         summary,
         addFeeding,
-        deleteFeeding
+        deleteFeeding,
+        refresh: refreshFeedings,
     } = useFeeding(babyId)
 
     if (babiesLoading) {
@@ -77,6 +78,7 @@ export default function FeedingPage() {
                         <FeedingHistory
                             feedings={feedings || []}
                             onDelete={deleteFeeding}
+                            onRefresh={refreshFeedings}
                             canWrite={canWrite}
                         />
                     </>

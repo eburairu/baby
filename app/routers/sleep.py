@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -14,9 +15,10 @@ from app.models.baby import Baby
 router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
 
-def _build_sleep_response(record: Sleep, user_map: dict) -> SleepResponse:
+def _build_sleep_response(record: Sleep, user_map: dict, comment_count_map: dict) -> SleepResponse:
     r = SleepResponse.model_validate(record)
     r.recorded_by_display_name = user_map.get(record.user_id)
+    r.comment_count = comment_count_map.get(record.id, 0)
     return r
 
 
@@ -24,10 +26,18 @@ def _build_sleep_response(record: Sleep, user_map: dict) -> SleepResponse:
 def get_sleeps(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="sleep")
     records = db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).all()
+    record_ids = [r.id for r in records]
+    comment_count_map: dict = {}
+    if record_ids:
+        rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
+            RecordComment.record_type == "sleep",
+            RecordComment.record_id.in_(record_ids)
+        ).group_by(RecordComment.record_id).all()
+        comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}
     users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
     user_map = {u.id: u.display_name or u.username for u in users}
-    return [_build_sleep_response(r, user_map) for r in records]
+    return [_build_sleep_response(r, user_map, comment_count_map) for r in records]
 
 
 @router.post("/", response_model=SleepResponse)

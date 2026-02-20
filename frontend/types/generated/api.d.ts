@@ -1109,6 +1109,11 @@ export interface components {
              * Format: date-time
              */
             change_time: string;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             diaper_type: components["schemas"]["DiaperType"];
             /** Id */
             id: number;
@@ -1211,6 +1216,11 @@ export interface components {
             /** Baby Id */
             baby_id: number;
             bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** Duration Minutes */
             duration_minutes?: number | null;
             feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
@@ -1281,6 +1291,11 @@ export interface components {
             /** Baby Id */
             baby_id: number;
             /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
+            /**
              * Date
              * Format: date
              */
@@ -1343,6 +1358,11 @@ export interface components {
         NoteResponse: {
             /** Baby Id */
             baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** Content */
             content: string;
             /**
@@ -1523,6 +1543,11 @@ export interface components {
         SleepResponse: {
             /** Baby Id */
             baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** End Time */
             end_time?: string | null;
             /** Id */

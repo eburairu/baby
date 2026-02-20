@@ -2,10 +2,12 @@
 import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, User } from "lucide-react"
+import { Trash2, Pencil, User, MessageCircle } from "lucide-react"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DiaperEditDialog } from "./DiaperEditDialog"
+import { useUser } from "@/hooks/useAuth"
+import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -35,10 +37,12 @@ interface Props {
 }
 
 export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Props) {
+    const { user } = useUser()
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return
@@ -131,6 +135,13 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                                                 {diaper.recorded_by_display_name}
                                             </div>
                                         ) : null}
+                                        <button
+                                            onClick={() => setCommentTarget({ id: diaper.id, title: `${style.label} ${formatDate(diaper.change_time)}` })}
+                                            className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5"
+                                        >
+                                            <MessageCircle className="w-3 h-3" />
+                                            {(diaper.comment_count ?? 0) > 0 && <span>{diaper.comment_count}</span>}
+                                        </button>
                                     </div>
                                 </div>
                                 {canWrite ? (
@@ -183,6 +194,19 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true }: Pro
                 onOpenChange={setEditOpen}
                 onSuccess={onDeleteSuccess} // Re-use refresh callback
             />
+
+            {/* コメントダイアログ */}
+            {commentTarget && (
+                <RecordCommentDialog
+                    open={commentTarget !== null}
+                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    recordType="diaper"
+                    recordId={commentTarget.id}
+                    title={commentTarget.title}
+                    currentUserId={user?.id}
+                    onCommentChange={onDeleteSuccess}
+                />
+            )}
         </>
     )
 }
