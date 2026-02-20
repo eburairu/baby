@@ -4,13 +4,13 @@
 # Python
 **/__pycache__/
 *.py[cod]
-**/.venv/
+**/.venv
 *.egg-info/
 
 # フロントエンドビルド成果物
 frontend/out/
 frontend/.next/
-**/node_modules/
+**/node_modules
 
 # SQLite（ローカルテスト用）
 *.db
