@@ -27,3 +27,8 @@
 **Vulnerability:** The login endpoint (`/api/auth/login`) was vulnerable to user enumeration via timing attacks. When a user was not found, the function returned immediately without verifying a password hash, whereas a valid user (with incorrect password) would undergo a time-consuming bcrypt verification. This difference in response time allowed attackers to determine if a username exists.
 **Learning:** Security controls like password hashing can introduce side channels if not applied consistently. Always ensure that sensitive operations like authentication take a similar amount of time regardless of the outcome (success/failure).
 **Prevention:** Implemented a dummy hash verification that runs when a user is not found, ensuring that `verify_password` is called in both scenarios to equalize execution time.
+
+## 2026-03-02 - Enhancing Security Headers
+**Vulnerability:** Missing `Permissions-Policy` allowed potential access to sensitive browser features. API endpoints lacked `Cache-Control: no-store`, risking sensitive data caching.
+**Learning:** Defense in depth includes proactively disabling unused browser features and strictly controlling caching for authenticated APIs.
+**Prevention:** Added `Permissions-Policy` to disable camera/mic/geo by default. Added `Cache-Control: no-store` middleware for `/api/` routes.

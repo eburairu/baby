@@ -20,3 +20,26 @@ def test_security_headers():
     assert "default-src 'self'" in csp
     assert "script-src 'self' 'unsafe-inline' 'unsafe-eval'" in csp
     assert "img-src 'self' data: https:" in csp
+
+    # Permissions Policy
+    permissions = headers.get("Permissions-Policy")
+    assert permissions is not None
+    assert "camera=()" in permissions
+    assert "microphone=()" in permissions
+    assert "geolocation=()" in permissions
+    assert "browsing-topics=()" in permissions
+
+    # Cache Control for API endpoints
+    assert headers.get("Cache-Control") == "no-store"
+
+def test_security_headers_non_api():
+    """Verify that non-API endpoints do not get the no-store Cache-Control header."""
+    response = client.get("/robots.txt") # Random non-api path
+
+    # Permissions Policy should be present everywhere
+    assert response.headers.get("Permissions-Policy") is not None
+
+    # Cache-Control should NOT be 'no-store' for non-API routes
+    cache_control = response.headers.get("Cache-Control")
+    if cache_control:
+        assert "no-store" not in cache_control
