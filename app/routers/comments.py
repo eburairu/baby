@@ -147,7 +147,7 @@ def delete_comment(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if comment.user_id != current_user.id and family_user.role != UserRole.ADMIN:
+    if comment.user_id != current_user.id and (family_user is None or family_user.role != UserRole.ADMIN):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
 
     db.delete(comment)
