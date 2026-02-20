@@ -85,3 +85,10 @@ def auth_client(client):
         assert "access_token" in client.cookies, "No access token in cookies after login"
         return client
     return _auth
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    """Reset the rate limiter before each test to prevent test interference."""
+    from app.routers.auth import login_limiter
+    login_limiter.requests.clear()
