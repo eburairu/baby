@@ -12,6 +12,7 @@ import { BabyRecord } from "@/hooks/useData"
 import { FeedingType } from "@/types/feeding"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { toast } from "sonner"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 interface Props {
     babyId: string
@@ -24,6 +25,7 @@ interface Props {
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
+    const { triggerFeedback } = useRecordFeedback(babyId)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
 
@@ -60,12 +62,13 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         setLoading(true)
         const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
         try {
-            await api.post("/feedings/", {
+            const record = await api.post<{ id: number }>("/feedings/", {
                 baby_id: Number(babyId),
                 feeding_type: feedingType.toUpperCase(),
                 feeding_time: new Date().toISOString(),
             })
             toast.success(`${typeLabel}を記録しました`)
+            triggerFeedback("feeding", record.id)
             if (mutate) mutate()
         } catch (e) {
             console.error(e)
