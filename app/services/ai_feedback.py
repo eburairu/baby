@@ -221,6 +221,7 @@ def generate_record_feedback(
                 ],
                 max_tokens=300,
                 temperature=0.5,
+                response_format={"type": "json_object"},
             )
             break
         except openai.RateLimitError as e:
