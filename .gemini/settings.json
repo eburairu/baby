@@ -1,5 +1,20 @@
 {
   "experimental": {
     "enableAgents": true
+  },
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "write_file|replace",
+        "hooks": [
+          {
+            "name": "ai-worktree-guardrail",
+            "type": "command",
+            "command": "node scripts/ai_guardrail.js",
+            "description": "AI エージェントがワークツリー外でファイルを編集することを阻止します"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -79,6 +79,12 @@ pnpm install
 ```bash
 git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
+
+4. **ルートディレクトリへの復帰 (Return to Root)**: 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd ../..` 
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
+
 ```
 
 5. **最終レビューと待機**: PR作成後、`spec-checker` による最終レビューを受け、ユーザーのフィードバックやコードレビューに対応できるよう、環境を維持する。
@@ -121,6 +127,12 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
    - 作業が完了し、検証が成功したことを確認後、GitHub CLI (`gh`) を使用して `develop` ブランチに対する PR を作成する。
    - まず変更をリモートにプッシュする: `git push -u origin <branch-name>`
    - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
+
+4. **ルートディレクトリへの復帰 (Return to Root)**: 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd ../..` 
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
+
 
 4. **ルートディレクトリへの復帰 (Return to Root)**:
    - PR 作成後、直ちにルートディレクトリに移動する: `cd ../..`
