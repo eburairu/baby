@@ -40,6 +40,7 @@ feat: add notification center to header
 
 ```bash
 gh pr create --base develop --title "feat: タイトル" --body "..."
+```
 
 **⚠️ 重要: PR 作成時の注意点**
 シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
@@ -47,7 +48,10 @@ gh pr create --base develop --title "feat: タイトル" --body "..."
 ```bash
 # 推奨される作成方法（create_pr.py を使用）
 python3 scripts/create_pr.py --base develop --head feat/xxx --title "feat: 日本語" <<EOF
-## 概要\n...\n\nCloses #XXX
+## 概要
+...
+
+Closes #XXX
 EOF
 ```
 ```
@@ -155,11 +159,6 @@ gemini --resume latest
 # セッション一覧を確認
 gemini --list-sessions
 
-### AI エージェント専用ガードレール（Mandatory）
-
-Gemini CLI には **BeforeTool フック** (`.gemini/settings.json`) が設定されており、AI エージェントが `/worktrees/` 配下以外で `write_file` や `replace` を実行しようとすると、ツール自体の実行が自動的にブロックされる。
-
-開発作業を行う際は、必ず `sh scripts/setup_worktree.sh` を使用してワークツリーを作成し、そのディレクトリ内で作業すること。
 ```
 
 ### AI エージェント専用ガードレール（Mandatory）
@@ -228,7 +227,10 @@ gh pr create --base develop --title "feat: タイトル（日本語）" --body "
 ```bash
 # 推奨される作成方法（create_pr.py を使用）
 python3 scripts/create_pr.py --base develop --head feat/xxx --title "feat: 日本語" <<EOF
-## 概要\n...\n\nCloses #XXX
+## 概要
+...
+
+Closes #XXX
 EOF
 ```
 

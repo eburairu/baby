@@ -81,7 +81,7 @@ git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
 
 ### ⚠️ 重要: 安全な PR 作成方法
-シェルコマンドの引数で直接マルチラインの  を渡すと改行が崩れるため、**必ず  を使用**するか、一時ファイルを作成して  で指定すること。
+シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
 
 4. **ルートディレクトリへの復帰 (Return to Root)**: 
    - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
@@ -132,13 +132,7 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
    - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
 
 ### ⚠️ 重要: 安全な PR 作成方法
-シェルコマンドの引数で直接マルチラインの  を渡すと改行が崩れるため、**必ず  を使用**するか、一時ファイルを作成して  で指定すること。`
-
-4. **ルートディレクトリへの復帰 (Return to Root)**: 
-   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
-   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
-   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
-
+シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
 
 4. **ルートディレクトリへの復帰 (Return to Root)**:
    - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."`
