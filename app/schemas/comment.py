@@ -13,9 +13,11 @@ class CommentCreate(CommentBase):
 
 class CommentResponse(CommentBase):
     id: int
-    user_id: int
+    user_id: Optional[int]
     user_display_name: Optional[str]
     user_role: str  # "admin", "member", "viewer"
     created_at: datetime
+    is_ai_generated: bool = False
+    ai_has_concern: Optional[bool] = None
 
     model_config = ConfigDict(from_attributes=True)

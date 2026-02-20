@@ -60,15 +60,29 @@ def get_record_comments(
     # Get roles for each commenter
     results = []
     for c in comments:
-        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == c.user_id).first()
-        results.append(CommentResponse(
-            id=c.id,
-            user_id=c.user_id,
-            user_display_name=c.user.display_name or c.user.username,
-            user_role=family_user.role if family_user else "unknown",
-            content=c.content,
-            created_at=c.created_at
-        ))
+        if c.is_ai_generated:
+            results.append(CommentResponse(
+                id=c.id,
+                user_id=None,
+                user_display_name="AIフィードバック",
+                user_role="ai",
+                content=c.content,
+                created_at=c.created_at,
+                is_ai_generated=True,
+                ai_has_concern=c.ai_has_concern,
+            ))
+        else:
+            family_user = db.query(FamilyUser).filter(FamilyUser.user_id == c.user_id).first()
+            results.append(CommentResponse(
+                id=c.id,
+                user_id=c.user_id,
+                user_display_name=c.user.display_name or c.user.username if c.user else None,
+                user_role=family_user.role if family_user else "unknown",
+                content=c.content,
+                created_at=c.created_at,
+                is_ai_generated=False,
+                ai_has_concern=None,
+            ))
     return results
 
 
@@ -116,7 +130,9 @@ def create_record_comment(
         user_display_name=current_user.display_name or current_user.username,
         user_role=family_user.role if family_user else "unknown",
         content=new_comment.content,
-        created_at=new_comment.created_at
+        created_at=new_comment.created_at,
+        is_ai_generated=False,
+        ai_has_concern=None,
     )
 
 
@@ -130,8 +146,11 @@ def delete_comment(
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
 
+    # コメントに紐づく baby へのアクセス権を検証（ファミリー間の分離を保証）
+    verify_baby_access(db, comment.baby_id, current_user.id)
+
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if comment.user_id != current_user.id and family_user.role != UserRole.ADMIN:
+    if comment.user_id != current_user.id and (family_user is None or family_user.role != UserRole.ADMIN):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
 
     db.delete(comment)
