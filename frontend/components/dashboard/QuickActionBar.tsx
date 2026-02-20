@@ -45,8 +45,8 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
             } else if (type === "diaper_wet" || type === "diaper_dirty") {
                 await api.post("/diapers/", {
                     baby_id: Number(babyId),
-                    condition: type === "diaper_wet" ? "WET" : "DIRTY",
-                    recorded_at: new Date().toISOString(),
+                    diaper_type: type === "diaper_wet" ? "WET" : "DIRTY",
+                    change_time: new Date().toISOString(),
                 })
             }
             if (mutateRecords) mutateRecords()
