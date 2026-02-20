@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def get_llm_client() -> Tuple[OpenAI, str]:
     """(client, model_name) を返す"""
-    provider = os.environ.get("LLM_PROVIDER", "openai").lower()
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
     model = os.environ.get("LLM_MODEL")
 
@@ -25,10 +25,10 @@ def get_llm_client() -> Tuple[OpenAI, str]:
             api_key=api_key,
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
-        model = model or "gemini-2.0-flash"
+        model = model or "gemini-3-pro"
     else:
         client = OpenAI(api_key=api_key)
-        model = model or "gpt-4o-mini"
+        model = model or "gpt-4o"
 
     return client, model
 
