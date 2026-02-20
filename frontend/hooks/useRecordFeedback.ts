@@ -26,7 +26,7 @@ export function useRecordFeedback(babyId: number | string | null) {
       setError(null);
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
+      const timeout = setTimeout(() => controller.abort(), 30000);
 
       try {
         await api.post<FeedbackResponse>(
