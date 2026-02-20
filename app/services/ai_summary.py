@@ -25,7 +25,7 @@ def get_llm_client() -> Tuple[OpenAI, str]:
             api_key=api_key,
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
-        model = model or "gemini-3-pro"
+        model = model or "gemini-2.0-flash"
     else:
         client = OpenAI(api_key=api_key)
         model = model or "gpt-4o"

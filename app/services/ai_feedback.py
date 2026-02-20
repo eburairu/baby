@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
@@ -207,15 +208,27 @@ def generate_record_feedback(
     prompt = build_feedback_prompt(db, baby_id, baby_name, record_type, record_id)
     client, model_name = get_llm_client()
 
-    response = client.chat.completions.create(
-        model=model_name,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
-        ],
-        max_tokens=300,
-        temperature=0.5,
-    )
+    last_error: Exception = RuntimeError("no attempts made")
+    for attempt in range(3):
+        if attempt > 0:
+            time.sleep(2 ** attempt)  # 2s, 4s
+        try:
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=300,
+                temperature=0.5,
+                response_format={"type": "json_object"},
+            )
+            break
+        except openai.RateLimitError as e:
+            logger.warning("Rate limit on attempt %d: %s", attempt + 1, e)
+            last_error = e
+    else:
+        raise last_error
 
     raw = (response.choices[0].message.content or "").strip()
 
