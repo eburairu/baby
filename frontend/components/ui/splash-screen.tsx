@@ -44,8 +44,11 @@ export function SplashScreen() {
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                     >
-                        <BabyBottleLoading className="w-24 h-24 text-primary" />
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground/80 mt-2 font-geist-sans">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-indigo-400 blur-2xl opacity-20 rounded-full animate-pulse" />
+                            <BabyBottleLoading className="w-28 h-28 text-indigo-500 dark:text-indigo-400 relative z-10" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mt-2 font-geist-sans drop-shadow-sm">
                             Baby App
                         </h1>
                     </motion.div>
