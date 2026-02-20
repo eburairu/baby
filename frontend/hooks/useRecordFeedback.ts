@@ -31,7 +31,8 @@ export function useRecordFeedback(babyId: number | string | null) {
       try {
         await api.post<FeedbackResponse>(
           `/babies/${babyId}/record-feedback`,
-          { record_type: recordType, record_id: recordId }
+          { record_type: recordType, record_id: recordId },
+          { signal: controller.signal }
         );
 
         // コメント一覧のSWRキャッシュを更新して自動再取得

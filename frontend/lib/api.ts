@@ -41,7 +41,7 @@ export const fetcher = async <T = unknown>(url: string): Promise<T> => {
 };
 
 export const api = {
-    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
+    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: { signal?: AbortSignal }): Promise<TRes> => {
         const res = await fetch(`${API_BASE}${url}`, {
             method: 'POST',
             headers: {
@@ -49,6 +49,7 @@ export const api = {
             },
             body: JSON.stringify(body),
             credentials: 'include',
+            signal: options?.signal,
         });
         if (!res.ok) {
             throw new ApiError('API Error', await parseErrorBody(res), res.status);
