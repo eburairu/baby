@@ -1,4 +1,6 @@
 "use client"
+import { memo } from "react"
+import { areRecordsEqual } from "@/lib/memoUtils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -14,7 +16,7 @@ interface Props {
     isLoading?: boolean
 }
 
-export function GrowthWidget({ babyId, records, isError, isLoading }: Props) {
+export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isError, isLoading }: Props) {
     const isAccessDenied = isApiError(isError) && isError.status === 403
 
     if (isAccessDenied) {
@@ -82,4 +84,9 @@ export function GrowthWidget({ babyId, records, isError, isLoading }: Props) {
             </CardContent>
         </Card>
     )
-}
+}, (prev, next) => {
+    if (prev.isLoading !== next.isLoading) return false
+    if (prev.isError !== next.isError) return false
+    if (prev.babyId !== next.babyId) return false
+    return areRecordsEqual(prev.records, next.records, 'growth')
+})

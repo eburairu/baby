@@ -1,5 +1,6 @@
 "use client"
-import { useState, useMemo } from "react"
+import { useState, useMemo, memo } from "react"
+import { areRecordsEqual } from "@/lib/memoUtils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
@@ -19,7 +20,7 @@ interface Props {
     isLoading?: boolean
 }
 
-export function FeedingWidget({ babyId, records, isError, mutate, isLoading }: Props) {
+export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -131,4 +132,10 @@ export function FeedingWidget({ babyId, records, isError, mutate, isLoading }: P
             </CardContent>
         </Card>
     )
-}
+}, (prev, next) => {
+    if (prev.isLoading !== next.isLoading) return false
+    if (prev.isError !== next.isError) return false
+    if (prev.babyId !== next.babyId) return false
+    if (prev.mutate !== next.mutate) return false
+    return areRecordsEqual(prev.records, next.records, 'feeding')
+})
