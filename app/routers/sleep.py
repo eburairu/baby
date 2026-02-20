@@ -64,7 +64,7 @@ def create_sleep(sleep_in: SleepCreate, db: Session = Depends(get_db), current_u
             current_user.id,
             title="睡眠の記録",
             body=f"{display_name}さんが{baby.name}の睡眠を記録しました。",
-            url=f"/sleep",
+            url=f"/sleep?baby_id={baby.id}",
             category="family_record"
         )
 

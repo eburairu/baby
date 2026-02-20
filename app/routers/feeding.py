@@ -71,7 +71,7 @@ def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), cur
             current_user.id,
             title="授乳の記録",
             body=f"{display_name}さんが{baby.name}の授乳を記録しました。",
-            url="/feeding",
+            url=f"/feeding?baby_id={baby.id}",
             category="family_record"
         )
 

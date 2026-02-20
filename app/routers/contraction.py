@@ -91,7 +91,7 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
             current_user.id,
             title="陣痛タイマー",
             body=f"{display_name}さんが陣痛を計測しました。",
-            url=f"/contraction",
+            url=f"/contraction?baby_id={baby.id}",
             category="family_record"
         )
 
