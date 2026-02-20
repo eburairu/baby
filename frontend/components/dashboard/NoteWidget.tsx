@@ -1,4 +1,6 @@
 "use client"
+import { memo } from "react"
+import { areRecordsEqual } from "@/lib/memoUtils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatElapsed } from "@/lib/ageUtils"
@@ -13,7 +15,7 @@ interface Props {
   isLoading?: boolean
 }
 
-export function NoteWidget({ babyId, records, isLoading }: Props) {
+export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading }: Props) {
   const noteRecords = records?.filter(r => r.type === 'note') ?? []
   const lastNote = noteRecords[0]
   const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
@@ -55,4 +57,8 @@ export function NoteWidget({ babyId, records, isLoading }: Props) {
       </CardContent>
     </Card>
   )
-}
+}, (prev, next) => {
+    if (prev.isLoading !== next.isLoading) return false
+    if (prev.babyId !== next.babyId) return false
+    return areRecordsEqual(prev.records, next.records, 'note')
+})
