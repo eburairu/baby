@@ -36,10 +36,10 @@ export function BabyProfileCard({ babies, selectedBabyId }: Props) {
 
                 {selected?.characteristics && (
                     <div className="mt-1 pt-3 border-t border-gray-50 dark:border-zinc-800">
-                        <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed italic bg-slate-50/50 dark:bg-zinc-800/50 p-3 rounded-xl border border-slate-100/50 dark:border-zinc-800/50 relative">
-                            <span className="text-indigo-300 dark:text-indigo-700 absolute -top-1 -left-1 text-2xl font-serif">“</span>
+                        <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed italic bg-slate-50/50 dark:bg-zinc-800/50 p-4 rounded-xl border border-slate-100/50 dark:border-zinc-800/50 relative whitespace-pre-wrap">
+                            <span className="text-indigo-300 dark:text-indigo-700 absolute top-0 left-1 text-2xl font-serif">“</span>
                             {selected.characteristics}
-                            <span className="text-indigo-300 dark:text-indigo-700 absolute -bottom-4 -right-1 text-2xl font-serif">”</span>
+                            <span className="text-indigo-300 dark:text-indigo-700 absolute bottom-0 right-1 text-2xl font-serif">”</span>
                         </p>
                     </div>
                 )}
