@@ -238,7 +238,7 @@ export default function Dashboard() {
                 />
 
                 {/* クイックアクションバー (FAB) */}
-                {born && <QuickActionBar babyId={effectiveId} mutateRecords={mutateRecords} />}
+                {born && <QuickActionBar babyId={effectiveId} mutateRecords={mutateRecords} records={records} />}
             </div>
         </div>
     )
