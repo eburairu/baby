@@ -45,7 +45,57 @@
     - 空文字を送信した場合 = `display_name` をクリア（`null` に設定、`username` にフォールバック）
 - 保存後: ダイアログを閉じ、成功トーストを表示。表示を即時更新する。
 
-### PF3: 表示名のアプリ全体への反映
+### PF3: パスワードの変更
+
+- 「パスワードを変更」ボタンをタップするとダイアログが開く。
+- 入力フィールド:
+    - 現在のパスワード（入力必須。不正なパスワードでの変更を防ぐため）
+    - 新しいパスワード（8文字以上）
+    - 新しいパスワード（確認用、新しいパスワードと一致することを確認）
+- バリデーション:
+    - 現在のパスワードが正しくない場合は 400 を返す
+    - 新しいパスワードが 8 文字未満の場合はエラー
+    - 確認用パスワードが一致しない場合はフロントエンドで弾く（zod）
+- 保存後: ダイアログを閉じ、成功トーストを表示する。
+- **admin からパスワード再発行を受けた場合**: 仮パスワードでログイン後、このダイアログで本パスワードに変更する。
+
+#### エンドポイント
+
+`POST /api/auth/change-password`
+
+```python
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=8)
+```
+
+- `current_password` を bcrypt で照合し、不一致なら `400 Bad Request`。
+- 一致した場合のみ `new_password` をハッシュ化して `User.hashed_password` を更新する。
+
+#### 画面構成（変更ダイアログ）
+
+```
+┌─────────────────────────────────────┐
+│  パスワードを変更                    │
+│  ─────────────────────────────────  │
+│  現在のパスワード                    │
+│  ┌───────────────────────────────┐  │
+│  │ ••••••••                     │  │
+│  └───────────────────────────────┘  │
+│  新しいパスワード（8文字以上）       │
+│  ┌───────────────────────────────┐  │
+│  │ ••••••••                     │  │
+│  └───────────────────────────────┘  │
+│  新しいパスワード（確認）            │
+│  ┌───────────────────────────────┐  │
+│  │ ••••••••                     │  │
+│  └───────────────────────────────┘  │
+│                                     │
+│              [キャンセル] [変更する] │
+└─────────────────────────────────────┘
+```
+
+### PF4: 表示名のアプリ全体への反映
 
 表示名（`display_name ?? username`）を使用するすべての場所を更新する。
 
@@ -441,6 +491,8 @@ Welcome, {getDisplayName(user)}
 | 自分の表示名を閲覧 | ✅ | ✅ |
 | 自分の表示名を編集 | ✅ | ✅ |
 | 他者の表示名を編集 | ❌ | ❌ |
+| 自分のパスワードを変更 | ✅ | ✅ |
+| 他者のパスワードを変更 | ❌（家族設定のパスワード再発行を使う） | ❌ |
 
 - 自分のプロフィールのみ編集可能（バックエンドは `current_user` から取得するため、他者の ID を直接指定するエンドポイントは存在しない）。
 
@@ -452,7 +504,9 @@ Welcome, {getDisplayName(user)}
 |---------|--------------|---------|------|
 | GET | `/api/auth/me` | ✅ 実装済み（`display_name` 追加済み） | 自身のプロフィール取得 |
 | PATCH | `/api/auth/me` | ✅ 実装済み | 表示名の更新 |
+| POST | `/api/auth/change-password` | ✅ 実装済み |  自分のパスワード変更 |
 | GET | `/api/family/members` | ✅ 実装済み（`display_name` 追加済み） | メンバー一覧取得 |
+
 
 ---
 
@@ -469,6 +523,10 @@ Welcome, {getDisplayName(user)}
 - [x] `app/routers/auth.py` に `PATCH /api/auth/me` エンドポイント追加
     - [x] 空文字を `null` に変換する処理
     - [x] 50文字制限の検証
+- [x] `app/routers/auth.py` に `POST /api/auth/change-password` エンドポイント追加
+    - [x] `current_password` を bcrypt で照合し、不一致なら 400
+    - [x] `new_password` を bcrypt でハッシュ化して保存（8文字以上）
+- [x] `app/schemas/user.py` に `PasswordChangeRequest` スキーマ追加
 - [x] `app/routers/family.py` の `GET /api/family/members` レスポンスに `display_name` を含める
 
 ### フロントエンド
@@ -480,6 +538,10 @@ Welcome, {getDisplayName(user)}
     - [x] 編集ダイアログ（`react-hook-form` + `zod`、shadcn `Dialog`）
     - [x] `PATCH /api/auth/me` 呼び出し後に `mutate()` で SWR キャッシュ更新
     - [x] 成功トースト表示
+    - [x] 「パスワードを変更」ボタンを追加
+    - [x] パスワード変更ダイアログ（現在のパスワード・新しいパスワード・確認用）
+    - [x] `POST /api/auth/change-password` 呼び出し
+    - [x] 成功・失敗トースト表示
 - [x] `frontend/app/(dashboard)/settings/page.tsx` にプロフィールメニュー項目追加
 - [x] `frontend/app/(dashboard)/layout.tsx` の `user.username` を `getDisplayName(user)` に置換
 - [x] `frontend/components/settings/MemberList.tsx` の `member.username` を `getDisplayName(member)` に置換（ダイアログ内のタイトルも含む）

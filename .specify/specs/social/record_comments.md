@@ -123,6 +123,10 @@ class UnifiedRecord(BaseModel):
 - **記録一覧（タイムライン）**:
     - 各記録カードにコメントアイコンと件数を表示。
     - アイコンクリック、またはカード詳細展開時にコメントリストを表示。
+- **各記録ページ（授乳・睡眠・おむつ・成長・メモ）の履歴一覧**:
+    - 各履歴アイテムにコメントアイコン（MessageCircle）と件数バッジを表示。
+    - アイコンクリックで `RecordCommentDialog` を開き、コメント一覧と投稿フォームを表示。
+    - コメントがない場合もアイコンを表示し、投稿できることを示す。
 - **コメント表示**:
     - 投稿者の表示名、投稿時間、内容を表示。
     - viewer からのメッセージは少し強調（例：色を変える、ラベルをつける）して、応援メッセージであることを際立たせる。
@@ -135,6 +139,10 @@ class UnifiedRecord(BaseModel):
 - `frontend/components/records/CommentSection.tsx`: コメント一覧と入力欄をまとめたコンポーネント。
 - `frontend/components/records/CommentItem.tsx`: 個別のコメント表示。
 - `frontend/hooks/useComments.ts`: コメント取得・投稿用の SWR / Mutation フック。
+- `frontend/components/records/RecordCommentDialog.tsx`:
+    - props: `recordType: string`, `recordId: number`, `title: string`, `currentUserId?: number`
+    - 内部で `CommentSection.tsx` と `useComments` フックを再利用
+    - 各記録ページの History コンポーネントから呼び出す共通ダイアログ
 
 ---
 
@@ -173,6 +181,30 @@ class UnifiedRecord(BaseModel):
 1. `useComments` フックの実装。
 2. `CommentItem`, `CommentSection` コンポーネントの作成。
 3. タイムラインへの統合。
+
+### Step 5: 各記録ページへの統合
+
+1. **バックエンド拡張（要確認）**:
+   - 各記録エンドポイント（`GET /api/babies/{baby_id}/feedings` 等）が
+     `comment_count` を返しているか確認する。
+   - 返していない場合、各個別記録スキーマに `comment_count: int = 0` を追加し、
+     COUNT サブクエリで取得して返す。
+
+2. **共通ダイアログの作成**:
+   - `frontend/components/records/RecordCommentDialog.tsx` を新規作成。
+   - `CommentSection.tsx`（既存）を内部で使用する薄いラッパー。
+
+3. **各 History コンポーネントへの統合**:
+   - `frontend/components/feeding/feeding-history.tsx`
+   - `frontend/components/sleep/sleep-history.tsx`
+   - `frontend/components/diaper/DiaperHistory.tsx`
+   - `frontend/components/growth/GrowthHistoryList.tsx`
+   - `frontend/components/note/NoteHistory.tsx`
+
+   各コンポーネントに以下を追加:
+   - 各記録アイテムにコメントアイコン＋件数バッジ
+   - `RecordCommentDialog` の表示制御 state
+   - アイコンクリックで `RecordCommentDialog` を開く
 
 ---
 

@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Edit2, Trash2 } from "lucide-react"
+import { Edit2, Trash2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
+import { useUser } from "@/hooks/useAuth"
+import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,8 +31,10 @@ export function GrowthHistoryList({
     onDeleteSuccess,
     canWrite = true,
 }: GrowthHistoryListProps) {
+    const { user } = useUser()
     const [deleteId, setDeleteId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
 
     const handleDelete = async () => {
         if (!deleteId) return
@@ -65,6 +69,7 @@ export function GrowthHistoryList({
                             <th className="text-right py-2 px-4 font-medium">体重 (g)</th>
                             <th className="text-right py-2 px-4 font-medium">頭囲 (cm)</th>
                             <th className="text-left py-2 px-4 font-medium">記録者</th>
+                            <th className="text-left py-2 px-4 font-medium"></th>
                             {canWrite && <th className="text-left py-2 px-4 font-medium">操作</th>}
                         </tr>
                     </thead>
@@ -83,6 +88,15 @@ export function GrowthHistoryList({
                                 </td>
                                 <td className="py-2 px-4 text-muted-foreground text-xs">
                                     {record.recorded_by_display_name ?? "-"}
+                                </td>
+                                <td className="py-2 px-4">
+                                    <button
+                                        onClick={() => setCommentTarget({ id: record.id, title: `成長記録 ${record.date}` })}
+                                        className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                    >
+                                        <MessageCircle className="w-3.5 h-3.5" />
+                                        {(record.comment_count ?? 0) > 0 && <span>{record.comment_count}</span>}
+                                    </button>
                                 </td>
                                 {canWrite && (
                                     <td className="py-2 px-4">
@@ -110,6 +124,19 @@ export function GrowthHistoryList({
                     </tbody>
                 </table>
             </div>
+
+            {/* コメントダイアログ */}
+            {commentTarget && (
+                <RecordCommentDialog
+                    open={commentTarget !== null}
+                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    recordType="growth"
+                    recordId={commentTarget.id}
+                    title={commentTarget.title}
+                    currentUserId={user?.id}
+                    onCommentChange={onDeleteSuccess}
+                />
+            )}
 
             <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <AlertDialogContent>

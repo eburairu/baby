@@ -17,3 +17,18 @@
 **Vulnerability:** Family invite codes were generated with low/inconsistent entropy (32-bit `token_hex(4)` in `auth.py` vs ~48-bit `token_urlsafe(8)` in `family.py`) and lacked collision checks during regeneration. This increased the risk of brute-force attacks and code guessing.
 **Learning:** Security-critical tokens should have consistent high entropy across the application. Relying on short tokens for user-friendly features can compromise security if not properly balanced with rate limiting or sufficient length.
 **Prevention:** Standardized on 64-bit entropy (16-character uppercase hex strings) using `secrets.token_hex(8).upper()` and enforced uniqueness checks for all generation paths.
+
+## 2025-02-23 - [Insecure File Upload & Error Leakage]
+**Vulnerability:** File upload endpoint relied solely on content-type header and extension, allowing potential file masquerading. Additionally, internal server errors leaked stack trace/implementation details.
+**Learning:** Checking `file.content_type` is insufficient as it is client-controlled. Always validate file content (magic bytes).
+**Prevention:** Implement server-side content validation using magic bytes. Use generic error messages for 500 responses.
+
+## 2026-03-01 - Timing Attack Vulnerability in Login Endpoint
+**Vulnerability:** The login endpoint (`/api/auth/login`) was vulnerable to user enumeration via timing attacks. When a user was not found, the function returned immediately without verifying a password hash, whereas a valid user (with incorrect password) would undergo a time-consuming bcrypt verification. This difference in response time allowed attackers to determine if a username exists.
+**Learning:** Security controls like password hashing can introduce side channels if not applied consistently. Always ensure that sensitive operations like authentication take a similar amount of time regardless of the outcome (success/failure).
+**Prevention:** Implemented a dummy hash verification that runs when a user is not found, ensuring that `verify_password` is called in both scenarios to equalize execution time.
+
+## 2026-03-02 - Enhancing Security Headers
+**Vulnerability:** Missing `Permissions-Policy` allowed potential access to sensitive browser features. API endpoints lacked `Cache-Control: no-store`, risking sensitive data caching.
+**Learning:** Defense in depth includes proactively disabling unused browser features and strictly controlling caching for authenticated APIs.
+**Prevention:** Added `Permissions-Policy` to disable camera/mic/geo by default. Added `Cache-Control: no-store` middleware for `/api/` routes.

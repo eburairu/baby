@@ -4,9 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Feeding } from "@/types/feeding";
-import { Trash2, Milk, Baby, User } from "lucide-react";
+import { Trash2, Milk, Baby, User, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
+import { useUser } from "@/hooks/useAuth";
+import { RecordCommentDialog } from "@/components/records/RecordCommentDialog";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -21,6 +23,7 @@ import {
 interface FeedingHistoryProps {
     feedings: Feeding[];
     onDelete: (id: number) => Promise<void>;
+    onRefresh?: () => void;
     canWrite?: boolean;
 }
 
@@ -53,9 +56,11 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
     return null;
 }
 
-export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingHistoryProps) {
+export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true }: FeedingHistoryProps) {
+    const { user } = useUser();
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null);
 
     const handleDelete = async () => {
         if (deleteTargetId === null) return;
@@ -134,6 +139,13 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                                                 {feeding.recorded_by_display_name}
                                             </span>
                                         )}
+                                        <button
+                                            onClick={() => setCommentTarget({ id: feeding.id, title: `授乳 ${format(new Date(feeding.feeding_time), "HH:mm", { locale: ja })}` })}
+                                            className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                        >
+                                            <MessageCircle className="w-3 h-3" />
+                                            {feeding.comment_count > 0 && <span>{feeding.comment_count}</span>}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -169,6 +181,19 @@ export function FeedingHistory({ feedings, onDelete, canWrite = true }: FeedingH
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* コメントダイアログ */}
+            {commentTarget && (
+                <RecordCommentDialog
+                    open={commentTarget !== null}
+                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    recordType="feeding"
+                    recordId={commentTarget.id}
+                    title={commentTarget.title}
+                    currentUserId={user?.id}
+                    onCommentChange={onRefresh}
+                />
+            )}
         </>
     );
 }

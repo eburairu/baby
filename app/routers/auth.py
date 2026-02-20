@@ -1,4 +1,3 @@
-
 import secrets
 from datetime import datetime, timedelta
 
@@ -17,7 +16,10 @@ from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-
+# Generate a dummy hash for timing attack mitigation
+# This ensures verify_password is called even if user is not found,
+# making response times consistent regardless of user existence.
+DUMMY_HASH = get_password_hash("dummy_password_for_timing_mitigation")
 
 def _create_session(db: Session, user_id: int) -> str:
     token = secrets.token_urlsafe(32)
@@ -153,7 +155,14 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
 @router.post("/login", response_model=UserResponse)
 def login(login_request: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == login_request.username).first()
-    if not user or not verify_password(login_request.password, user.hashed_password):
+
+    # Timing Attack Mitigation:
+    # Verify password against dummy hash if user not found to equalize response time
+    if not user:
+        verify_password(login_request.password, DUMMY_HASH)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
+
+    if not verify_password(login_request.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user.id).first()

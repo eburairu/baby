@@ -20,5 +20,6 @@ class NoteResponse(NoteBase):
     created_at: datetime
     updated_at: datetime
     recorded_by_display_name: Optional[str] = None
+    comment_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)

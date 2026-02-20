@@ -7,7 +7,7 @@ import * as z from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Note, deleteNote, updateNote } from "@/hooks/useNotes"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, Calendar, Save, User } from "lucide-react"
+import { Trash2, Pencil, Calendar, Save, User, MessageCircle } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import {
@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { ErrorMessage } from "@/components/ui/error-message"
+import { useUser } from "@/hooks/useAuth"
+import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 
 const noteSchema = z.object({
     note_time: z.string().min(1, "日時は必須です"),
@@ -47,12 +49,14 @@ interface Props {
 }
 
 export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
+    const { user } = useUser()
     const [editingNote, setEditingNote] = useState<Note | null>(null)
     const [isEditing, setIsEditing] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
 
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
@@ -141,6 +145,13 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                                             {note.recorded_by_display_name}
                                         </span>
                                     )}
+                                    <button
+                                        onClick={() => setCommentTarget({ id: note.id, title: `メモ ${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
+                                        className="flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                    >
+                                        <MessageCircle className="h-3 w-3" />
+                                        {(note.comment_count ?? 0) > 0 && <span>{note.comment_count}</span>}
+                                    </button>
                                 </div>
                                 {canWrite && (
                                     <div className="flex gap-1">
@@ -172,6 +183,19 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
                     ))}
                 </CardContent>
             </Card>
+
+            {/* コメントダイアログ */}
+            {commentTarget && (
+                <RecordCommentDialog
+                    open={commentTarget !== null}
+                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    recordType="note"
+                    recordId={commentTarget.id}
+                    title={commentTarget.title}
+                    currentUserId={user?.id}
+                    onCommentChange={onRefresh}
+                />
+            )}
 
             {/* 編集ダイアログ */}
             <Dialog open={isEditing} onOpenChange={setIsEditing}>

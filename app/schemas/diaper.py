@@ -22,5 +22,6 @@ class DiaperResponse(DiaperCreate):
     id: int
     user_id: int
     recorded_by_display_name: Optional[str] = None
+    comment_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)

@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Password */
+        post: operations["change_password_api_auth_change_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -391,6 +408,23 @@ export interface paths {
         post?: never;
         /** Delete Member */
         delete: operations["delete_member_api_family_members__user_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/members/{user_id}/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Member Password */
+        post: operations["reset_member_password_api_family_members__user_id__reset_password_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1075,6 +1109,11 @@ export interface components {
              * Format: date-time
              */
             change_time: string;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             diaper_type: components["schemas"]["DiaperType"];
             /** Id */
             id: number;
@@ -1177,6 +1216,11 @@ export interface components {
             /** Baby Id */
             baby_id: number;
             bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** Duration Minutes */
             duration_minutes?: number | null;
             feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
@@ -1247,6 +1291,11 @@ export interface components {
             /** Baby Id */
             baby_id: number;
             /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
+            /**
              * Date
              * Format: date
              */
@@ -1309,6 +1358,11 @@ export interface components {
         NoteResponse: {
             /** Baby Id */
             baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** Content */
             content: string;
             /**
@@ -1379,6 +1433,18 @@ export interface components {
          * @enum {string}
          */
         NotificationType: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system";
+        /** PasswordChangeRequest */
+        PasswordChangeRequest: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
+        /** PasswordResetResponse */
+        PasswordResetResponse: {
+            /** Temporary Password */
+            temporary_password: string;
+        };
         /** PushSubscriptionCreate */
         PushSubscriptionCreate: {
             /** Auth */
@@ -1477,6 +1543,11 @@ export interface components {
         SleepResponse: {
             /** Baby Id */
             baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
             /** End Time */
             end_time?: string | null;
             /** Id */
@@ -1627,6 +1698,37 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    change_password_api_auth_change_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     login_api_auth_login_post: {
         parameters: {
             query?: never;
@@ -2683,6 +2785,37 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_member_password_api_family_members__user_id__reset_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasswordResetResponse"];
+                };
             };
             /** @description Validation Error */
             422: {

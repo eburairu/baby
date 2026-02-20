@@ -91,5 +91,6 @@ export function useFeeding(babyId: number | null) {
         summary,
         addFeeding,
         deleteFeeding,
+        refresh: mutate,
     };
 }

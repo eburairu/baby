@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -14,9 +15,10 @@ from app.models.baby import Baby
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
 
-def _build_diaper_response(record: Diaper, user_map: dict) -> DiaperResponse:
+def _build_diaper_response(record: Diaper, user_map: dict, comment_count_map: dict) -> DiaperResponse:
     r = DiaperResponse.model_validate(record)
     r.recorded_by_display_name = user_map.get(record.user_id)
+    r.comment_count = comment_count_map.get(record.id, 0)
     return r
 
 
@@ -30,10 +32,18 @@ def get_diapers(
 ):
     verify_baby_access(db, baby_id, current_user.id, record_type="diaper")
     records = db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).offset(skip).limit(limit).all()
+    record_ids = [r.id for r in records]
+    comment_count_map: dict = {}
+    if record_ids:
+        rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
+            RecordComment.record_type == "diaper",
+            RecordComment.record_id.in_(record_ids)
+        ).group_by(RecordComment.record_id).all()
+        comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}
     users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
     user_map = {u.id: u.display_name or u.username for u in users}
-    return [_build_diaper_response(r, user_map) for r in records]
+    return [_build_diaper_response(r, user_map, comment_count_map) for r in records]
 
 
 @router.post("/", response_model=DiaperResponse)
