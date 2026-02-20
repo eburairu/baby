@@ -1,12 +1,34 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { ShieldCheck, Loader2 } from "lucide-react"
 import { usePermissionsPage } from "@/hooks/usePermissionsPage"
 import { MemberPermissionCard } from "@/components/settings/MemberPermissionCard"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
+import { usePermissions } from "@/hooks/usePermissions"
+import { useUser } from "@/hooks/useAuth"
 
 export default function PermissionsPage() {
+  const { isAdmin } = usePermissions()
+  const { isLoading: userLoading } = useUser()
+  const router = useRouter()
   const { memberPermissions, isLoading, mutate } = usePermissionsPage()
+
+  // 管理者以外はリダイレクト
+  useEffect(() => {
+    if (!userLoading && !isAdmin) {
+      router.push("/")
+    }
+  }, [userLoading, isAdmin, router])
+
+  if (userLoading || isLoading || !isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+      </div>
+    )
+  }
 
   const handleSaved = () => {
     mutate()
