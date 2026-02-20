@@ -1,9 +1,13 @@
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Index
 from sqlalchemy.sql import func
 from .base import Base
 
 class Note(Base):
     __tablename__ = "notes"
+
+    __table_args__ = (
+        Index("idx_note_baby_time", "baby_id", "note_time"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False)

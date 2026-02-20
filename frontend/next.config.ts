@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
 };
 
 export default withSentryConfig(withPWA(nextConfig), {
-  org: "takuro-ebuchi",
+  org: "eburairu",
   project: "baby-app-next",
 
   // Only print logs for uploading source maps in CI
