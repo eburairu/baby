@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Baby as BabyIcon } from "lucide-react"
 import Link from "next/link"
 
@@ -21,6 +21,8 @@ import { isApiError } from "@/lib/api"
 
 export default function FeedingPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const commentRecordId = searchParams.get("comment")
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId } = useBabyStore()
     const { canWrite } = usePermissions()
@@ -80,6 +82,7 @@ export default function FeedingPage() {
                             onDelete={deleteFeeding}
                             onRefresh={refreshFeedings}
                             canWrite={canWrite}
+                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
                         />
                     </>
                 )}

@@ -1,5 +1,6 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
 import { useSleeps, useBabies } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
@@ -19,6 +20,8 @@ import { Moon as MoonIcon } from "lucide-react"
 import { isApiError } from "@/lib/api"
 
 export default function SleepPage() {
+    const searchParams = useSearchParams()
+    const commentRecordId = searchParams.get("comment")
     const { babies, isLoading } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
     const { canWrite } = usePermissions()
@@ -69,7 +72,7 @@ export default function SleepPage() {
                                     <SleepForm babyId={effectiveId} />
                                 </>
                             )}
-                            <SleepHistory babyId={effectiveId} canWrite={canWrite} />
+                            <SleepHistory babyId={effectiveId} canWrite={canWrite} initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null} />
                         </div>
                     </>
                 )}

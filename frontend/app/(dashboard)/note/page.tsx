@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { StickyNote } from "lucide-react"
 
 import { useBabies } from "@/hooks/useData"
@@ -17,6 +17,8 @@ import { noteTips } from "@/lib/tips-data"
 import { isApiError } from "@/lib/api"
 
 export default function NotePage() {
+    const searchParams = useSearchParams()
+    const commentRecordId = searchParams.get("comment")
     const { babies, isLoading: babiesLoading } = useBabies()
     const { selectedBabyId } = useBabyStore()
     const { canWrite } = usePermissions()
@@ -79,6 +81,7 @@ export default function NotePage() {
                                 notes={notes || []}
                                 onRefresh={() => mutateNotes()}
                                 canWrite={canWrite}
+                                initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
                             />
                         )}
                     </>

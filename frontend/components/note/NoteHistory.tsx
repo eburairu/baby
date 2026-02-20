@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -46,9 +46,10 @@ interface Props {
     notes: Note[]
     onRefresh: () => void
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
-export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
+export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentRecordId }: Props) {
     const { user } = useUser()
     const [editingNote, setEditingNote] = useState<Note | null>(null)
     const [isEditing, setIsEditing] = useState(false)
@@ -57,6 +58,17 @@ export function NoteHistory({ notes, onRefresh, canWrite = true }: Props) {
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initialCommentRecordId && notes.length > 0 && !initializedRef.current) {
+            const target = notes.find(n => n.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                setCommentTarget({ id: target.id, title: `メモ ${format(new Date(target.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
+            }
+        }
+    }, [initialCommentRecordId, notes])
 
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
