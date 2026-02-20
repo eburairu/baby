@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { ContractionRecord } from "@/types/contraction"
-import { Pencil, Trash2, User } from "lucide-react"
+import { Pencil, Trash2, User, MessageCircle } from "lucide-react"
+import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
+import { useUser } from "@/hooks/useAuth"
+import { format } from "date-fns"
+import { ja } from "date-fns/locale"
 
 function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60)
@@ -45,13 +49,27 @@ interface ContractionHistoryProps {
     onDeleted: () => void
     onUpdated?: () => void
     canWrite?: boolean
+    initialCommentRecordId?: number | null
 }
 
-export default function ContractionHistory({ contractions, onDeleted, onUpdated, canWrite = true }: ContractionHistoryProps) {
+export default function ContractionHistory({ contractions, onDeleted, onUpdated, canWrite = true, initialCommentRecordId }: ContractionHistoryProps) {
+    const { user } = useUser()
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
     const [editTarget, setEditTarget] = useState<ContractionRecord | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [isUpdating, setIsUpdating] = useState(false)
+    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (initialCommentRecordId && contractions.length > 0 && !initializedRef.current) {
+            const target = contractions.find(c => c.id === initialCommentRecordId)
+            if (target) {
+                initializedRef.current = true
+                setCommentTarget({ id: target.id, title: `陣痛 ${format(new Date(target.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
+            }
+        }
+    }, [initialCommentRecordId, contractions])
 
     const handleDelete = useCallback(async () => {
         if (deleteTargetId === null) return
@@ -148,6 +166,13 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                                 {record.recorded_by_display_name}
                                             </span>
                                         )}
+                                        <button
+                                            onClick={() => setCommentTarget({ id: record.id, title: `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
+                                            className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-indigo-500 transition-colors"
+                                        >
+                                            <MessageCircle className="w-3 h-3" />
+                                            {(record.comment_count ?? 0) > 0 && <span>{record.comment_count}</span>}
+                                        </button>
                                     </div>
                                 </div>
                                 {canWrite && (
@@ -177,6 +202,19 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                     </div>
                 </CardContent>
             </Card>
+
+            {/* コメントダイアログ */}
+            {commentTarget && (
+                <RecordCommentDialog
+                    open={commentTarget !== null}
+                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    recordType="contraction"
+                    recordId={commentTarget.id}
+                    title={commentTarget.title}
+                    currentUserId={user?.id}
+                    onCommentChange={onDeleted}
+                />
+            )}
 
             {/* 編集ダイアログ */}
             <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) setEditTarget(null) }}>
