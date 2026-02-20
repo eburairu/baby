@@ -16,6 +16,7 @@ import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
 import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
 import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistrationDialog"
+import { QuickActionBar } from "@/components/dashboard/QuickActionBar"
 import { isBorn } from "@/lib/babyUtils"
 import { PageLoading } from "@/components/ui/page-loading"
 import dynamic from "next/dynamic"
@@ -235,6 +236,9 @@ export default function Dashboard() {
                     isLoading={recordsLoading}
                     mutate={mutateRecords}
                 />
+
+                {/* クイックアクションバー (FAB) */}
+                {born && <QuickActionBar babyId={effectiveId} mutateRecords={mutateRecords} />}
             </div>
         </div>
     )
