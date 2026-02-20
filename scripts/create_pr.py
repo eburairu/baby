@@ -35,8 +35,8 @@ def create_pr(base, head, title, body, edit_id=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="GitHub PR を安全に作成・編集します。")
     parser.add_argument("--base", default="develop", help="ベースブランチ（デフォルト: develop）")
-    parser.add_argument("--head", help="ヘッドブランチ")
-    parser.add_argument("--title", help="PR タイトル")
+    parser.add_argument("--head", required=True, help="ヘッドブランチ")
+    parser.add_argument("--title", required=True, help="PR タイトル")
     parser.add_argument("--body", help="PR 本文（マルチライン可）")
     parser.add_argument("--edit", help="編集する場合の PR 番号または URL")
 
