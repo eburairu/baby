@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.middleware.security import SecurityHeadersMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
@@ -9,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI(title="Baby App API")
+
 # Trigger reload
 
 origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000").split(",")
@@ -22,6 +24,10 @@ app.add_middleware(
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
+
+# Trusted Host Middleware (Security Enhancement)
+allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 from app.routers import auth, family, baby, notifications
 from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments
