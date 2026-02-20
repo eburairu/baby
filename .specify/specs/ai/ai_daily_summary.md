@@ -2,7 +2,7 @@
 
 ## 概要
 
-1日の育児記録（授乳・睡眠・おむつ・成長）を集計し、OpenAI GPT-4o mini を用いて自然な文体の育児日記（日誌）を自動生成する機能。
+1日の育児記録（授乳・睡眠・おむつ・成長）を集計し、最新の LLM（Gemini 3 Pro 等）を用いて自然な文体の育児日記（日誌）を自動生成する機能。
 生成した日誌はユーザーが手動編集でき、任意の日付の日誌を一覧・閲覧・削除できる。
 
 ---
@@ -13,6 +13,11 @@
 - 手動で日記を書く手間をなくし、記録データから自動的に文章化する。
 - 生成内容はユーザーが自由に編集できる（AI の生成物を確定にしない）。
 - AI API 障害時は HTTP 503 を返し、記録を壊さない。
+- **モデル選択の方針 (2026年2月更新)**: 
+    - Google AI Studio (Gemini) を優先プロバイダーとする。
+    - 予算（月額1,500円程度）の範囲内で、最高品質な生成が可能な **Gemini 3 Pro** をデフォルトのメインモデルとする。
+    - 速度やコスト効率を重視する場合、またはバックアップとして **Gemini 3 Flash** を活用する。
+    - 入力トークンコストが低いため、過去数日間のコンテキストを含めた高品質な分析が可能。
 
 ---
 
@@ -89,7 +94,7 @@ class DailySummary(Base):
 | `app/models/ai_summary.py` | **新規作成** | `DailySummary` モデル |
 | `app/schemas/ai_summary.py` | **新規作成** | Pydantic スキーマ |
 | `app/routers/ai_summary.py` | **新規作成** | AI日誌 API エンドポイント |
-| `app/services/ai_summary.py` | **新規作成** | AI生成ロジック（OpenAI 呼び出し・プロンプト生成） |
+| `app/services/ai_summary.py` | **新規作成** | AI生成ロジック（AI API 呼び出し・プロンプト生成） |
 | `app/models/__init__.py` | **変更** | `DailySummary` をインポートに追加 |
 | `app/main.py` | **変更** | `ai_summary` router を `include_router` |
 
@@ -158,8 +163,8 @@ class DailySummaryResponse(BaseModel):
 2. `summary_date` が未来の日付（JST 基準で今日より後）の場合は `400 Bad Request`（「未来の日付では生成できません」）。
 3. 対象日の全記録を集計（後述のプロンプト生成参照）。
 4. 対象日の記録が 0 件の場合は `400 Bad Request`（「記録がない日は生成できません」）。
-5. OpenAI API (`gpt-4o-mini`) を呼び出して日誌テキストを生成。
-6. OpenAI API 障害時: `503 Service Unavailable`（「AI サービスが一時的に利用できません」）。
+5. Gemini API (`gemini-3-pro`) を呼び出して日誌テキストを生成。
+6. AI API 障害時: `503 Service Unavailable`（「AI サービスが一時的に利用できません」）。
 7. 既存レコードが存在し `is_edited=true` の場合: 再生成しない（`edited_content` を保護）。再生成したい場合はフロントエンドから明示的にフラグ付き再生成を行う（将来の拡張）。
 8. `DailySummary` を upsert して返す。
 
@@ -169,7 +174,7 @@ class DailySummaryResponse(BaseModel):
 
 - `400 Bad Request`: 対象日の記録が 0 件、または未来日付を指定
 - `404 Not Found`: `baby_id` が存在しない・アクセス不可
-- `503 Service Unavailable`: OpenAI API 障害
+- `503 Service Unavailable`: AI API 障害
 
 ---
 
@@ -260,8 +265,8 @@ from app.models.note import Note
 
 def get_llm_client() -> Tuple[OpenAI, str]:
     """(client, model_name) を返す"""
-    provider = os.environ.get("LLM_PROVIDER", "openai").lower()
-    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
+    api_key = os.environ.get("LLM_API_KEY")
     model = os.environ.get("LLM_MODEL")
 
     if provider == "google":
@@ -269,10 +274,10 @@ def get_llm_client() -> Tuple[OpenAI, str]:
             api_key=api_key,
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
-        model = model or "gemini-2.0-flash"
+        model = model or "gemini-3-pro"
     else:
         client = OpenAI(api_key=api_key)
-        model = model or "gpt-4o-mini"
+        model = model or "gpt-4o"
 
     return client, model
 
@@ -489,7 +494,7 @@ def generate_daily_summary(
 ) -> Tuple[str, str]:
     """(generated_content, model_name) を返す。
     記録が0件の場合は ValueError を raise。
-    API障害時は openai.APIError を伝播。
+    API障害時は例外を伝播。
     """
     prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby_name, target_date)
 
@@ -557,9 +562,11 @@ app.include_router(ai_summary.router)
 
 | 変数名 | 説明 | 必須 |
 |--------|------|------|
-| `OPENAI_API_KEY` | OpenAI API キー | ✅ |
+| `LLM_API_KEY` | Gemini または OpenAI の API キー | ✅ |
+| `LLM_PROVIDER` | `google` または `openai` | ✅ |
+| `LLM_MODEL` | 使用するモデル名 | |
 
-> Gemini への切替方法: `app/services/ai_summary.py` の `generate_daily_summary()` 関数内の client 部分を差し替えるだけで切替可能（インターフェースは変えない）。
+> Gemini への切替方法: `LLM_PROVIDER=google` を設定。デフォルトで `gemini-3-pro` を使用する。
 
 ---
 
@@ -754,7 +761,7 @@ AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レ�
 |-----------|------------|--------------|
 | 対象日の記録が 0 件 | `400 Bad Request` | トースト「この日の記録がないため生成できません」 |
 | 未来の日付を指定 | `400 Bad Request` | 日付ピッカーの `max` 属性で選択不可 + トースト「未来の日付では生成できません」 |
-| OpenAI API 障害 | `503 Service Unavailable` | トースト「AIサービスが一時的に利用できません。しばらく後に再試行してください」 |
+| AI API 障害 | `503 Service Unavailable` | トースト「AIサービスが一時的に利用できません。しばらく後に再試行してください」 |
 | 既に `is_edited=true` の日誌に再生成 | 再生成をスキップ（既存レコードをそのまま返す） | 確認ダイアログ表示後、「手動編集済みのため再生成されませんでした」メッセージ |
 | 存在しない日誌を取得・編集・削除 | `404 Not Found` | トースト「日誌が見つかりません」 |
 | 未認証 | `401 Unauthorized` | リダイレクト（既存の認証ガード） |
@@ -775,8 +782,8 @@ AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レ�
 - [x] `app/services/ai_summary.py` 作成
     - [x] `build_daily_prompt()` 実装（Feeding/Sleep/Diaper/Growth 集計）
     - [x] `build_daily_prompt()` 更新: 各記録の `notes` をプロンプトに含めるよう改修
-    - [x] `generate_daily_summary()` 実装（OpenAI 呼び出し）
-    - [x] `APIError` を raise して router 側で 503 に変換する設計を確認
+    - [x] `generate_daily_summary()` 実装（AI API 呼び出し）
+    - [x] API 例外を raise して router 側で 503 に変換する設計を確認
 - [x] `app/routers/ai_summary.py` 作成
     - [x] `POST /api/babies/{baby_id}/daily-summary` 実装（upsert）
     - [x] `GET  /api/babies/{baby_id}/daily-summary` 実装（一覧）
@@ -784,10 +791,10 @@ AI日誌の操作は `record_type` 単位の権限制御対象外（`baby` レ�
     - [x] `PATCH /api/babies/{baby_id}/daily-summary/{summary_date}` 実装
     - [x] `DELETE /api/babies/{baby_id}/daily-summary/{summary_date}` 実装
     - [x] 全エンドポイントで `verify_baby_access()` 呼び出しを確認
-    - [x] OpenAI `APIError` を 503 に変換するエラーハンドラを確認
+    - [x] AI API 例外を 503 に変換するエラーハンドラを確認
 - [x] `app/main.py` に `ai_summary` router を登録
-- [x] `.env` に `OPENAI_API_KEY` を設定（ローカル開発用）
-- [x] Render 環境変数に `OPENAI_API_KEY` を設定（本番用）
+- [x] `.env` に `LLM_API_KEY` を設定（ローカル開発用）
+- [x] Render 環境変数に `LLM_API_KEY` を設定（本番用）
 
 ### フロントエンド
 
