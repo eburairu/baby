@@ -105,7 +105,7 @@ def create_record_comment(
             current_user.id,
             title="新しいコメント",
             body=f"{display_name}さんが記録にコメントしました。",
-            url=f"/{record_type}?comment={record_id}",
+            url=f"/{record_type}?comment={record_id}&baby_id={baby_id}",
             category="comment",
         )
 
