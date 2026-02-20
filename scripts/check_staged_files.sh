@@ -3,7 +3,7 @@
 # scripts/check_staged_files.sh
 # コミット対象（ステージング済み）のファイルに禁止ファイルが含まれていないかチェックする
 
-FORBIDDEN_PATTERNS=(".venv" "node_modules")
+FORBIDDEN_PATTERNS=(".venv" "node_modules" "worktrees/")
 EXIT_CODE=0
 
 echo "🔍 ステージングされたファイルの検証中..."
