@@ -1,8 +1,14 @@
+import pytest
+from app.routers.auth import login_limiter
+
+@pytest.mark.enable_rate_limit
 def test_rate_limit_enforcement(client):
     """
     Verify that the login endpoint enforces rate limiting.
     The limit is set to 5 requests per 60 seconds.
     """
+    # The fixture handles clearing the rate limiter state.
+
     # Attempt 5 logins (within limit)
     for i in range(5):
         res = client.post(
