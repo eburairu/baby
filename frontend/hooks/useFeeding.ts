@@ -1,12 +1,14 @@
 import useSWR from 'swr';
-import { fetcher, api } from '@/lib/api';
+import { client, throwOnError } from '@/lib/api-client';
 import { Feeding, FeedingCreate, FeedingSummary } from '@/types/feeding';
 import { useMemo } from 'react';
 
 export function useFeeding(babyId: number | null) {
-    const { data: feedings, error, mutate } = useSWR<Feeding[]>(
-        babyId ? `/feedings/?baby_id=${babyId}` : null,
-        fetcher
+    const { data: feedings, error, mutate } = useSWR(
+        babyId ? ['/api/feedings/', babyId] : null,
+        ([_, id]) => throwOnError(client.GET('/api/feedings/', {
+            params: { query: { baby_id: id } }
+        }))
     );
 
     const loading = !feedings && !error;
@@ -75,13 +77,17 @@ export function useFeeding(babyId: number | null) {
 
     const addFeeding = async (data: FeedingCreate): Promise<Feeding | undefined> => {
         if (!babyId) return undefined;
-        const newRecord = await api.post<Feeding>('/feedings/', data);
+        const newRecord = await throwOnError(client.POST('/api/feedings/', {
+            body: data
+        }));
         mutate();
         return newRecord;
     };
 
     const deleteFeeding = async (id: number) => {
-        await api.delete(`/feedings/${id}`);
+        await throwOnError(client.DELETE('/api/feedings/{feeding_id}', {
+            params: { path: { feeding_id: id } }
+        }));
         mutate();
     };
 
