@@ -5,6 +5,18 @@
 
 set -e
 
+# 安全チェック: ルートディレクトリの develop または main ブランチにいるか確認
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ ! -d ".git" ]; then
+    echo "❌ エラー: このスクリプトはメインリポジトリのルートディレクトリから実行してください。"
+    exit 1
+fi
+
+if [[ "$CURRENT_BRANCH" != "develop" && "$CURRENT_BRANCH" != "main" ]]; then
+    echo "❌ エラー: クリーンアップは develop または main ブランチに切り替えてから実行してください（現在のブランチ: $CURRENT_BRANCH）。"
+    exit 1
+fi
+
 echo "🔄 ブランチの状態を最新に更新しています..."
 git fetch origin main develop --quiet
 
