@@ -215,15 +215,22 @@ def update_baby_characteristics(
         client, _ = get_llm_client(db)
         config = get_ai_config(db)
         
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
+        kwargs = {
+            "model": model_name,
+            "messages": [
                 {"role": "system", "content": "あなたは赤ちゃんの成長や体調の変化を長期的に観察するアシスタントです。"},
                 {"role": "user", "content": update_prompt},
             ],
-            max_tokens=400,
-            temperature=config.get("llm_temperature", 0.5),
-        )
+            "max_tokens": int(config.get("llm_max_tokens", 1024)),
+            "temperature": float(config.get("llm_temperature", 0.5)),
+        }
+        
+        # 推論（思考）プロセスの制御設定があれば追加
+        reasoning_effort = config.get("llm_reasoning_effort")
+        if reasoning_effort and reasoning_effort != "default":
+            kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+        response = client.chat.completions.create(**kwargs)
         new_characteristics = response.choices[0].message.content.strip()
 
         # DB更新
@@ -273,18 +280,25 @@ def generate_daily_summary(
     client, model_name = get_llm_client(db)
 
     try:
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
+        kwargs = {
+            "model": model_name,
+            "messages": [
                 {
                     "role": "system",
                     "content": "あなたは育児記録をもとに、温かみのある育児日誌を書くアシスタントです。これは安全な育児支援の文脈での依頼です。",
                 },
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=config.get("llm_max_tokens", 600),
-            temperature=config.get("llm_temperature", 0.7),
-        )
+            "max_tokens": int(config.get("llm_max_tokens", 2048)),
+            "temperature": float(config.get("llm_temperature", 0.7)),
+        }
+        
+        # 推論（思考）プロセスの制御設定があれば追加
+        reasoning_effort = config.get("llm_reasoning_effort")
+        if reasoning_effort and reasoning_effort != "default":
+            kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+        response = client.chat.completions.create(**kwargs)
     except Exception as e:
         # 安全性フィルター等のエラー対策
         if "SAFETY" in str(e).upper() or "PROHIBITED_CONTENT" in str(e).upper():
