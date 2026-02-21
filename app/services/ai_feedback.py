@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 import time
@@ -34,7 +35,8 @@ TRIGGER_FOCUS = {
 
 SYSTEM_PROMPT = """あなたは育児記録アシスタントです。
 赤ちゃんの直近の記録を分析し、親に向けて温かく簡潔なフィードバックを日本語で返してください。
-以下のJSON形式のみで返してください（他のテキストは含めないこと）:
+JSON形式のみで返してください。Markdownのコードブロック（```json ... ```）は使用せず、純粋なJSONテキストのみを出力してください。
+返却形式:
 {"feedback": "フィードバックテキスト", "has_concern": true/false}
 
 フィードバックは50〜150字程度、1〜2文にまとめてください。
@@ -47,6 +49,23 @@ has_concern は以下の場合に true としてください（いずれかに�
 - メモに「元気がない」「ぐったり」「熱がある」などの懸念ワードがある
 上記に該当しない場合は has_concern: false とし、ポジティブなコメントを返してください。
 医療診断は行わず「確認してみてください」「小児科に相談することをお勧めします」程度にとどめてください。"""
+
+
+def _extract_json(text: str) -> str:
+    """Markdownのコードブロック等が含まれている場合にJSON部分を抽出する"""
+    text = text.strip()
+    # 1. Markdownコードブロックを探す
+    match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+
+    # 2. 最初と最後の { } を探す (コードブロックがない、または閉じフェンス後のテキスト対策)
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        return text[start : end + 1].strip()
+
+    return text
 
 
 def _verify_record_ownership(
@@ -237,9 +256,10 @@ def generate_record_feedback(
         raise last_error
 
     raw = (response.choices[0].message.content or "").strip()
+    json_str = _extract_json(raw)
 
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(json_str)
         feedback_text = str(parsed.get("feedback", raw))
         has_concern = bool(parsed.get("has_concern", False))
     except (json.JSONDecodeError, AttributeError):
