@@ -14,8 +14,11 @@ router = APIRouter(prefix="/api/ai", tags=["ai-settings"])
 
 def verify_admin_access(db: Session, user: User):
     """
-    ユーザーがいずれかの家族の admin ロールを持っているか検証する。
+    ユーザーが SuperAdmin であるか、いずれかの家族の admin ロールを持っているか検証する。
     """
+    if user.is_superadmin:
+        return True
+
     admin_user = db.query(FamilyUser).filter(
         FamilyUser.user_id == user.id,
         FamilyUser.role == UserRole.ADMIN

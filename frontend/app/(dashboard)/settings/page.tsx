@@ -106,7 +106,7 @@ export default function SettingsPage() {
     }
 
     const visibleItems = menuItems.filter(
-        (item) => !item.adminOnly || isAdmin
+        (item) => !item.adminOnly || isAdmin || user?.is_superadmin
     )
 
     return (
@@ -116,6 +116,24 @@ export default function SettingsPage() {
             </header>
 
             <div className="max-w-2xl mx-auto p-4 space-y-3 pb-20">
+                {user?.is_superadmin && (
+                    <section className="space-y-3">
+                        <h2 className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider ml-1 mb-1">システム管理</h2>
+                        <Link href="/admin">
+                            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer border-l-4 border-l-indigo-500">
+                                <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/30">
+                                    <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">管理者ダッシュボード</p>
+                                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">システム全体の管理・監視</p>
+                                </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />
+                            </div>
+                        </Link>
+                    </section>
+                )}
+
                 <section className="space-y-3">
                     <h2 className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider ml-1 mb-1">一般</h2>
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 transition-colors">

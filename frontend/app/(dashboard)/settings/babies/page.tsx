@@ -25,10 +25,10 @@ export default function BabySettingsPage() {
 
     // 管理者以外はリダイレクト (正確な判定に基づいた修正済みの usePermissions を使用)
     useEffect(() => {
-        if (!permsLoading && !isAdmin) {
+        if (!permsLoading && !isAdmin && !user?.is_superadmin) {
             router.push("/dashboard")
         }
-    }, [permsLoading, isAdmin, router])
+    }, [permsLoading, isAdmin, user, router])
 
     if (permsLoading || babiesLoading) {
         return (
@@ -38,13 +38,15 @@ export default function BabySettingsPage() {
         )
     }
 
-    if (!user || !isAdmin) return null
+    const canManage = isAdmin || user?.is_superadmin
+
+    if (!user || !canManage) return null
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             {/* sticky header */}
             <SettingsHeader title="赤ちゃん管理">
-                {isAdmin && (
+                {canManage && (
                     <Button
                         size="sm"
                         onClick={() => setAddOpen(true)}
@@ -60,7 +62,7 @@ export default function BabySettingsPage() {
                 {!babies || babies.length === 0 ? (
                     <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-8 text-center transition-colors">
                         <p className="text-gray-400 dark:text-zinc-500 text-sm mb-4">👶 まだ赤ちゃんが登録されていません</p>
-                        {isAdmin && (
+                        {canManage && (
                             <Button
                                 onClick={() => setAddOpen(true)}
                                 className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
@@ -75,7 +77,7 @@ export default function BabySettingsPage() {
                         <BabyCard
                             key={baby.id}
                             baby={baby}
-                            isAdmin={isAdmin}
+                            isAdmin={Boolean(canManage)}
                             onEdit={setEditTarget}
                             onDelete={setDeleteTarget}
                         />

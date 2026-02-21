@@ -11,18 +11,20 @@ import { useUser } from "@/hooks/useAuth"
 
 export default function PermissionsPage() {
   const { isAdmin } = usePermissions()
-  const { isLoading: userLoading } = useUser()
+  const { user, isLoading: userLoading } = useUser()
   const router = useRouter()
   const { memberPermissions, isLoading, mutate } = usePermissionsPage()
 
+  const canManage = isAdmin || user?.is_superadmin
+
   // 管理者以外はリダイレクト
   useEffect(() => {
-    if (!userLoading && !isAdmin) {
+    if (!userLoading && !canManage) {
       router.push("/dashboard")
     }
-  }, [userLoading, isAdmin, router])
+  }, [userLoading, canManage, router])
 
-  if (userLoading || isLoading || !isAdmin) {
+  if (userLoading || isLoading || !canManage) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
