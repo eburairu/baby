@@ -43,6 +43,9 @@ class RecordCreate(BaseModel):
 
 @router.get("/", response_model=List[BabyResponse])
 def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if current_user.is_superadmin:
+        return db.query(Baby).all()
+
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         return []
@@ -88,13 +91,21 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
 
 @router.patch("/{baby_id}", response_model=BabyResponse)
 def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
+    is_superadmin = current_user.is_superadmin
+    family_user = None
 
-    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
+    if not is_superadmin:
+        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+        if not family_user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+        if family_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
+
+    baby_query = db.query(Baby).filter(Baby.id == baby_id)
+    if not is_superadmin:
+        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
+    
+    baby = baby_query.first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
@@ -106,13 +117,21 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
 
 @router.delete("/{baby_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
+    is_superadmin = current_user.is_superadmin
+    family_user = None
 
-    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
+    if not is_superadmin:
+        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+        if not family_user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+        if family_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
+
+    baby_query = db.query(Baby).filter(Baby.id == baby_id)
+    if not is_superadmin:
+        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
+
+    baby = baby_query.first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
@@ -139,7 +158,7 @@ def get_records(
     verify_baby_access(db, baby_id, current_user.id)
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    is_admin = family_user and family_user.role == UserRole.ADMIN
+    is_admin = (family_user and family_user.role == UserRole.ADMIN) or current_user.is_superadmin
 
     # Pre-fetch permissions ONLY if not admin
     permissions = {}
