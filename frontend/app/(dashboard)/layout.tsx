@@ -12,7 +12,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu, ShieldCheck } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { cn, getDisplayName } from "@/lib/utils"
@@ -43,6 +43,7 @@ const ALL_NAV_ITEMS = [
     { label: "日記", href: "/diary", icon: "📝", prenatal: true, postnatal: true },
     { label: "メモ一覧", href: "/note", icon: "📋", prenatal: true, postnatal: true },
     { label: "設定", href: "/settings", icon: "⚙️", prenatal: true, postnatal: true },
+    { label: "管理者", href: "/admin", icon: "🛡️", prenatal: true, postnatal: true, adminOnly: true },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -155,7 +156,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         {ALL_NAV_ITEMS
                                             .filter(item => {
                                                 const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
-                                                return born ? item.postnatal : item.prenatal
+                                                const roleMatch = born ? item.postnatal : item.prenatal
+                                                if (item.adminOnly && !user?.is_superadmin) return false
+                                                return roleMatch
                                             })
                                             .map((item) => (
                                                 <SheetClose asChild key={item.href}>

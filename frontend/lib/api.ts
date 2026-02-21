@@ -99,3 +99,8 @@ export const api = {
         return res.json() as Promise<TRes>;
     },
 };
+
+export const post = api.post;
+export const put = api.put;
+export const patch = api.patch;
+export const del = api.delete;
