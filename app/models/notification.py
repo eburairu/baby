@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, Text, func
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, Text, func, Index
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -20,12 +20,19 @@ class AppNotification(Base):
 
     user = relationship("User", back_populates="app_notifications")
 
+    __table_args__ = (
+        # Optimize fetch list notifications ordered by time
+        Index("idx_app_notifications_user_created", "user_id", "created_at"),
+        # Optimize count unread notifications (existing index from 0332ddd5a74c)
+        Index("idx_app_notifications_user_unread", "user_id", "is_read", "created_at"),
+    )
+
 
 class PushSubscription(Base):
     __tablename__ = "push_subscriptions"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     endpoint = Column(String, nullable=False)
     p256dh = Column(String, nullable=False)
     auth = Column(String, nullable=False)

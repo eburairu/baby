@@ -9,8 +9,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.main import app
+from app.main import app as fastapi_app
 from app.models.base import Base
+# Ensure all models are imported so metadata.create_all works
+import app.models  # noqa: F401
 from app.dependencies import get_db
 
 # テスト用のインメモリ SQLite データベース
@@ -53,10 +55,10 @@ def client(db):
         finally:
             pass
 
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
+    fastapi_app.dependency_overrides[get_db] = override_get_db
+    with TestClient(fastapi_app) as c:
         yield c
-    app.dependency_overrides.clear()
+    fastapi_app.dependency_overrides.clear()
 
 
 @pytest.fixture
