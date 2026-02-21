@@ -1,4 +1,6 @@
 import pytest
+from fastapi import Request
+from app.utils.rate_limit import RateLimiter
 from app.routers.auth import login_limiter
 
 @pytest.mark.enable_rate_limit
@@ -25,3 +27,21 @@ def test_rate_limit_enforcement(client):
     )
     assert res.status_code == 429
     assert res.json()["detail"] == "Too many login attempts. Please try again later."
+
+@pytest.mark.anyio
+async def test_rate_limit_with_none_client():
+    """
+    Verify that the rate limiter doesn't crash if request.client is None.
+    This can happen in certain ASGI environments or with TestClient (Starlette 0.35+).
+    """
+    scope = {
+        "type": "http",
+        "method": "POST",
+        "path": "/api/auth/login",
+        "headers": [],
+    }
+    request = Request(scope=scope)
+    
+    limiter = RateLimiter(requests_limit=5, time_window=60)
+    # Should not raise AttributeError: 'NoneType' object has no attribute 'host'
+    await limiter(request)

@@ -14,7 +14,7 @@ class RateLimiter:
 
     async def __call__(self, request: Request):
         # Using client.host relies on uvicorn's --proxy-headers config for correct IP
-        client_ip = request.client.host or "unknown"
+        client_ip = request.client.host if request.client and request.client.host else "unknown"
 
         now = time.time()
 

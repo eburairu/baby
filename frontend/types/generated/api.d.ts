@@ -237,6 +237,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/babies/{baby_id}/record-feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Record Feedback
+         * @description 直近24時間の記録をAIが分析し、コメントとして保存する
+         */
+        post: operations["create_record_feedback_api_babies__baby_id__record_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/babies/{baby_id}/records": {
         parameters: {
             query?: never;
@@ -964,6 +984,8 @@ export interface components {
         };
         /** CommentResponse */
         CommentResponse: {
+            /** Ai Has Concern */
+            ai_has_concern?: boolean | null;
             /** Content */
             content: string;
             /**
@@ -973,10 +995,15 @@ export interface components {
             created_at: string;
             /** Id */
             id: number;
+            /**
+             * Is Ai Generated
+             * @default false
+             */
+            is_ai_generated: boolean;
             /** User Display Name */
             user_display_name: string | null;
             /** User Id */
-            user_id: number;
+            user_id: number | null;
             /** User Role */
             user_role: string;
         };
@@ -1482,6 +1509,34 @@ export interface components {
             timestamp: string;
             /** Type */
             type: string;
+        };
+        /** RecordFeedbackRequest */
+        RecordFeedbackRequest: {
+            /** Record Id */
+            record_id: number;
+            /**
+             * Record Type
+             * @enum {string}
+             */
+            record_type: "feeding" | "diaper" | "growth" | "note";
+        };
+        /** RecordFeedbackResponse */
+        RecordFeedbackResponse: {
+            /**
+             * Analyzed At
+             * Format: date-time
+             */
+            analyzed_at: string;
+            /** Comment Id */
+            comment_id: number;
+            /** Feedback */
+            feedback: string;
+            /** Has Concern */
+            has_concern: boolean;
+            /** Model Name */
+            model_name: string;
+            /** Record Type */
+            record_type: string;
         };
         /** ScheduleCreate */
         ScheduleCreate: {
@@ -2308,6 +2363,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BabyPermissionsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_record_feedback_api_babies__baby_id__record_feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordFeedbackResponse"];
                 };
             };
             /** @description Validation Error */
