@@ -5,7 +5,7 @@
   "hooks": {
     "BeforeTool": [
       {
-        "matcher": "write_file|replace",
+        "matcher": ".*write.*|.*replace.*|.*edit.*",
         "hooks": [
           {
             "name": "ai-worktree-guardrail",
