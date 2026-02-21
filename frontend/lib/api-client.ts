@@ -14,7 +14,7 @@ export const client = createClient<paths>({
 /**
  * SWR 等で使用するための、エラー時に throw する標準 fetcher
  */
-export async function throwOnError<T>(promise: Promise<{ data?: T; error?: any }>) {
+export async function throwOnError<T>(promise: Promise<{ data?: T; error?: unknown }>) {
   const { data, error } = await promise;
   if (error) {
     // 必要に応じて ApiError クラス等でラップする
