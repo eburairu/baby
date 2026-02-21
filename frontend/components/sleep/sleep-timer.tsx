@@ -90,14 +90,14 @@ export function SleepTimer({ babyId }: Props) {
 
                 <Button
                     size="lg"
-                    disabled={loading}
+                    loading={loading}
                     onClick={isSleeping ? handleEnd : handleStart}
                     className={`w-full max-w-xs h-12 rounded-xl text-base font-semibold transition-all duration-300 shadow-md ${isSleeping
                             ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 dark:shadow-none"
                             : "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-200 dark:shadow-none"
                         }`}
                 >
-                    {isSleeping ? "おはよう (Stop)" : "おやすみ (Start)"}
+                    {loading ? "処理中..." : (isSleeping ? "おはよう (Stop)" : "おやすみ (Start)")}
                 </Button>
             </CardContent>
         </Card>

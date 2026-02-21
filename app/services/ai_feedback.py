@@ -34,6 +34,8 @@ TRIGGER_FOCUS = {
 }
 
 SYSTEM_PROMPT = """あなたは育児記録アシスタントです。
+このリクエストは、親が自分の赤ちゃんの健康状態を把握するための安全な育児支援の文脈で行われています。
+「熱がある」「元気がない」などの体調に関する記述は、医学的な懸念を把握するための重要な情報であり、ポリシー違反ではありません。
 赤ちゃんの直近の記録を分析し、親に向けて温かく簡潔なフィードバックを日本語で返してください。
 JSON形式のみで返してください。Markdownのコードブロック（```json ... ```）は使用せず、純粋なJSONテキストのみを出力してください。
 返却形式:
@@ -49,8 +51,6 @@ has_concern は以下の場合に true としてください（いずれかに�
 - メモに「元気がない」「ぐったり」「熱がある」などの懸念ワードがある
 上記に該当しない場合は has_concern: false とし、ポジティブなコメントを返してください。
 医療診断は行わず「確認してみてください」「小児科に相談することをお勧めします」程度にとどめてください。"""
-
-
 
 def _extract_json(text: str) -> str:
     """Markdownのコードブロック等が含まれている場合にJSON部分を抽出する"""
@@ -263,6 +263,13 @@ def generate_record_feedback(
                 response_format={"type": "json_object"},
             )
             break
+        except openai.BadRequestError as e:
+            # Gemini API は安全性フィルターでブロックした場合に 400 BadRequest を返すことがある
+            if "finish_reason: SAFETY" in str(e) or "SAFETY" in str(e).upper() or "PROHIBITED_CONTENT" in str(e).upper():
+                logger.error("AI feedback was blocked by safety filters: %s", e)
+                return "記録を分析しましたが、現在適切なアドバイスを生成できませんでした。赤ちゃんの様子に気になる点がある場合は、直接医師にご相談ください。", True, model_name
+            last_error = e
+            break # リトライしない
         except (openai.RateLimitError, openai.APIConnectionError) as e:
             logger.warning("Retryable error on attempt %d: %s", attempt + 1, e)
             last_error = e
@@ -270,6 +277,10 @@ def generate_record_feedback(
         raise last_error
 
     raw = (response.choices[0].message.content or "").strip()
+    if not raw:
+        # candidates が空の場合の対策
+        return "記録を受け付けました。いつも育児お疲れ様です！", False, model_name
+
     json_str = _extract_json(raw)
 
     try:

@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { ContractionRecord } from "@/types/contraction"
-import { Pencil, Trash2, User, MessageCircle } from "lucide-react"
+import { Pencil, Trash2, User, MessageCircle, Loader2 } from "lucide-react"
 import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import { useUser } from "@/hooks/useAuth"
 import { format } from "date-fns"
@@ -283,6 +283,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

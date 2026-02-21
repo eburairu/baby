@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Edit2, Trash2, MessageCircle } from "lucide-react"
+import { Edit2, Trash2, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
 import { useUser } from "@/hooks/useAuth"
@@ -166,6 +166,7 @@ export function GrowthHistoryList({
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >
+                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除する
                         </AlertDialogAction>
                     </AlertDialogFooter>

@@ -80,14 +80,13 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
                         data-sentry-unmask onClick={() => handleToggle(0)}
                         size="lg"
                         loading={isSubmitting}
-                        disabled={isSubmitting}
                         aria-busy={isSubmitting}
                         className={`h-20 w-full text-2xl font-bold rounded-2xl transition-all duration-200 ${isTiming
                                 ? "bg-gray-700 hover:bg-gray-800 text-white"
                                 : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 dark:shadow-red-900/40"
                             }`}
                     >
-                        {isTiming ? "陣痛が終わった" : "🤰 陣痛がきた！"}
+                        {isSubmitting ? "保存中..." : (isTiming ? "陣痛が終わった" : "🤰 陣痛がきた！")}
                     </Button>
 
                     {!isTiming && (
