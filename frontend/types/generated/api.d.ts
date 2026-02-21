@@ -4,6 +4,74 @@
  */
 
 export interface paths {
+    "/api/admin/families": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Families */
+        get: operations["get_admin_families_api_admin_families_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Stats */
+        get: operations["get_admin_stats_api_admin_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Users */
+        get: operations["get_admin_users_api_admin_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{user_id}/superadmin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggle Superadmin */
+        patch: operations["toggle_superadmin_api_admin_users__user_id__superadmin_patch"];
+        trace?: never;
+    };
     "/api/ai/available-models": {
         parameters: {
             query?: never;
@@ -937,6 +1005,17 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** AdminStats */
+        AdminStats: {
+            /** Active Users Last 24H */
+            active_users_last_24h: number;
+            /** Total Families */
+            total_families: number;
+            /** Total Records */
+            total_records: number;
+            /** Total Users */
+            total_users: number;
+        };
         /** AppNotificationResponse */
         AppNotificationResponse: {
             /** Body */
@@ -1243,6 +1322,20 @@ export interface components {
             diaper_type?: components["schemas"]["DiaperType"] | null;
             /** Notes */
             notes?: string | null;
+        };
+        /** FamilyAdminResponse */
+        FamilyAdminResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Member Count */
+            member_count: number;
+            /** Name */
+            name: string;
         };
         /** FamilyCreate */
         FamilyCreate: {
@@ -1708,6 +1801,11 @@ export interface components {
             /** Start Time */
             start_time?: string | null;
         };
+        /** SuperAdminToggleRequest */
+        SuperAdminToggleRequest: {
+            /** Is Superadmin */
+            is_superadmin: boolean;
+        };
         /** UnifiedRecord */
         UnifiedRecord: {
             /**
@@ -1790,6 +1888,11 @@ export interface components {
             display_name?: string | null;
             /** Id */
             id: number;
+            /**
+             * Is Superadmin
+             * @default false
+             */
+            is_superadmin: boolean;
             /** Role */
             role?: string | null;
             /** Username */
@@ -1833,6 +1936,125 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_admin_families_api_admin_families_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyAdminResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_stats_api_admin_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStats"];
+                };
+            };
+        };
+    };
+    get_admin_users_api_admin_users_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    toggle_superadmin_api_admin_users__user_id__superadmin_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuperAdminToggleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_available_models_api_ai_available_models_get: {
         parameters: {
             query?: never;

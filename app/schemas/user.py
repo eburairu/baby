@@ -40,6 +40,11 @@ class UserResponse(BaseModel):
     username: str
     display_name: Optional[str] = None
     role: Optional[str] = None
+    is_superadmin: bool = False
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class SuperAdminToggleRequest(BaseModel):
+    is_superadmin: bool

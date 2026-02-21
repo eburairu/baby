@@ -64,6 +64,34 @@
         "title": "AISettingsSummary",
         "type": "object"
       },
+      "AdminStats": {
+        "properties": {
+          "active_users_last_24h": {
+            "title": "Active Users Last 24H",
+            "type": "integer"
+          },
+          "total_families": {
+            "title": "Total Families",
+            "type": "integer"
+          },
+          "total_records": {
+            "title": "Total Records",
+            "type": "integer"
+          },
+          "total_users": {
+            "title": "Total Users",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_users",
+          "total_families",
+          "total_records",
+          "active_users_last_24h"
+        ],
+        "title": "AdminStats",
+        "type": "object"
+      },
       "AppNotificationResponse": {
         "properties": {
           "body": {
@@ -995,6 +1023,35 @@
           }
         },
         "title": "DiaperUpdate",
+        "type": "object"
+      },
+      "FamilyAdminResponse": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "member_count": {
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "member_count",
+          "created_at"
+        ],
+        "title": "FamilyAdminResponse",
         "type": "object"
       },
       "FamilyCreate": {
@@ -2438,6 +2495,19 @@
         "title": "SleepUpdate",
         "type": "object"
       },
+      "SuperAdminToggleRequest": {
+        "properties": {
+          "is_superadmin": {
+            "title": "Is Superadmin",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "is_superadmin"
+        ],
+        "title": "SuperAdminToggleRequest",
+        "type": "object"
+      },
       "UnifiedRecord": {
         "properties": {
           "comment_count": {
@@ -2629,6 +2699,11 @@
             "title": "Id",
             "type": "integer"
           },
+          "is_superadmin": {
+            "default": false,
+            "title": "Is Superadmin",
+            "type": "boolean"
+          },
           "role": {
             "anyOf": [
               {
@@ -2756,6 +2831,193 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/admin/families": {
+      "get": {
+        "operationId": "get_admin_families_api_admin_families_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FamilyAdminResponse"
+                  },
+                  "title": "Response Get Admin Families Api Admin Families Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admin Families",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "operationId": "get_admin_stats_api_admin_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Admin Stats",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "operationId": "get_admin_users_api_admin_users_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  },
+                  "title": "Response Get Admin Users Api Admin Users Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admin Users",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/users/{user_id}/superadmin": {
+      "patch": {
+        "operationId": "toggle_superadmin_api_admin_users__user_id__superadmin_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuperAdminToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Toggle Superadmin",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/ai/available-models": {
       "get": {
         "description": "利用可能な LLM モデルを外部 API から取得する。",
