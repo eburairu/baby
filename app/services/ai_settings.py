@@ -1,7 +1,7 @@
 import os
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-import google.generativeai as genai
+from google import genai
 from app.models.system_settings import SystemSetting
 
 
@@ -49,9 +49,9 @@ def get_available_llm_models() -> List[Dict[str, str]]:
         return []
 
     try:
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         models = []
-        for m in genai.list_models():
+        for m in client.models.list():
             if "generateContent" in m.supported_generation_methods:
                 # 'models/gemini-1.5-pro' -> 'gemini-1.5-pro'
                 model_id = m.name.split("/")[-1]
