@@ -5,10 +5,11 @@ import { useMemo } from 'react';
 
 export function useFeeding(babyId: number | null) {
     const { data: feedings, error, mutate } = useSWR(
-        babyId ? ['/api/feedings/', babyId] : null,
-        ([_, id]) => throwOnError(client.GET('/api/feedings/', {
-            params: { query: { baby_id: id } }
-        }))
+        babyId ? `/api/feedings/?baby_id=${babyId}` : null,
+        () => throwOnError(client.GET('/api/feedings/', {
+            params: { query: { baby_id: babyId! } }
+        })),
+        { keepPreviousData: true }
     );
 
     const loading = !feedings && !error;
