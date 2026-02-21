@@ -123,7 +123,7 @@ export const RecentActivityFeed = React.memo(function RecentActivityFeed({ babyI
                                                 {formatElapsed(record.timestamp)}
                                             </span>
                                         </li>
-                                        {(index + 1) % 5 === 0 && (
+                                        {(index + 1) % 10 === 0 && (
                                             <li className="list-none">
                                                 <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID ?? ""} />
                                             </li>

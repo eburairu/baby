@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
-import { Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -155,7 +154,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                         <Button
                             type="submit"
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
-                            disabled={isSubmitting}
+                            loading={isSubmitting}
                             data-sentry-unmask
                         >
                             {isSubmitting ? "保存中..." : "保存する"}

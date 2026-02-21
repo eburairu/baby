@@ -54,7 +54,17 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
     return user
 
 
+def get_current_superadmin(current_user=Depends(get_current_user)):
+    if not current_user.is_superadmin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="SuperAdmin privileges required"
+        )
+    return current_user
+
+
 user_dependency = Annotated[object, Depends(get_current_user)]
+superadmin_dependency = Annotated[object, Depends(get_current_superadmin)]
 
 
 def verify_baby_access(

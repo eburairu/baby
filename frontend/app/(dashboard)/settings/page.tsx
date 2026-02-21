@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck, Sparkles } from "lucide-react"
+import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck, Sparkles, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useUser } from "@/hooks/useAuth"
@@ -11,7 +11,6 @@ import { api } from "@/lib/api"
 import { useState } from "react"
 import { AppInfoDialog } from "@/components/settings/AppInfoDialog"
 import { useAppVersion } from "@/hooks/useAppVersion"
-import { UserRole } from "@/lib/constants"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -111,7 +110,7 @@ export default function SettingsPage() {
     )
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14 flex items-center justify-center px-4">
                 <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">設定</h1>
             </header>
@@ -185,20 +184,35 @@ export default function SettingsPage() {
 
                 <section className="space-y-3 pt-4">
                     <h2 className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider ml-1 mb-1">アプリ情報</h2>
-                    <div
-                        onClick={() => setAppInfoOpen(true)}
-                        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                    >
-                        <div className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800">
-                            <Info className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+                    <div className="space-y-2">
+                        <Link href="/about">
+                            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+                                <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/30">
+                                    <Heart className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">Baby App について</p>
+                                    <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">アプリの紹介を見る</p>
+                                </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />
+                            </div>
+                        </Link>
+
+                        <div
+                            onClick={() => setAppInfoOpen(true)}
+                            className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                        >
+                            <div className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800">
+                                <Info className="h-5 w-5 text-slate-600 dark:text-zinc-400" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">バージョン情報</p>
+                                <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
+                                    {appVersion ? `v${appVersion.version}` : "読み込み中..."}
+                                </p>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />
                         </div>
-                        <div className="flex-1">
-                            <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">バージョン情報</p>
-                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
-                                {appVersion ? `v${appVersion.version}` : "読み込み中..."}
-                            </p>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />
                     </div>
                 </section>
             </div>

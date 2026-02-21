@@ -12,7 +12,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu, ShieldCheck } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { cn, getDisplayName } from "@/lib/utils"
@@ -31,9 +31,10 @@ import {
 } from "@/components/ui/sheet"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { PageLoading } from "@/components/ui/page-loading"
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 
 const ALL_NAV_ITEMS = [
-    { label: "ホーム", href: "/", icon: "🏠", prenatal: true, postnatal: true },
+    { label: "ホーム", href: "/dashboard", icon: "🏠", prenatal: true, postnatal: true },
     { label: "授乳", href: "/feeding", icon: "🍼", prenatal: false, postnatal: true },
     { label: "おむつ", href: "/diaper", icon: "👶", prenatal: false, postnatal: true },
     { label: "睡眠", href: "/sleep", icon: "💤", prenatal: false, postnatal: true },
@@ -42,6 +43,7 @@ const ALL_NAV_ITEMS = [
     { label: "日記", href: "/diary", icon: "📝", prenatal: true, postnatal: true },
     { label: "メモ一覧", href: "/note", icon: "📋", prenatal: true, postnatal: true },
     { label: "設定", href: "/settings", icon: "⚙️", prenatal: true, postnatal: true },
+    { label: "管理者", href: "/admin", icon: "🛡️", prenatal: true, postnatal: true, adminOnly: true },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -65,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [])
 
     useEffect(() => {
-        // 10秒待っても読み込み中ならタイムアウトを表示
+        // 10秒待っても読み込み中ならタイムアウトを 表示
         let timer: NodeJS.Timeout | null = null
         if (isLoading) {
             timer = setTimeout(() => {
@@ -91,12 +93,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [mounted, isLoading, user, router])
 
     if (!mounted || (isLoading && !showTimeoutError)) return (
-        <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
-            <PageLoading message="読み込み中..." />
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
+            <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14" />
+            <DashboardSkeleton />
         </div>
     )
 
     if (showTimeoutError && isLoading) {
+
         return (
             <div className="flex h-screen flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950 p-4">
                 <Card className="w-full max-w-sm dark:bg-zinc-900 border-0 shadow-sm">
@@ -152,7 +156,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         {ALL_NAV_ITEMS
                                             .filter(item => {
                                                 const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
-                                                return born ? item.postnatal : item.prenatal
+                                                const roleMatch = born ? item.postnatal : item.prenatal
+                                                if (item.adminOnly && !user?.is_superadmin) return false
+                                                return roleMatch
                                             })
                                             .map((item) => (
                                                 <SheetClose asChild key={item.href}>
@@ -168,7 +174,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </SheetContent>
                             </Sheet>
                         )}
-                        <Link href="/">
+                        <Link href="/dashboard">
                             <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-zinc-100" data-sentry-unmask>Baby App</h1>
                         </Link>
                         {appVersion && (

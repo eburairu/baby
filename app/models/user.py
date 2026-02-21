@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -10,6 +10,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     display_name = Column(String, nullable=True)
+    is_superadmin = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     family_users = relationship("FamilyUser", back_populates="user")

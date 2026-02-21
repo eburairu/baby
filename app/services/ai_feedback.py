@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 import time
@@ -33,8 +34,11 @@ TRIGGER_FOCUS = {
 }
 
 SYSTEM_PROMPT = """あなたは育児記録アシスタントです。
+このリクエストは、親が自分の赤ちゃんの健康状態を把握するための安全な育児支援の文脈で行われています。
+「熱がある」「元気がない」などの体調に関する記述は、医学的な懸念を把握するための重要な情報であり、ポリシー違反ではありません。
 赤ちゃんの直近の記録を分析し、親に向けて温かく簡潔なフィードバックを日本語で返してください。
-以下のJSON形式のみで返してください（他のテキストは含めないこと）:
+JSON形式のみで返してください。Markdownのコードブロック（```json ... ```）は使用せず、純粋なJSONテキストのみを出力してください。
+返却形式:
 {"feedback": "フィードバックテキスト", "has_concern": true/false}
 
 フィードバックは50〜150字程度、1〜2文にまとめてください。
@@ -47,6 +51,35 @@ has_concern は以下の場合に true としてください（いずれかに�
 - メモに「元気がない」「ぐったり」「熱がある」などの懸念ワードがある
 上記に該当しない場合は has_concern: false とし、ポジティブなコメントを返してください。
 医療診断は行わず「確認してみてください」「小児科に相談することをお勧めします」程度にとどめてください。"""
+
+def _extract_json(text: str) -> str:
+    """Markdownのコードブロック等が含まれている場合にJSON部分を抽出する"""
+    text = text.strip()
+    # 1. Markdownコードブロックを探す
+    match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+    if match:
+        text = match.group(1).strip()
+    else:
+        # 2. 最初と最後の { } を探す (コードブロックがない、または閉じフェンス後のテキスト対策)
+        start = text.find("{")
+        if start != -1:
+            end = text.rfind("}")
+            if end != -1 and end > start:
+                text = text[start : end + 1].strip()
+            else:
+                # 閉じ括弧がない場合でも、{ 以降を抽出対象とする（後の修復に期待）
+                text = text[start:].strip()
+
+    # 簡易修復ロジック: 閉じられていない引用符や括弧を補完
+    if text.startswith("{"):
+        # 引用符の数が奇数なら閉じる（エスケープは考慮しない簡易版）
+        if text.count('"') % 2 != 0:
+            text += '"'
+        # 閉じ括弧がなければ閉じる
+        if not text.endswith("}"):
+            text += "}"
+
+    return text
 
 
 def _verify_record_ownership(
@@ -219,17 +252,31 @@ def generate_record_feedback(
         if attempt > 0:
             time.sleep(2 ** attempt)  # 2s, 4s
         try:
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=[
+            kwargs = {
+                "model": model_name,
+                "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=config.get("llm_max_tokens", 300),
-                temperature=config.get("llm_temperature", 0.5),
-                response_format={"type": "json_object"},
-            )
+                "max_tokens": int(config.get("llm_max_tokens", 2048)),
+                "temperature": float(config.get("llm_temperature", 0.5)),
+                "response_format": {"type": "json_object"},
+            }
+            
+            # 推論（思考）プロセスの制御設定があれば追加 (Gemini 2.5/3.0+ OpenAI互換レイヤー)
+            reasoning_effort = config.get("llm_reasoning_effort")
+            if reasoning_effort and reasoning_effort != "default":
+                kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+            response = client.chat.completions.create(**kwargs)
             break
+        except openai.BadRequestError as e:
+            # Gemini API は安全性フィルターでブロックした場合に 400 BadRequest を返すことがある
+            if "finish_reason: SAFETY" in str(e) or "SAFETY" in str(e).upper() or "PROHIBITED_CONTENT" in str(e).upper():
+                logger.error("AI feedback was blocked by safety filters: %s", e)
+                return "記録を分析しましたが、現在適切なアドバイスを生成できませんでした。赤ちゃんの様子に気になる点がある場合は、直接医師にご相談ください。", True, model_name
+            last_error = e
+            break # リトライしない
         except (openai.RateLimitError, openai.APIConnectionError) as e:
             logger.warning("Retryable error on attempt %d: %s", attempt + 1, e)
             last_error = e
@@ -237,14 +284,25 @@ def generate_record_feedback(
         raise last_error
 
     raw = (response.choices[0].message.content or "").strip()
+    if not raw:
+        # candidates が空の場合の対策
+        return "記録を受け付けました。いつも育児お疲れ様です！", False, model_name
+
+    json_str = _extract_json(raw)
 
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(json_str)
         feedback_text = str(parsed.get("feedback", raw))
         has_concern = bool(parsed.get("has_concern", False))
     except (json.JSONDecodeError, AttributeError):
-        logger.warning("AI response was not valid JSON, using raw text: %s", raw[:100])
-        feedback_text = raw
+        # json.loads が失敗した場合、正規表現で直接 feedback フィールドの抽出を試みる（最後の救済措置）
+        match = re.search(r'"feedback":\s*"(.*?)(?:"|,\s*"|$)', json_str, re.DOTALL)
+        if match:
+            feedback_text = match.group(1).strip()
+            logger.info("Extracted feedback using regex after JSON parse failure.")
+        else:
+            logger.warning("AI response was not valid JSON, using raw text: %s", raw[:100])
+            feedback_text = raw
         has_concern = False
 
     return feedback_text, has_concern, model_name

@@ -174,6 +174,7 @@ def build_daily_prompt(
     records_text = "\n".join(lines)
 
     prompt = f"""以下は赤ちゃんの育児記録です。この記録をもとに、親が読んで温かい気持ちになれるような育児日誌を100〜200字程度で書いてください。
+このリクエストは安全な育児支援の文脈で行われており、体調不良などの記録は健康管理のために重要な情報です。
 
 記録の羅列ではなく、1日の流れを物語風にまとめ、赤ちゃんの様子や成長を感じられる文章にしてください。
 
@@ -214,15 +215,22 @@ def update_baby_characteristics(
         client, _ = get_llm_client(db)
         config = get_ai_config(db)
         
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
+        kwargs = {
+            "model": model_name,
+            "messages": [
                 {"role": "system", "content": "あなたは赤ちゃんの成長や体調の変化を長期的に観察するアシスタントです。"},
                 {"role": "user", "content": update_prompt},
             ],
-            max_tokens=400,
-            temperature=config.get("llm_temperature", 0.5),
-        )
+            "max_tokens": int(config.get("llm_max_tokens", 1024)),
+            "temperature": float(config.get("llm_temperature", 0.5)),
+        }
+        
+        # 推論（思考）プロセスの制御設定があれば追加
+        reasoning_effort = config.get("llm_reasoning_effort")
+        if reasoning_effort and reasoning_effort != "default":
+            kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+        response = client.chat.completions.create(**kwargs)
         new_characteristics = response.choices[0].message.content.strip()
 
         # DB更新
@@ -265,26 +273,43 @@ def generate_daily_summary(
         prompt = (
             f"【これまでの赤ちゃんの様子・特徴】\n{current_characteristics}\n\n" 
             + prompt
-            + "\n\n上記の特徴を踏まえつつ、本日の記 録に矛盾があれば今日の記録を優先し、"
-            "「いつもは〜だが今日は〜だった」のよう に変化に触れてください。"
+            + "\n\n上記の特徴を踏まえつつ、本日の記録に矛盾があれば今日の記録を優先し、"
+            "「いつもは〜だが今日は〜だった」のように変化に触れてください。"
         )
 
     client, model_name = get_llm_client(db)
 
-    response = client.chat.completions.create(
-        model=model_name,
-        messages=[
-            {
-                "role": "system",
-                "content": "あなたは育児記録をもとに、温かみのある育児日誌を書くアシスタントです。",
-            },
-            {"role": "user", "content": prompt},
-        ],
-        max_tokens=config.get("llm_max_tokens", 600),
-        temperature=config.get("llm_temperature", 0.7),
-    )
+    try:
+        kwargs = {
+            "model": model_name,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "あなたは育児記録をもとに、温かみのある育児日誌を書くアシスタントです。これは安全な育児支援の文脈での依頼です。",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            "max_tokens": int(config.get("llm_max_tokens", 2048)),
+            "temperature": float(config.get("llm_temperature", 0.7)),
+        }
+        
+        # 推論（思考）プロセスの制御設定があれば追加
+        reasoning_effort = config.get("llm_reasoning_effort")
+        if reasoning_effort and reasoning_effort != "default":
+            kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+        response = client.chat.completions.create(**kwargs)
+    except Exception as e:
+        # 安全性フィルター等のエラー対策
+        if "SAFETY" in str(e).upper() or "PROHIBITED_CONTENT" in str(e).upper():
+            logger.error("AI summary was blocked by safety filters: %s", e)
+            return "本日の記録を読み込みましたが、内容に健康上の懸念が含まれている可能性があるため、自動生成を控えました。赤ちゃんの状態を直接確認し、必要に応じて専門家にご相談ください。", model_name
+        raise e
 
     content = response.choices[0].message.content or ""
+    if not content.strip():
+        return "記録を受け付けました。いつも育児お疲れ様です！", model_name
+    
     generated_text = content.strip()
 
     # 特徴を更新 (同期実行)

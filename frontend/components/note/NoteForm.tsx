@@ -141,10 +141,10 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={submitting}
+                                loading={submitting}
                                 data-sentry-unmask className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
                             >
-                                <Save className="h-4 w-4 mr-2" />
+                                {!submitting && <Save className="h-4 w-4 mr-2" />}
                                 {submitting ? "保存中..." : "保存する"}
                             </Button>
                         </div>

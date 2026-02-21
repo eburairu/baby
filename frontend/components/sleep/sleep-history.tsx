@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Pencil, Trash2, Moon, User, MessageCircle } from "lucide-react"
+import { Pencil, Trash2, Moon, User, MessageCircle, Loader2 } from "lucide-react"
 import { formatDuration } from "@/lib/ageUtils"
 import { Sleep } from "@/types/sleep"
 import { useUser } from "@/hooks/useAuth"
@@ -185,6 +185,7 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

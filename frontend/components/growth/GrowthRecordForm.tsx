@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
-import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -99,9 +99,11 @@ export function GrowthRecordForm({
                 const newRecord = await api.post<{ id: number }>("/growths/", payload)
                 onSuccess(newRecord?.id)
             }
+            toast.success("記録しました")
             onClose()
         } catch (error) {
             console.error("Failed to save growth record:", error)
+            toast.error("保存に失敗しました")
         } finally {
             setIsSubmitting(false)
         }
@@ -177,9 +179,8 @@ export function GrowthRecordForm({
                         <Button type="button" variant="outline" onClick={onClose} data-sentry-unmask>
                             キャンセル
                         </Button>
-                        <Button type="submit" disabled={isSubmitting} data-sentry-unmask>
-                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {record ? "更新" : "保存"}
+                        <Button type="submit" loading={isSubmitting} data-sentry-unmask>
+                            {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
                         </Button>
                     </DialogFooter>
                 </form>
