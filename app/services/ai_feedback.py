@@ -58,13 +58,26 @@ def _extract_json(text: str) -> str:
     # 1. Markdownコードブロックを探す
     match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
     if match:
-        return match.group(1).strip()
+        text = match.group(1).strip()
+    else:
+        # 2. 最初と最後の { } を探す (コードブロックがない、または閉じフェンス後のテキスト対策)
+        start = text.find("{")
+        if start != -1:
+            end = text.rfind("}")
+            if end != -1 and end > start:
+                text = text[start : end + 1].strip()
+            else:
+                # 閉じ括弧がない場合でも、{ 以降を抽出対象とする（後の修復に期待）
+                text = text[start:].strip()
 
-    # 2. 最初と最後の { } を探す (コードブロックがない、または閉じフェンス後のテキスト対策)
-    start = text.find("{")
-    end = text.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        return text[start : end + 1].strip()
+    # 簡易修復ロジック: 閉じられていない引用符や括弧を補完
+    if text.startswith("{"):
+        # 引用符の数が奇数なら閉じる（エスケープは考慮しない簡易版）
+        if text.count('"') % 2 != 0:
+            text += '"'
+        # 閉じ括弧がなければ閉じる
+        if not text.endswith("}"):
+            text += "}"
 
     return text
 
@@ -245,7 +258,7 @@ def generate_record_feedback(
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=config.get("llm_max_tokens", 300),
+                max_tokens=config.get("llm_max_tokens", 512),
                 temperature=config.get("llm_temperature", 0.5),
                 response_format={"type": "json_object"},
             )
@@ -264,8 +277,14 @@ def generate_record_feedback(
         feedback_text = str(parsed.get("feedback", raw))
         has_concern = bool(parsed.get("has_concern", False))
     except (json.JSONDecodeError, AttributeError):
-        logger.warning("AI response was not valid JSON, using raw text: %s", raw[:100])
-        feedback_text = raw
+        # json.loads が失敗した場合、正規表現で直接 feedback フィールドの抽出を試みる（最後の救済措置）
+        match = re.search(r'"feedback":\s*"(.*?)(?:"|,\s*"|$)', json_str, re.DOTALL)
+        if match:
+            feedback_text = match.group(1).strip()
+            logger.info("Extracted feedback using regex after JSON parse failure.")
+        else:
+            logger.warning("AI response was not valid JSON, using raw text: %s", raw[:100])
+            feedback_text = raw
         has_concern = False
 
     return feedback_text, has_concern, model_name
