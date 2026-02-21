@@ -194,12 +194,27 @@ export type Feeding = components["schemas"]["FeedingResponse"];
 
 `openapi-fetch` を導入し、パス文字列のハードコードを排除する。
 
+#### ⚠️ URL 構築の注意点
+
+`openapi-fetch` は URL を **`${baseUrl}${pathname}` で単純文字列結合** する。
+FastAPI のルーターは `/api` プレフィックス付き（例: `prefix="/api/feedings"`）のため、
+OpenAPI スキーマのパスは `/api/feedings/` のように `/api/` で始まる。
+
+したがって **`baseUrl` に `/api` を含めてはいけない**。含めると二重パス（`/api/api/feedings/`）になってリクエストが失敗する。
+
+| 設定 | baseUrl | pathname | 結果 |
+|---|---|---|---|
+| 誤り | `"/api"` | `"/api/feedings/"` | `"/api/api/feedings/"` ❌ |
+| 正しい | `""` | `"/api/feedings/"` | `"/api/feedings/"` ✅ |
+| 本番（正しい） | `"https://example.com"` | `"/api/feedings/"` | `"https://example.com/api/feedings/"` ✅ |
+
 1. **`frontend/lib/api-client.ts` の作成**:
    ```typescript
    import createClient from "openapi-fetch";
    import type { paths } from "@/types/generated/api";
 
-   const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "") + "/api";
+   // ⚠️ "/api" を付加しない。OpenAPI スキーマのパスが既に /api/ で始まるため。
+   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
    export const client = createClient<paths>({
      baseUrl: API_BASE,
@@ -209,10 +224,9 @@ export type Feeding = components["schemas"]["FeedingResponse"];
    /**
     * SWR 等で使用するための、エラー時に throw する標準 fetcher
     */
-   export async function throwOnError<T>(promise: Promise<{ data?: T; error?: any }>) {
+   export async function throwOnError<T>(promise: Promise<{ data?: T; error?: unknown }>) {
      const { data, error } = await promise;
      if (error) {
-       // 必要に応じて ApiError クラス等でラップする
        throw error;
      }
      return data as T;
@@ -226,14 +240,17 @@ export type Feeding = components["schemas"]["FeedingResponse"];
 
    export function useFeeding(babyId: number | null) {
      const { data, error, mutate } = useSWR(
-       babyId ? ["/feedings/", babyId] : null,
-       ([url, id]) => throwOnError(client.GET("/feedings/", {
+       babyId ? ["/api/feedings/", babyId] : null,
+       ([_, id]) => throwOnError(client.GET("/api/feedings/", {
          params: { query: { baby_id: id } },
        }))
      );
      // ...
    }
    ```
+
+   > パス文字列は OpenAPI スキーマのパスをそのまま使う（`/api/feedings/`）。
+   > 型チェックにより、スキーマに存在しないパスはコンパイルエラーになる。
 
 3. **段階的移行**:
    既存の `frontend/lib/api.ts` を使用している箇所を、順次 `openapi-fetch` に置き換えていく。
