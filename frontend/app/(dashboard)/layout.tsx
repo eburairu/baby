@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sheet"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { PageLoading } from "@/components/ui/page-loading"
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 
 const ALL_NAV_ITEMS = [
     { label: "ホーム", href: "/", icon: "🏠", prenatal: true, postnatal: true },
@@ -65,7 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [])
 
     useEffect(() => {
-        // 10秒待っても読み込み中ならタイムアウトを表示
+        // 10秒待っても読み込み中ならタイムアウトを 表示
         let timer: NodeJS.Timeout | null = null
         if (isLoading) {
             timer = setTimeout(() => {
@@ -91,12 +92,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [mounted, isLoading, user, router])
 
     if (!mounted || (isLoading && !showTimeoutError)) return (
-        <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950">
-            <PageLoading message="読み込み中..." />
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
+            <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-zinc-800 h-14" />
+            <DashboardSkeleton />
         </div>
     )
 
     if (showTimeoutError && isLoading) {
+
         return (
             <div className="flex h-screen flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950 p-4">
                 <Card className="w-full max-w-sm dark:bg-zinc-900 border-0 shadow-sm">
