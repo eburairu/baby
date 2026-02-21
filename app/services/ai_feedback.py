@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
+import openai
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -229,8 +230,8 @@ def generate_record_feedback(
                 response_format={"type": "json_object"},
             )
             break
-        except Exception as e:
-            logger.warning("Error on attempt %d: %s", attempt + 1, e)
+        except (openai.RateLimitError, openai.APIConnectionError) as e:
+            logger.warning("Retryable error on attempt %d: %s", attempt + 1, e)
             last_error = e
     else:
         raise last_error
