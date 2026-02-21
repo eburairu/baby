@@ -245,10 +245,10 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] 最終 ADMIN の自己削除防止ガード（`app/routers/family.py` `delete_member`）
 - [x] `GET /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
 - [x] `PUT /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
+- [x] `verify_baby_access()` をデフォルト拒否に変更（BabyPermission が存在しない場合に 403）
 
-### バックエンド（未実装 — デフォルト拒否への移行）
+### バックエンド（未実装）
 
-- [ ] `verify_baby_access()` をデフォルト拒否に変更（BabyPermission が存在しない場合に 403）
 - [ ] `GET /api/babies/` を `allowed_baby_ids` フィルタ（opt-in 型）に変更
 - [ ] `GET /api/babies/{baby_id}/permissions` の BabyPermission 未設定時のデフォルト値を `False` に変更
 - [ ] Alembic マイグレーション（既存 MEMBER/VIEWER への `can_view=true` 一括付与）

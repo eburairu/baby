@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { api, isApiError } from "@/lib/api"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/hooks/useAuth"
 import { ErrorMessage } from "@/components/ui/error-message"
+import { Suspense } from "react"
 
 const createFamilySchema = z.object({
     name: z.string().min(1, "家族名を入力してください"),
@@ -34,8 +35,10 @@ const joinFamilySchema = z.object({
     password: z.string().min(6, "パスワードは6文字以上で入力してください"),
 })
 
-export default function RegisterPage() {
+function RegisterForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const isJoin = searchParams.get("join") === "true"
     const { mutate } = useUser()
     const [error, setError] = useState<string | null>(null)
 
@@ -62,7 +65,7 @@ export default function RegisterPage() {
             setError(null)
             await api.post("/auth/register/family", values)
             await mutate()
-            router.push("/")
+            router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Registration failed", err)
             if (isApiError(err)) {
@@ -79,7 +82,7 @@ export default function RegisterPage() {
             const { invite_code, ...userIn } = values
             await api.post(`/auth/register/join?invite_code=${invite_code}`, userIn)
             await mutate()
-            router.push("/")
+            router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Join failed", err)
             if (isApiError(err)) {
@@ -91,7 +94,7 @@ export default function RegisterPage() {
     }
 
     return (
-        <Tabs defaultValue="create" className="w-full">
+        <Tabs defaultValue={isJoin ? "join" : "create"} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4 p-1 rounded-xl">
                 <TabsTrigger value="create" className="rounded-lg" data-sentry-unmask>家族を新規作成</TabsTrigger>
                 <TabsTrigger value="join" className="rounded-lg" data-sentry-unmask>家族に参加</TabsTrigger>
@@ -239,5 +242,13 @@ export default function RegisterPage() {
                 </Card>
             </TabsContent>
         </Tabs>
+    )
+}
+
+export default function RegisterPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <RegisterForm />
+        </Suspense>
     )
 }
