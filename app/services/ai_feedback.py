@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 import time
@@ -50,19 +51,21 @@ has_concern は以下の場合に true としてください（いずれかに�
 医療診断は行わず「確認してみてください」「小児科に相談することをお勧めします」程度にとどめてください。"""
 
 
+
 def _extract_json(text: str) -> str:
     """Markdownのコードブロック等が含まれている場合にJSON部分を抽出する"""
     text = text.strip()
-    if text.startswith("```"):
-        # ```json ... ``` または ``` ... ``` を剥ぐ
-        lines = text.splitlines()
-        if len(lines) >= 2 and lines[0].startswith("```"):
-            # 最後の行も ``` であれば除去
-            start_idx = 1
-            end_idx = len(lines)
-            if lines[-1].strip() == "```":
-                end_idx = -1
-            return "\n".join(lines[start_idx:end_idx]).strip()
+    # 1. Markdownコードブロックを探す
+    match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+
+    # 2. 最初と最後の { } を探す (コードブロックがない、または閉じフェンス後のテキスト対策)
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        return text[start : end + 1].strip()
+
     return text
 
 
