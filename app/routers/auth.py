@@ -2,6 +2,8 @@ import secrets
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -90,7 +92,7 @@ def update_profile(
     dependencies=[Depends(register_limiter)],
 )
 def register_family(family_in: FamilyCreate, response: Response, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.username == family_in.username).first()
+    existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
@@ -103,11 +105,15 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     db.flush()
 
     new_user = User(
-        username=family_in.username,
+        username=family_in.username.lower(),
         hashed_password=get_password_hash(family_in.password),
     )
     db.add(new_user)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Username already registered")
 
     family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
     db.add(family_user)
@@ -133,7 +139,7 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     dependencies=[Depends(register_limiter)],
 )
 def join_family(user_in: UserCreate, invite_code: str, response: Response, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.username == user_in.username).first()
+    existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
@@ -144,11 +150,15 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
         raise HTTPException(status_code=404, detail="Invalid invite code")
 
     new_user = User(
-        username=user_in.username,
+        username=user_in.username.lower(),
         hashed_password=get_password_hash(user_in.password),
     )
     db.add(new_user)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Username already registered")
 
     family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
     db.add(family_user)
@@ -178,7 +188,7 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
 
 @router.post("/login", response_model=UserResponse, dependencies=[Depends(login_limiter)])
 def login(login_request: LoginRequest, response: Response, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == login_request.username).first()
+    user = db.query(User).filter(func.lower(User.username) == login_request.username.lower()).first()
 
     # Timing Attack Mitigation:
     # Verify password against dummy hash if user not found to equalize response time

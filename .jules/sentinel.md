@@ -32,3 +32,13 @@
 **Vulnerability:** Missing `Permissions-Policy` allowed potential access to sensitive browser features. API endpoints lacked `Cache-Control: no-store`, risking sensitive data caching.
 **Learning:** Defense in depth includes proactively disabling unused browser features and strictly controlling caching for authenticated APIs.
 **Prevention:** Added `Permissions-Policy` to disable camera/mic/geo by default. Added `Cache-Control: no-store` middleware for `/api/` routes.
+
+## 2026-03-03 - Case-Sensitive Username Impersonation
+**Vulnerability:** Usernames were treated case-sensitively by the database (PostgreSQL), allowing attackers to register confusingly similar accounts (e.g., 'admin' vs 'Admin') and potentially impersonate users or bypass checks.
+**Learning:** Default database collation often treats strings as case-sensitive. Application logic must explicitly normalize identifiers (like usernames) to prevent homograph/case-based confusion attacks.
+**Prevention:** Enforce lowercase normalization on both storage and lookup for usernames. Use `func.lower(Column) == value.lower()` for case-insensitive comparisons in SQLAlchemy queries.
+
+## 2026-03-03 - User Registration Race Condition (TOCTOU)
+**Vulnerability:** A Time-of-Check to Time-of-Use (TOCTOU) race condition existed in user registration. Concurrent requests with the same username (case-insensitive) could bypass the initial existence check and trigger an unhandled `IntegrityError` during insertion, causing a 500 Internal Server Error.
+**Learning:** Checking for existence before insertion is insufficient for uniqueness guarantees in concurrent environments. Database constraints are the final source of truth.
+**Prevention:** Always wrap database insertion logic in `try...except IntegrityError` blocks when unique constraints are involved. Convert database errors into user-friendly HTTP 400 responses.
