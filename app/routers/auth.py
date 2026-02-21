@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -108,7 +109,11 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
         hashed_password=get_password_hash(family_in.password),
     )
     db.add(new_user)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Username already registered")
 
     family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
     db.add(family_user)
@@ -149,7 +154,11 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
         hashed_password=get_password_hash(user_in.password),
     )
     db.add(new_user)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Username already registered")
 
     family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
     db.add(family_user)
