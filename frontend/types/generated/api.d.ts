@@ -4,6 +4,50 @@
  */
 
 export interface paths {
+    "/api/ai/available-models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Available Models
+         * @description 利用可能な LLM モデルを外部 API から取得する。
+         */
+        get: operations["list_available_models_api_ai_available_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ai Settings
+         * @description 現在の AI 設定と利用可能なモデルリストを取得する。
+         */
+        get: operations["get_ai_settings_api_ai_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Ai Settings
+         * @description AI 設定を更新する。
+         */
+        patch: operations["update_ai_settings_api_ai_settings_patch"];
+        trace?: never;
+    };
     "/api/auth/change-password": {
         parameters: {
             query?: never;
@@ -862,6 +906,37 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AIModel */
+        AIModel: {
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * AISettingsPatch
+         * @description PATCH /api/ai/settings リクエストボディ
+         */
+        AISettingsPatch: {
+            /** Settings */
+            settings: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * AISettingsSummary
+         * @description GET /api/ai/settings レスポンス
+         */
+        AISettingsSummary: {
+            /** Available Models */
+            available_models: components["schemas"]["AIModel"][];
+            /** Settings */
+            settings: {
+                [key: string]: unknown;
+            };
+        };
         /** AppNotificationResponse */
         AppNotificationResponse: {
             /** Body */
@@ -1758,6 +1833,81 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_available_models_api_ai_available_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AIModel"][];
+                };
+            };
+        };
+    };
+    get_ai_settings_api_ai_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AISettingsSummary"];
+                };
+            };
+        };
+    };
+    update_ai_settings_api_ai_settings_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AISettingsPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     change_password_api_auth_change_password_post: {
         parameters: {
             query?: never;

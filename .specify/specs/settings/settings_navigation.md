@@ -21,6 +21,9 @@
 - **プロフィール設定**: 表示名の変更 (`/settings/profile`)。
 - **家族設定**: 家族名・招待コード・メンバー管理 (`/settings/family`)。
 - **赤ちゃん管理**: 赤ちゃんの情報の追加・編集・削除 (`/settings/babies`)。
+- **AI 設定 (Admin のみ)**: LLM モデルや生成パラメーターの調整 (`/settings/ai`)。
+  - アイコン: `Sparkles`（Lucide React）
+  - 表示条件: 現在のユーザーのロールが `admin` の場合のみ表示。
 
 ### 1.3 ログアウト
 
