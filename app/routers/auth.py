@@ -152,6 +152,7 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
         username=new_user.username,
         display_name=new_user.display_name,
         role=UserRole.VIEWER,
+        is_superadmin=new_user.is_superadmin,
         created_at=new_user.created_at
     )
 
@@ -188,6 +189,7 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
         username=user.username,
         display_name=user.display_name,
         role=role,
+        is_superadmin=user.is_superadmin,
         created_at=user.created_at
     )
 
@@ -212,5 +214,6 @@ def read_users_me(db: Session = Depends(get_db), current_user: User = Depends(ge
         username=current_user.username,
         display_name=current_user.display_name,
         role=role,
+        is_superadmin=current_user.is_superadmin,
         created_at=current_user.created_at
     )
