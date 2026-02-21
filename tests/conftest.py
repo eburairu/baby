@@ -85,3 +85,33 @@ def auth_client(client):
         assert "access_token" in client.cookies, "No access token in cookies after login"
         return client
     return _auth
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "enable_rate_limit: enable rate limiting for this test"
+    )
+
+
+@pytest.fixture(autouse=True)
+def disable_rate_limiter(request, monkeypatch):
+    """
+    Disable rate limiting for tests by default using monkeypatch on the class method.
+    Tests that specifically verify rate limiting should use @pytest.mark.enable_rate_limit.
+    """
+    # If the test is marked to enable rate limiting, do nothing (let original code run)
+    if request.node.get_closest_marker("enable_rate_limit"):
+        # Still clear state to ensure isolation
+        from app.routers.auth import login_limiter
+        login_limiter.requests.clear()
+        return
+
+    from app.utils.rate_limit import RateLimiter
+    from fastapi import Request
+
+    # Patch __call__ to be a no-op
+    # Must include type hint so FastAPI injects the Request object instead of looking for a query param
+    async def no_op(self, request: Request):
+        pass
+
+    monkeypatch.setattr(RateLimiter, "__call__", no_op)

@@ -55,7 +55,9 @@ def test_viewer_read_only_access(client):
     client.cookies.clear()
 
     # 4. VIEWERとしてログイン
-    client.post("/api/auth/login", json={"username": "viewer_user", "password": "password123"})
+    res = client.post("/api/auth/login", json={"username": "viewer_user", "password": "password123"})
+    print(f"Viewer login status: {res.status_code}")
+    print(f"Viewer login response: {res.text}")
 
     # 5. 閲覧は可能
     res = client.get(f"/api/feedings/?baby_id={baby_id}")
@@ -83,8 +85,12 @@ def test_viewer_read_only_access(client):
     client.cookies.clear()
 
     # 再度VIEWERとしてログイン
-    client.post("/api/auth/login", json={"username": "viewer_user", "password": "password123"})
+    res = client.post("/api/auth/login", json={"username": "viewer_user", "password": "password123"})
+    print(f"Viewer re-login status: {res.status_code}")
+    print(f"Viewer re-login response: {res.text}")
+
     res = client.delete(f"/api/feedings/{feeding_id}")
+    print(f"Delete status: {res.status_code}")
     assert res.status_code == 403
 
 def test_admin_can_change_role(client):
