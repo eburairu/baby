@@ -19,12 +19,13 @@ else
         # ワークツリーに関連付けられているブランチ名を取得
         branch=$(git -C "$wt_path" rev-parse --abbrev-ref HEAD)
         
-        echo "检查 $branch ($wt_path)..."
+        echo "チェック $branch ($wt_path)..."
         
-        # origin/main にマージされているか確認
-        if git merge-base --is-ancestor "$branch" origin/main 2>/dev/null; then
-            echo "✨ $branch は origin/main にマージ済みです。削除します..."
-            git worktree remove "$wt_path"
+        # origin/main または origin/develop にマージされているか確認
+        if git merge-base --is-ancestor "$branch" origin/main 2>/dev/null || \
+           git merge-base --is-ancestor "$branch" origin/develop 2>/dev/null; then
+            echo "✨ $branch はマージ済みです。削除します..."
+            git worktree remove --force "$wt_path"
             # 関連するローカルブランチも削除（マージ済みなので -d で安全に削除可能）
             git branch -d "$branch"
         else
@@ -35,7 +36,8 @@ fi
 
 echo "🧹 マージ済みの孤立したローカルブランチをクリーンアップしています..."
 # main, develop, および現在チェックアウト中のブランチ以外のマージ済みブランチを削除
-MERGED_BRANCHES=$(git branch --merged origin/main | grep -vE '^\*|main|develop' || true)
+# origin/main または origin/develop のいずれかにマージされているものを対象とする
+MERGED_BRANCHES=$( (git branch --merged origin/main; git branch --merged origin/develop) | grep -vE '^\*|main|develop' | sort -u || true)
 
 if [ -n "$MERGED_BRANCHES" ]; then
     echo "$MERGED_BRANCHES" | xargs git branch -d
