@@ -1801,6 +1801,11 @@ export interface components {
             /** Start Time */
             start_time?: string | null;
         };
+        /** SuperAdminToggleRequest */
+        SuperAdminToggleRequest: {
+            /** Is Superadmin */
+            is_superadmin: boolean;
+        };
         /** UnifiedRecord */
         UnifiedRecord: {
             /**
@@ -2017,16 +2022,18 @@ export interface operations {
     };
     toggle_superadmin_api_admin_users__user_id__superadmin_patch: {
         parameters: {
-            query: {
-                is_superadmin: boolean;
-            };
+            query?: never;
             header?: never;
             path: {
                 user_id: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuperAdminToggleRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

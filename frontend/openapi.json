@@ -2495,6 +2495,19 @@
         "title": "SleepUpdate",
         "type": "object"
       },
+      "SuperAdminToggleRequest": {
+        "properties": {
+          "is_superadmin": {
+            "title": "Is Superadmin",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "is_superadmin"
+        ],
+        "title": "SuperAdminToggleRequest",
+        "type": "object"
+      },
       "UnifiedRecord": {
         "properties": {
           "comment_count": {
@@ -2965,17 +2978,18 @@
               "title": "User Id",
               "type": "integer"
             }
-          },
-          {
-            "in": "query",
-            "name": "is_superadmin",
-            "required": true,
-            "schema": {
-              "title": "Is Superadmin",
-              "type": "boolean"
-            }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuperAdminToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {

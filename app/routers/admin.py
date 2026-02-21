@@ -16,7 +16,7 @@ from app.models.growth import Growth
 from app.models.contraction import Contraction
 from app.models.schedule import Schedule
 from app.models.note import Note
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, SuperAdminToggleRequest
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -101,7 +101,7 @@ def get_admin_users(
 @router.patch("/users/{user_id}/superadmin", response_model=UserResponse)
 def toggle_superadmin(
     user_id: int,
-    is_superadmin: bool,
+    request: SuperAdminToggleRequest,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
 ):
@@ -110,10 +110,10 @@ def toggle_superadmin(
         raise HTTPException(status_code=404, detail="User not found")
     
     # 自分自身の権限は剥奪できないようにする（安全のため）
-    if user.id == admin.id and not is_superadmin:
+    if user.id == admin.id and not request.is_superadmin:
         raise HTTPException(status_code=400, detail="Cannot demote yourself from SuperAdmin")
         
-    user.is_superadmin = is_superadmin
+    user.is_superadmin = request.is_superadmin
     db.commit()
     db.refresh(user)
     return user
