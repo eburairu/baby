@@ -32,3 +32,8 @@
 **Vulnerability:** Missing `Permissions-Policy` allowed potential access to sensitive browser features. API endpoints lacked `Cache-Control: no-store`, risking sensitive data caching.
 **Learning:** Defense in depth includes proactively disabling unused browser features and strictly controlling caching for authenticated APIs.
 **Prevention:** Added `Permissions-Policy` to disable camera/mic/geo by default. Added `Cache-Control: no-store` middleware for `/api/` routes.
+
+## 2026-03-03 - Case-Sensitive Username Impersonation
+**Vulnerability:** Usernames were treated case-sensitively by the database (PostgreSQL), allowing attackers to register confusingly similar accounts (e.g., 'admin' vs 'Admin') and potentially impersonate users or bypass checks.
+**Learning:** Default database collation often treats strings as case-sensitive. Application logic must explicitly normalize identifiers (like usernames) to prevent homograph/case-based confusion attacks.
+**Prevention:** Enforce lowercase normalization on both storage and lookup for usernames. Use `func.lower(Column) == value.lower()` for case-insensitive comparisons in SQLAlchemy queries.
