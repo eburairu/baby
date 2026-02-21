@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
-import { Bell } from "lucide-react"
+import { Bell, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useUnreadCount, useNotifications, markAllAsRead } from "@/hooks/useNotifications"
@@ -8,6 +8,7 @@ import { NotificationItem } from "./NotificationItem"
 
 export function NotificationBell() {
     const [open, setOpen] = useState(false)
+    const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false)
     const { count, mutate: mutateCount } = useUnreadCount()
     const { notifications, mutate: mutateList, isLoading } = useNotifications()
     const panelRef = useRef<HTMLDivElement>(null)
@@ -37,9 +38,14 @@ export function NotificationBell() {
     }
 
     const handleReadAll = async () => {
-        await markAllAsRead()
-        mutateList()
-        mutateCount()
+        if (isMarkingAllAsRead) return
+        setIsMarkingAllAsRead(true)
+        try {
+            await markAllAsRead()
+            await Promise.all([mutateList(), mutateCount()])
+        } finally {
+            setIsMarkingAllAsRead(false)
+        }
     }
 
     const displayCount = count > 99 ? "99+" : count > 0 ? String(count) : null
@@ -72,8 +78,13 @@ export function NotificationBell() {
                         {count > 0 && (
                             <button
                                 onClick={handleReadAll}
-                                className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                                disabled={isMarkingAllAsRead}
+                                className={cn(
+                                    "text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1",
+                                    isMarkingAllAsRead && "opacity-70 cursor-wait"
+                                )}
                             >
+                                {isMarkingAllAsRead && <Loader2 className="h-3 w-3 animate-spin" />}
                                 すべて既読にする
                             </button>
                         )}
