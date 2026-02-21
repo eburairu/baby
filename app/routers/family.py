@@ -26,8 +26,8 @@ def _get_family_user(db: Session, current_user: User) -> FamilyUser:
     return family_user
 
 
-def _require_admin(family_user: FamilyUser) -> None:
-    if family_user.role != UserRole.ADMIN:
+def _require_admin(family_user: FamilyUser, current_user: User) -> None:
+    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
         raise HTTPException(status_code=403, detail="Admin role required")
 
 
@@ -47,7 +47,7 @@ def update_family(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     if not body.name.strip():
         raise HTTPException(status_code=422, detail="Family name cannot be empty")
     family = db.query(Family).filter(Family.id == family_user.family_id).first()
@@ -63,7 +63,7 @@ def regenerate_invite_code(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     family = db.query(Family).filter(Family.id == family_user.family_id).first()
     new_code = secrets.token_hex(8).upper()
     while db.query(Family).filter(Family.invite_code == new_code).first():
@@ -108,7 +108,7 @@ def update_member_role(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     target = (
         db.query(FamilyUser)
         .filter(
@@ -146,7 +146,7 @@ def reset_member_password(
     current_user: User = Depends(get_current_user),
 ) -> PasswordResetResponse:
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     if user_id == current_user.id:
         raise HTTPException(status_code=400, detail="Cannot reset your own password here")
     target_family_user = (
@@ -176,7 +176,7 @@ def delete_member(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     target = (
         db.query(FamilyUser)
         .filter(

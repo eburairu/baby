@@ -49,8 +49,8 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
 
     babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
 
-    # admin は全件返す
-    if family_user.role == UserRole.ADMIN:
+    # admin / superadmin は全件返す
+    if family_user.role == UserRole.ADMIN or current_user.is_superadmin:
         return babies
 
     # member/viewer: can_view=true の BabyPermission が存在する赤ちゃんのみ返す（デフォルト拒否）
@@ -69,7 +69,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN:
+    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can add babies")
 
     new_baby = Baby(
@@ -91,7 +91,7 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN:
+    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
 
     baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
@@ -109,7 +109,7 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN:
+    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
 
     baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
