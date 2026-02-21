@@ -23,8 +23,8 @@ class AppNotification(Base):
     __table_args__ = (
         # Optimize fetch list notifications ordered by time
         Index("idx_app_notifications_user_created", "user_id", "created_at"),
-        # Optimize count unread notifications
-        Index("idx_app_notifications_user_unread", "user_id", "is_read"),
+        # Optimize count unread notifications (existing index from 0332ddd5a74c)
+        Index("idx_app_notifications_user_unread", "user_id", "is_read", "created_at"),
     )
 
 

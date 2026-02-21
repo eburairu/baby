@@ -30,7 +30,8 @@ def test_app_notification_indexes(setup_db):
     assert index_map["idx_app_notifications_user_created"] == ["user_id", "created_at"]
 
     assert "idx_app_notifications_user_unread" in index_map, "idx_app_notifications_user_unread missing"
-    assert index_map["idx_app_notifications_user_unread"] == ["user_id", "is_read"]
+    # This index is created by an older migration (0332ddd5a74c) and includes created_at
+    assert index_map["idx_app_notifications_user_unread"] == ["user_id", "is_read", "created_at"]
 
     # user_id単体のインデックスも確認
     # 名前は環境依存の可能性があるため、カラム構成で探す
