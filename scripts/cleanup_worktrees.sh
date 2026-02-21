@@ -20,6 +20,10 @@ fi
 echo "🔄 ブランチの状態を最新に更新しています..."
 git fetch origin main develop --quiet
 
+# 一時ファイルの削除（ルートおよび全ワークツリー）
+echo "🗑️ 一時的な PR body ファイル（pr_body*.md）を削除しています..."
+find . -name "pr_body*.md" -type f -delete 2>/dev/null || true
+
 # メインのワークツリー（ルート）以外のワークツリーを取得
 WORKTREES=$(git worktree list --porcelain | grep "^worktree " | awk '{print $2}' | tail -n +2)
 
