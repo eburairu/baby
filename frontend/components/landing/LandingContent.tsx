@@ -80,7 +80,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                             </h1>
                             <p className="text-lg text-slate-600 max-w-lg mx-auto lg:mx-0">
                                 授乳、睡眠、おむつの記録をリアルタイムで共有。
-                                AIによる振り返りで、赤ちゃんの成長をもっと身近に。
+                                AIによる振り返りで、赤ちゃんの成長をもっと身近に.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 {isLoggedIn ? (
@@ -111,10 +111,10 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="relative"
                         >
-                            <div className="relative z-10 bg-white rounded-[2rem] shadow-2xl border-8 border-slate-100 overflow-hidden aspect-[9/19] max-w-[300px] mx-auto">
+                            <div className="relative z-10 bg-slate-200 rounded-[2rem] shadow-2xl border-8 border-slate-100 overflow-hidden aspect-[9/19] max-w-[300px] mx-auto">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img 
-                                    src="/initial_access.png" 
+                                    src="/screenshots/dashboard.png" 
                                     alt="App Screenshot" 
                                     className="w-full h-full object-cover"
                                 />
@@ -226,9 +226,9 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                     <div className="text-slate-400 text-sm">
                         &copy; 2026 Baby App. All rights reserved.
                     </div>
-                    <div className="flex gap-6 text-sm font-medium text-slate-500">
-                        <Link href="/privacy" className="hover:text-indigo-600 transition-colors">プライバシーポリシー</Link>
-                        <Link href="/terms" className="hover:text-indigo-600 transition-colors">利用規約</Link>
+                    <div className="flex gap-6 text-sm font-medium">
+                        <Link href="/privacy" className="text-slate-500 hover:text-indigo-600 transition-colors">プライバシーポリシー</Link>
+                        <Link href="/terms" className="text-slate-500 hover:text-indigo-600 transition-colors">利用規約</Link>
                     </div>
                 </div>
             </footer>
