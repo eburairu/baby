@@ -7,7 +7,7 @@ class RecordComment(Base):
     __tablename__ = "record_comments"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False)
+    baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     record_type = Column(String, nullable=False)  # feeding, sleep, diaper, etc.
     record_id = Column(Integer, nullable=False)   # ID in the respective table
