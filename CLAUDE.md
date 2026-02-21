@@ -2,10 +2,15 @@
 
 ## プロジェクト概要
 
-Baby App — 家族単位で育児記録（授乳・睡眠・おむつ・成長等）を共同管理する招待制 Web アプリ。
+Baby App — 家族単位で育児記録（授乳・睡眠・おむつ・成長等）を共同管理する招待制Webアプリ。
 
 - **Backend**: FastAPI + PostgreSQL（Neon）
 - **Frontend**: Next.js (App Router, Static Export), TypeScript, Tailwind CSS v4
+
+## 回答スタイル
+
+- 挨拶・前置き・段階報告・絵文字禁止。結論ファースト
+- 指摘すべきことは率直に指摘
 
 ## アーキテクチャ
 
