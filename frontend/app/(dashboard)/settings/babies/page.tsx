@@ -26,7 +26,7 @@ export default function BabySettingsPage() {
     // 管理者以外はリダイレクト (正確な判定に基づいた修正済みの usePermissions を使用)
     useEffect(() => {
         if (!permsLoading && !isAdmin) {
-            router.push("/")
+            router.push("/dashboard")
         }
     }, [permsLoading, isAdmin, router])
 

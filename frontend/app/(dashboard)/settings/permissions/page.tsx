@@ -18,7 +18,7 @@ export default function PermissionsPage() {
   // 管理者以外はリダイレクト
   useEffect(() => {
     if (!userLoading && !isAdmin) {
-      router.push("/")
+      router.push("/dashboard")
     }
   }, [userLoading, isAdmin, router])
 

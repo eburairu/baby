@@ -46,7 +46,7 @@ export default function LoginPage() {
             setError(null)
             await api.post("/auth/login", values)
             await mutate() // refresh user state
-            router.push("/")
+            router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Login failed", err)
             if (isApiError(err)) {
