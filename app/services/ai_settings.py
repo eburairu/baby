@@ -65,7 +65,7 @@ def get_available_llm_models() -> List[Dict[str, str]]:
         print(f"Error fetching models: {e}")
         # フォールバックとして主要なモデルを返す
         return [
-            {"id": "gemini-1.5-pro", "name": "Gemini 1.5 Pro", "description": "Highly capable model"},
-            {"id": "gemini-1.5-flash", "name": "Gemini 1.5 Flash", "description": "Fast and efficient model"},
-            {"id": "gemini-1.0-pro", "name": "Gemini 1.0 Pro", "description": "Balanced performance"},
+            {"id": "gemini-2.5-pro", "name": "Gemini 2.5 Pro", "description": "Highly capable model"},
+            {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "description": "Fast and efficient model"},
+            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash", "description": "Balanced performance"},
         ]
