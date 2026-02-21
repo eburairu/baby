@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAISettings, updateAISettings } from "@/hooks/useAISettings"
 import { usePermissions } from "@/hooks/usePermissions"
+import { useUser } from "@/hooks/useAuth"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { toast } from "sonner"
 
 export default function AISettingsPage() {
   const router = useRouter()
+  const { user, isLoading: isUserLoading } = useUser()
   const { data, isLoading, isError, mutate } = useAISettings()
   const { isAdmin, isLoading: isPermsLoading } = usePermissions()
   
@@ -35,13 +37,13 @@ export default function AISettingsPage() {
 
   // 権限チェック
   useEffect(() => {
-    if (!isPermsLoading && !isAdmin) {
+    if (!isPermsLoading && !isUserLoading && !isAdmin && !user?.is_superadmin) {
       toast.error("管理者権限が必要です")
       router.push("/settings")
     }
-  }, [isAdmin, isPermsLoading, router])
+  }, [isAdmin, isPermsLoading, isUserLoading, user, router])
 
-  if (isLoading || isPermsLoading) {
+  if (isLoading || isPermsLoading || isUserLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
@@ -49,7 +51,7 @@ export default function AISettingsPage() {
     )
   }
 
-  if (isError || !isAdmin) return null
+  if (isError || (!isAdmin && !user?.is_superadmin)) return null
 
   const handleChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }))

@@ -1,6 +1,7 @@
 "use client"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Baby, MessageCircle, Sparkles, Bell, Clock } from "lucide-react"
+import { Baby, MessageCircle, Sparkles, Bell, Clock, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AppNotification } from "@/hooks/useNotifications"
 import { markAsRead } from "@/hooks/useNotifications"
@@ -33,28 +34,47 @@ type Props = {
 
 export function NotificationItem({ notification, onRead }: Props) {
     const router = useRouter()
+    const [isProcessing, setIsProcessing] = useState(false)
 
     const handleClick = async () => {
-        if (!notification.is_read) {
-            await markAsRead(notification.id)
-            onRead()
-        }
-        if (notification.url) {
-            router.push(notification.url)
+        if (isProcessing) return
+
+        setIsProcessing(true)
+        try {
+            if (!notification.is_read) {
+                await markAsRead(notification.id)
+                onRead()
+            }
+            if (notification.url) {
+                router.push(notification.url)
+                // NOTE: router.push does not return a promise. 
+                // We keep isProcessing=true to show loading until the page unmounts or navigates.
+            } else {
+                setIsProcessing(false)
+            }
+        } catch (error) {
+            console.error("Failed to process notification click:", error)
+            setIsProcessing(false)
         }
     }
 
     return (
         <button
             onClick={handleClick}
+            disabled={isProcessing}
             className={cn(
                 "w-full flex items-start gap-3 px-4 py-3 text-left transition-colors",
                 "hover:bg-gray-50 dark:hover:bg-zinc-800",
-                !notification.is_read && "bg-indigo-50/60 dark:bg-indigo-950/30"
+                !notification.is_read && "bg-indigo-50/60 dark:bg-indigo-950/30",
+                isProcessing && "opacity-70 cursor-wait"
             )}
         >
             <div className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm">
-                {TYPE_ICON[notification.type]}
+                {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                ) : (
+                    TYPE_ICON[notification.type]
+                )}
             </div>
             <div className="flex-1 min-w-0">
                 <p className={cn(

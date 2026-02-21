@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from app.database import SessionLocal
 from app.models.baby import Baby, BabyPermission
 from app.models.family import FamilyUser, UserRole
+from app.models.user import User, UserSession
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 
@@ -20,8 +21,6 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 def get_current_user(request: Request, response: Response, db: db_dependency):
-    from app.models.user import User, UserSession
-
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
@@ -80,26 +79,34 @@ def verify_baby_access(
     require_write=True の場合、viewer ロールを拒否する。
     失敗時 403 を raise。
     """
+    user = db.query(User).filter(User.id == user_id).first()
+    is_superadmin = user and user.is_superadmin
+
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
-    if not family_user:
+    
+    if not family_user and not is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
 
     # 書き込み制限のチェック
-    if require_write and family_user.role == UserRole.VIEWER:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Read-only users cannot perform this action"
-        )
+    if require_write:
+        can_write = (family_user and family_user.role != UserRole.VIEWER) or is_superadmin
+        if not can_write:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Read-only users cannot perform this action"
+            )
 
-    baby = db.query(Baby).filter(
-        Baby.id == baby_id,
-        Baby.family_id == family_user.family_id,
-    ).first()
+    baby_query = db.query(Baby).filter(Baby.id == baby_id)
+    if not is_superadmin:
+        # 通常ユーザーは自身のファミリーの赤ちゃんのみ閲覧可能
+        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
+        
+    baby = baby_query.first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
 
-    # admin は常に許可
-    if family_user.role == UserRole.ADMIN:
+    # admin / superadmin は常に許可
+    if is_superadmin or (family_user and family_user.role == UserRole.ADMIN):
         return baby
 
     # "baby" レベルの可視性チェック（デフォルト拒否）
@@ -132,11 +139,15 @@ def verify_write_access(db: Session, user_id: int) -> FamilyUser:
     ユーザーが書き込み権限（admin または member）を持っているか検証する。
     viewer の場合は 403 を raise。
     """
+    user = db.query(User).filter(User.id == user_id).first()
+    is_superadmin = user and user.is_superadmin
+
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
-    if not family_user:
+    if not family_user and not is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
 
-    if family_user.role == UserRole.VIEWER:
+    can_write = (family_user and family_user.role != UserRole.VIEWER) or is_superadmin
+    if not can_write:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Read-only users cannot perform this action"
