@@ -25,7 +25,7 @@
         "type": "object"
       },
       "AISettingsPatch": {
-        "description": "PATCH /api/ai/settings リクエストボディ",
+        "description": "PATCH /api/ai/settings \u30ea\u30af\u30a8\u30b9\u30c8\u30dc\u30c7\u30a3",
         "properties": {
           "settings": {
             "additionalProperties": {
@@ -42,7 +42,7 @@
         "type": "object"
       },
       "AISettingsSummary": {
-        "description": "GET /api/ai/settings レスポンス",
+        "description": "GET /api/ai/settings \u30ec\u30b9\u30dd\u30f3\u30b9",
         "properties": {
           "available_models": {
             "items": {
@@ -212,7 +212,7 @@
         "type": "object"
       },
       "BabyPermissionItem": {
-        "description": "単一の権限レコード（1ユーザー × 1record_type）",
+        "description": "\u5358\u4e00\u306e\u6a29\u9650\u30ec\u30b3\u30fc\u30c9\uff081\u30e6\u30fc\u30b6\u30fc \u00d7 1record_type\uff09",
         "properties": {
           "can_view": {
             "title": "Can View",
@@ -231,7 +231,7 @@
         "type": "object"
       },
       "BabyPermissionUpdate": {
-        "description": "PUT リクエストボディ: 赤ちゃん 1 体の全権限を一括更新",
+        "description": "PUT \u30ea\u30af\u30a8\u30b9\u30c8\u30dc\u30c7\u30a3: \u8d64\u3061\u3083\u3093 1 \u4f53\u306e\u5168\u6a29\u9650\u3092\u4e00\u62ec\u66f4\u65b0",
         "properties": {
           "permissions": {
             "items": {
@@ -248,7 +248,7 @@
         "type": "object"
       },
       "BabyPermissionsResponse": {
-        "description": "GET レスポンス: 赤ちゃん 1 体の全メンバー権限",
+        "description": "GET \u30ec\u30b9\u30dd\u30f3\u30b9: \u8d64\u3061\u3083\u3093 1 \u4f53\u306e\u5168\u30e1\u30f3\u30d0\u30fc\u6a29\u9650",
         "properties": {
           "baby_id": {
             "title": "Baby Id",
@@ -425,9 +425,9 @@
       "Body_upload_image_api_upload_image_post": {
         "properties": {
           "file": {
-            "format": "binary",
             "title": "File",
-            "type": "string"
+            "type": "string",
+            "contentMediaType": "application/octet-stream"
           }
         },
         "required": [
@@ -2609,7 +2609,7 @@
         "type": "object"
       },
       "UserPermissionEntry": {
-        "description": "PUT 用: 1ユーザー × 1record_type の更新エントリ",
+        "description": "PUT \u7528: 1\u30e6\u30fc\u30b6\u30fc \u00d7 1record_type \u306e\u66f4\u65b0\u30a8\u30f3\u30c8\u30ea",
         "properties": {
           "can_view": {
             "title": "Can View",
@@ -2633,7 +2633,7 @@
         "type": "object"
       },
       "UserPermissionSet": {
-        "description": "1ユーザーに対するすべての record_type の権限セット",
+        "description": "1\u30e6\u30fc\u30b6\u30fc\u306b\u5bfe\u3059\u308b\u3059\u3079\u3066\u306e record_type \u306e\u6a29\u9650\u30bb\u30c3\u30c8",
         "properties": {
           "permissions": {
             "items": {
@@ -3020,7 +3020,7 @@
     },
     "/api/ai/available-models": {
       "get": {
-        "description": "利用可能な LLM モデルを外部 API から取得する。",
+        "description": "\u5229\u7528\u53ef\u80fd\u306a LLM \u30e2\u30c7\u30eb\u3092\u5916\u90e8 API \u304b\u3089\u53d6\u5f97\u3059\u308b\u3002",
         "operationId": "list_available_models_api_ai_available_models_get",
         "responses": {
           "200": {
@@ -3046,7 +3046,7 @@
     },
     "/api/ai/settings": {
       "get": {
-        "description": "現在の AI 設定と利用可能なモデルリストを取得する。",
+        "description": "\u73fe\u5728\u306e AI \u8a2d\u5b9a\u3068\u5229\u7528\u53ef\u80fd\u306a\u30e2\u30c7\u30eb\u30ea\u30b9\u30c8\u3092\u53d6\u5f97\u3059\u308b\u3002",
         "operationId": "get_ai_settings_api_ai_settings_get",
         "responses": {
           "200": {
@@ -3066,7 +3066,7 @@
         ]
       },
       "patch": {
-        "description": "AI 設定を更新する。",
+        "description": "AI \u8a2d\u5b9a\u3092\u66f4\u65b0\u3059\u308b\u3002",
         "operationId": "update_ai_settings_api_ai_settings_patch",
         "requestBody": {
           "content": {
@@ -3508,7 +3508,7 @@
     },
     "/api/babies/{baby_id}/daily-summary": {
       "get": {
-        "description": "直近30件を降順で返す。",
+        "description": "\u76f4\u8fd130\u4ef6\u3092\u964d\u9806\u3067\u8fd4\u3059\u3002",
         "operationId": "list_daily_summaries_api_babies__baby_id__daily_summary_get",
         "parameters": [
           {
@@ -3553,7 +3553,7 @@
         ]
       },
       "post": {
-        "description": "日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。",
+        "description": "\u65e5\u8a8c\u3092\u751f\u6210\uff08upsert\uff09\u3002is_edited=True \u306a\u3089\u65e2\u5b58\u3092\u305d\u306e\u307e\u307e\u8fd4\u3059\u3002",
         "operationId": "create_or_get_daily_summary_api_babies__baby_id__daily_summary_post",
         "parameters": [
           {
@@ -3606,7 +3606,7 @@
     },
     "/api/babies/{baby_id}/daily-summary/{summary_date}": {
       "delete": {
-        "description": "指定日の日誌を削除。",
+        "description": "\u6307\u5b9a\u65e5\u306e\u65e5\u8a8c\u3092\u524a\u9664\u3002",
         "operationId": "delete_daily_summary_api_babies__baby_id__daily_summary__summary_date__delete",
         "parameters": [
           {
@@ -3650,7 +3650,7 @@
         ]
       },
       "get": {
-        "description": "指定日の日誌を取得。",
+        "description": "\u6307\u5b9a\u65e5\u306e\u65e5\u8a8c\u3092\u53d6\u5f97\u3002",
         "operationId": "get_daily_summary_api_babies__baby_id__daily_summary__summary_date__get",
         "parameters": [
           {
@@ -3701,7 +3701,7 @@
         ]
       },
       "patch": {
-        "description": "手動編集。edited_content=null でリセット（is_edited=False に戻す）。",
+        "description": "\u624b\u52d5\u7de8\u96c6\u3002edited_content=null \u3067\u30ea\u30bb\u30c3\u30c8\uff08is_edited=False \u306b\u623b\u3059\uff09\u3002",
         "operationId": "edit_daily_summary_api_babies__baby_id__daily_summary__summary_date__patch",
         "parameters": [
           {
@@ -3764,7 +3764,7 @@
     },
     "/api/babies/{baby_id}/notes": {
       "get": {
-        "description": "メモ一覧取得（履歴）",
+        "description": "\u30e1\u30e2\u4e00\u89a7\u53d6\u5f97\uff08\u5c65\u6b74\uff09",
         "operationId": "get_notes_api_babies__baby_id__notes_get",
         "parameters": [
           {
@@ -3809,7 +3809,7 @@
         ]
       },
       "post": {
-        "description": "メモの新規登録",
+        "description": "\u30e1\u30e2\u306e\u65b0\u898f\u767b\u9332",
         "operationId": "create_note_api_babies__baby_id__notes_post",
         "parameters": [
           {
@@ -3954,7 +3954,7 @@
     },
     "/api/babies/{baby_id}/record-feedback": {
       "post": {
-        "description": "直近24時間の記録をAIが分析し、コメントとして保存する",
+        "description": "\u76f4\u8fd124\u6642\u9593\u306e\u8a18\u9332\u3092AI\u304c\u5206\u6790\u3057\u3001\u30b3\u30e1\u30f3\u30c8\u3068\u3057\u3066\u4fdd\u5b58\u3059\u308b",
         "operationId": "create_record_feedback_api_babies__baby_id__record_feedback_post",
         "parameters": [
           {
@@ -5121,7 +5121,7 @@
     },
     "/api/notes/{note_id}": {
       "delete": {
-        "description": "メモの削除",
+        "description": "\u30e1\u30e2\u306e\u524a\u9664",
         "operationId": "delete_note_api_notes__note_id__delete",
         "parameters": [
           {
@@ -5160,7 +5160,7 @@
         ]
       },
       "patch": {
-        "description": "メモの編集",
+        "description": "\u30e1\u30e2\u306e\u7de8\u96c6",
         "operationId": "update_note_api_notes__note_id__patch",
         "parameters": [
           {
@@ -5213,7 +5213,7 @@
     },
     "/api/notifications": {
       "get": {
-        "description": "最新20件の通知を返す",
+        "description": "\u6700\u65b020\u4ef6\u306e\u901a\u77e5\u3092\u8fd4\u3059",
         "operationId": "list_notifications_api_notifications_get",
         "responses": {
           "200": {
@@ -5239,7 +5239,7 @@
     },
     "/api/notifications/read-all": {
       "patch": {
-        "description": "全通知を一括既読にする",
+        "description": "\u5168\u901a\u77e5\u3092\u4e00\u62ec\u65e2\u8aad\u306b\u3059\u308b",
         "operationId": "mark_all_as_read_api_notifications_read_all_patch",
         "responses": {
           "204": {
@@ -5355,7 +5355,7 @@
     },
     "/api/notifications/test": {
       "post": {
-        "description": "テスト通知を自分自身に送信する",
+        "description": "\u30c6\u30b9\u30c8\u901a\u77e5\u3092\u81ea\u5206\u81ea\u8eab\u306b\u9001\u4fe1\u3059\u308b",
         "operationId": "send_test_notification_api_notifications_test_post",
         "responses": {
           "200": {
@@ -5375,7 +5375,7 @@
     },
     "/api/notifications/unread-count": {
       "get": {
-        "description": "未読通知数を返す",
+        "description": "\u672a\u8aad\u901a\u77e5\u6570\u3092\u8fd4\u3059",
         "operationId": "unread_count_api_notifications_unread_count_get",
         "responses": {
           "200": {
@@ -5437,7 +5437,7 @@
     },
     "/api/notifications/{notification_id}/read": {
       "patch": {
-        "description": "個別通知を既読にする",
+        "description": "\u500b\u5225\u901a\u77e5\u3092\u65e2\u8aad\u306b\u3059\u308b",
         "operationId": "mark_as_read_api_notifications__notification_id__read_patch",
         "parameters": [
           {
@@ -5894,7 +5894,7 @@
     },
     "/api/upload/image": {
       "post": {
-        "description": "画像をバックエンド経由で R2 にアップロードする。",
+        "description": "\u753b\u50cf\u3092\u30d0\u30c3\u30af\u30a8\u30f3\u30c9\u7d4c\u7531\u3067 R2 \u306b\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9\u3059\u308b\u3002",
         "operationId": "upload_image_api_upload_image_post",
         "requestBody": {
           "content": {
