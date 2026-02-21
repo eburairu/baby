@@ -56,3 +56,36 @@ async def test_rate_limit_with_none_client():
     limiter = RateLimiter(requests_limit=5)
     await limiter(request)
     assert len(limiter.requests["unknown"]) == 1
+
+
+@pytest.mark.enable_rate_limit
+def test_register_rate_limit(client):
+    """
+    Verify that the registration endpoint enforces rate limiting (3 requests per 60s).
+    """
+    # 3 attempts should succeed (or fail with 400 if user exists/invalid, but pass rate limiter)
+    # The rate limiter runs as a dependency, so it counts requests regardless of the handler result.
+
+    for i in range(3):
+        res = client.post(
+            "/api/auth/register/family",
+            json={
+                "username": f"test_register_{i}",
+                "password": "password1",
+                "name": f"Test Family {i}"
+            }
+        )
+        # We expect 200 OK or 400 Bad Request (if something else is wrong), but not 429
+        assert res.status_code != 429
+
+    # 4th attempt should fail with 429
+    res = client.post(
+        "/api/auth/register/family",
+        json={
+            "username": "test_register_4",
+            "password": "password1",
+            "name": "Test Family 4"
+        }
+    )
+    assert res.status_code == 429
+    assert res.json()["detail"] == "Too many registration attempts. Please try again later."

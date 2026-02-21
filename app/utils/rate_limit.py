@@ -6,10 +6,17 @@ class RateLimiter:
     """
     Simple in-memory rate limiter based on IP address.
     """
-    def __init__(self, requests_limit: int = 5, time_window: int = 60, max_size: int = 10000):
+    def __init__(
+        self,
+        requests_limit: int = 5,
+        time_window: int = 60,
+        max_size: int = 10000,
+        error_message: str = "Too many requests. Please try again later.",
+    ):
         self.requests_limit = requests_limit
         self.time_window = time_window
         self.max_size = max_size
+        self.error_message = error_message
         self.requests = defaultdict(list)
 
     async def __call__(self, request: Request):
@@ -31,7 +38,7 @@ class RateLimiter:
         if len(self.requests[client_ip]) >= self.requests_limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Too many login attempts. Please try again later."
+                detail=self.error_message,
             )
 
         self.requests[client_ip].append(now)
