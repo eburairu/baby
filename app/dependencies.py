@@ -109,6 +109,12 @@ def verify_baby_access(
     if is_superadmin or (family_user and family_user.role == UserRole.ADMIN):
         return baby
 
+    # 書き込み操作の場合、BabyPermission の can_view チェックをスキップ
+    # BabyPermission は閲覧アクセス制御のみ担当（書き込み権限はロールで制御）
+    # MEMBER は BabyPermission 未設定でも記録を作成・編集・削除できる
+    if require_write:
+        return baby
+
     # "baby" レベルの可視性チェック（デフォルト拒否）
     baby_perm = db.query(BabyPermission).filter(
         BabyPermission.baby_id == baby_id,
