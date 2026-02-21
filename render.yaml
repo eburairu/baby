@@ -1,31 +1,48 @@
 services:
+  # 1. バックエンド: FastAPI (Python Native Web Service)
   - type: web
-    name: baby-app-next
+    name: baby-api-next
     runtime: python
     autoDeploy: false
     plan: free
-    buildCommand: pip install -r requirements.txt && cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
+    buildCommand: pip install -r requirements.txt
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
     envVars:
       - key: DATABASE_URL
-        sync: false  # Neon の接続文字列を Render Dashboard で手動設定
+        sync: false  # Neon の接続文字列を Render Dashboard で設定
       - key: SECRET_KEY
         generateValue: true
       - key: COOKIE_SECURE
         value: "true"
       - key: CORS_ORIGINS
-        value: "https://baby-app-next.onrender.com"
+        value: "https://baby-app-next.onrender.com"  # フロントエンドの URL
       - key: TZ
         value: "Asia/Tokyo"
       - key: LLM_PROVIDER
-        value: "google"  # "openai" または "google"
+        value: "google"
       - key: LLM_API_KEY
-        sync: false  # APIキーを Render Dashboard で手動設定
+        sync: false
       - key: LLM_MODEL
-        value: "gemini-2.0-flash"  # 未設定時は provider に応じて自動選択（gpt-4o / gemini-2.0-flash）
+        value: "gemini-2.0-flash"
       - key: PYTHON_VERSION
         value: "3.10.12"
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: PYTHONDONTWRITEBYTECODE
         value: "1"
+
+  # 2. フロントエンド: Next.js (Native Static Site)
+  - type: static
+    name: baby-app-next
+    buildCommand: cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
+    publishDir: frontend/out
+    autoDeploy: false
+    routes:
+      # API リクエストをバックエンドへリライト (Cookie を維持するためシングルオリジンに見せる)
+      - type: rewrite
+        source: /api/*
+        destination: https://baby-api-next.onrender.com/api/*
+      # SPA ルーティング対応 (存在しないパスは index.html へ)
+      - type: rewrite
+        source: /*
+        destination: /index.html
