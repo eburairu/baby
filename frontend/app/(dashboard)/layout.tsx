@@ -34,7 +34,7 @@ import { PageLoading } from "@/components/ui/page-loading"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 
 const ALL_NAV_ITEMS = [
-    { label: "ホーム", href: "/", icon: "🏠", prenatal: true, postnatal: true },
+    { label: "ホーム", href: "/dashboard", icon: "🏠", prenatal: true, postnatal: true },
     { label: "授乳", href: "/feeding", icon: "🍼", prenatal: false, postnatal: true },
     { label: "おむつ", href: "/diaper", icon: "👶", prenatal: false, postnatal: true },
     { label: "睡眠", href: "/sleep", icon: "💤", prenatal: false, postnatal: true },
@@ -171,7 +171,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </SheetContent>
                             </Sheet>
                         )}
-                        <Link href="/">
+                        <Link href="/dashboard">
                             <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-zinc-100" data-sentry-unmask>Baby App</h1>
                         </Link>
                         {appVersion && (
