@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { api } from "@/lib/api"
 import { useSleeps } from "@/hooks/useData"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Loader2, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { SleepCreate } from "@/types/sleep"
 
 const formSchema = z.object({
@@ -112,9 +112,8 @@ export function SleepForm({ babyId }: Props) {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white shadow-none" disabled={form.formState.isSubmitting} data-sentry-unmask>
-                            {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            記録する
+                        <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white shadow-none" loading={form.formState.isSubmitting} data-sentry-unmask>
+                            {form.formState.isSubmitting ? "保存中..." : "記録する"}
                         </Button>
                     </form>
                 </Form>

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, User, MessageCircle } from "lucide-react"
+import { Trash2, Pencil, User, MessageCircle, Loader2 } from "lucide-react"
 import { api } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DiaperEditDialog } from "./DiaperEditDialog"
@@ -195,6 +195,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

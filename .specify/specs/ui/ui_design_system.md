@@ -301,6 +301,7 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 <Button
   type="button"
   onClick={handleToggle}
+  disabled={isLoading} // 処理中は無効化
   className={cn(
     "h-16 w-full text-base font-bold rounded-xl transition-all duration-200",
     isActive
@@ -308,9 +309,23 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
       : "bg-{category}-500 hover:bg-{category}-600 text-white shadow-md shadow-{category}-200"
   )}
 >
-  {isActive ? "停止" : "開始"}
+  {isLoading ? (
+    <Loader2 className="h-6 w-6 animate-spin" />
+  ) : (
+    isActive ? "停止" : "開始"
+  )}
 </Button>
 ```
+
+### 3.6 処理中フィードバック（Loading Feedback）の共通規定
+
+ユーザーがボタン（記録ボタン、タイマーボタン、クイックボタン等）を押した際、システムが処理中であることを示すため、以下のルールを全ボタンに適用する。
+
+1. **ボタンの無効化（Disabled）**: APIリクエスト中や状態遷移中は、連打による重複登録を防ぐため、必ず `disabled` 属性を付与する。
+2. **視覚的フィードバック**:
+    - **テキスト置換**: 「保存」を「保存中...」のように変更する。
+    - **スピナー表示**: 文字列の代わりに、または文字列の隣に `Loader2`（Lucide React）などのスピナーを `animate-spin` で表示する。
+    - **透明度**: `disabled` 時のスタイルとして `opacity-50` 等を適用し、クリック不可であることを示す（shadcn/ui のデフォルト挙動を推奨）。
 
 ---
 
@@ -496,18 +511,31 @@ export function SettingsHeader({
 
 ### 6.3 送信ボタン
 
+全フォームで `isSubmitting` を利用して処理中のフィードバックを必須とする。
+
 ```tsx
 // 全フォーム共通
 <Button
   type="submit"
   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
-  disabled={isSubmitting}
+  disabled={isSubmitting} // 重複送信の完全防止
 >
-  {isSubmitting ? "保存中..." : "保存する"}
+  {isSubmitting ? (
+    <>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      保存中...
+    </>
+  ) : (
+    "保存する"
+  )}
 </Button>
 ```
 
-> **注**: 送信ボタンは `indigo` で統一する（カテゴリーカラーに依存しない）。これは「保存」という普遍的なアクションのため、カテゴリーカラーに染めず中立的に扱う。
+**適用ルール**:
+- `isSubmitting` または `isLoading` の boolean ステートを導入する。
+- 処理中は `disabled` とし、連打を防ぐ。
+- 文字列の置換（「保存」→「保存中...」）とスピナー（`Loader2`）の併用。
+- ページ遷移後もローディング状態が不要な場合は、即座にリセットする。
 
 ---
 
