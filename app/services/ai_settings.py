@@ -52,13 +52,13 @@ def get_available_llm_models() -> List[Dict[str, str]]:
         client = genai.Client(api_key=api_key)
         models = []
         for m in client.models.list():
-            if "generateContent" in m.supported_generation_methods:
+            if m.supported_actions and "generateContent" in m.supported_actions:
                 # 'models/gemini-1.5-pro' -> 'gemini-1.5-pro'
                 model_id = m.name.split("/")[-1]
                 models.append({
                     "id": model_id,
                     "name": m.display_name,
-                    "description": m.description
+                    "description": m.description or ""
                 })
         return models
     except Exception as e:
