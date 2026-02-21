@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
 import { Play, Pause, RotateCcw, Save } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -171,6 +172,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
             }
 
             await onAdd(data)
+            toast.success("記録しました")
 
             // Reset
             form.reset({
@@ -186,6 +188,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
             setBottleContentType(null)
         } catch (error) {
             console.error("Failed to add feeding record:", error)
+            toast.error("保存に失敗しました")
         } finally {
             setIsSubmitting(false)
         }

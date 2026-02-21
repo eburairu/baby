@@ -12,6 +12,7 @@ import { api } from "@/lib/api"
 import { useSleeps } from "@/hooks/useData"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
+import { toast } from "sonner"
 import { SleepCreate } from "@/types/sleep"
 
 const formSchema = z.object({
@@ -50,10 +51,12 @@ export function SleepForm({ babyId }: Props) {
 
             await api.post("/sleeps/", payload)
             mutate()
+            toast.success("記録しました")
             form.reset()
             setIsOpen(false)
         } catch (e) {
             console.error(e)
+            toast.error("保存に失敗しました")
         }
     }
 
