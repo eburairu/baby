@@ -1,6 +1,69 @@
 {
   "components": {
     "schemas": {
+      "AIModel": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "title": "AIModel",
+        "type": "object"
+      },
+      "AISettingsPatch": {
+        "description": "PATCH /api/ai/settings リクエストボディ",
+        "properties": {
+          "settings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Settings",
+            "type": "object"
+          }
+        },
+        "required": [
+          "settings"
+        ],
+        "title": "AISettingsPatch",
+        "type": "object"
+      },
+      "AISettingsSummary": {
+        "description": "GET /api/ai/settings レスポンス",
+        "properties": {
+          "available_models": {
+            "items": {
+              "$ref": "#/components/schemas/AIModel"
+            },
+            "title": "Available Models",
+            "type": "array"
+          },
+          "settings": {
+            "additionalProperties": true,
+            "title": "Settings",
+            "type": "object"
+          }
+        },
+        "required": [
+          "settings",
+          "available_models"
+        ],
+        "title": "AISettingsSummary",
+        "type": "object"
+      },
       "AppNotificationResponse": {
         "properties": {
           "body": {
@@ -2693,6 +2756,98 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/ai/available-models": {
+      "get": {
+        "description": "利用可能な LLM モデルを外部 API から取得する。",
+        "operationId": "list_available_models_api_ai_available_models_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AIModel"
+                  },
+                  "title": "Response List Available Models Api Ai Available Models Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Available Models",
+        "tags": [
+          "ai-settings"
+        ]
+      }
+    },
+    "/api/ai/settings": {
+      "get": {
+        "description": "現在の AI 設定と利用可能なモデルリストを取得する。",
+        "operationId": "get_ai_settings_api_ai_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AISettingsSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Ai Settings",
+        "tags": [
+          "ai-settings"
+        ]
+      },
+      "patch": {
+        "description": "AI 設定を更新する。",
+        "operationId": "update_ai_settings_api_ai_settings_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AISettingsPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Update Ai Settings Api Ai Settings Patch",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Ai Settings",
+        "tags": [
+          "ai-settings"
+        ]
+      }
+    },
     "/api/auth/change-password": {
       "post": {
         "operationId": "change_password_api_auth_change_password_post",

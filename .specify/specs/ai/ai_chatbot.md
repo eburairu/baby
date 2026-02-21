@@ -16,9 +16,8 @@
 - セッションは赤ちゃん単位で管理し、複数のトピックを分けて会話できる。
 - **モデル選択の方針 (2026年2月更新)**: 
     - Google AI Studio (Gemini) を優先プロバイダーとする。
-    - 予算（月額1,500円程度）の範囲内で、高品質な相談が可能な **Gemini 3 Pro** をデフォルトのメインモデルとする。
-    - 速度やコスト効率を重視する場合、またはバックアップとして **Gemini 3 Flash** を活用する。
-    - 入力トークンコストが低いため、過去数日間のコンテキストを含めた高品質な分析が可能。
+    - **管理画面 (AI設定)** から、利用可能な最新モデル（Gemini 1.5 Pro, Flash 等）を選択可能とする。
+    - 予算や用途に応じて、管理者がモデルや生成パラメーターを動的に変更できる。
 
 ---
 
@@ -300,18 +299,21 @@ from sqlalchemy.orm import Session
 from openai import OpenAI
 
 
-def get_llm_client() -> Tuple[OpenAI, str]:
-    """(client, model_name) を返す (ai_summary と共通化を推奨)"""
+def get_llm_client(db: Session) -> Tuple[OpenAI, str]:
+    """(client, model_name) を返す (管理画面の設定を優先)"""
+    config = get_ai_config(db)
     provider = os.environ.get("LLM_PROVIDER", "google").lower()
     api_key = os.environ.get("LLM_API_KEY")
-    model = os.environ.get("LLM_MODEL")
+    
+    # DB設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
 
     if provider == "google":
         client = OpenAI(
             api_key=api_key,
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
-        model = model or "gemini-3-pro"
+        model = model or "gemini-1.5-pro"
     else:
         client = OpenAI(api_key=api_key)
         model = model or "gpt-4o"
@@ -434,15 +436,16 @@ def build_messages_for_llm(
     return messages
 
 
-def call_llm_chat(messages: list) -> str:
+def call_llm_chat(db: Session, messages: list) -> str:
     """API を呼び出してアシスタント応答テキストを返す。失敗時は例外を raise する。"""
-    client, model_name = get_llm_client()
+    client, model_name = get_llm_client(db)
+    config = get_ai_config(db)
     try:
         response = client.chat.completions.create(
             model=model_name,
             messages=messages,
-            max_tokens=800,
-            temperature=0.7,
+            max_tokens=config.get("llm_max_tokens", 800),
+            temperature=config.get("llm_temperature", 0.7),
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -460,13 +463,16 @@ app.include_router(chatbot.router)
 
 ---
 
-## 環境変数
+## 設定（管理画面）
 
-| 変数名 | 説明 | 必須 |
+AI チャットの動作は、`/settings/ai` (管理画面) の以下の設定値に依存する。詳細は `ai_settings.md` を参照。
+
+| 設定キー | 説明 | デフォルト |
 |--------|------|------|
-| `LLM_API_KEY` | Gemini または OpenAI の API キー | ✅ |
-| `LLM_PROVIDER` | `google` または `openai` | ✅ |
-| `LLM_MODEL` | 使用するモデル名 (gemini-3-pro 等) | |
+| `llm_model` | 使用するモデル名 | `gemini-1.5-pro` |
+| `ai_enabled_chat` | チャット機能の有効化 | `true` |
+| `llm_temperature` | 生成時の多様性 | `0.7` |
+| `llm_max_tokens` | 最大出力トークン数 | `800` |
 
 ---
 

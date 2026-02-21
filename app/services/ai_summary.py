@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Tuple, Type
 from sqlalchemy.orm import Session
 from openai import OpenAI
+from app.services.ai_settings import get_ai_config
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -14,11 +15,14 @@ from app.models.note import Note
 logger = logging.getLogger(__name__)
 
 
-def get_llm_client() -> Tuple[OpenAI, str]:
+def get_llm_client(db: Session) -> Tuple[OpenAI, str]:
     """(client, model_name) を返す"""
+    config = get_ai_config(db)
     provider = os.environ.get("LLM_PROVIDER", "google").lower()
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
-    model = os.environ.get("LLM_MODEL")
+    
+    # DB 設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
 
     if provider == "google":
         client = OpenAI(
@@ -207,9 +211,8 @@ def update_baby_characteristics(
     )
 
     try:
-        client, _ = get_llm_client()
-        # 更新用モデルは軽量モデルでも良いが、指示順守のため生成と同じモデルまたは安定したモデルを使用
-        # ここでは generate と同じモデルを使うか、デフォルト設定に従う
+        client, _ = get_llm_client(db)
+        config = get_ai_config(db)
         
         response = client.chat.completions.create(
             model=model_name,
@@ -218,7 +221,7 @@ def update_baby_characteristics(
                 {"role": "user", "content": update_prompt},
             ],
             max_tokens=400,
-            temperature=0.5,
+            temperature=config.get("llm_temperature", 0.5),
         )
         new_characteristics = response.choices[0].message.content.strip()
 
@@ -241,8 +244,13 @@ def generate_daily_summary(
 ) -> Tuple[str, str]:
     """(generated_content, model_name) を返す。
     記録が0件の場合は ValueError を raise。
+    AI 機能が無効な場合は RuntimeError を raise。
     API障害時は openai.APIError を伝播。
     """
+    config = get_ai_config(db)
+    if not config.get("ai_enabled_summary", True):
+        raise RuntimeError("AI 日誌生成機能は現在無効化されています。")
+
     prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby_name, target_date)
 
     if total_records == 0:
@@ -257,11 +265,11 @@ def generate_daily_summary(
         prompt = (
             f"【これまでの赤ちゃんの様子・特徴】\n{current_characteristics}\n\n" 
             + prompt
-            + "\n\n上記の特徴を踏まえつつ、本日の記録に矛盾があれば今日の記録を優先し、"
-            "「いつもは〜だが今日は〜だった」のように変化に触れてください。"
+            + "\n\n上記の特徴を踏まえつつ、本日の記 録に矛盾があれば今日の記録を優先し、"
+            "「いつもは〜だが今日は〜だった」のよう に変化に触れてください。"
         )
 
-    client, model_name = get_llm_client()
+    client, model_name = get_llm_client(db)
 
     response = client.chat.completions.create(
         model=model_name,
@@ -272,8 +280,8 @@ def generate_daily_summary(
             },
             {"role": "user", "content": prompt},
         ],
-        max_tokens=600,
-        temperature=0.7,
+        max_tokens=config.get("llm_max_tokens", 600),
+        temperature=config.get("llm_temperature", 0.7),
     )
 
     content = response.choices[0].message.content or ""

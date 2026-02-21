@@ -51,6 +51,8 @@ def create_or_get_daily_summary(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except openai.RateLimitError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
 
+import openai
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -13,6 +14,7 @@ from app.models.diaper import Diaper
 from app.models.growth import Growth
 from app.models.note import Note
 from app.services.ai_summary import get_llm_client, _fetch_records_in_range
+from app.services.ai_settings import get_ai_config
 
 logger = logging.getLogger(__name__)
 
@@ -202,11 +204,15 @@ def generate_record_feedback(
     record_id: int,
 ) -> Tuple[str, bool, str]:
     """
-    (feedback_text, has_concern, model_name) を返す。
+    (feedback_text, has_concern, model_name) を返す 。
     JSON パース失敗時は has_concern=False としてフォールバック。
     """
+    config = get_ai_config(db)
+    if not config.get("ai_enabled_feedback", True):
+        raise RuntimeError("AI 記録フィードバック機能は現在無効化されています。")
+
     prompt = build_feedback_prompt(db, baby_id, baby_name, record_type, record_id)
-    client, model_name = get_llm_client()
+    client, model_name = get_llm_client(db)
 
     last_error: Exception = RuntimeError("no attempts made")
     for attempt in range(3):
@@ -219,13 +225,13 @@ def generate_record_feedback(
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=300,
-                temperature=0.5,
+                max_tokens=config.get("llm_max_tokens", 300),
+                temperature=config.get("llm_temperature", 0.5),
                 response_format={"type": "json_object"},
             )
             break
-        except openai.RateLimitError as e:
-            logger.warning("Rate limit on attempt %d: %s", attempt + 1, e)
+        except (openai.RateLimitError, openai.APIConnectionError) as e:
+            logger.warning("Retryable error on attempt %d: %s", attempt + 1, e)
             last_error = e
     else:
         raise last_error
