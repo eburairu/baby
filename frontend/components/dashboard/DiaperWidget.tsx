@@ -12,6 +12,7 @@ import { DiaperType } from "@/types/diaper"
 import { BabyRecord } from "@/hooks/useData"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { toast } from "sonner"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 interface Props {
     babyId: string
@@ -24,6 +25,7 @@ interface Props {
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
+    const { triggerFeedback } = useRecordFeedback(babyId)
 
     const isAccessDenied = isApiError(isError) && isError.status === 403
 
@@ -62,12 +64,13 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         setLoading(true)
         const typeLabel = diaperType === DiaperType.WET ? "おしっこ" : "うんち"
         try {
-            await api.post("/diapers/", {
+            const record = await api.post<{ id: number }>("/diapers/", {
                 baby_id: Number(babyId),
                 diaper_type: diaperType,
                 change_time: new Date().toISOString(),
             })
             toast.success(`${typeLabel}を記録しました`)
+            triggerFeedback("diaper", record.id)
             if (mutate) mutate()
         } catch (e) {
             console.error(e)

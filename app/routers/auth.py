@@ -13,8 +13,12 @@ from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser, UserRole
 from app.services.auth import verify_password, get_password_hash
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
+from app.utils.rate_limit import RateLimiter
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+# Limit login attempts to 5 per 60 seconds
+login_limiter = RateLimiter(requests_limit=5, time_window=60)
 
 # Generate a dummy hash for timing attack mitigation
 # This ensures verify_password is called even if user is not found,
@@ -152,7 +156,7 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
     )
 
 
-@router.post("/login", response_model=UserResponse)
+@router.post("/login", response_model=UserResponse, dependencies=[Depends(login_limiter)])
 def login(login_request: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == login_request.username).first()
 

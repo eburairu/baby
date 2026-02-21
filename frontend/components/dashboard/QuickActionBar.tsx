@@ -5,6 +5,7 @@ import { api } from "@/lib/api"
 import { usePermissions } from "@/hooks/usePermissions"
 import { BabyRecord } from "@/hooks/useData"
 import { Moon, Bed } from "lucide-react"
+import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 interface Props {
     babyId: string
@@ -15,6 +16,7 @@ interface Props {
 export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
+    const { triggerFeedback } = useRecordFeedback(babyId)
 
     const activeSleep = useMemo(() => {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
@@ -26,11 +28,12 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         setLoading(true)
         try {
             if (type === "feeding_bottle" || type === "feeding_breast") {
-                await api.post("/feedings/", {
+                const record = await api.post<{ id: number }>("/feedings/", {
                     baby_id: Number(babyId),
                     feeding_type: type === "feeding_bottle" ? "BOTTLE" : "BREAST",
                     feeding_time: new Date().toISOString(),
                 })
+                triggerFeedback("feeding", record.id)
             } else if (type === "sleep") {
                 if (activeSleep) {
                     await api.patch(`/sleeps/${activeSleep.id}`, {
@@ -43,11 +46,12 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     })
                 }
             } else if (type === "diaper_wet" || type === "diaper_dirty") {
-                await api.post("/diapers/", {
+                const record = await api.post<{ id: number }>("/diapers/", {
                     baby_id: Number(babyId),
                     diaper_type: type === "diaper_wet" ? "WET" : "DIRTY",
                     change_time: new Date().toISOString(),
                 })
+                triggerFeedback("diaper", record.id)
             }
             if (mutateRecords) mutateRecords()
         } catch (e) {
