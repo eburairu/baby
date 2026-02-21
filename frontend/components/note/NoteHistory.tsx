@@ -7,7 +7,7 @@ import * as z from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Note, deleteNote, updateNote } from "@/hooks/useNotes"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, Calendar, Save, User, MessageCircle } from "lucide-react"
+import { Trash2, Pencil, Calendar, Save, User, MessageCircle, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import {
@@ -264,10 +264,10 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                 </Button>
                                 <Button 
                                     type="submit" 
-                                    disabled={submitting}
+                                    loading={submitting}
                                     data-sentry-unmask className="bg-indigo-600 hover:bg-indigo-700 text-white"
                                 >
-                                    <Save className="h-4 w-4 mr-2" />
+                                    {!submitting && <Save className="h-4 w-4 mr-2" />}
                                     {submitting ? "保存中..." : "保存する"}
                                 </Button>
                             </DialogFooter>
@@ -288,6 +288,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>

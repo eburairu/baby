@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
 import { Play, Pause, RotateCcw, Save } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -42,6 +43,7 @@ type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
 export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
     const [activeTab, setActiveTab] = useState<FeedingType>("BREAST")
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // 左右独立タイマー
     const [leftSeconds, setLeftSeconds] = useState(0)
@@ -132,55 +134,64 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
     const totalSeconds = leftSeconds + rightSeconds
 
     const onSubmit = useCallback(async (values: FeedingFormValues) => {
-        const leftMin = values.left_breast_minutes || 0
-        const rightMin = values.right_breast_minutes || 0
+        setIsSubmitting(true)
+        try {
+            const leftMin = values.left_breast_minutes || 0
+            const rightMin = values.right_breast_minutes || 0
 
-        // 最終授乳側を判定
-        let lastBreastSide: BreastSide | undefined
-        if (activeTab === "BREAST") {
-            if (leftMin > 0 && rightMin > 0) lastBreastSide = "BOTH"
-            else if (leftMin > 0) lastBreastSide = "LEFT"
-            else if (rightMin > 0) lastBreastSide = "RIGHT"
-        }
-
-        const data: FeedingCreate = {
-            baby_id: babyId,
-            feeding_time: values.feeding_time,
-            feeding_type: activeTab,
-            notes: values.notes || undefined,
-            feeding_completion: feedingCompletion ?? undefined,
-        }
-
-        if (activeTab === "BREAST") {
-            data.left_breast_minutes = leftMin || undefined
-            data.right_breast_minutes = rightMin || undefined
-            data.last_breast_side = lastBreastSide
-            // duration_minutesはバックエンドが自動計算（両方指定時）
-            // 片方のみの場合はフロント側で設定
-            if (leftMin > 0 && rightMin > 0) {
-                // バックエンドが自動計算
-            } else {
-                data.duration_minutes = leftMin + rightMin || undefined
+            // 最終授乳側を判定
+            let lastBreastSide: BreastSide | undefined
+            if (activeTab === "BREAST") {
+                if (leftMin > 0 && rightMin > 0) lastBreastSide = "BOTH"
+                else if (leftMin > 0) lastBreastSide = "LEFT"
+                else if (rightMin > 0) lastBreastSide = "RIGHT"
             }
-        } else {
-            data.amount_ml = values.amount_ml
-            data.bottle_content_type = bottleContentType ?? undefined
+
+            const data: FeedingCreate = {
+                baby_id: babyId,
+                feeding_time: values.feeding_time,
+                feeding_type: activeTab,
+                notes: values.notes || undefined,
+                feeding_completion: feedingCompletion ?? undefined,
+            }
+
+            if (activeTab === "BREAST") {
+                data.left_breast_minutes = leftMin || undefined
+                data.right_breast_minutes = rightMin || undefined
+                data.last_breast_side = lastBreastSide
+                // duration_minutesはバックエンドが自動計算（両方指定時）
+                // 片方のみの場合はフロント側で設定
+                if (leftMin > 0 && rightMin > 0) {
+                    // バックエンドが自動計算
+                } else {
+                    data.duration_minutes = leftMin + rightMin || undefined
+                }
+            } else {
+                data.amount_ml = values.amount_ml
+                data.bottle_content_type = bottleContentType ?? undefined
+            }
+
+            await onAdd(data)
+            toast.success("記録しました")
+
+            // Reset
+            form.reset({
+                feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                feeding_type: activeTab as "BREAST" | "BOTTLE",
+                left_breast_minutes: 0,
+                right_breast_minutes: 0,
+                amount_ml: 120,
+                notes: "",
+            })
+            resetAllTimers()
+            setFeedingCompletion(null)
+            setBottleContentType(null)
+        } catch (error) {
+            console.error("Failed to add feeding record:", error)
+            toast.error("保存に失敗しました")
+        } finally {
+            setIsSubmitting(false)
         }
-
-        await onAdd(data)
-
-        // Reset
-        form.reset({
-            feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            feeding_type: activeTab as "BREAST" | "BOTTLE",
-            left_breast_minutes: 0,
-            right_breast_minutes: 0,
-            amount_ml: 120,
-            notes: "",
-        })
-        resetAllTimers()
-        setFeedingCompletion(null)
-        setBottleContentType(null)
     }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, resetAllTimers])
 
     // eslint-disable-next-line react-hooks/refs
@@ -392,9 +403,14 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" data-sentry-unmask>
-                                <Save className="w-4 h-4 mr-2" />
-                                記録する
+                            <Button
+                                type="submit"
+                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                                loading={isSubmitting}
+                                data-sentry-unmask
+                            >
+                                {!isSubmitting && <Save className="w-4 h-4 mr-2" />}
+                                {isSubmitting ? "保存中..." : "記録する"}
                             </Button>
                         </form>
                     </Form>

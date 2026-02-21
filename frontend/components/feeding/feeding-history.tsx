@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Feeding } from "@/types/feeding";
-import { Trash2, Milk, Baby, User, MessageCircle } from "lucide-react";
+import { Trash2, Milk, Baby, User, MessageCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useUser } from "@/hooks/useAuth";
@@ -79,9 +80,11 @@ export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true,
         setIsDeleting(true);
         try {
             await onDelete(deleteTargetId);
+            toast.success("削除しました");
             setDeleteTargetId(null);
         } catch (e) {
             console.error(e);
+            toast.error("削除に失敗しました");
         } finally {
             setIsDeleting(false);
         }
@@ -188,6 +191,7 @@ export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true,
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除
                         </AlertDialogAction>
                     </AlertDialogFooter>
