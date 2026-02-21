@@ -1,7 +1,7 @@
 import os
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-import google.generativeai as genai
+from google import genai
 from app.models.system_settings import SystemSetting
 
 
@@ -49,23 +49,23 @@ def get_available_llm_models() -> List[Dict[str, str]]:
         return []
 
     try:
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         models = []
-        for m in genai.list_models():
-            if "generateContent" in m.supported_generation_methods:
+        for m in client.models.list():
+            if m.supported_actions and "generateContent" in m.supported_actions:
                 # 'models/gemini-1.5-pro' -> 'gemini-1.5-pro'
                 model_id = m.name.split("/")[-1]
                 models.append({
                     "id": model_id,
                     "name": m.display_name,
-                    "description": m.description
+                    "description": m.description or ""
                 })
         return models
     except Exception as e:
         print(f"Error fetching models: {e}")
         # フォールバックとして主要なモデルを返す
         return [
-            {"id": "gemini-1.5-pro", "name": "Gemini 1.5 Pro", "description": "Highly capable model"},
-            {"id": "gemini-1.5-flash", "name": "Gemini 1.5 Flash", "description": "Fast and efficient model"},
-            {"id": "gemini-1.0-pro", "name": "Gemini 1.0 Pro", "description": "Balanced performance"},
+            {"id": "gemini-2.5-pro", "name": "Gemini 2.5 Pro", "description": "Highly capable model"},
+            {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash", "description": "Fast and efficient model"},
+            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash", "description": "Balanced performance"},
         ]
