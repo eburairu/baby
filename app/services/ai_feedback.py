@@ -252,16 +252,23 @@ def generate_record_feedback(
         if attempt > 0:
             time.sleep(2 ** attempt)  # 2s, 4s
         try:
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=[
+            kwargs = {
+                "model": model_name,
+                "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=config.get("llm_max_tokens", 512),
-                temperature=config.get("llm_temperature", 0.5),
-                response_format={"type": "json_object"},
-            )
+                "max_tokens": int(config.get("llm_max_tokens", 2048)),
+                "temperature": float(config.get("llm_temperature", 0.5)),
+                "response_format": {"type": "json_object"},
+            }
+            
+            # 推論（思考）プロセスの制御設定があれば追加 (Gemini 2.5/3.0+ OpenAI互換レイヤー)
+            reasoning_effort = config.get("llm_reasoning_effort")
+            if reasoning_effort and reasoning_effort != "default":
+                kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+            response = client.chat.completions.create(**kwargs)
             break
         except openai.BadRequestError as e:
             # Gemini API は安全性フィルターでブロックした場合に 400 BadRequest を返すことがある

@@ -33,6 +33,10 @@ def get_ai_config(db: Session) -> Dict[str, Any]:
         else:
             config[key] = True  # デフォルトは True
 
+    # 推論（思考）レベルの設定 (none, low, medium, high)
+    if "llm_reasoning_effort" not in config:
+        config["llm_reasoning_effort"] = "none"
+
     return config
 
 
