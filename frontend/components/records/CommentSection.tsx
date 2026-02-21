@@ -144,8 +144,13 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
 
               {(currentUserId === comment.user_id) && (
                 <button
-                  onClick={() => handleDelete(comment.id)}
-                  className="absolute top-2 right-2 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    if (window.confirm("このコメントを削除しますか？")) {
+                      handleDelete(comment.id);
+                    }
+                  }}
+                  aria-label="コメントを削除"
+                  className="absolute top-2 right-2 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 rounded"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -167,6 +172,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
           onChange={(e) => setContent(e.target.value)}
           onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
           placeholder="お疲れ様！応援メッセージを送ろう"
+          aria-label="応援メッセージ"
           className="text-sm min-h-[60px] resize-none"
         />
         <div className="flex justify-end">
@@ -177,11 +183,16 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
             className="bg-orange-500 hover:bg-orange-600 text-white"
           >
             {isSubmitting ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                送信中...
+              </>
             ) : (
-              <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
+              <>
+                <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
+                応援を送る
+              </>
             )}
-            応援を送る
           </Button>
         </div>
       </form>

@@ -1,7 +1,7 @@
 import createClient from "openapi-fetch";
 import type { paths } from "@/types/generated/api";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "") + "/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 /**
  * 型安全な API クライアント

@@ -18,7 +18,18 @@ from app.utils.rate_limit import RateLimiter
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # Limit login attempts to 5 per 60 seconds
-login_limiter = RateLimiter(requests_limit=5, time_window=60)
+login_limiter = RateLimiter(
+    requests_limit=5,
+    time_window=60,
+    error_message="Too many login attempts. Please try again later.",
+)
+
+# Limit registration attempts to 3 per 60 seconds to prevent spam
+register_limiter = RateLimiter(
+    requests_limit=3,
+    time_window=60,
+    error_message="Too many registration attempts. Please try again later.",
+)
 
 # Generate a dummy hash for timing attack mitigation
 # This ensures verify_password is called even if user is not found,
@@ -73,7 +84,11 @@ def update_profile(
 
 
 
-@router.post("/register/family", response_model=FamilyResponse)
+@router.post(
+    "/register/family",
+    response_model=FamilyResponse,
+    dependencies=[Depends(register_limiter)],
+)
 def register_family(family_in: FamilyCreate, response: Response, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.username == family_in.username).first()
     if existing_user:
@@ -112,7 +127,11 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     return new_family
 
 
-@router.post("/register/join", response_model=UserResponse)
+@router.post(
+    "/register/join",
+    response_model=UserResponse,
+    dependencies=[Depends(register_limiter)],
+)
 def join_family(user_in: UserCreate, invite_code: str, response: Response, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.username == user_in.username).first()
     if existing_user:
