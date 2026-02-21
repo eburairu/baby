@@ -15,9 +15,8 @@
 - AI API 障害時は HTTP 503 を返し、記録を壊さない。
 - **モデル選択の方針 (2026年2月更新)**: 
     - Google AI Studio (Gemini) を優先プロバイダーとする。
-    - 予算（月額1,500円程度）の範囲内で、最高品質な生成が可能な **Gemini 3 Pro** をデフォルトのメインモデルとする。
-    - 速度やコスト効率を重視する場合、またはバックアップとして **Gemini 3 Flash** を活用する。
-    - 入力トークンコストが低いため、過去数日間のコンテキストを含めた高品質な分析が可能。
+    - **管理画面 (AI設定)** から、利用可能な最新モデル（Gemini 1.5 Pro, Flash 等）を選択可能とする。
+    - 予算や用途に応じて、管理者がモデルや生成パラメーターを動的に変更できる。
 
 ---
 
@@ -263,18 +262,21 @@ from app.models.growth import Growth
 from app.models.note import Note
 
 
-def get_llm_client() -> Tuple[OpenAI, str]:
-    """(client, model_name) を返す"""
+def get_llm_client(db: Session) -> Tuple[OpenAI, str]:
+    """(client, model_name) を返す (管理画面の設定を優先)"""
+    config = get_ai_config(db)
     provider = os.environ.get("LLM_PROVIDER", "google").lower()
     api_key = os.environ.get("LLM_API_KEY")
-    model = os.environ.get("LLM_MODEL")
+    
+    # DB設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
 
     if provider == "google":
         client = OpenAI(
             api_key=api_key,
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         )
-        model = model or "gemini-3-pro"
+        model = model or "gemini-1.5-pro"
     else:
         client = OpenAI(api_key=api_key)
         model = model or "gpt-4o"
@@ -460,9 +462,9 @@ def update_baby_characteristics(
     )
 
     try:
-        client, _ = get_llm_client()
+        client, _ = get_llm_client(db)
         # 更新用モデルは軽量モデルでも良いが、指示順守のため生成と同じモデルまたは安定したモデルを使用
-        # ここでは generate と同じモデルを使うか、デフォルト設定に従う
+        config = get_ai_config(db)
 
         response = client.chat.completions.create(
             model=model_name,
@@ -471,7 +473,7 @@ def update_baby_characteristics(
                 {"role": "user", "content": update_prompt},
             ],
             max_tokens=400,
-            temperature=0.5,
+            temperature=config.get("llm_temperature", 0.5),
         )
         new_characteristics = response.choices[0].message.content.strip()
 
@@ -514,7 +516,8 @@ def generate_daily_summary(
             "「いつもは〜だが今日は〜だった」のように変化に触れてください。"
         )
 
-    client, model_name = get_llm_client()
+    client, model_name = get_llm_client(db)
+    config = get_ai_config(db)
 
     response = client.chat.completions.create(
         model=model_name,
@@ -525,8 +528,8 @@ def generate_daily_summary(
             },
             {"role": "user", "content": prompt},
         ],
-        max_tokens=600,
-        temperature=0.7,
+        max_tokens=config.get("llm_max_tokens", 600),
+        temperature=config.get("llm_temperature", 0.7),
     )
 
     content = response.choices[0].message.content or ""
@@ -558,15 +561,16 @@ app.include_router(ai_summary.router)
 
 ---
 
-## 環境変数
+## 設定（管理画面）
 
-| 変数名 | 説明 | 必須 |
+AI 日誌生成の動作は、`/settings/ai` (管理画面) の以下の設定値に依存する。詳細は `ai_settings.md` を参照。
+
+| 設定キー | 説明 | デフォルト |
 |--------|------|------|
-| `LLM_API_KEY` | Gemini または OpenAI の API キー | ✅ |
-| `LLM_PROVIDER` | `google` または `openai` | ✅ |
-| `LLM_MODEL` | 使用するモデル名 | |
-
-> Gemini への切替方法: `LLM_PROVIDER=google` を設定。デフォルトで `gemini-3-pro` を使用する。
+| `llm_model` | 使用するモデル名 | `gemini-1.5-pro` |
+| `ai_enabled_summary` | 日誌生成機能の有効化 | `true` |
+| `llm_temperature` | 生成時の多様性 | `0.7` |
+| `llm_max_tokens` | 最大出力トークン数 | `600` |
 
 ---
 
