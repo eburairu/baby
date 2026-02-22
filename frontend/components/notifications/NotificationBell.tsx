@@ -13,16 +13,29 @@ export function NotificationBell() {
     const { notifications, mutate: mutateList, isLoading } = useNotifications()
     const panelRef = useRef<HTMLDivElement>(null)
 
-    // パネル外クリックで閉じる
+    // パネル外クリックまたはEscapeキーで閉じる
     useEffect(() => {
         if (!open) return
-        const handler = (e: MouseEvent) => {
+
+        const clickHandler = (e: MouseEvent) => {
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
                 setOpen(false)
             }
         }
-        document.addEventListener("mousedown", handler)
-        return () => document.removeEventListener("mousedown", handler)
+
+        const keyHandler = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setOpen(false)
+            }
+        }
+
+        document.addEventListener("mousedown", clickHandler)
+        document.addEventListener("keydown", keyHandler)
+
+        return () => {
+            document.removeEventListener("mousedown", clickHandler)
+            document.removeEventListener("keydown", keyHandler)
+        }
     }, [open])
 
     const handleOpen = () => {
@@ -56,7 +69,9 @@ export function NotificationBell() {
                 variant="ghost"
                 size="icon"
                 onClick={handleOpen}
-                aria-label="通知"
+                aria-label={count > 0 ? `通知、${count}件の未読` : "通知"}
+                aria-expanded={open}
+                aria-haspopup="dialog"
                 className="relative text-gray-500 dark:text-zinc-400"
             >
                 <Bell className="h-5 w-5" />
@@ -68,10 +83,15 @@ export function NotificationBell() {
             </Button>
 
             {open && (
-                <div className={cn(
-                    "absolute right-0 top-10 z-[100] w-80 rounded-xl border border-gray-100 dark:border-zinc-800",
-                    "bg-white dark:bg-zinc-900 shadow-lg overflow-hidden"
-                )}>
+                <div
+                    className={cn(
+                        "absolute right-0 top-10 z-[100] w-80 rounded-xl border border-gray-100 dark:border-zinc-800",
+                        "bg-white dark:bg-zinc-900 shadow-lg overflow-hidden"
+                    )}
+                    role="dialog"
+                    aria-label="通知一覧"
+                    aria-modal="false"
+                >
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-zinc-800">
                         <span className="text-sm font-semibold text-gray-800 dark:text-zinc-100">通知</span>
@@ -97,8 +117,9 @@ export function NotificationBell() {
                                 読み込み中...
                             </div>
                         ) : notifications.length === 0 ? (
-                            <div className="px-4 py-8 text-center text-sm text-gray-400 dark:text-zinc-500">
-                                通知はありません
+                            <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center text-sm text-gray-400 dark:text-zinc-500">
+                                <Bell className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                <p>通知はありません</p>
                             </div>
                         ) : (
                             notifications.map((n) => (

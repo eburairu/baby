@@ -159,6 +159,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                     )}
                                     <button
                                         onClick={() => setCommentTarget({ id: note.id, title: `メモ ${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
+                                        aria-label={`${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })} のメモへのコメント`}
                                         className="flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
                                     >
                                         <MessageCircle className="h-3 w-3" />
@@ -172,7 +173,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                             size="icon"
                                             className="h-8 w-8 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
                                             onClick={() => handleEditStart(note)}
-                                            aria-label="メモを編集"
+                                            aria-label={`${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })} のメモを編集`}
                                         >
                                             <Pencil className="h-4 w-4" />
                                         </Button>
@@ -181,7 +182,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                             size="icon"
                                             className="h-8 w-8 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                                             onClick={() => setDeleteTargetId(note.id)}
-                                            aria-label="メモを削除"
+                                            aria-label={`${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })} のメモを削除`}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>

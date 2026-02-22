@@ -117,7 +117,8 @@ export function GrowthHistoryList({
                                             <Button
                                                 variant="ghost"
                                                 size="icon-xs"
-                                                onClick={() => onEdit(record)} aria-label={`${record.date} の成長記録を編集`}
+                                                onClick={() => onEdit(record)}
+                                                aria-label={`${record.date} の成長記録を編集`}
                                             >
                                                 <Edit2 className="h-4 w-4" />
                                             </Button>

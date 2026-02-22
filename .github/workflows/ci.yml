@@ -41,16 +41,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.10"
+          enable-cache: true
 
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
+      - name: Install Python dependencies
+        run: uv sync --frozen --group dev
 
       - name: Run tests
-        run: pytest tests/ -q
+        run: uv run pytest tests/ -q
 
   validate-schema:
     name: Validate OpenAPI Schema
@@ -59,22 +59,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.10"
+          enable-cache: true
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: uv sync --frozen
 
       - name: Generate OpenAPI schema
-        run: python scripts/export_openapi.py
+        run: uv run python scripts/export_openapi.py
 
       - name: Check for schema drift
         run: |
           if ! git diff --quiet frontend/openapi.json; then
             echo "::error::frontend/openapi.json is out of date."
-            echo "Run 'python scripts/export_openapi.py' and commit the result."
+            echo "Run 'npm run schema:generate' and commit the result."
             git diff frontend/openapi.json
             exit 1
           fi
