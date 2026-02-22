@@ -70,13 +70,40 @@ export default function DashboardPage() {
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
-                    <FeedingWidget babyId={effectiveBabyId} records={records} />
-                    <SleepWidget babyId={effectiveBabyId} records={records} />
-                    <DiaperWidget babyId={effectiveBabyId} records={records} />
-                    <GrowthWidget babyId={effectiveBabyId} records={records} />
+                    <FeedingWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                        mutate={() => mutateRecords()}
+                    />
+                    <SleepWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                        mutate={() => mutateRecords()}
+                    />
+                    <DiaperWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                        mutate={() => mutateRecords()}
+                    />
+                    <GrowthWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                    />
                 </div>
 
-                <NoteWidget babyId={effectiveBabyId} records={records} />
+                <NoteWidget
+                    babyId={effectiveBabyId}
+                    records={records}
+                    isLoading={recordsLoading}
+                />
 
                 <RecentActivityFeed
                     babyId={effectiveBabyId}
