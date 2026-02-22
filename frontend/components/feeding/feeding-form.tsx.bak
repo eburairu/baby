@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useFeedingTimer } from "@/hooks/useFeedingTimer"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -44,26 +43,19 @@ interface FeedingFormProps {
     lastMilkAmount?: number | null
 }
 
+type ActiveBreastSide = "LEFT" | "RIGHT" | null
+
 export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // 左右独立タイマー (Hooks)
-    const {
-        leftSeconds,
-        rightSeconds,
-        setLeftSeconds,
-        setRightSeconds,
-        activeBreastSide,
-        toggleTimer,
-        resetAllTimers,
-        formatTimer,
-        totalSeconds
-    } = useFeedingTimer({
-        initialLeftMinutes: initialData?.left_breast_minutes ?? 0,
-        initialRightMinutes: initialData?.right_breast_minutes ?? 0
-    })
+    // 左右独立タイマー
+    const [leftSeconds, setLeftSeconds] = useState((initialData?.left_breast_minutes ?? 0) * 60)
+    const [rightSeconds, setRightSeconds] = useState((initialData?.right_breast_minutes ?? 0) * 60)
+    const [activeBreastSide, setActiveBreastSide] = useState<ActiveBreastSide>(null)
+    const leftBaseRef = useRef<number | null>(null)
+    const rightBaseRef = useRef<number | null>(null)
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度
     const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(initialData?.bottle_content_type ?? null)
@@ -73,7 +65,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(feedingSchema) as any,
         defaultValues: {
-            feeding_time: initialData 
+            feeding_time: initialData
                 ? format(new Date(initialData.feeding_time), "yyyy-MM-dd'T'HH:mm")
                 : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
             feeding_type: initialData?.feeding_type ?? "BREAST",
@@ -84,21 +76,76 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         },
     })
 
-    // タイマーの値をフォームと同期
-    useEffect(() => {
-        form.setValue("left_breast_minutes", Math.ceil(leftSeconds / 60))
-    }, [leftSeconds, form])
-
-    useEffect(() => {
-        form.setValue("right_breast_minutes", Math.ceil(rightSeconds / 60))
-    }, [rightSeconds, form])
-
     // 前回のミルク量をデフォルトとしてセット (SWRで後から読み込まれた場合)
     useEffect(() => {
         if (!isEditing && lastMilkAmount && form.getValues("amount_ml") === 120) {
             form.setValue("amount_ml", lastMilkAmount)
         }
     }, [lastMilkAmount, isEditing, form])
+
+    // タイマーインターバル
+    useEffect(() => {
+        if (activeBreastSide === null) return
+        const interval = setInterval(() => {
+            const now = Date.now()
+            if (activeBreastSide === "LEFT" && leftBaseRef.current !== null) {
+                const diff = Math.floor((now - leftBaseRef.current) / 1000)
+                setLeftSeconds(diff)
+                form.setValue("left_breast_minutes", Math.ceil(diff / 60))
+            } else if (activeBreastSide === "RIGHT" && rightBaseRef.current !== null) {
+                const diff = Math.floor((now - rightBaseRef.current) / 1000)
+                setRightSeconds(diff)
+                form.setValue("right_breast_minutes", Math.ceil(diff / 60))
+            }
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [activeBreastSide, form])
+
+    const startTimer = (side: "LEFT" | "RIGHT") => {
+        // 反対側が動いていれば停止
+        if (side === "LEFT" && activeBreastSide === "RIGHT") {
+            rightBaseRef.current = null
+        } else if (side === "RIGHT" && activeBreastSide === "LEFT") {
+            leftBaseRef.current = null
+        }
+
+        if (side === "LEFT") {
+            leftBaseRef.current = Date.now() - leftSeconds * 1000
+        } else {
+            rightBaseRef.current = Date.now() - rightSeconds * 1000
+        }
+        setActiveBreastSide(side)
+    }
+
+    const stopTimer = () => {
+        setActiveBreastSide(null)
+    }
+
+    const toggleTimer = (side: "LEFT" | "RIGHT") => {
+        if (activeBreastSide === side) {
+            stopTimer()
+        } else {
+            startTimer(side)
+        }
+    }
+
+    const resetAllTimers = useCallback(() => {
+        setActiveBreastSide(null)
+        leftBaseRef.current = null
+        rightBaseRef.current = null
+        setLeftSeconds(0)
+        setRightSeconds(0)
+        form.setValue("left_breast_minutes", 0)
+        form.setValue("right_breast_minutes", 0)
+    }, [form])
+
+    const formatTimer = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    }
+
+    const totalSeconds = leftSeconds + rightSeconds
 
     const onSubmit = useCallback(async (values: FeedingFormValues) => {
         setIsSubmitting(true)
@@ -147,7 +194,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
             } else if (onAdd) {
                 await onAdd(data)
                 toast.success("記録しました")
-                
+
                 // Reset for new entry only
                 form.reset({
                     feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -161,7 +208,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                 setFeedingCompletion(null)
                 setBottleContentType(null)
             }
-            
+
             if (onSuccess) onSuccess()
         } catch (error) {
             console.error("Failed to save feeding record:", error)
@@ -169,8 +216,9 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         } finally {
             setIsSubmitting(false)
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, onUpdate, isEditing, initialData, resetAllTimers, onSuccess, lastMilkAmount])
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, onUpdate, isEditing, initialData, resetAllTimers, onSuccess])
 
+    // eslint-disable-next-line react-hooks/refs
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
     return (
