@@ -150,6 +150,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                                         ) : null}
                                         <button
                                             onClick={() => setCommentTarget({ id: diaper.id, title: `${style.label} ${formatDate(diaper.change_time)}` })}
+                                            aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント`}
                                             className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5"
                                         >
                                             <MessageCircle className="w-3 h-3" />
@@ -164,6 +165,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                                             size="icon"
                                             className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-transparent"
                                             onClick={() => handleEdit(diaper)}
+                                            aria-label={`${style.label} ${formatDate(diaper.change_time)} を編集`}
                                         >
                                             <Pencil className="h-4 w-4" />
                                         </Button>
@@ -172,6 +174,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                                             size="icon"
                                             className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-transparent"
                                             onClick={() => setDeleteTargetId(diaper.id)}
+                                            aria-label={`${style.label} ${formatDate(diaper.change_time)} を削除`}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
