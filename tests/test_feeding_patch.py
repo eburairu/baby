@@ -48,3 +48,48 @@ def test_update_feeding_notes(auth_client, db):
     # DB確認
     db.refresh(feeding)
     assert feeding.notes == new_notes
+
+def test_update_feeding_duration_auto_calc(auth_client, db):
+    # 認証済みクライアント
+    client = auth_client(username="feeder2", password="password123")
+    user_id = client.get("/api/auth/me").json()["id"]
+    from app.models.family import FamilyUser
+    family_id = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first().family_id
+
+    # 赤ちゃんの作成
+    baby = Baby(family_id=family_id, name="Test Baby 2", birthday=datetime.now().date())
+    db.add(baby)
+    db.commit()
+    db.refresh(baby)
+
+    # 授乳記録の作成 (最初は左右なし)
+    feeding = Feeding(
+        user_id=user_id,
+        baby_id=baby.id,
+        feeding_time=datetime.now(),
+        feeding_type=FeedingType.BREAST,
+        duration_minutes=10
+    )
+    db.add(feeding)
+    db.commit()
+    db.refresh(feeding)
+
+    # PATCH テスト: 左右の時間を更新
+    response = client.patch(
+        f"/api/feedings/{feeding.id}",
+        json={
+            "left_breast_minutes": 7,
+            "right_breast_minutes": 8
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    # duration_minutes が 7 + 8 = 15 に更新されているはず
+    assert data["duration_minutes"] == 15
+    assert data["left_breast_minutes"] == 7
+    assert data["right_breast_minutes"] == 8
+
+    # DB確認
+    db.refresh(feeding)
+    assert feeding.duration_minutes == 15

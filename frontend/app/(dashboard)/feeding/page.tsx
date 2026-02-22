@@ -41,6 +41,7 @@ export default function FeedingPage() {
         error: feedingError,
         summary,
         addFeeding,
+        updateFeeding,
         deleteFeeding,
         refresh: refreshFeedings,
     } = useFeeding(babyId)
@@ -93,9 +94,11 @@ export default function FeedingPage() {
                         <FeedingHistory
                             feedings={feedings || []}
                             onDelete={deleteFeeding}
+                            onUpdate={updateFeeding}
                             onRefresh={refreshFeedings}
                             canWrite={canWrite}
                             initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
+                            babyId={babyId}
                         />
                     </>
                 )}
