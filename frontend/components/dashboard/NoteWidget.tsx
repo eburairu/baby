@@ -1,13 +1,10 @@
 "use client"
 import { memo } from "react"
 import { areRecordsEqual } from "@/lib/memoUtils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { formatElapsed } from "@/lib/ageUtils"
-import Link from "next/link"
-import { ArrowRight, StickyNote } from "lucide-react"
+import { StickyNote } from "lucide-react"
 import { BabyRecord } from "@/hooks/useData"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { WidgetCard } from "./WidgetCard"
 
 interface Props {
   babyId: string
@@ -20,31 +17,23 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading 
   const lastNote = noteRecords[0]
   const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
 
+  const title = (
+    <>
+      <StickyNote className="h-4 w-4" />
+      メモ
+    </>
+  )
+
   return (
-    <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-      <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm font-medium text-amber-600 dark:text-amber-500 flex items-center gap-1">
-          <StickyNote className="h-4 w-4" />
-          メモ
-        </CardTitle>
-        <Link href={`/note?baby_id=${babyId}`}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 -mr-2 text-gray-400 hover:text-amber-600 dark:hover:text-amber-500 dark:text-zinc-600"
-            aria-label="メモ一覧"
-            title="一覧を見る"
-          >
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-2">
-            <BabyBottleLoading className="w-6 h-6 text-amber-400" />
-          </div>
-        ) : lastNote ? (
+    <WidgetCard
+        title={title}
+        titleClassName="text-amber-600 dark:text-amber-500"
+        href={`/note?baby_id=${babyId}`}
+        isLoading={isLoading}
+        loadingColorClass="text-amber-400"
+        actionButtonClassName="hover:text-amber-600 dark:hover:text-amber-500"
+    >
+        {lastNote ? (
           <div className="space-y-1">
             <p className="text-xs text-gray-500 dark:text-zinc-400">{elapsed}</p>
             <p className="text-sm text-gray-800 dark:text-zinc-200 line-clamp-2 font-medium leading-relaxed">
@@ -54,8 +43,7 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading 
         ) : (
           <p className="text-sm text-gray-400 dark:text-zinc-600 py-2">記録なし</p>
         )}
-      </CardContent>
-    </Card>
+    </WidgetCard>
   )
 }, (prev, next) => {
     if (prev.isLoading !== next.isLoading) return false
