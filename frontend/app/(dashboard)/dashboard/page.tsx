@@ -9,6 +9,7 @@ import { SleepWidget } from "@/components/dashboard/SleepWidget"
 import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
 import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
+import { DiaryWidget } from "@/components/dashboard/DiaryWidget"
 import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistrationDialog"
 import { OnboardingForm } from "@/components/dashboard/OnboardingForm"
 import { QuickActionBar } from "@/components/dashboard/QuickActionBar"
@@ -91,6 +92,15 @@ export default function DashboardPage() {
                         isError={recordsError}
                         mutate={() => mutateRecords()}
                     />
+                    <DiaryWidget
+                        babyId={effectiveBabyId}
+                    />
+                    <NoteWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                    />
                     <GrowthWidget
                         babyId={effectiveBabyId}
                         records={records}
@@ -98,12 +108,6 @@ export default function DashboardPage() {
                         isError={recordsError}
                     />
                 </div>
-
-                <NoteWidget
-                    babyId={effectiveBabyId}
-                    records={records}
-                    isLoading={recordsLoading}
-                />
 
                 <RecentActivityFeed
                     babyId={effectiveBabyId}
