@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
 import { usePermissions } from "@/hooks/usePermissions"
 import { BabyRecord } from "@/hooks/useData"
-import { Moon, Bed, Loader2 } from "lucide-react"
+import { Moon, Bed, Loader2, StickyNote } from "lucide-react"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { NoteForm } from "@/components/note/NoteForm"
 
 interface Props {
     babyId: string
@@ -16,6 +18,7 @@ interface Props {
 export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
+    const [noteDialogOpen, setNoteDialogOpen] = useState(false)
     const { triggerFeedback } = useRecordFeedback(babyId)
 
     const activeSleep = useMemo(() => {
@@ -133,6 +136,39 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         </span>
                     )}
                 </Button>
+                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-700 mx-1" />
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-12 w-12 rounded-xl text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex flex-col items-center justify-center gap-1"
+                    onClick={() => setNoteDialogOpen(true)}
+                    disabled={loading}
+                    title="メモ記録"
+                    aria-label="メモを記録"
+                >
+                    <StickyNote className="h-6 w-6" />
+                </Button>
+
+                <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+                    <DialogContent className="max-w-md w-[90%] rounded-2xl p-0 overflow-hidden border-0 dark:bg-zinc-950">
+                        <DialogHeader className="p-4 pb-0">
+                            <DialogTitle className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-2">
+                                <StickyNote className="h-4 w-4 text-amber-500" />
+                                メモを追加
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="p-4">
+                            <NoteForm
+                                babyId={Number(babyId)}
+                                defaultExpanded={true}
+                                onAddSuccess={() => {
+                                    setNoteDialogOpen(false)
+                                    if (mutateRecords) mutateRecords()
+                                }}
+                            />
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     )
