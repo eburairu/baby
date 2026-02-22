@@ -32,3 +32,13 @@
 学び: GrowthRecordForm.tsx は shadcn/ui の Form コンポーネントを使用せず、独自の実装を行っていたため、コードベース全体の一貫性が損なわれていた。
 また、useEffect による手動のリセットロジックは React Hook Form の values オプションを使用することで簡素化できる。
 アクション: GrowthRecordForm.tsx を shadcn/ui の Form コンポーネントを使用するようにリファクタリングし、React Hook Form のベストプラクティスに従う。これにより、コードの可読性が向上し、ボイラープレートコードが削減される。
+
+2026-02-23 - [Refactor] BabyFormのshadcn/ui化と非推奨パターンの排除
+
+学び:
+- `BabyForm` コンポーネントが標準的な `shadcn/ui` の `Form` コンポーネントを使用しておらず、一貫性が欠けていた。
+- `useEffect` を使用したフォーム値のリセットは、`react-hook-form` の `values` オプションを使用することで宣言的に記述でき、複雑さを排除できる。
+- `Controller` パターン (`FormField`) を使用することで、`RadioGroup` などの制御コンポーネントも統一的に扱える。
+
+アクション:
+- 他のフォームコンポーネントでも同様の `useEffect` によるリセットパターンがないか確認し、あれば `values` オプションへの置き換えを推奨する。
