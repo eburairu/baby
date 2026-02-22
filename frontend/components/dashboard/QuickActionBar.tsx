@@ -67,7 +67,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     }
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-sm:max-w-[320px] max-w-sm">
+        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-sm:max-w-[320px] max-w-sm">
             <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 dark:border-zinc-800 p-2 flex justify-around items-center transition-all duration-300">
                 <Button
                     variant="ghost"
