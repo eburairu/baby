@@ -85,6 +85,16 @@ export function useFeeding(babyId: number | null) {
         return newRecord;
     };
 
+    const updateFeeding = async (id: number, data: Partial<FeedingCreate>): Promise<Feeding | undefined> => {
+        if (!babyId) return undefined;
+        const updatedRecord = await throwOnError(client.PATCH('/api/feedings/{feeding_id}', {
+            params: { path: { feeding_id: id } },
+            body: data
+        }));
+        mutate();
+        return updatedRecord;
+    };
+
     const deleteFeeding = async (id: number) => {
         await throwOnError(client.DELETE('/api/feedings/{feeding_id}', {
             params: { path: { feeding_id: id } }
@@ -98,6 +108,7 @@ export function useFeeding(babyId: number | null) {
         error,
         summary,
         addFeeding,
+        updateFeeding,
         deleteFeeding,
         refresh: mutate,
     };
