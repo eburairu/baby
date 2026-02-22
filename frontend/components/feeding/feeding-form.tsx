@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Feeding, FeedingCreate, FeedingType, BreastSide, BottleContentType, FeedingCompletion } from "@/types/feeding"
+import { Feeding, FeedingCreate, FeedingUpdate, FeedingType, BreastSide, BottleContentType, FeedingCompletion } from "@/types/feeding"
 
 const feedingSchema = z.object({
     feeding_time: z.string(),
@@ -37,14 +37,15 @@ type FeedingFormValues = z.infer<typeof feedingSchema>
 interface FeedingFormProps {
     babyId: number
     onAdd?: (data: FeedingCreate) => Promise<void>
-    onUpdate?: (id: number, data: Partial<FeedingCreate>) => Promise<Feeding | undefined>
+    onUpdate?: (id: number, data: FeedingUpdate) => Promise<Feeding | undefined>
     initialData?: Feeding
     onSuccess?: () => void
+    lastMilkAmount?: number | null
 }
 
 type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
-export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess }: FeedingFormProps) {
+export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -70,10 +71,17 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess }:
             feeding_type: initialData?.feeding_type ?? "BREAST",
             left_breast_minutes: initialData?.left_breast_minutes ?? 0,
             right_breast_minutes: initialData?.right_breast_minutes ?? 0,
-            amount_ml: initialData?.amount_ml ?? 120,
+            amount_ml: initialData?.amount_ml ?? lastMilkAmount ?? 120,
             notes: initialData?.notes ?? "",
         },
     })
+
+    // 前回のミルク量をデフォルトとしてセット (SWRで後から読み込まれた場合)
+    useEffect(() => {
+        if (!isEditing && lastMilkAmount && form.getValues("amount_ml") === 120) {
+            form.setValue("amount_ml", lastMilkAmount)
+        }
+    }, [lastMilkAmount, isEditing, form])
 
     // タイマーインターバル
     useEffect(() => {
@@ -193,7 +201,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess }:
                     feeding_type: activeTab as "BREAST" | "BOTTLE",
                     left_breast_minutes: 0,
                     right_breast_minutes: 0,
-                    amount_ml: 120,
+                    amount_ml: data.amount_ml ?? lastMilkAmount ?? 120,
                     notes: "",
                 })
                 resetAllTimers()

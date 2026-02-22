@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { client, throwOnError } from '@/lib/api-client';
-import { Feeding, FeedingCreate, FeedingSummary } from '@/types/feeding';
+import { Feeding, FeedingCreate, FeedingUpdate, FeedingSummary } from '@/types/feeding';
 import { useMemo } from 'react';
 
 export function useFeeding(babyId: number | null) {
@@ -25,6 +25,7 @@ export function useFeeding(babyId: number | null) {
                 last_breast_side: null,
                 today_left_duration: 0,
                 today_right_duration: 0,
+                last_milk_amount: null,
             };
         }
 
@@ -62,6 +63,12 @@ export function useFeeding(babyId: number | null) {
         );
         const lastBreastSide = lastBreastFeeding?.last_breast_side ?? null;
 
+        // 直近のミルク記録から前回量を取得
+        const lastMilkFeeding = feedings.find(
+            f => (f.feeding_type === 'BOTTLE' || f.feeding_type === 'MIXED') && f.amount_ml !== null
+        );
+        const lastMilkAmount = lastMilkFeeding?.amount_ml ?? null;
+
         const lastFeeding = feedings[0];
 
         return {
@@ -73,6 +80,7 @@ export function useFeeding(babyId: number | null) {
             last_breast_side: lastBreastSide,
             today_left_duration: todayLeftDuration,
             today_right_duration: todayRightDuration,
+            last_milk_amount: lastMilkAmount,
         };
     }, [feedings]);
 
@@ -85,7 +93,7 @@ export function useFeeding(babyId: number | null) {
         return newRecord;
     };
 
-    const updateFeeding = async (id: number, data: Partial<FeedingCreate>): Promise<Feeding | undefined> => {
+    const updateFeeding = async (id: number, data: FeedingUpdate): Promise<Feeding | undefined> => {
         if (!babyId) return undefined;
         const updatedRecord = await throwOnError(client.PATCH('/api/feedings/{feeding_id}', {
             params: { path: { feeding_id: id } },
