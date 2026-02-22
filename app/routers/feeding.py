@@ -5,7 +5,7 @@ from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.feeding import Feeding
+from app.models.feeding import Feeding, FeedingType
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 from app.utils.timezone import to_jst_naive
@@ -93,6 +93,21 @@ def update_feeding(
     verify_baby_access(db, feeding.baby_id, current_user.id, record_type="feeding", require_write=True)
 
     update_data = feeding_in.model_dump(exclude_unset=True)
+
+    # 授乳タイプが変更された場合、不要になった項目を明示的にクリアする
+    if "feeding_type" in update_data:
+        new_type = update_data["feeding_type"]
+        if new_type == FeedingType.BREAST:
+            # 母乳に変更された場合、ボトル関連をクリア
+            feeding.amount_ml = None
+            feeding.bottle_content_type = None
+        elif new_type == FeedingType.BOTTLE:
+            # ボトルに変更された場合、母乳関連をクリア
+            feeding.left_breast_minutes = None
+            feeding.right_breast_minutes = None
+            feeding.last_breast_side = None
+            feeding.duration_minutes = None
+
     if "feeding_time" in update_data and update_data["feeding_time"]:
         update_data["feeding_time"] = to_jst_naive(update_data["feeding_time"])
 
