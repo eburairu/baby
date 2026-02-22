@@ -16,7 +16,7 @@ interface RecordPageLayoutProps {
     /** ページ全体の初期ロード中フラグ */
     isLoading?: boolean
     /** APIエラー (403判定に使用) */
-    apiError?: any
+    apiError?: unknown
     /** 対象の赤ちゃんID (未選択時のチェックに使用) */
     babyId?: string
     /** 子要素 (メインコンテンツ) */
