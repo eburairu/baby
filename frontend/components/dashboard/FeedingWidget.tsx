@@ -1,25 +1,17 @@
 "use client"
 import { useState, useMemo, memo } from "react"
-import { areRecordsEqual } from "@/lib/memoUtils"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { BabyRecord } from "@/hooks/useData"
 import { toast } from "sonner"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { BaseWidgetProps } from "@/types/widget"
+import { WidgetLoading } from "./WidgetLoading"
 
-interface Props {
-    babyId: string
-    records?: BabyRecord[]
-    isError?: unknown
-    mutate?: () => void
-    isLoading?: boolean
-}
-
-export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: Props) {
+export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
     const { triggerFeedback } = useRecordFeedback(babyId)
@@ -64,9 +56,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         >
             <div>
                 {isLoading ? (
-                    <div className="flex justify-center py-4">
-                        <BabyBottleLoading className="w-8 h-8 text-rose-400" />
-                    </div>
+                    <WidgetLoading className="text-rose-400" />
                 ) : (
                     <>
                         {elapsed ? (
@@ -106,10 +96,4 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             ) : null}
         </WidgetCard>
     )
-}, (prev, next) => {
-    if (prev.isLoading !== next.isLoading) return false
-    if (prev.isError !== next.isError) return false
-    if (prev.babyId !== next.babyId) return false
-    if (prev.mutate !== next.mutate) return false
-    return areRecordsEqual(prev.records, next.records, 'feeding')
-})
+}, createWidgetMemoComparison('feeding'))

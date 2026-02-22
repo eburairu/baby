@@ -1,24 +1,16 @@
 "use client"
 import { useState, useMemo, memo } from "react"
-import { areRecordsEqual } from "@/lib/memoUtils"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { BabyRecord } from "@/hooks/useData"
 import { toast } from "sonner"
 import { WidgetCard } from "./WidgetCard"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { BaseWidgetProps } from "@/types/widget"
+import { WidgetLoading } from "./WidgetLoading"
 
-interface Props {
-    babyId: string
-    records?: BabyRecord[]
-    isError?: unknown
-    mutate?: () => void
-    isLoading?: boolean
-}
-
-export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: Props) {
+export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
 
@@ -94,9 +86,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
         >
             <div>
                 {isLoading ? (
-                    <div className="flex justify-center py-4">
-                        <BabyBottleLoading className="w-8 h-8 text-indigo-400" />
-                    </div>
+                    <WidgetLoading className="text-indigo-400" />
                 ) : isSleeping ? (
                     <>
                         <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
@@ -130,10 +120,4 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
             ) : null}
         </WidgetCard>
     )
-}, (prev, next) => {
-    if (prev.isLoading !== next.isLoading) return false
-    if (prev.isError !== next.isError) return false
-    if (prev.babyId !== next.babyId) return false
-    if (prev.mutate !== next.mutate) return false
-    return areRecordsEqual(prev.records, next.records, 'sleep')
-})
+}, createWidgetMemoComparison('sleep'))
