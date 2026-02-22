@@ -5,17 +5,43 @@
  * それを阻止するためのガードレールスクリプトです。
  */
 const { execSync } = require("child_process");
+const path = require("path");
 
 try {
   const currentPath = process.cwd();
   
-  // パスに "/worktrees/" が含まれているか、または scripts などの許可されたディレクトリか判定
-  const isWorktree = currentPath.includes("/worktrees/");
+  // プロジェクトのルートディレクトリを取得
+  let projectRoot;
+  try {
+    const gitCommonDir = execSync("git rev-parse --git-common-dir", { encoding: "utf8" }).trim();
+    projectRoot = path.resolve(gitCommonDir, "..");
+  } catch (e) {
+    // Git 管理下でない場合は現在のパスをルートとみなす
+    projectRoot = currentPath;
+  }
+
+  // ワークツリーディレクトリのパス
+  const worktreesDir = path.join(projectRoot, "worktrees");
   
-  if (!isWorktree) {
+  // 現在のディレクトリがワークツリー配下か判定
+  const isInsideWorktree = currentPath.includes(path.sep + "worktrees" + path.sep) || currentPath.endsWith(path.sep + "worktrees") || currentPath === worktreesDir;
+  
+  // 許可されたディレクトリ（scripts/ 等）の判定
+  const allowedPaths = [
+    path.join(projectRoot, "scripts"),
+    path.join(projectRoot, ".gemini"),
+    path.join(projectRoot, ".specify")
+  ];
+  
+  const isAllowedPath = allowedPaths.some(allowedPath => 
+    currentPath === allowedPath || currentPath.startsWith(allowedPath + path.sep)
+  );
+
+  if (!isInsideWorktree && !isAllowedPath) {
     console.error("\x1b[31m%s\x1b[0m", "ERROR: AI エージェントによるルートディレクトリでの直接編集は禁止されています。");
     console.error("必ず `sh scripts/setup_worktree.sh` を使用してワークツリー内で作業してください。");
     console.error(`Current directory: ${currentPath}`);
+    console.error("例外として scripts/, .gemini/, .specify/ 配下での作業は許可されています。");
     process.exit(1);
   }
 } catch (error) {
