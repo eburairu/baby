@@ -103,7 +103,7 @@ export function GrowthHistoryList({
                                     {record.recorded_by_display_name ?? "-"}
                                 </td>
                                 <td className="py-2 px-4">
-                                    <button
+                                    <button aria-label={`${record.date} の成長記録へのコメント`}
                                         onClick={() => setCommentTarget({ id: record.id, title: `成長記録 ${record.date}` })}
                                         className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
                                     >
@@ -117,7 +117,7 @@ export function GrowthHistoryList({
                                             <Button
                                                 variant="ghost"
                                                 size="icon-xs"
-                                                onClick={() => onEdit(record)}
+                                                onClick={() => onEdit(record)} aria-label={`${record.date} の成長記録を編集`}
                                             >
                                                 <Edit2 className="h-4 w-4" />
                                             </Button>
@@ -125,7 +125,7 @@ export function GrowthHistoryList({
                                                 variant="ghost"
                                                 size="icon-xs"
                                                 className="text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteId(record.id)}
+                                                onClick={() => setDeleteId(record.id)} aria-label={`${record.date} の成長記録を削除`}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
