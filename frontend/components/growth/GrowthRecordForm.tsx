@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -14,8 +14,15 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
 import { Growth } from "@/types/growth"
 
@@ -49,36 +56,30 @@ export function GrowthRecordForm({
 }: GrowthRecordFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const form = useForm<GrowthFormValues>({
-        resolver: zodResolver(growthSchema),
-        defaultValues: {
-            date: format(new Date(), "yyyy-MM-dd"),
-            height: "",
-            weight: "",
-            head_circumference: "",
-            notes: "",
-        },
-    })
-
-    useEffect(() => {
+    const defaultValues: GrowthFormValues = useMemo(() => {
         if (record) {
-            form.reset({
+            return {
                 date: record.date,
                 height: record.height?.toString() || "",
                 weight: record.weight?.toString() || "",
                 head_circumference: record.head_circumference?.toString() || "",
                 notes: record.notes || "",
-            })
-        } else {
-            form.reset({
-                date: format(new Date(), "yyyy-MM-dd"),
-                height: "",
-                weight: "",
-                head_circumference: "",
-                notes: "",
-            })
+            }
         }
-    }, [record, form, isOpen])
+        return {
+            date: format(new Date(), "yyyy-MM-dd"),
+            height: "",
+            weight: "",
+            head_circumference: "",
+            notes: "",
+        }
+    }, [record])
+
+    const form = useForm<GrowthFormValues>({
+        resolver: zodResolver(growthSchema),
+        defaultValues,
+        values: defaultValues, // Sync form with record prop changes
+    })
 
     const onSubmit = async (values: GrowthFormValues) => {
         setIsSubmitting(true)
@@ -115,75 +116,110 @@ export function GrowthRecordForm({
                 <DialogHeader>
                     <DialogTitle>{record ? "記録を編集" : "新しい記録を追加"}</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="date">計測日</Label>
-                        <Input
-                            id="date"
-                            type="date"
-                            max="9999-12-31"
-                            {...form.register("date")}
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                        <FormField
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>計測日</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="date"
+                                            max="9999-12-31"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {form.formState.errors.date && (
-                            <p className="text-xs text-destructive">{form.formState.errors.date.message}</p>
-                        )}
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="height">身長 (cm)</Label>
-                            <Input
-                                id="height"
-                                type="number"
-                                step="0.1"
-                                placeholder="0.0"
-                                {...form.register("height")}
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="height"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>身長 (cm)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                step="0.1"
+                                                placeholder="0.0"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="weight"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>体重 (g)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="0"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="weight">体重 (g)</Label>
-                            <Input
-                                id="weight"
-                                type="number"
-                                placeholder="0"
-                                {...form.register("weight")}
-                            />
-                        </div>
-                    </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="head_circumference">頭囲 (cm)</Label>
-                        <Input
-                            id="head_circumference"
-                            type="number"
-                            step="0.1"
-                            placeholder="0.0"
-                            {...form.register("head_circumference")}
+                        <FormField
+                            control={form.control}
+                            name="head_circumference"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>頭囲 (cm)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            step="0.1"
+                                            placeholder="0.0"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="notes">メモ</Label>
-                        <Input
-                            id="notes"
-                            placeholder="備考など"
-                            {...form.register("notes")}
+                        <FormField
+                            control={form.control}
+                            name="notes"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>メモ</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="備考など"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
 
-                    {form.formState.errors.height && (
-                        <p className="text-xs text-destructive">{form.formState.errors.height.message}</p>
-                    )}
-
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={onClose} data-sentry-unmask>
-                            キャンセル
-                        </Button>
-                        <Button type="submit" loading={isSubmitting} data-sentry-unmask>
-                            {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={onClose} data-sentry-unmask>
+                                キャンセル
+                            </Button>
+                            <Button type="submit" loading={isSubmitting} data-sentry-unmask>
+                                {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     )
