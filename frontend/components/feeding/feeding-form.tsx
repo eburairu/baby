@@ -153,7 +153,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess }:
                 else if (rightMin > 0) lastBreastSide = "RIGHT"
             }
 
-            const data: Partial<FeedingCreate> = {
+            const data: FeedingCreate = {
                 baby_id: babyId,
                 feeding_time: values.feeding_time,
                 feeding_type: activeTab,
