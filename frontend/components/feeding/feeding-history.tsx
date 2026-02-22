@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Feeding, FeedingCreate } from "@/types/feeding";
+import { Feeding, FeedingCreate, FeedingUpdate } from "@/types/feeding";
 import { Trash2, Milk, Baby, User, MessageCircle, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -31,7 +31,7 @@ import {
 interface FeedingHistoryProps {
     feedings: Feeding[];
     onDelete: (id: number) => Promise<void>;
-    onUpdate?: (id: number, data: Partial<FeedingCreate>) => Promise<Feeding | undefined>;
+    onUpdate?: (id: number, data: FeedingUpdate) => Promise<Feeding | undefined>;
     onRefresh?: () => void;
     canWrite?: boolean;
     initialCommentRecordId?: number | null;

@@ -6,6 +6,7 @@ export type BottleContentType = components["schemas"]["BottleContentType"]
 export type FeedingCompletion = components["schemas"]["FeedingCompletion"]
 export type Feeding = components["schemas"]["FeedingResponse"]
 export type FeedingCreate = components["schemas"]["FeedingCreate"]
+export type FeedingUpdate = components["schemas"]["FeedingUpdate"]
 
 // フロントエンド固有の計算型（手動管理）
 export interface FeedingSummary {
@@ -18,4 +19,5 @@ export interface FeedingSummary {
     last_breast_side: BreastSide | null
     today_left_duration: number // minutes (左乳合計)
     today_right_duration: number // minutes (右乳合計)
+    last_milk_amount: number | null // ml (前回ミルク量)
 }

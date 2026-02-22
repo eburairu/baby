@@ -1115,10 +1115,7 @@ export interface components {
         };
         /** Body_upload_image_api_upload_image_post */
         Body_upload_image_api_upload_image_post: {
-            /**
-             * File
-             * Format: binary
-             */
+            /** File */
             file: string;
         };
         /**
