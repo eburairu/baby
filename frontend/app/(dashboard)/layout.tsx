@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
+import { ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { cn, getDisplayName } from "@/lib/utils"
@@ -44,11 +44,11 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode
 }) {
-    const { user, loading: authLoading } = useUser()
+    const { user, isLoading: authLoading } = useUser()
     const pathname = usePathname()
     const { babies, isLoading } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
-    const { version } = useAppVersion()
+    const { appVersion } = useAppVersion()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     useEffect(() => {
@@ -66,7 +66,7 @@ export default function DashboardLayout({
     }
 
     const selectedBaby = babies?.find(b => String(b.id) === selectedBabyId)
-    const born = selectedBaby ? isBorn(selectedBaby) : false
+    const born = selectedBaby ? isBorn(selectedBaby.birthday) : false
 
     const navItems = ALL_NAV_ITEMS.filter(item => {
         if (born) return item.postnatal
@@ -194,7 +194,7 @@ export default function DashboardLayout({
                                 </div>
                                 <div className="absolute bottom-6 left-6 right-6">
                                     <p className="text-[10px] text-gray-400 dark:text-zinc-500 text-center uppercase tracking-widest">
-                                        v{version}
+                                        v{appVersion?.version}
                                     </p>
                                 </div>
                             </SheetContent>
@@ -205,7 +205,7 @@ export default function DashboardLayout({
 
             {/* Mobile Bottom Navigation (Only on Postnatal / Main pages) */}
             {born && (
-                <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-t border-gray-100 dark:border-zinc-800 px-6 h-16 flex items-center justify-between pb-safe transition-colors">
+                <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-md border-t border-gray-100 dark:border-zinc-800 px-6 h-16 flex items-center justify-between pb-safe transition-colors">
                     {[
                         { label: "ホーム", href: "/dashboard", icon: "🏠" },
                         { label: "授乳", href: "/feeding", icon: "🍼" },

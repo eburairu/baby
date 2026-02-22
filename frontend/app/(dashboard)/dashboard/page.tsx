@@ -25,7 +25,7 @@ const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentAc
 export default function DashboardPage() {
     const { babies, isLoading, isError: babiesError, mutate: mutateBabies } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
-    const { canWrite } = usePermissions()
+    const { canWrite, isAdmin } = usePermissions()
 
     // Default to first baby if none selected
     useEffect(() => {
@@ -45,11 +45,12 @@ export default function DashboardPage() {
     }
 
     if (!babies || babies.length === 0) {
-        return <OnboardingForm onSuccess={mutateBabies} />
+        return <OnboardingForm isAdmin={!!isAdmin} onSuccess={mutateBabies} />
     }
 
-    const selectedBaby = babies.find(b => String(b.id) === (selectedBabyId || String(babies[0].id)))
-    const born = selectedBaby ? isBorn(selectedBaby) : false
+    const effectiveBabyId = selectedBabyId || String(babies[0].id)
+    const selectedBaby = babies.find(b => String(b.id) === effectiveBabyId)
+    const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
     const babiesWithStrId = babies.map(b => ({ ...b, id: String(b.id) }))
 
     return (
@@ -57,34 +58,41 @@ export default function DashboardPage() {
             <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
                 <BabyProfileCard
                     babies={babiesWithStrId}
-                    selectedBabyId={selectedBabyId || String(babies[0].id)}
+                    selectedBabyId={effectiveBabyId}
                 />
 
-                {!born && canWrite && (
+                {!born && canWrite && selectedBaby && (
                     <BirthRegistrationDialog
-                        baby={selectedBaby!}
+                        babyId={effectiveBabyId}
+                        babyName={selectedBaby.name}
                         onSuccess={mutateBabies}
                     />
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
-                    <FeedingWidget babyId={selectedBabyId} records={records} />
-                    <SleepWidget babyId={selectedBabyId} records={records} />
-                    <DiaperWidget babyId={selectedBabyId} records={records} />
-                    <GrowthWidget babyId={selectedBabyId} records={records} />
+                    <FeedingWidget babyId={effectiveBabyId} records={records} />
+                    <SleepWidget babyId={effectiveBabyId} records={records} />
+                    <DiaperWidget babyId={effectiveBabyId} records={records} />
+                    <GrowthWidget babyId={effectiveBabyId} records={records} />
                 </div>
 
-                <NoteWidget babyId={selectedBabyId} records={records} />
+                <NoteWidget babyId={effectiveBabyId} records={records} />
 
                 <RecentActivityFeed
-                    records={records || []}
+                    babyId={effectiveBabyId}
+                    records={records}
                     isLoading={recordsLoading}
-                    isError={!!recordsError}
-                    onRefresh={mutateRecords}
+                    mutate={() => mutateRecords()}
                 />
             </main>
 
-            <QuickActionBar />
+            {born && (
+                <QuickActionBar
+                    babyId={effectiveBabyId}
+                    mutateRecords={() => mutateRecords()}
+                    records={records}
+                />
+            )}
         </div>
     )
 }
