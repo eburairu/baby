@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
 import { usePermissions } from "@/hooks/usePermissions"
 import { BabyRecord } from "@/hooks/useData"
-import { Moon, Bed } from "lucide-react"
+import { Moon, Bed, Loader2 } from "lucide-react"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 
 interface Props {
@@ -71,8 +71,15 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     onClick={() => handleQuickRecord("feeding_bottle")}
                     disabled={loading}
                     title="ミルク記録"
+                    aria-label="ミルクを記録"
                 >
-                    <span className="text-xl">🍼</span>
+                    {loading ? (
+                        <Loader2 className="animate-spin" />
+                    ) : (
+                        <span className="text-xl" role="img" aria-hidden="true">
+                            🍼
+                        </span>
+                    )}
                 </Button>
                 <Button
                     variant="ghost"
@@ -81,8 +88,15 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     onClick={() => handleQuickRecord("sleep")}
                     disabled={loading}
                     title={activeSleep ? '睡眠終了' : '睡眠開始'}
+                    aria-label={activeSleep ? '睡眠終了' : '睡眠開始'}
                 >
-                    {activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+                    {loading ? (
+                        <Loader2 className="animate-spin" />
+                    ) : activeSleep ? (
+                        <Bed className="h-6 w-6" />
+                    ) : (
+                        <Moon className="h-6 w-6" />
+                    )}
                 </Button>
                 <div className="w-px h-8 bg-gray-200 dark:bg-zinc-700 mx-1" />
                 <Button
@@ -92,8 +106,15 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     onClick={() => handleQuickRecord("diaper_wet")}
                     disabled={loading}
                     title="おしっこ記録"
+                    aria-label="おしっこを記録"
                 >
-                    <span className="text-xl">💧</span>
+                    {loading ? (
+                        <Loader2 className="animate-spin" />
+                    ) : (
+                        <span className="text-xl" role="img" aria-hidden="true">
+                            💧
+                        </span>
+                    )}
                 </Button>
                 <Button
                     variant="ghost"
@@ -102,8 +123,15 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     onClick={() => handleQuickRecord("diaper_dirty")}
                     disabled={loading}
                     title="うんち記録"
+                    aria-label="うんちを記録"
                 >
-                    <span className="text-xl">💩</span>
+                    {loading ? (
+                        <Loader2 className="animate-spin" />
+                    ) : (
+                        <span className="text-xl" role="img" aria-hidden="true">
+                            💩
+                        </span>
+                    )}
                 </Button>
             </div>
         </div>
