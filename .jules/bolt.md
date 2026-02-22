@@ -9,3 +9,7 @@
 ## 2026-02-20 - [Partial Deep Comparison Risks]
 **Learning:** `React.memo` custom comparison functions that skip "old" data for performance can cause subtle bugs (e.g., historical edits not reflecting). Correctness > Micro-optimization.
 **Action:** Always verify "rare" user actions (like editing old records) when optimizing list renders. Modern JS engines handle 100+ JSON.stringifys faster than a React re-render.
+
+## 2026-02-26 - [N+1 Comment Count Optimization]
+**Learning:** Fetching auxiliary data (like comment counts) by scanning the entire table for a parent ID (e.g., `baby_id`) is inefficient when only a subset of records is returned.
+**Action:** Use a "fetch-then-batch" strategy: Retrieve the main records first, collect their IDs, and then execute a single targeted query using `IN` (or `OR` + `AND` for composite keys) to fetch only the necessary auxiliary data.

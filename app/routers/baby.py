@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func
+from collections import defaultdict
+from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, timezone, timedelta
@@ -177,29 +178,16 @@ def get_records(
         # If permission record exists, use its value. Otherwise default to False (default deny).
         return permissions.get(rt, False)
 
-    # Pre-fetch comment counts for all records of this baby
-    comment_counts = {}
-    try:
-        counts = db.query(
-            RecordComment.record_type,
-            RecordComment.record_id,
-            func.count(RecordComment.id)
-        ).filter(RecordComment.baby_id == baby_id).group_by(
-            RecordComment.record_type,
-            RecordComment.record_id
-        ).all()
-        for rt, rid, count in counts:
-            comment_counts[(rt, rid)] = count
-    except Exception as e:
-        print(f"Error fetching comment counts: {e}")
-        # Table might not exist yet, fallback to empty counts
-        pass
-
     # 各記録と紐付く user_id を収集するためのリスト（後でまとめてUser取得）
-    raw_records: list[tuple] = []  # (model_instance, type, timestamp, details_builder)
+    # (id, type, user_id, timestamp, details, comment_count_placeholder)
+    raw_records: list[tuple] = []
 
     if can_view_type("feeding"):
-        for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(limit).all():
+        # Select only necessary columns to avoid overhead of full ORM object creation
+        for feeding in db.query(
+            Feeding.id, Feeding.user_id, Feeding.feeding_time,
+            Feeding.feeding_type, Feeding.amount_ml, Feeding.duration_minutes, Feeding.notes
+        ).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(limit).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -208,33 +196,40 @@ def get_records(
                     "duration_minutes": feeding.duration_minutes,
                     "notes": feeding.notes,
                 },
-                comment_counts.get(("feeding", feeding.id), 0)
+                0
             ))
 
     if can_view_type("sleep"):
-        for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(limit).all():
+        for sleep in db.query(
+            Sleep.id, Sleep.user_id, Sleep.start_time, Sleep.end_time, Sleep.notes
+        ).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(limit).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
                     "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
                     "notes": sleep.notes,
                 },
-                comment_counts.get(("sleep", sleep.id), 0)
+                0
             ))
 
     if can_view_type("diaper"):
-        for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(limit).all():
+        for diaper in db.query(
+            Diaper.id, Diaper.user_id, Diaper.change_time, Diaper.diaper_type, Diaper.notes
+        ).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(limit).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
                     "diaper_type": diaper.diaper_type,
                     "notes": diaper.notes,
                 },
-                comment_counts.get(("diaper", diaper.id), 0)
+                0
             ))
 
     if can_view_type("growth"):
-        for growth in db.query(Growth).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(limit).all():
+        for growth in db.query(
+            Growth.id, Growth.user_id, Growth.date,
+            Growth.weight, Growth.height, Growth.head_circumference, Growth.notes
+        ).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(limit).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -244,21 +239,26 @@ def get_records(
                     "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
                 },
-                comment_counts.get(("growth", growth.id), 0)
+                0
             ))
 
     if can_view_type("note"):
-        for note in db.query(Note).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(limit).all():
+        for note in db.query(
+            Note.id, Note.user_id, Note.note_time, Note.content
+        ).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(limit).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
                     "notes": note.content,
                 },
-                comment_counts.get(("note", note.id), 0)
+                0
             ))
 
     if can_view_type("contraction"):
-        for c in db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(limit).all():
+        for c in db.query(
+            Contraction.id, Contraction.user_id, Contraction.start_time,
+            Contraction.end_time, Contraction.duration_seconds, Contraction.notes
+        ).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(limit).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {
@@ -266,8 +266,42 @@ def get_records(
                     "duration_seconds": c.duration_seconds,
                     "notes": c.notes,
                 },
-                comment_counts.get(("contraction", c.id), 0)
+                0
             ))
+
+    # Fetch comment counts ONLY for the retrieved records
+    comment_counts = {}
+    record_ids_by_type = defaultdict(list)
+    for r in raw_records:
+        rec_id, rec_type = r[0], r[1]
+        record_ids_by_type[rec_type].append(rec_id)
+
+    if record_ids_by_type:
+        conditions = []
+        for r_type, r_ids in record_ids_by_type.items():
+            conditions.append(
+                and_(RecordComment.record_type == r_type, RecordComment.record_id.in_(r_ids))
+            )
+
+        if conditions:
+            try:
+                counts = db.query(
+                    RecordComment.record_type,
+                    RecordComment.record_id,
+                    func.count(RecordComment.id)
+                ).filter(
+                    RecordComment.baby_id == baby_id,
+                    or_(*conditions)
+                ).group_by(
+                    RecordComment.record_type,
+                    RecordComment.record_id
+                ).all()
+
+                for rt, rid, count in counts:
+                    comment_counts[(rt, rid)] = count
+            except Exception as e:
+                # In case table doesn't exist or query fails
+                pass
 
     # User を一括取得してマップを作成
     user_ids = {r[2] for r in raw_records if r[2] is not None}
@@ -280,10 +314,10 @@ def get_records(
             type=rec_type,
             timestamp=ts,
             details=details,
-            comment_count=cc,
+            comment_count=comment_counts.get((rec_type, rec_id), 0),
             recorded_by_display_name=user_map.get(user_id),
         )
-        for rec_id, rec_type, user_id, ts, details, cc in raw_records
+        for rec_id, rec_type, user_id, ts, details, _ in raw_records
     ]
 
     # 全ての記録のタイムゾーンをJSTとして明示する

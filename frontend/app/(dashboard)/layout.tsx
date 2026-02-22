@@ -235,7 +235,7 @@ export default function DashboardLayout({
                 {children}
             </div>
 
-            <ScrollToTopButton />
+            <ScrollToTopButton hasBottomBar={born} />
         </div>
     )
 }

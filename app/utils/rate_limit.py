@@ -4,7 +4,7 @@ from fastapi import Request, HTTPException, status
 
 class RateLimiter:
     """
-    Simple in-memory rate limiter based on IP address.
+    Simple in-memory rate limiter based on IP address or custom key.
     """
     def __init__(
         self,
@@ -19,26 +19,32 @@ class RateLimiter:
         self.error_message = error_message
         self.requests = defaultdict(list)
 
-    async def __call__(self, request: Request):
-        # Rely on request.client.host, which is populated by uvicorn (with --proxy-headers)
-        client_ip = request.client.host if request.client and request.client.host else "unknown"
-
+    def check(self, key: str):
+        """
+        Check if the key has exceeded the rate limit.
+        Raises HTTPException(429) if limit exceeded.
+        """
         now = time.time()
 
         # Prevent memory exhaustion by clearing if too large
         if len(self.requests) > self.max_size:
             self.requests.clear()
 
-        # Clean up old requests for this IP
-        self.requests[client_ip] = [
-            req_time for req_time in self.requests[client_ip]
+        # Clean up old requests for this key
+        self.requests[key] = [
+            req_time for req_time in self.requests[key]
             if now - req_time < self.time_window
         ]
 
-        if len(self.requests[client_ip]) >= self.requests_limit:
+        if len(self.requests[key]) >= self.requests_limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=self.error_message,
             )
 
-        self.requests[client_ip].append(now)
+        self.requests[key].append(now)
+
+    async def __call__(self, request: Request):
+        # Rely on request.client.host, which is populated by uvicorn (with --proxy-headers)
+        client_ip = request.client.host if request.client and request.client.host else "unknown"
+        self.check(client_ip)

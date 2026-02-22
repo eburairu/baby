@@ -1,0 +1,8 @@
+ INFO  Accepting connections at http://localhost:3000
+
+ INFO  Gracefully shutting down. Please wait...
+npm notice
+npm notice New minor version of npm available! 11.7.0 -> 11.10.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.10.1
+npm notice To update run: npm install -g npm@11.10.1
+npm notice
