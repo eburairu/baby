@@ -9,6 +9,9 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 export const client = createClient<paths>({
   baseUrl: API_BASE,
   credentials: "include", // 認証クッキーを送信
+  bodySerializer(body) {
+    return JSON.stringify(body);
+  },
 });
 
 /**
