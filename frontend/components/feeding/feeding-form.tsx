@@ -21,11 +21,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FeedingCreate, FeedingType, BreastSide, BottleContentType, FeedingCompletion } from "@/types/feeding"
+import { Feeding, FeedingCreate, FeedingType, BreastSide, BottleContentType, FeedingCompletion } from "@/types/feeding"
 
 const feedingSchema = z.object({
     feeding_time: z.string(),
-    feeding_type: z.enum(["BREAST", "BOTTLE"]),
+    feeding_type: z.enum(["BREAST", "BOTTLE", "MIXED"]),
     left_breast_minutes: z.coerce.number().min(0).optional(),
     right_breast_minutes: z.coerce.number().min(0).optional(),
     amount_ml: z.coerce.number().optional(),
@@ -36,36 +36,42 @@ type FeedingFormValues = z.infer<typeof feedingSchema>
 
 interface FeedingFormProps {
     babyId: number
-    onAdd: (data: FeedingCreate) => Promise<void>
+    onAdd?: (data: FeedingCreate) => Promise<void>
+    onUpdate?: (id: number, data: Partial<FeedingCreate>) => Promise<Feeding | undefined>
+    initialData?: Feeding
+    onSuccess?: () => void
 }
 
 type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
-export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
-    const [activeTab, setActiveTab] = useState<FeedingType>("BREAST")
+export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess }: FeedingFormProps) {
+    const isEditing = !!initialData
+    const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     // 左右独立タイマー
-    const [leftSeconds, setLeftSeconds] = useState(0)
-    const [rightSeconds, setRightSeconds] = useState(0)
+    const [leftSeconds, setLeftSeconds] = useState((initialData?.left_breast_minutes ?? 0) * 60)
+    const [rightSeconds, setRightSeconds] = useState((initialData?.right_breast_minutes ?? 0) * 60)
     const [activeBreastSide, setActiveBreastSide] = useState<ActiveBreastSide>(null)
     const leftBaseRef = useRef<number | null>(null)
     const rightBaseRef = useRef<number | null>(null)
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度
-    const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(null)
-    const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(null)
+    const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(initialData?.bottle_content_type ?? null)
+    const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(initialData?.feeding_completion ?? null)
 
     const form = useForm<FeedingFormValues>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(feedingSchema) as any,
         defaultValues: {
-            feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            feeding_type: "BREAST",
-            left_breast_minutes: 0,
-            right_breast_minutes: 0,
-            amount_ml: 120,
-            notes: "",
+            feeding_time: initialData 
+                ? format(new Date(initialData.feeding_time), "yyyy-MM-dd'T'HH:mm")
+                : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+            feeding_type: initialData?.feeding_type ?? "BREAST",
+            left_breast_minutes: initialData?.left_breast_minutes ?? 0,
+            right_breast_minutes: initialData?.right_breast_minutes ?? 0,
+            amount_ml: initialData?.amount_ml ?? 120,
+            notes: initialData?.notes ?? "",
         },
     })
 
@@ -147,59 +153,69 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                 else if (rightMin > 0) lastBreastSide = "RIGHT"
             }
 
-            const data: FeedingCreate = {
+            const data: Partial<FeedingCreate> = {
                 baby_id: babyId,
                 feeding_time: values.feeding_time,
                 feeding_type: activeTab,
-                notes: values.notes || undefined,
-                feeding_completion: feedingCompletion ?? undefined,
+                notes: values.notes || "", // 編集時は明示的に空文字を渡して消去できるようにする
+                feeding_completion: feedingCompletion,
             }
 
             if (activeTab === "BREAST") {
-                data.left_breast_minutes = leftMin || undefined
-                data.right_breast_minutes = rightMin || undefined
+                data.left_breast_minutes = leftMin
+                data.right_breast_minutes = rightMin
                 data.last_breast_side = lastBreastSide
+                data.amount_ml = null
+                data.bottle_content_type = null
                 // duration_minutesはバックエンドが自動計算（両方指定時）
-                // 片方のみの場合はフロント側で設定
-                if (leftMin > 0 && rightMin > 0) {
-                    // バックエンドが自動計算
-                } else {
-                    data.duration_minutes = leftMin + rightMin || undefined
+                if (!(leftMin > 0 && rightMin > 0)) {
+                    data.duration_minutes = leftMin + rightMin || 0
                 }
             } else {
                 data.amount_ml = values.amount_ml
-                data.bottle_content_type = bottleContentType ?? undefined
+                data.bottle_content_type = bottleContentType
+                data.left_breast_minutes = null
+                data.right_breast_minutes = null
+                data.last_breast_side = null
+                data.duration_minutes = null
             }
 
-            await onAdd(data)
-            toast.success("記録しました")
-
-            // Reset
-            form.reset({
-                feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-                feeding_type: activeTab as "BREAST" | "BOTTLE",
-                left_breast_minutes: 0,
-                right_breast_minutes: 0,
-                amount_ml: 120,
-                notes: "",
-            })
-            resetAllTimers()
-            setFeedingCompletion(null)
-            setBottleContentType(null)
+            if (isEditing && initialData && onUpdate) {
+                await onUpdate(initialData.id, data)
+                toast.success("更新しました")
+            } else if (onAdd) {
+                await onAdd(data)
+                toast.success("記録しました")
+                
+                // Reset for new entry only
+                form.reset({
+                    feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                    feeding_type: activeTab as "BREAST" | "BOTTLE",
+                    left_breast_minutes: 0,
+                    right_breast_minutes: 0,
+                    amount_ml: 120,
+                    notes: "",
+                })
+                resetAllTimers()
+                setFeedingCompletion(null)
+                setBottleContentType(null)
+            }
+            
+            if (onSuccess) onSuccess()
         } catch (error) {
-            console.error("Failed to add feeding record:", error)
+            console.error("Failed to save feeding record:", error)
             toast.error("保存に失敗しました")
         } finally {
             setIsSubmitting(false)
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, resetAllTimers])
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, onUpdate, isEditing, initialData, resetAllTimers, onSuccess])
 
     // eslint-disable-next-line react-hooks/refs
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
     return (
-        <Card>
-            <CardContent className="pt-6">
+        <Card className={isEditing ? "border-0 shadow-none" : ""}>
+            <CardContent className={isEditing ? "p-0" : "pt-6"}>
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedingType)} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-4">
                         <TabsTrigger value="BREAST" data-sentry-unmask>🤱 母乳</TabsTrigger>
@@ -225,63 +241,65 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                             />
 
                             <TabsContent value="BREAST" className="space-y-4 mt-0">
-                                {/* 左右タイマーセクション */}
-                                <div className="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-lg space-y-3 transition-colors">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {/* 左乳タイマー */}
-                                        <div className="text-center space-y-2">
-                                            <p className="text-xs font-medium text-rose-700 dark:text-rose-300">左乳</p>
-                                            <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
-                                                {formatTimer(leftSeconds)}
+                                {/* 左右タイマーセクション (新規作成時のみ表示) */}
+                                {!isEditing && (
+                                    <div className="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-lg space-y-3 transition-colors">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {/* 左乳タイマー */}
+                                            <div className="text-center space-y-2">
+                                                <p className="text-xs font-medium text-rose-700 dark:text-rose-300">左乳</p>
+                                                <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
+                                                    {formatTimer(leftSeconds)}
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant={activeBreastSide === "LEFT" ? "outline" : "default"}
+                                                    className={activeBreastSide === "LEFT"
+                                                        ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
+                                                        : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
+                                                    onClick={() => toggleTimer("LEFT")}
+                                                >
+                                                    {activeBreastSide === "LEFT"
+                                                        ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
+                                                        : <><Play className="mr-1 h-3 w-3" />開始</>
+                                                    }
+                                                </Button>
                                             </div>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant={activeBreastSide === "LEFT" ? "outline" : "default"}
-                                                className={activeBreastSide === "LEFT"
-                                                    ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                                                    : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
-                                                onClick={() => toggleTimer("LEFT")}
-                                            >
-                                                {activeBreastSide === "LEFT"
-                                                    ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
-                                                    : <><Play className="mr-1 h-3 w-3" />開始</>
-                                                }
-                                            </Button>
+                                            {/* 右乳タイマー */}
+                                            <div className="text-center space-y-2">
+                                                <p className="text-xs font-medium text-rose-700 dark:text-rose-300">右乳</p>
+                                                <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
+                                                    {formatTimer(rightSeconds)}
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant={activeBreastSide === "RIGHT" ? "outline" : "default"}
+                                                    className={activeBreastSide === "RIGHT"
+                                                        ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
+                                                        : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
+                                                    onClick={() => toggleTimer("RIGHT")}
+                                                >
+                                                    {activeBreastSide === "RIGHT"
+                                                        ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
+                                                        : <><Play className="mr-1 h-3 w-3" />開始</>
+                                                    }
+                                                </Button>
+                                            </div>
                                         </div>
-                                        {/* 右乳タイマー */}
-                                        <div className="text-center space-y-2">
-                                            <p className="text-xs font-medium text-rose-700 dark:text-rose-300">右乳</p>
-                                            <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
-                                                {formatTimer(rightSeconds)}
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant={activeBreastSide === "RIGHT" ? "outline" : "default"}
-                                                className={activeBreastSide === "RIGHT"
-                                                    ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                                                    : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
-                                                onClick={() => toggleTimer("RIGHT")}
-                                            >
-                                                {activeBreastSide === "RIGHT"
-                                                    ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
-                                                    : <><Play className="mr-1 h-3 w-3" />開始</>
-                                                }
+                                        {/* 合計表示 & リセット */}
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                                                合計: {formatTimer(totalSeconds)}
+                                            </p>
+                                            <Button type="button" variant="ghost" size="sm" onClick={resetAllTimers} className="h-7 text-xs">
+                                                <RotateCcw className="h-3 w-3 mr-1 text-gray-500 dark:text-zinc-400" />
+                                                リセット
                                             </Button>
                                         </div>
                                     </div>
-                                    {/* 合計表示 & リセット */}
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
-                                            合計: {formatTimer(totalSeconds)}
-                                        </p>
-                                        <Button type="button" variant="ghost" size="sm" onClick={resetAllTimers} className="h-7 text-xs">
-                                            <RotateCcw className="h-3 w-3 mr-1 text-gray-500 dark:text-zinc-400" />
-                                            リセット
-                                        </Button>
-                                    </div>
-                                </div>
+                                )}
 
                                 {/* 左右手動入力 */}
                                 <div className="grid grid-cols-2 gap-3">
@@ -410,7 +428,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                 data-sentry-unmask
                             >
                                 {!isSubmitting && <Save className="w-4 h-4 mr-2" />}
-                                {isSubmitting ? "保存中..." : "記録する"}
+                                {isSubmitting ? "保存中..." : isEditing ? "更新する" : "記録する"}
                             </Button>
                         </form>
                     </Form>

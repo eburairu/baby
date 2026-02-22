@@ -49,3 +49,10 @@ class FeedingUpdate(BaseModel):
     # Phase 2
     bottle_content_type: Optional[BottleContentType] = None
     feeding_completion: Optional[FeedingCompletion] = None
+
+    @model_validator(mode="after")
+    def auto_calc_duration(self) -> "FeedingUpdate":
+        """左右の分数が両方指定された場合、duration_minutesを自動計算する"""
+        if self.left_breast_minutes is not None and self.right_breast_minutes is not None:
+            self.duration_minutes = self.left_breast_minutes + self.right_breast_minutes
+        return self

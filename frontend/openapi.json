@@ -425,7 +425,7 @@
       "Body_upload_image_api_upload_image_post": {
         "properties": {
           "file": {
-            "contentMediaType": "application/octet-stream",
+            "format": "binary",
             "title": "File",
             "type": "string"
           }
