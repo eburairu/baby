@@ -1,14 +1,8 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { useBabies, useRecords } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
-import Link from "next/link"
 import { useBabyStore } from "@/stores/babyStore"
-import { api, isApiError } from "@/lib/api"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
 import { SleepWidget } from "@/components/dashboard/SleepWidget"
@@ -19,7 +13,6 @@ import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistratio
 import { OnboardingForm } from "@/components/dashboard/OnboardingForm"
 import { QuickActionBar } from "@/components/dashboard/QuickActionBar"
 import { isBorn } from "@/lib/babyUtils"
-import { PageLoading } from "@/components/ui/page-loading"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 import dynamic from "next/dynamic"
@@ -29,94 +22,104 @@ const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentAc
     ssr: false
 })
 
-export default function Dashboard() {
-    const { babies, isLoading: babiesLoading, mutate: mutateBabies } = useBabies()
+export default function DashboardPage() {
+    const { babies, isLoading, isError: babiesError, mutate: mutateBabies } = useBabies()
     const { selectedBabyId, setSelectedBabyId } = useBabyStore()
-    const { isAdmin, isLoading: permsLoading } = usePermissions()
+    const { canWrite, isAdmin } = usePermissions()
 
-    // selectedBabyId を auto-persist: 2回目以降の訪問で useBabies と useRecords を並列フェッチ
+    // Default to first baby if none selected
     useEffect(() => {
-        if (!selectedBabyId && babies && babies.length > 0) {
+        if (babies && babies.length > 0 && !selectedBabyId) {
             setSelectedBabyId(String(babies[0].id))
         }
     }, [babies, selectedBabyId, setSelectedBabyId])
 
-    // 最初の赤ちゃんをデフォルト選択
-    const effectiveId = selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
+    const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(selectedBabyId)
 
-    // 記録の一括取得
-    const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(effectiveId)
-
-    if (babiesLoading || permsLoading) {
-        return (
-            <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
-                <DashboardSkeleton />
-            </div>
-        )
+    if (isLoading && !babies) {
+        return <DashboardSkeleton />
     }
 
-    // オンボーディング: 赤ちゃん未登録
+    if (babiesError) {
+        return <div className="p-8 text-center text-rose-500">赤ちゃんの情報の取得に失敗しました</div>
+    }
+
     if (!babies || babies.length === 0) {
-        return <OnboardingForm isAdmin={!!isAdmin} onSuccess={() => mutateBabies()} />
+        return <OnboardingForm isAdmin={!!isAdmin} onSuccess={mutateBabies} />
     }
 
-    if (!effectiveId) return null
-
-    const babiesWithStrId = babies.map((b) => ({ ...b, id: String(b.id) }))
-    const selectedBaby = babies?.find((b) => String(b.id) === effectiveId)
+    const effectiveBabyId = selectedBabyId || String(babies[0].id)
+    const selectedBaby = babies.find(b => String(b.id) === effectiveBabyId)
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
+    const babiesWithStrId = babies.map(b => ({ ...b, id: String(b.id) }))
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
-            <div className="max-w-2xl mx-auto p-4 space-y-4">
-                {/* プロフィールカード */}
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
+            <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
                 <BabyProfileCard
                     babies={babiesWithStrId}
-                    selectedBabyId={effectiveId}
+                    selectedBabyId={effectiveBabyId}
                 />
 
-                {/* 出生前: 「生まれた！」ボタン */}
-                {!born && selectedBaby && (
+                {!born && canWrite && selectedBaby && (
                     <BirthRegistrationDialog
-                        babyId={effectiveId}
+                        babyId={effectiveBabyId}
                         babyName={selectedBaby.name}
-                        onSuccess={() => mutateBabies()}
+                        onSuccess={mutateBabies}
                     />
                 )}
 
-                {/* ウィジェットグリッド */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {born && <FeedingWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} isLoading={recordsLoading} />}
-                    {born && <SleepWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} isLoading={recordsLoading} />}
-                    {born && <DiaperWidget babyId={effectiveId} records={records} isError={recordsError} mutate={mutateRecords} isLoading={recordsLoading} />}
-                    {born && <GrowthWidget babyId={effectiveId} records={records} isError={recordsError} isLoading={recordsLoading} />}
-                    <NoteWidget babyId={effectiveId} records={records} isLoading={recordsLoading} />
+                <div className="grid grid-cols-2 gap-4">
+                    <FeedingWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                        mutate={() => mutateRecords()}
+                    />
+                    <SleepWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                        mutate={() => mutateRecords()}
+                    />
+                    <DiaperWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                        mutate={() => mutateRecords()}
+                    />
+                    <GrowthWidget
+                        babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
+                    />
                 </div>
 
-                {/* 育児日誌へのリンク */}
-                <Link href="/diary" className="w-full h-12 rounded-2xl bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white font-medium shadow-sm transition-colors flex items-center justify-center">
-                    📔 育児日誌
-                </Link>
-
-                {/* 陣痛タイマーへのリンク（出生前のみ） */}
-                {!born && (
-                    <Link href="/contraction" className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white font-medium shadow-sm transition-colors flex items-center justify-center">
-                        🤰 陣痛タイマー
-                    </Link>
-                )}
-
-                {/* Recent Activity */}
-                <RecentActivityFeed
-                    key={effectiveId}
-                    babyId={effectiveId}
+                <NoteWidget
+                    babyId={effectiveBabyId}
                     records={records}
                     isLoading={recordsLoading}
-                    mutate={mutateRecords}
                 />
 
-                {/* クイックアクションバー (FAB) */}
-                {born && <QuickActionBar babyId={effectiveId} mutateRecords={mutateRecords} records={records} />}
-            </div>
+                <RecentActivityFeed
+                    babyId={effectiveBabyId}
+                    records={records}
+                    isLoading={recordsLoading}
+                    mutate={() => mutateRecords()}
+                />
+            </main>
+
+            {born && (
+                <QuickActionBar
+                    babyId={effectiveBabyId}
+                    mutateRecords={() => mutateRecords()}
+                    records={records}
+                />
+            )}
         </div>
     )
 }

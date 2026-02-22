@@ -1,114 +1,74 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
 import { Baby as BabyIcon } from "lucide-react"
-import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
-import { useBabies } from "@/hooks/useData"
 import { useFeeding } from "@/hooks/useFeeding"
-import { usePermissions } from "@/hooks/usePermissions"
-import { useBabyStore } from "@/stores/babyStore"
+import { useRecordPage } from "@/hooks/useRecordPage"
 import { FeedingStats } from "@/components/feeding/feeding-stats"
 import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
-import { PageLoading } from "@/components/ui/page-loading"
-import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { feedingTips } from "@/lib/tips-data"
-import { isApiError } from "@/lib/api"
-import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { FeedingCreate } from "@/types/feeding"
+import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
+/**
+ * 授乳記録ページ
+ */
 export default function FeedingPage() {
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const commentRecordId = searchParams.get("comment")
-    const commentBabyId = searchParams.get("baby_id")
-    const { babies, isLoading: babiesLoading } = useBabies()
-    const { selectedBabyId } = useBabyStore()
-    const { canWrite } = usePermissions()
+    const {
+        babyId,
+        isLoading: babiesLoading,
+        canWrite,
+        triggerFeedback,
+        commentRecordId,
+    } = useRecordPage()
 
-    // Default to first baby, prefer store selection
-    // baby_id from URL takes priority (e.g. from notification link)
-    const effectiveBabyIdStr = commentBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-    const babyId = effectiveBabyIdStr ? parseInt(effectiveBabyIdStr, 10) : null
-
+    // 授乳データ取得 (babyId が文字列の場合があるため考慮)
+    const numericBabyId = babyId ? parseInt(babyId, 10) : undefined
     const {
         feedings,
-        loading: feedingLoading,
         error: feedingError,
         summary,
         addFeeding,
         updateFeeding,
         deleteFeeding,
         refresh: refreshFeedings,
-    } = useFeeding(babyId)
-
-    const { triggerFeedback } = useRecordFeedback(babyId)
+    } = useFeeding(numericBabyId ?? null)
 
     const handleAddFeeding = async (data: FeedingCreate): Promise<void> => {
         const newRecord = await addFeeding(data)
-        if (newRecord) {
+        if (newRecord && numericBabyId) {
             triggerFeedback("feeding", newRecord.id)
         }
     }
 
-    if (babiesLoading) {
-        return <PageLoading />
-    }
-
-    if (!babyId) {
-        return (
-            <div className="p-4 text-center">
-                <p>赤ちゃんが登録されていません。</p>
-            </div>
-        )
-    }
-
-    const isAccessDenied = isApiError(feedingError) && feedingError.status === 403
-
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20 transition-colors">
-            <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
-                    <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
-                        <BabyIcon className="h-4 w-4 text-rose-500 dark:text-rose-400" />
-                        授乳記録
-                    </h1>
-                </div>
-            </header>
+        <RecordPageLayout
+            title="授乳記録"
+            icon={BabyIcon}
+            iconColorClass="text-rose-500 dark:text-rose-400"
+            isLoading={babiesLoading}
+            apiError={feedingError}
+            babyId={babyId}
+        >
+            <FeedingStats summary={summary} />
 
-            <div className="max-w-2xl mx-auto p-4 space-y-6">
-                {isAccessDenied ? (
-                    <AccessDenied />
-                ) : (
-                    <>
-                        <FeedingStats summary={summary} />
+            <TipsCard {...feedingTips} />
 
-                        <TipsCard {...feedingTips} />
+            {canWrite && numericBabyId && (
+                <FeedingForm babyId={numericBabyId} onAdd={handleAddFeeding} />
+            )}
 
-                        {canWrite && (
-                            <FeedingForm
-                                babyId={babyId}
-                                onAdd={handleAddFeeding}
-                                lastMilkAmount={summary.last_milk_amount}
-                            />
-                        )}
-
-                        <FeedingHistory
-                            feedings={feedings || []}
-                            onDelete={deleteFeeding}
-                            onUpdate={updateFeeding}
-                            onRefresh={refreshFeedings}
-                            canWrite={canWrite}
-                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
-                            babyId={babyId}
-                        />
-                    </>
-                )}
-            </div>
-        </div>
+            <FeedingHistory
+                feedings={feedings || []}
+                onDelete={deleteFeeding}
+                onUpdate={updateFeeding}
+                onRefresh={refreshFeedings}
+                canWrite={canWrite}
+                initialCommentRecordId={commentRecordId}
+                babyId={numericBabyId}
+            />
+        </RecordPageLayout>
     )
 }
