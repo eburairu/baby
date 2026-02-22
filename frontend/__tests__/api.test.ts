@@ -22,6 +22,8 @@ describe("API Utilities", () => {
             expect(result).toEqual(mockData)
             expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/api/test"), {
                 credentials: "include",
+                method: "GET",
+                headers: {},
             })
         })
 
@@ -101,7 +103,7 @@ describe("API Utilities", () => {
                     expect.objectContaining({
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json",
+                            "content-type": "application/json",
                         },
                         body: JSON.stringify(requestBody),
                         credentials: "include",
@@ -137,6 +139,9 @@ describe("API Utilities", () => {
                     expect.objectContaining({
                         method: "PUT",
                         body: JSON.stringify(requestBody),
+                        headers: {
+                            "content-type": "application/json",
+                        },
                     })
                 )
             })
@@ -159,6 +164,9 @@ describe("API Utilities", () => {
                     expect.objectContaining({
                         method: "PATCH",
                         body: JSON.stringify(requestBody),
+                        headers: {
+                            "content-type": "application/json",
+                        },
                     })
                 )
             })
@@ -180,6 +188,7 @@ describe("API Utilities", () => {
                     expect.stringContaining("/api/users/1"),
                     expect.objectContaining({
                         method: "DELETE",
+                        headers: {},
                     })
                 )
             })

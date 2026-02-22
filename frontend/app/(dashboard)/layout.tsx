@@ -32,11 +32,11 @@ import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 const ALL_NAV_ITEMS = [
     { label: "ホーム", href: "/dashboard", icon: "🏠", prenatal: true, postnatal: true },
     { label: "授乳", href: "/feeding", icon: "🍼", prenatal: false, postnatal: true },
-    { label: "おむつ", href: "/diaper", icon: "👶", prenatal: false, postnatal: true },
     { label: "睡眠", href: "/sleep", icon: "💤", prenatal: false, postnatal: true },
-    { label: "日誌", href: "/diary", icon: "📔", prenatal: false, postnatal: true },
+    { label: "おむつ", href: "/diaper", icon: "👶", prenatal: false, postnatal: true },
     { label: "成長", href: "/growth", icon: "📈", prenatal: false, postnatal: true },
     { label: "メモ", href: "/note", icon: "📝", prenatal: false, postnatal: true },
+    { label: "日誌", href: "/diary", icon: "📔", prenatal: false, postnatal: true },
     { label: "陣痛タイマー", href: "/contraction", icon: "⏱", prenatal: true, postnatal: false },
 ]
 
@@ -212,7 +212,7 @@ export default function DashboardLayout({
                         { label: "授乳", href: "/feeding", icon: "🍼" },
                         { label: "睡眠", href: "/sleep", icon: "💤" },
                         { label: "おむつ", href: "/diaper", icon: "👶" },
-                        { label: "日誌", href: "/diary", icon: "📔" },
+                        { label: "成長", href: "/growth", icon: "📈" },
                     ].map(item => (
                         <Link
                             key={item.href}

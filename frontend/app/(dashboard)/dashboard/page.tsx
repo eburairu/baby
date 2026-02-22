@@ -92,8 +92,11 @@ export default function DashboardPage() {
                         isError={recordsError}
                         mutate={() => mutateRecords()}
                     />
-                    <DiaryWidget
+                    <GrowthWidget
                         babyId={effectiveBabyId}
+                        records={records}
+                        isLoading={recordsLoading}
+                        isError={recordsError}
                     />
                     <NoteWidget
                         babyId={effectiveBabyId}
@@ -101,11 +104,8 @@ export default function DashboardPage() {
                         isLoading={recordsLoading}
                         isError={recordsError}
                     />
-                    <GrowthWidget
+                    <DiaryWidget
                         babyId={effectiveBabyId}
-                        records={records}
-                        isLoading={recordsLoading}
-                        isError={recordsError}
                     />
                 </div>
 
