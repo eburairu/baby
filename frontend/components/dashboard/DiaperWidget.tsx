@@ -1,26 +1,18 @@
 "use client"
 import { useState, useMemo, memo } from "react"
-import { areRecordsEqual } from "@/lib/memoUtils"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { DiaperType } from "@/types/diaper"
-import { BabyRecord } from "@/hooks/useData"
 import { toast } from "sonner"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { BaseWidgetProps } from "@/types/widget"
+import { WidgetLoading } from "./WidgetLoading"
 
-interface Props {
-    babyId: string
-    records?: BabyRecord[]
-    isError?: unknown
-    mutate?: () => void
-    isLoading?: boolean
-}
-
-export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: Props) {
+export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
     const [loading, setLoading] = useState(false)
     const { triggerFeedback } = useRecordFeedback(babyId)
@@ -67,9 +59,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         >
             <div>
                 {isLoading ? (
-                    <div className="flex justify-center py-4">
-                        <BabyBottleLoading className="w-8 h-8 text-amber-400" />
-                    </div>
+                    <WidgetLoading className="text-amber-400" />
                 ) : (
                     <>
                         {elapsed ? (
@@ -113,10 +103,4 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             ) : null}
         </WidgetCard>
     )
-}, (prev, next) => {
-    if (prev.isLoading !== next.isLoading) return false
-    if (prev.isError !== next.isError) return false
-    if (prev.babyId !== next.babyId) return false
-    if (prev.mutate !== next.mutate) return false
-    return areRecordsEqual(prev.records, next.records, 'diaper')
-})
+}, createWidgetMemoComparison('diaper'))

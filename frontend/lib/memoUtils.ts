@@ -1,4 +1,5 @@
 import { BabyRecord } from '@/hooks/useData'
+import { BaseWidgetProps } from "@/types/widget"
 
 /**
  * Compares two arrays of BabyRecords to determine if they are effectively equal for a specific record type.
@@ -33,4 +34,18 @@ export function areRecordsEqual(prevRecords: BabyRecord[] | undefined, nextRecor
   }
 
   return true
+}
+
+/**
+ * Creates a comparison function for React.memo optimized for Dashboard Widgets.
+ * Checks common props (isLoading, isError, babyId, mutate) and uses areRecordsEqual for records.
+ */
+export function createWidgetMemoComparison(recordType: string) {
+    return (prev: BaseWidgetProps, next: BaseWidgetProps) => {
+        if (prev.isLoading !== next.isLoading) return false
+        if (prev.isError !== next.isError) return false
+        if (prev.babyId !== next.babyId) return false
+        if (prev.mutate !== next.mutate) return false
+        return areRecordsEqual(prev.records, next.records, recordType)
+    }
 }
