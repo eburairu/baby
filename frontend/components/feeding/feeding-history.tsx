@@ -3,13 +3,14 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Feeding } from "@/types/feeding";
-import { Trash2, Milk, Baby, User, MessageCircle, Loader2 } from "lucide-react";
+import { Feeding, FeedingCreate } from "@/types/feeding";
+import { Trash2, Milk, Baby, User, MessageCircle, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useUser } from "@/hooks/useAuth";
 import { RecordCommentDialog } from "@/components/records/RecordCommentDialog";
+import { FeedingForm } from "./feeding-form";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,13 +21,21 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 
 interface FeedingHistoryProps {
     feedings: Feeding[];
     onDelete: (id: number) => Promise<void>;
+    onUpdate?: (id: number, data: Partial<FeedingCreate>) => Promise<Feeding | undefined>;
     onRefresh?: () => void;
     canWrite?: boolean;
     initialCommentRecordId?: number | null;
+    babyId?: number;
 }
 
 const BOTTLE_CONTENT_LABEL: Record<string, string> = {
@@ -58,9 +67,10 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
     return null;
 }
 
-export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true, initialCommentRecordId }: FeedingHistoryProps) {
+export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWrite = true, initialCommentRecordId, babyId }: FeedingHistoryProps) {
     const { user } = useUser();
     const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+    const [editTarget, setEditTarget] = useState<Feeding | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null);
     const initializedRef = useRef(false);
@@ -165,14 +175,24 @@ export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true,
                                 </div>
                             </div>
                             {canWrite && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-400 hover:text-red-500 shrink-0"
-                                    onClick={() => setDeleteTargetId(feeding.id)}
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
+                                <div className="flex items-center gap-1 shrink-0 ml-4">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-gray-400 hover:text-indigo-500"
+                                        onClick={() => setEditTarget(feeding)}
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-gray-400 hover:text-red-500"
+                                        onClick={() => setDeleteTargetId(feeding.id)}
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             )}
                         </div>
                     ))}
@@ -210,6 +230,28 @@ export function FeedingHistory({ feedings, onDelete, onRefresh, canWrite = true,
                     onCommentChange={onRefresh}
                 />
             )}
+
+            {/* 編集ダイアログ */}
+            <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) setEditTarget(null) }}>
+                <DialogContent className="max-w-md p-0 overflow-hidden border-0 sm:border rounded-2xl">
+                    <DialogHeader className="p-4 border-b bg-slate-50 dark:bg-zinc-900/50">
+                        <DialogTitle className="text-lg font-bold flex items-center gap-2">
+                            <Pencil className="w-5 h-5 text-indigo-500" />
+                            授乳記録の編集
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="p-4 max-h-[80vh] overflow-y-auto">
+                        {editTarget && babyId && (
+                            <FeedingForm
+                                babyId={babyId}
+                                initialData={editTarget}
+                                onUpdate={onUpdate}
+                                onSuccess={() => setEditTarget(null)}
+                            />
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
