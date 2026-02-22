@@ -13,7 +13,7 @@ export type Note = {
   comment_count?: number;
 };
 
-export function useNotes(babyId: number | null) {
+export function useNotes(babyId: string | number | null) {
   const { data, error, isLoading, mutate } = useSWR<Note[]>(
     babyId ? `/babies/${babyId}/notes` : null,
     fetcher
