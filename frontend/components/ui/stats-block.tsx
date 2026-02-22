@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
+import { STATS_BLOCK_CONFIG } from "@/constants/ui-colors"
 
-export type StatsBlockColor = "rose" | "indigo" | "amber" | "emerald" | "blue" | "zinc"
+export type StatsBlockColor = keyof typeof STATS_BLOCK_CONFIG
 
 interface StatsBlockProps {
   icon: LucideIcon
@@ -12,33 +13,6 @@ interface StatsBlockProps {
   className?: string
 }
 
-const colorStyles: Record<StatsBlockColor, { bg: string; icon: string }> = {
-  rose: {
-    bg: "bg-rose-50 dark:bg-rose-950/30",
-    icon: "text-rose-500 dark:text-rose-400",
-  },
-  indigo: {
-    bg: "bg-indigo-50 dark:bg-indigo-950/30",
-    icon: "text-indigo-500 dark:text-indigo-400",
-  },
-  amber: {
-    bg: "bg-amber-50 dark:bg-amber-950/30",
-    icon: "text-amber-500 dark:text-amber-400",
-  },
-  emerald: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/30",
-    icon: "text-emerald-500 dark:text-emerald-400",
-  },
-  blue: {
-    bg: "bg-blue-50 dark:bg-blue-950/30",
-    icon: "text-blue-500 dark:text-blue-400",
-  },
-  zinc: {
-    bg: "bg-zinc-50 dark:bg-zinc-900/50",
-    icon: "text-zinc-500 dark:text-zinc-400",
-  },
-}
-
 export function StatsBlock({
   icon: Icon,
   label,
@@ -47,7 +21,7 @@ export function StatsBlock({
   color = "zinc",
   className,
 }: StatsBlockProps) {
-  const styles = colorStyles[color]
+  const styles = STATS_BLOCK_CONFIG[color]
 
   return (
     <div
