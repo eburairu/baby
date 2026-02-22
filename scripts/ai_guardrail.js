@@ -24,7 +24,7 @@ try {
   const worktreesDir = path.join(projectRoot, "worktrees");
   
   // 現在のディレクトリがワークツリー配下か判定
-  const isInsideWorktree = currentPath.includes(path.sep + "worktrees" + path.sep) || currentPath.endsWith(path.sep + "worktrees") || currentPath === worktreesDir;
+  const isInsideWorktree = currentPath.startsWith(worktreesDir + path.sep) || currentPath === worktreesDir;
   
   // 許可されたディレクトリ（scripts/ 等）の判定
   const allowedPaths = [
@@ -37,12 +37,24 @@ try {
     currentPath === allowedPath || currentPath.startsWith(allowedPath + path.sep)
   );
 
+  // デバッグ用（通常は表示しないが、エラー時に役立つ）
+  if (process.env.DEBUG_GUARDRAIL) {
+    console.log(`Current: ${currentPath}`);
+    console.log(`Project Root: ${projectRoot}`);
+    console.log(`isInsideWorktree: ${isInsideWorktree}`);
+    console.log(`isAllowedPath: ${isAllowedPath}`);
+  }
+
   if (!isInsideWorktree && !isAllowedPath) {
     console.error("\x1b[31m%s\x1b[0m", "ERROR: AI エージェントによるルートディレクトリでの直接編集は禁止されています。");
     console.error("必ず `sh scripts/setup_worktree.sh` を使用してワークツリー内で作業してください。");
     console.error(`Current directory: ${currentPath}`);
     console.error("例外として scripts/, .gemini/, .specify/ 配下での作業は許可されています。");
     process.exit(1);
+  }
+
+  if (process.env.DEBUG_GUARDRAIL) {
+    console.log("Guardrail check passed.");
   }
 } catch (error) {
   // エラーが発生した場合は安全のためブロック
