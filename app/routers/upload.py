@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 
 from app.dependencies import get_db, get_current_user, verify_write_access
 from app.models.user import User
+from app.utils.rate_limit import RateLimiter
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+# Limit upload attempts to 10 per 60 seconds per user
+upload_limiter = RateLimiter(
+    requests_limit=10,
+    time_window=60,
+    error_message="Too many upload attempts. Please try again later.",
+)
 
 
 class UploadResponse(BaseModel):
@@ -47,6 +55,9 @@ async def upload_image(
     current_user: User = Depends(get_current_user),
 ):
     """画像をバックエンド経由で R2 にアップロードする。"""
+    # Enforce rate limiting per user
+    upload_limiter.check(f"user_{current_user.id}")
+
     verify_write_access(db, current_user.id)
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
