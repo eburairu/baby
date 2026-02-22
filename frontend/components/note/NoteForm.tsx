@@ -32,11 +32,12 @@ type NoteFormValues = z.infer<typeof noteSchema>
 interface Props {
     babyId: number
     onAddSuccess: (recordId?: number) => void
+    defaultExpanded?: boolean
 }
 
-export function NoteForm({ babyId, onAddSuccess }: Props) {
+export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Props) {
     const [submitting, setSubmitting] = useState(false)
-    const [isExpanded, setIsExpanded] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(defaultExpanded)
     const [error, setError] = useState<string | null>(null)
 
     const form = useForm<NoteFormValues>({
