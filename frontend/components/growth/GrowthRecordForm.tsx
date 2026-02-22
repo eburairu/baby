@@ -73,7 +73,7 @@ export function GrowthRecordForm({
             head_circumference: "",
             notes: "",
         }
-    }, [record])
+    }, [record, isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const form = useForm<GrowthFormValues>({
         resolver: zodResolver(growthSchema),
