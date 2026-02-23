@@ -45,7 +45,7 @@ export function PullToRefresh({
     const handlePanEnd = async (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
         if (isRefreshing) return
 
-        if (y.get() >= pullThreshold || info.offset.y > pullThreshold) {
+        if (y.get() >= pullThreshold) {
             setIsRefreshing(true)
             // Animate to holding position
             animate(y, pullThreshold, { type: "spring", stiffness: 300, damping: 30 })
