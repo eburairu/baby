@@ -52,3 +52,8 @@
 **Vulnerability:** The file upload endpoint trusted user-provided Content-Type headers and file extensions. Attackers could upload malicious scripts (e.g., PHP, HTML) with image extensions or MIME types, leading to Stored XSS or RCE.
 **Learning:** Never trust client-side input for file types. "Magic bytes" (file signatures) are the only reliable way to determine file content on the server.
 **Prevention:** Implemented strict server-side validation using magic bytes to detect the true MIME type and enforce the correct file extension and Content-Type when saving to storage.
+
+## 2026-02-23 - 自由記述フィールドにおける入力長制限の欠如
+**脆弱性:** `Baby` スキーマ（名前、特徴）および `Comment` スキーマ（本文）において、Pydanticの入力長制限（`max_length`）が設定されておらず、DoS攻撃（巨大なペイロードによるメモリ/ストレージ枯渇）のリスクがあった。
+**学び:** Pydanticの `str` 型はデフォルトで長さ制限を持たないため、データベースのカラム型（例: `String`）がPostgreSQLのTEXTとして扱われる場合、事実上無制限にデータを受け入れてしまう。
+**予防:** 文字列フィールドには常に `pydantic.Field(..., max_length=N)` を使用して明示的な上限を設定する。また、`openapi.json` に `maxLength` が反映されることを確認し、フロントエンドとバックエンドの両方で契約を守らせる。
