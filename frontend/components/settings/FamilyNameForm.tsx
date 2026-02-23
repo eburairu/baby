@@ -60,10 +60,11 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                             size="sm"
                             onClick={handleSave}
                             disabled={saving}
+                            loading={saving}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"
                         >
-                            <Check className="h-4 w-4 mr-1" />
-                            保存
+                            {!saving && <Check className="h-4 w-4 mr-1" />}
+                            {saving ? "保存中" : "保存"}
                         </Button>
                         <Button size="sm" variant="outline" onClick={handleCancel} disabled={saving}>
                             <X className="h-4 w-4 mr-1" />
@@ -75,7 +76,7 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                 <div className="flex items-center justify-between">
                     <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">{name}</p>
                     {isAdmin && (
-                        <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }}>
+                        <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }} aria-label="家族名を編集">
                             <Pencil className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                         </Button>
                     )}
