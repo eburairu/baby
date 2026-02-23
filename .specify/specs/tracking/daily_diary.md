@@ -14,6 +14,7 @@
 - **編集の柔軟性**: AIが生成した内容をユーザーが手動で修正・追記できるようにする。
 - **視認性の向上**: ダッシュボードから最新の日誌に素早くアクセスできるようにし、他の記録と同様の「一目でわかる」UIを提供する。
 - **AI 連携**: 生成ロジックやプロンプトの詳細は `.specify/specs/ai/ai_daily_summary.md` を参照。
+- **画像の記録**: 日誌に写真を添付し、視覚的な思い出も残せるようにする（詳細は `.specify/specs/social/diary_image_upload.md` 参照）。
 
 ---
 
@@ -31,6 +32,10 @@
     - ユーザーは、AIが生成した文章に自分の感想を加えたり、AIが生成していない日でも自分で日記を書きたい。
     - **Acceptance Criteria**: 生成済みの日誌を編集でき、編集済みフラグ（`is_edited`）が管理されること。
 
+- **思い出の写真を残したい**
+    - ユーザーは、日誌と一緒にその日のベストショットを残したい。
+    - **Acceptance Criteria**: 日誌編集時に写真をアップロードでき、日誌詳細で閲覧できること。
+
 ---
 
 ## 用語定義
@@ -42,6 +47,7 @@
 | `display_content` | 表示用テキスト。`edited_content ?? generated_content` |
 | `is_edited` | `edited_content` が存在する場合 `true` |
 | `summary_date` | 日誌の対象日（`YYYY-MM-DD`、タイムゾーンは JST） |
+| `image_urls` | 添付された画像のURLリスト（JSON配列） |
 
 ---
 
@@ -63,6 +69,7 @@ class DailySummary(Base):
     edited_content = Column(Text, nullable=True)
     is_edited = Column(Boolean, nullable=False, default=False)
     model_name = Column(String, nullable=True)          # 生成に使用したモデル名
+    image_urls = Column(JSON, nullable=True, default=[]) # 画像URLのリスト
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
@@ -81,10 +88,12 @@ class DailySummary(Base):
 | メソッド | パス | 概要 |
 |---------|-----|------|
 | `POST` | `/api/babies/{baby_id}/daily-summary` | 日誌の AI 生成（詳細は `ai_daily_summary.md`） |
-| `GET` | `/api/babies/{baby_id}/daily-summary` | 日誌一覧取得 |
-| `GET` | `/api/babies/{baby_id}/daily-summary/{date}` | 指定日の日誌取得 |
-| `PATCH` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の手動編集 |
+| `GET` | `/api/babies/{baby_id}/daily-summary` | 日誌一覧取得（各アイテムに `image_urls` 含む） |
+| `GET` | `/api/babies/{baby_id}/daily-summary/{date}` | 指定日の日誌取得（`image_urls` 含む） |
+| `PATCH` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の手動編集（`edited_content`, `image_urls` 更新） |
 | `DELETE` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の削除 |
+
+※ `PATCH` リクエストの詳細は `DailySummaryEdit` スキーマを参照。`image_urls` フィールドで画像リストの順序変更や削除を反映する。
 
 ---
 
@@ -98,9 +107,11 @@ class DailySummary(Base):
 - カレンダーまたはリスト形式で過去の日誌を表示。
 - 未来の日付は選択不可。
 - 「日誌を生成」ボタンにより AI 生成プロセスを開始。
+- リスト表示時、画像がある場合はサムネイルアイコンを表示。
 
 ### 3. 編集ダイアログ (`DiaryEditDialog`)
 - テキストエリアによる編集。空欄保存で AI 生成内容にリセット。
+- 画像アップロード、並び替え、削除 UI を提供（詳細は `diary_image_upload.md`）。
 
 ---
 
@@ -114,5 +125,5 @@ class DailySummary(Base):
 ## 参照先ドキュメント
 
 - `.specify/specs/ai/ai_daily_summary.md` — AI 生成ロジック・プロンプト・特徴更新
-- `.specify/specs/social/diary_image_upload.md` — 日誌への画像添付機能
+- `.specify/specs/social/diary_image_upload.md` — 日誌への画像添付機能の詳細仕様、アップロードフロー、R2連携について
 - `.specify/specs/tracking/general_memo.md` — ソースとなるメモの仕様
