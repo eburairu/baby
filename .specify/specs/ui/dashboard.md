@@ -109,6 +109,37 @@ Baby App のメイン画面（ホーム）となるダッシュボードの仕�
 - 各行をタップすると詳細ダイアログを表示し、編集・削除・コメント操作が可能。
 - 赤ちゃんを切り替えた際は表示件数をリセットする。
 
+#### API仕様
+
+統合タイムラインを取得するために以下のエンドポイントを使用する。
+
+- **GET /api/babies/{baby_id}/records**
+    - **Query Params**:
+        - `limit`: 取得件数 (default: 50, min: 1, max: 1000)
+    - **Response**: `List[UnifiedRecord]`
+
+**レスポンススキーマ (`UnifiedRecord`)**
+
+```typescript
+interface UnifiedRecord {
+  id: number;
+  type: "feeding" | "sleep" | "diaper" | "growth" | "note" | "contraction";
+  timestamp: string; // ISO 8601 (JST)
+  comment_count: number;
+  recorded_by_display_name: string | null;
+  details: RecordDetails; // 各タイプに応じた詳細情報
+}
+
+// details の構造は type により異なる
+type RecordDetails =
+  | { feeding_type: string; amount_ml: number | null; duration_minutes: number | null; notes: string | null } // feeding
+  | { end_time: string | null; notes: string | null } // sleep
+  | { diaper_type: string; notes: string | null } // diaper
+  | { weight_kg: number | null; height_cm: number | null; head_circumference_cm: number | null; notes: string | null } // growth
+  | { notes: string } // note (content is mapped to notes)
+  | { end_time: string | null; duration_seconds: number | null; notes: string | null } // contraction
+```
+
 ### F5: 出生前/出生後 表示切り替え
 
 `birthday` の有無で赤ちゃんの出生状態を判定し、ダッシュボード表示を切り替える。
@@ -225,3 +256,4 @@ Baby App のメイン画面（ホーム）となるダッシュボードの仕�
 | 1.1 | 2026-02-18 | F5「出生前/出生後表示切り替え」追加。「生まれた！」ボタン仕様追加。Future Work セクション追加。 |
 | 1.2 | 2026-02-20 | F3「クイックアクション」を `QuickActionBar` として具体化。ウィジェットのホバーアニメーション仕様を追加。コンポーネント名を `QuickActionFab` → `QuickActionBar` に更新。睡眠ボタンを直接 Start/Stop に対応（records から状態判定）。 |
 | 1.3 | 2026-02-20 | ダッシュボード画面右上の赤ちゃん選択機能（タブ/ボタン形式）を削除。赤ちゃん切り替え機能をグローバルヘッダーのドロップダウンに集約。 |
+| 1.4 | 2026-02-23 | F4「直近のタイムライン」に実装済みの統合API（`GET /api/babies/{id}/records`）およびレスポンススキーマ仕様を追記。 |
