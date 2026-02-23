@@ -30,6 +30,7 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading,
       href={`/note?baby_id=${babyId}`}
       isError={isError}
       actionHoverColor="hover:text-amber-500 dark:hover:text-amber-400"
+      ariaLabel="メモの詳細を見る"
     >
       {isLoading ? (
         <div className="flex justify-center py-4">

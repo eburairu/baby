@@ -30,6 +30,7 @@ export const DiaryWidget = memo(function DiaryWidget({ babyId }: Props) {
             href={`/diary?baby_id=${babyId}`}
             isError={error}
             actionHoverColor="hover:text-amber-600 dark:hover:text-amber-500"
+            ariaLabel="育児日誌の詳細を見る"
         >
             {isLoading ? (
                 <div className="flex justify-center py-4">
