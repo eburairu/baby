@@ -10,10 +10,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { api } from "@/lib/api"
 import { useSleeps } from "@/hooks/useData"
+import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { SleepCreate } from "@/types/sleep"
+import { UI_BUTTONS } from "@/constants/ui-colors"
 
 const formSchema = z.object({
     start_time: z.string().min(1, "開始日時は必須です"),
@@ -115,7 +117,7 @@ export function SleepForm({ babyId }: Props) {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white shadow-none" loading={form.formState.isSubmitting} data-sentry-unmask>
+                        <Button type="submit" className={cn("w-full shadow-none", UI_BUTTONS.primary)} loading={form.formState.isSubmitting} data-sentry-unmask>
                             {form.formState.isSubmitting ? "保存中..." : "記録する"}
                         </Button>
                     </form>
