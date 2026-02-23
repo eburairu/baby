@@ -6,7 +6,6 @@ import { useNotes } from "@/hooks/useNotes"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { NoteForm } from "@/components/note/NoteForm"
 import { NoteHistory } from "@/components/note/NoteHistory"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { TipsCard } from "@/components/ui/tips-card"
 import { noteTips } from "@/lib/tips-data"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
@@ -42,6 +41,7 @@ export default function NotePage() {
             icon={StickyNote}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
+            isDataLoading={notesLoading}
             apiError={notesError}
             babyId={babyId}
             onRefresh={handleRefresh}
@@ -58,18 +58,12 @@ export default function NotePage() {
                 />
             )}
 
-            {notesLoading ? (
-                <div className="flex justify-center py-10">
-                    <BabyBottleLoading className="w-10 h-10 text-amber-400" />
-                </div>
-            ) : (
-                <NoteHistory
-                    notes={notes || []}
-                    onRefresh={() => mutateNotes()}
-                    canWrite={canWrite}
-                    initialCommentRecordId={commentRecordId ?? null}
-                />
-            )}
+            <NoteHistory
+                notes={notes || []}
+                onRefresh={() => mutateNotes()}
+                canWrite={canWrite}
+                initialCommentRecordId={commentRecordId ?? null}
+            />
         </RecordPageLayout>
     )
 }

@@ -9,7 +9,6 @@ import { GrowthChart } from "@/components/growth/GrowthChart"
 import { GrowthHistoryList } from "@/components/growth/GrowthHistoryList"
 import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { TipsCard } from "@/components/ui/tips-card"
 import { growthTips } from "@/lib/tips-data"
 import { Growth } from "@/types/growth"
@@ -55,6 +54,7 @@ export default function GrowthPage() {
             icon={TrendingUp}
             iconColorClass="text-emerald-500 dark:text-emerald-400"
             isLoading={babiesLoading}
+            isDataLoading={growthsLoading}
             apiError={growthError}
             babyId={babyId}
             onRefresh={handleRefresh}
@@ -71,34 +71,26 @@ export default function GrowthPage() {
                 )}
             </div>
 
-            {growthsLoading ? (
-                <div className="flex justify-center py-12">
-                    <BabyBottleLoading className="w-12 h-12 text-emerald-400" />
-                </div>
-            ) : (
-                <>
-                    <GrowthChart
-                        records={growths || []}
-                        babyBirthday={currentBaby?.birthday}
-                        babyGender={currentBaby?.gender}
-                    />
+            <GrowthChart
+                records={growths || []}
+                babyBirthday={currentBaby?.birthday}
+                babyGender={currentBaby?.gender}
+            />
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">履歴</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <GrowthHistoryList
-                                records={growths || []}
-                                onEdit={handleEdit}
-                                onDeleteSuccess={() => mutate()}
-                                canWrite={canWrite}
-                                initialCommentRecordId={commentRecordId ?? null}
-                            />
-                        </CardContent>
-                    </Card>
-                </>
-            )}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">履歴</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <GrowthHistoryList
+                        records={growths || []}
+                        onEdit={handleEdit}
+                        onDeleteSuccess={() => mutate()}
+                        canWrite={canWrite}
+                        initialCommentRecordId={commentRecordId ?? null}
+                    />
+                </CardContent>
+            </Card>
 
             {babyId && (
                 <GrowthRecordForm

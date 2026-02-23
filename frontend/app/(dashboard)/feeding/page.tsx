@@ -28,6 +28,7 @@ export default function FeedingPage() {
     const numericBabyId = babyId ? parseInt(babyId, 10) : undefined
     const {
         feedings,
+        loading: feedingsLoading,
         error: feedingError,
         summary,
         addFeeding,
@@ -49,6 +50,7 @@ export default function FeedingPage() {
             icon={BabyIcon}
             iconColorClass="text-rose-500 dark:text-rose-400"
             isLoading={babiesLoading}
+            isDataLoading={feedingsLoading}
             apiError={feedingError}
             babyId={babyId}
             onRefresh={refreshFeedings}
