@@ -1,7 +1,6 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
@@ -11,6 +10,7 @@ import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { WidgetContent } from "./WidgetContent"
+import { WidgetQuickButton } from "./WidgetQuickButton"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
@@ -64,30 +64,26 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             />
             {canWrite ? (
                 <div className="flex gap-2">
-                    <Button
-                        size="sm"
+                    <WidgetQuickButton
+                        color="amber"
                         loading={loading}
                         disabled={loading}
                         onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
-                        className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
-                        variant="outline"
+                        className="flex-1"
                         aria-label="おしっこ"
-                        data-sentry-unmask
                     >
                         💧
-                    </Button>
-                    <Button
-                        size="sm"
+                    </WidgetQuickButton>
+                    <WidgetQuickButton
+                        color="amber"
                         loading={loading}
                         disabled={loading}
                         onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
-                        className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
-                        variant="outline"
+                        className="flex-1"
                         aria-label="うんち"
-                        data-sentry-unmask
                     >
                         💩
-                    </Button>
+                    </WidgetQuickButton>
                 </div>
             ) : null}
         </WidgetCard>

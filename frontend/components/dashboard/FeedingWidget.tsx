@@ -1,7 +1,6 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
@@ -10,6 +9,7 @@ import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { WidgetContent } from "./WidgetContent"
+import { WidgetQuickButton } from "./WidgetQuickButton"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
@@ -61,28 +61,24 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             />
             {canWrite ? (
                 <div className="flex gap-2">
-                    <Button
-                        size="sm"
+                    <WidgetQuickButton
+                        color="rose"
                         loading={loading}
                         disabled={loading}
                         onClick={(e) => handleQuickRecord("bottle", e)}
-                        className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
-                        variant="outline"
-                        data-sentry-unmask
+                        className="flex-1"
                     >
                         ミルク
-                    </Button>
-                    <Button
-                        size="sm"
+                    </WidgetQuickButton>
+                    <WidgetQuickButton
+                        color="rose"
                         loading={loading}
                         disabled={loading}
                         onClick={(e) => handleQuickRecord("breast", e)}
-                        className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
-                        variant="outline"
-                        data-sentry-unmask
+                        className="flex-1"
                     >
                         母乳
-                    </Button>
+                    </WidgetQuickButton>
                 </div>
             ) : null}
         </WidgetCard>
