@@ -86,6 +86,7 @@ export function PullToRefresh({
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
         >
             {/* Loading Indicator Area */}
             <motion.div
