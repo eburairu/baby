@@ -81,7 +81,7 @@ def verify_characteristics_update():
     with patch('app.services.ai_summary.get_llm_client', return_value=(mock_client, "gpt-test")):
         print("--- Generating Summary for Day 1 (Mocked) ---")
         try:
-            summary, model = generate_daily_summary(db, baby.id, baby.name, target_date)
+            summary, model = generate_daily_summary(db, baby.id, baby, target_date)
             print(f"Generated Summary: {summary}")
         except Exception as e:
             print(f"Error generating summary: {e}")

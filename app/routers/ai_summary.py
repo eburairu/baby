@@ -47,7 +47,7 @@ def create_or_get_daily_summary(
 
     try:
         generated_content, model_name = generate_daily_summary(
-            db, baby_id, baby.name, body.summary_date
+            db, baby_id, baby, body.summary_date
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
