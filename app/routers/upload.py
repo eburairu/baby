@@ -59,6 +59,8 @@ async def upload_image(
     upload_limiter.check(f"user_{current_user.id}")
 
     verify_write_access(db, current_user.id)
+
+    # Check Content-Type header as a preliminary filter, but do not rely on it
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -72,24 +74,31 @@ async def upload_image(
             detail=f"ファイルサイズが大きすぎます（上限 5MB）。",
         )
 
-    # Validate magic bytes
-    # JPEG: FF D8 FF
-    # PNG: 89 50 4E 47 0D 0A 1A 0A
-    # GIF: 47 49 46 38
-    # WebP: RIFF ... WEBP
-    if not (
-        content.startswith(b"\xFF\xD8\xFF")
-        or content.startswith(b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
-        or content.startswith(b"\x47\x49\x46\x38")
-        or (content.startswith(b"RIFF") and len(content) >= 12 and content[8:12] == b"WEBP")
-    ):
+    # Validate magic bytes and determine correct MIME type and extension
+    # This prevents users from uploading malicious files (e.g., HTML/PHP) with fake extensions
+    detected_mime_type = None
+    detected_extension = None
+
+    if content.startswith(b"\xFF\xD8\xFF"):
+        detected_mime_type = "image/jpeg"
+        detected_extension = ".jpg"
+    elif content.startswith(b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"):
+        detected_mime_type = "image/png"
+        detected_extension = ".png"
+    elif content.startswith(b"\x47\x49\x46\x38"):
+        detected_mime_type = "image/gif"
+        detected_extension = ".gif"
+    elif content.startswith(b"RIFF") and len(content) >= 12 and content[8:12] == b"WEBP":
+        detected_mime_type = "image/webp"
+        detected_extension = ".webp"
+    else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="無効な画像ファイル形式です。",
         )
 
-    original_ext = os.path.splitext(file.filename or "")[1].lower() or ".webp"
-    object_key = f"{uuid.uuid4()}{original_ext}"
+    # Use detected extension instead of trusting user input
+    object_key = f"{uuid.uuid4()}{detected_extension}"
 
     bucket_name = os.getenv("R2_BUCKET_NAME", "baby-app-images")
     public_endpoint = os.getenv("R2_PUBLIC_ENDPOINT", "")
@@ -100,7 +109,7 @@ async def upload_image(
             Bucket=bucket_name,
             Key=object_key,
             Body=content,
-            ContentType=file.content_type,
+            ContentType=detected_mime_type,  # Use detected MIME type
         )
     except ClientError as e:
         logger.error("R2 upload failed: %s", e)
