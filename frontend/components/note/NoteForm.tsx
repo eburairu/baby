@@ -20,7 +20,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { createNote } from "@/hooks/useNotes"
+import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
+import { UI_BUTTONS } from "@/constants/ui-colors"
 
 const noteSchema = z.object({
     note_time: z.string().min(1, "日時は必須です"),
@@ -74,7 +76,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
         return (
             <Button 
                 onClick={() => setIsExpanded(true)}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-6 shadow-sm flex gap-2 transition-all duration-200"
+                className={cn("w-full rounded-xl py-6 shadow-sm flex gap-2 transition-all duration-200", UI_BUTTONS.primary)}
                 aria-label="新しいメモを入力する" data-sentry-unmask
             >
                 <Plus className="h-5 w-5" />
@@ -143,7 +145,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
                             <Button
                                 type="submit"
                                 loading={submitting}
-                                data-sentry-unmask className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                                data-sentry-unmask className={cn("flex-1 shadow-md shadow-indigo-500/20", UI_BUTTONS.primary)}
                             >
                                 {!submitting && <Save className="h-4 w-4 mr-2" />}
                                 {submitting ? "保存中..." : "保存する"}

@@ -21,6 +21,7 @@ import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
+import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 
 const diaperSchema = z.object({
     diaper_type: z.nativeEnum(DiaperType),
@@ -86,8 +87,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 className={cn(
                                     "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
                                     selectedType === DiaperType.WET
-                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
+                                        ? UI_FORMS.selection.amberBordered.active
+                                        : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
                                 <span className="text-2xl">💧</span>
@@ -99,8 +100,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 className={cn(
                                     "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
                                     selectedType === DiaperType.DIRTY
-                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
+                                        ? UI_FORMS.selection.amberBordered.active
+                                        : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
                                 <span className="text-2xl">💩</span>
@@ -112,8 +113,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 className={cn(
                                     "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
                                     selectedType === DiaperType.BOTH
-                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
+                                        ? UI_FORMS.selection.amberBordered.active
+                                        : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
                                 <span className="text-2xl">💧💩</span>
@@ -153,7 +154,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
 
                         <Button
                             type="submit"
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                            className={cn("w-full rounded-xl h-11", UI_BUTTONS.primary)}
                             loading={isSubmitting}
                             data-sentry-unmask
                         >
