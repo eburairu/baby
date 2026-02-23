@@ -61,3 +61,25 @@ def test_comment_input_validation(auth_client):
     # 正しいエンドポイントを使用
     res = client.post(f"/api/records/feeding/{feeding_id}/comments", json=comment_payload)
     assert res.status_code == 422, f"Expected 422 for long comment, got {res.status_code}"
+
+def test_baby_name_cannot_be_null(auth_client):
+    client = auth_client()
+
+    # 1. Create a baby
+    baby_payload = {
+        "name": "Original Name",
+        "birthday": datetime.now().date().isoformat(),
+        "gender": "boy"
+    }
+    res = client.post("/api/babies/", json=baby_payload)
+    assert res.status_code == 200
+    baby_id = res.json()["id"]
+
+    # 2. Try to update name to null
+    update_payload = {
+        "name": None
+    }
+    res = client.patch(f"/api/babies/{baby_id}", json=update_payload)
+
+    # Expect 422 Unprocessable Entity, but currently it might be 500
+    assert res.status_code == 422, f"Expected 422 for null name, got {res.status_code}"

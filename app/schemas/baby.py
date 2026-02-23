@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional, Literal
 from datetime import date, datetime
 
@@ -21,6 +21,13 @@ class BabyUpdate(BaseModel):
     due_date: Optional[date] = None
     gender: Optional[Literal["boy", "girl", "unknown"]] = None
     characteristics: Optional[str] = Field(None, max_length=1000)
+
+    @field_validator('name')
+    @classmethod
+    def name_must_not_be_none(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            raise ValueError('Name cannot be null')
+        return v
 
 
 class BabyResponse(BabyBase):
