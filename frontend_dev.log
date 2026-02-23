@@ -17,8 +17,29 @@
   · optimizePackageImports
 
 ✓ Starting...
-✓ Ready in 5.8s
-○ Compiling / ...
- GET / 200 in 11.5s (compile: 10.3s, render: 1193ms)
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 5.5s
+○ Compiling /dashboard ...
+ GET /dashboard 200 in 13.2s (compile: 11.8s, render: 1467ms)
 ○ Compiling /_not-found/page ...
- GET /api/auth/me 404 in 4.0s (compile: 3.7s, render: 300ms)
+ GET /api/version 404 in 4.3s (compile: 3.9s, render: 389ms)
+ GET /api/babies 404 in 4.2s (compile: 4.0s, render: 221ms)
+ GET /api/notifications/unread-count 404 in 360ms (compile: 37ms, render: 323ms)
+ GET /api/notifications 404 in 338ms (compile: 146ms, render: 192ms)
+ GET /api/version 404 in 141ms (compile: 9ms, render: 131ms)
+ GET /api/notifications/unread-count 404 in 71ms (compile: 8ms, render: 63ms)
+ GET /api/notifications 404 in 111ms (compile: 12ms, render: 99ms)
+ GET /api/notifications/unread-count 404 in 73ms (compile: 9ms, render: 65ms)
+ GET /api/version 404 in 93ms (compile: 14ms, render: 78ms)
+ GET /dashboard 200 in 84ms (compile: 9ms, render: 75ms)
+ GET /api/version 404 in 142ms (compile: 8ms, render: 134ms)
+ GET /api/babies 404 in 72ms (compile: 10ms, render: 62ms)
+ GET /api/notifications/unread-count 404 in 145ms (compile: 11ms, render: 134ms)
+ GET /api/notifications 404 in 156ms (compile: 52ms, render: 104ms)
+ GET /api/notifications/unread-count 404 in 106ms (compile: 12ms, render: 94ms)
+ GET /dashboard 200 in 86ms (compile: 7ms, render: 80ms)
+ GET /api/version 404 in 70ms (compile: 10ms, render: 60ms)

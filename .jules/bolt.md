@@ -13,3 +13,7 @@
 ## 2026-02-26 - [N+1 Comment Count Optimization]
 **Learning:** Fetching auxiliary data (like comment counts) by scanning the entire table for a parent ID (e.g., `baby_id`) is inefficient when only a subset of records is returned.
 **Action:** Use a "fetch-then-batch" strategy: Retrieve the main records first, collect their IDs, and then execute a single targeted query using `IN` (or `OR` + `AND` for composite keys) to fetch only the necessary auxiliary data.
+
+## 2026-02-23 - [RecentActivityFeed Rendering Optimization]
+**Learning:** Rendering list items inline within a large scrollable list causes all items to re-render when new items are added (e.g., via infinite scroll). Extracting list items into memoized components prevents this.
+**Action:** When implementing infinite scroll lists, always extract the item component and wrap it in `React.memo` to skip re-rendering existing items.
