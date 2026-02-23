@@ -579,6 +579,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -652,6 +653,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -718,6 +720,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -900,6 +903,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -943,6 +947,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1013,6 +1018,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1255,6 +1261,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1372,6 +1379,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1516,6 +1524,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1575,6 +1584,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1647,6 +1657,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1730,6 +1741,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2257,6 +2269,7 @@
           "description": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2276,6 +2289,7 @@
             "type": "string"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           }
@@ -2302,6 +2316,7 @@
           "description": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2325,6 +2340,7 @@
             "type": "string"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           },
@@ -2365,6 +2381,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2416,6 +2433,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2471,6 +2489,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
