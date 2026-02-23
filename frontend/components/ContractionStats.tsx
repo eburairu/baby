@@ -3,14 +3,8 @@
 import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ContractionRecord } from "@/types/contraction"
-import { calculateShouldAlert, calculateStats } from "@/lib/contractionUtils"
-
-function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    if (m > 0) return `${m}分${s}秒`
-    return `${s}秒`
-}
+import { calculateStats } from "@/lib/contractionUtils"
+import { formatSecondsToJapanese } from "@/lib/ageUtils"
 
 interface ContractionStatsProps {
     contractions: ContractionRecord[]
@@ -51,7 +45,7 @@ export default function ContractionStats({ contractions }: ContractionStatsProps
                     </CardHeader>
                     <CardContent className="px-4 pb-4">
                         <p className="text-2xl font-bold">
-                            {stats.avgDuration != null ? formatDuration(stats.avgDuration) : "—"}
+                            {stats.avgDuration != null ? formatSecondsToJapanese(stats.avgDuration) : "—"}
                         </p>
                     </CardContent>
                 </Card>
@@ -62,7 +56,7 @@ export default function ContractionStats({ contractions }: ContractionStatsProps
                     </CardHeader>
                     <CardContent className="px-4 pb-4">
                         <p className="text-2xl font-bold">
-                            {stats.avgInterval != null ? formatDuration(stats.avgInterval) : "—"}
+                            {stats.avgInterval != null ? formatSecondsToJapanese(stats.avgInterval) : "—"}
                         </p>
                     </CardContent>
                 </Card>
