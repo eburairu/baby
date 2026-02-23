@@ -26,7 +26,7 @@
     - 🍼 ミルク (BOTTLE) - 粉ミルク・搾母乳を区別して記録可能
 - **入力項目**:
     - **母乳の場合**:
-        - **左右別タイマー**: 左乳・右乳それぞれに独立したタイマーを持つ。片方を起動するともう一方は自動停止。
+        - **左右別タイマー**: 左乳・右乳それぞれに独立したタイマーを持つ。片方を起動するともう一方は自動停止。**（※新規作成時のみ利用可能。編集時は非表示）**
         - **左右別手動入力**: `左: [ X ] 分 / 右: [ Y ] 分` で入力可能。
         - **合計時間の自動計算**: 左右の合計を `duration_minutes` として自動計算して保存（後方互換性維持）。
     - **ミルクの場合**:
@@ -109,7 +109,7 @@ class FeedingCompletion(str, Enum):
 | `last_breast_side` | Enum | 最後に授乳した側 (`BreastSide`) |
 | `bottle_content_type` | Enum | ボトルの中身種別 (`BottleContentType`) |
 | `feeding_completion` | Enum | 授乳完全度 (`FeedingCompletion`) |
-| `notes` | String | メモ |
+| `notes` | String | メモ (最大2000文字) |
 
 ## API仕様
 
@@ -117,6 +117,7 @@ class FeedingCompletion(str, Enum):
 
 - `GET /api/feedings/?baby_id={id}`: 授乳記録一覧取得
 - `POST /api/feedings/`: 新規作成
+    - **通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Push/In-App）が送信される。
 - `PATCH /api/feedings/{id}`: 更新
 - `DELETE /api/feedings/{id}`: 削除
 
@@ -136,7 +137,7 @@ class FeedingCompletion(str, Enum):
   last_breast_side?: "LEFT" | "RIGHT" | "BOTH",
   bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED",
   feeding_completion?: "FULL" | "PARTIAL",
-  notes?: string
+  notes?: string // 最大2000文字
 }
 ```
 
