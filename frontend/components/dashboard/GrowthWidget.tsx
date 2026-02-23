@@ -29,6 +29,7 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
             href={`/growth?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-emerald-500 dark:hover:text-emerald-400"
+            ariaLabel="成長の詳細を見る"
         >
             {isLoading ? (
                 <div className="flex justify-center py-4">

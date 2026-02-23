@@ -5,7 +5,7 @@ import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
@@ -18,7 +18,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Pencil, Trash2, Moon, User, MessageCircle, Loader2 } from "lucide-react"
 import { formatDuration } from "@/lib/ageUtils"
@@ -89,56 +88,65 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
 
     if (!history || history.length === 0) {
         return (
-            <div className="text-center py-8 text-gray-400">
-                <p>記録はまだありません</p>
-            </div>
+            <Card className="rounded-2xl shadow-sm border-0">
+                <CardHeader>
+                    <CardTitle className="text-sm font-medium text-gray-700 dark:text-zinc-300">最近の睡眠</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center py-8 text-gray-400">
+                        <p>記録はまだありません</p>
+                    </div>
+                </CardContent>
+            </Card>
         )
     }
 
     return (
-        <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 px-1">最近の睡眠</h3>
-            <div className="space-y-3">
-                {history.map((sleep) => {
-                    const duration = sleep.end_time
-                        ? formatDuration(sleep.start_time, sleep.end_time)
-                        : "睡眠中"
+        <>
+            <Card className="rounded-2xl shadow-sm border-0 transition-colors">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-700 dark:text-zinc-300">最近の睡眠</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {history.map((sleep) => {
+                        const duration = sleep.end_time
+                            ? formatDuration(sleep.start_time, sleep.end_time)
+                            : "睡眠中"
 
-                    return (
-                        <Card key={sleep.id} className="overflow-hidden border-0 shadow-sm bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
-                            <CardContent className="p-4 flex items-center justify-between">
+                        return (
+                            <div key={sleep.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
                                 <div className="flex items-start gap-4">
                                     <div className="mt-1 bg-indigo-100 dark:bg-indigo-950/40 p-2 rounded-full text-indigo-500 dark:text-indigo-400">
                                         <Moon className="w-5 h-5" />
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="font-medium text-gray-900 dark:text-zinc-100">
+                                            <p className="font-medium text-sm text-gray-900 dark:text-zinc-100">
                                                 {format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}
                                                 <span className="text-gray-400 dark:text-zinc-500 mx-2">-</span>
                                                 {sleep.end_time ? format(new Date(sleep.end_time), "HH:mm", { locale: ja }) : "現在"}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-                                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium text-xs">
+                                        <div className="flex items-center gap-2 text-[10px] text-gray-500 flex-wrap">
+                                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium">
                                                 {duration}
                                             </span>
                                             {sleep.recorded_by_display_name && (
-                                                <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500">
+                                                <span className="inline-flex items-center gap-0.5 text-gray-400 dark:text-zinc-500">
                                                     <User className="w-3 h-3" />
                                                     {sleep.recorded_by_display_name}
                                                 </span>
                                             )}
                                             <button
                                                 onClick={() => setCommentTarget({ id: sleep.id, title: `睡眠 ${format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}` })}
-                                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                                className="inline-flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
                                             >
                                                 <MessageCircle className="w-3 h-3" />
                                                 {(sleep.comment_count ?? 0) > 0 && <span>{sleep.comment_count}</span>}
                                             </button>
                                         </div>
                                         {sleep.notes && (
-                                            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">
+                                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">
                                                 {sleep.notes}
                                             </p>
                                         )}
@@ -167,13 +175,12 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                                         </Button>
                                     </div>
                                 )}
-                            </CardContent>
-                        </Card>
-                    )
-                })}
-            </div>
+                            </div>
+                        )
+                    })}
+                </CardContent>
+            </Card>
 
-            {/* 削除確認ダイアログ */}
             <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -192,7 +199,6 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                 </AlertDialogContent>
             </AlertDialog>
 
-            {/* コメントダイアログ */}
             {commentTarget && (
                 <RecordCommentDialog
                     open={commentTarget !== null}
@@ -239,6 +245,6 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     )
 }

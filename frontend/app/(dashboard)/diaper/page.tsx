@@ -5,7 +5,6 @@ import { useRecordPage } from "@/hooks/useRecordPage"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
 import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaperTips } from "@/lib/tips-data"
 import { Smile } from "lucide-react"
@@ -35,38 +34,31 @@ export default function DiaperPage() {
             icon={Smile}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
+            isDataLoading={diapersLoading}
             apiError={diaperError}
             babyId={babyId}
             onRefresh={handleRefresh}
         >
-            {diapersLoading ? (
-                <div className="flex justify-center py-12">
-                    <BabyBottleLoading className="w-12 h-12 text-amber-400" />
-                </div>
-            ) : (
-                <>
-                    <DiaperStats diapers={diapers || []} />
+            <DiaperStats diapers={diapers || []} />
 
-                    <TipsCard {...diaperTips} />
+            <TipsCard {...diaperTips} />
 
-                    {canWrite && babyId && (
-                        <DiaperForm
-                            babyId={babyId}
-                            onSuccess={(recordId) => {
-                                mutate()
-                                if (recordId) triggerFeedback("diaper", recordId)
-                            }}
-                        />
-                    )}
-
-                    <DiaperHistory
-                        diapers={diapers || []}
-                        onDeleteSuccess={() => mutate()}
-                        canWrite={canWrite}
-                        initialCommentRecordId={commentRecordId ?? null}
-                    />
-                </>
+            {canWrite && babyId && (
+                <DiaperForm
+                    babyId={babyId}
+                    onSuccess={(recordId) => {
+                        mutate()
+                        if (recordId) triggerFeedback("diaper", recordId)
+                    }}
+                />
             )}
+
+            <DiaperHistory
+                diapers={diapers || []}
+                onDeleteSuccess={() => mutate()}
+                canWrite={canWrite}
+                initialCommentRecordId={commentRecordId ?? null}
+            />
         </RecordPageLayout>
     )
 }

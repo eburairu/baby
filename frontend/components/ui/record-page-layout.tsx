@@ -2,10 +2,10 @@
 
 import { ReactNode } from "react"
 import { LucideIcon } from "lucide-react"
-import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { isApiError } from "@/lib/api"
 import { PullToRefresh } from "@/components/ui/pull-to-refresh"
+import { RecordPageSkeleton } from "@/components/ui/record-page-skeleton"
 
 interface RecordPageLayoutProps {
     /** ページタイトル */
@@ -14,8 +14,10 @@ interface RecordPageLayoutProps {
     icon: LucideIcon
     /** アイコンの色 (CSS class) */
     iconColorClass: string
-    /** ページ全体の初期ロード中フラグ */
+    /** ページ全体の初期ロード中フラグ (赤ちゃん情報の取得など) */
     isLoading?: boolean
+    /** 機能固有のデータ読み込み中フラグ (履歴や統計の取得など) */
+    isDataLoading?: boolean
     /** APIエラー (403判定に使用) */
     apiError?: unknown
     /** 対象の赤ちゃんID (未選択時のチェックに使用) */
@@ -27,38 +29,47 @@ interface RecordPageLayoutProps {
 }
 
 /**
- * 育児記録ページ共通のレイアウト・エラーハンドリン グ・ローディング表示コンポーネント
+ * 育児記録ページ共通のレイアウト・エラーハンドリング・ローディング表示コンポーネント
  */
 export function RecordPageLayout({
     title,
     icon: Icon,
     iconColorClass,
     isLoading,
+    isDataLoading,
     apiError,
     babyId,
     children,
     onRefresh,
 }: RecordPageLayoutProps) {
-    // 赤ちゃん情報や権限の初期ロード中
-    if (isLoading) {
-        return <PageLoading />
-    }
-
-    // 対象の赤ちゃんが特定できない場合
-    if (!babyId) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 text-center">
-                <p className="text-muted-foreground">赤ちゃんが登録されていないか、選択されていません。</p>
-            </div>
-        )
-    }
-
     // 権限エラー (403 Forbidden)
     const isAccessDenied = isApiError(apiError) && apiError.status === 403
 
+    const renderContent = () => {
+        // 赤ちゃん情報や権限の初期ロード中、またはデータロード中 (初回のみ)
+        if (isLoading || (isDataLoading && !children)) {
+            return <RecordPageSkeleton />
+        }
+
+        // 対象の赤ちゃんが特定できない場合
+        if (!babyId) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 text-center">
+                    <p className="text-muted-foreground">赤ちゃんが登録されていないか、選択されていません。</p>
+                </div>
+            )
+        }
+
+        if (isAccessDenied) {
+            return <AccessDenied />
+        }
+
+        return children
+    }
+
     const content = (
         <main className="max-w-2xl mx-auto p-4 space-y-6 pb-24">
-            {isAccessDenied ? <AccessDenied /> : children}
+            {renderContent()}
         </main>
     )
 

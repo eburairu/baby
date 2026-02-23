@@ -26,6 +26,7 @@
     - 少なくとも1つの計測値（身長、体重、頭囲のいずれか）が入力されていること。
 - **保存**: API に POST/PUT して保存する。
     - **処理中フィードバック（新規・HIGH）**: 保存ボタンが押された後、API レスポンスが返るまでの間、ボタンを無効化（Disabled）し、「保存中...」およびスピナーを表示して処理中であることを示す。二重送信を完全に防止する。
+    - **通知**: 記録が正常に保存された場合、家族全員（記録者本人以外）に対してプッシュ通知（"成長の記録: {ユーザー名}さんが{赤ちゃん名}の身長・体重を記録しました。"）を送信する。
 
 ### F2: 成長記録一覧 (History)
 
@@ -88,17 +89,16 @@
 - `weight`: Integer (g, Nullable) ※g単位で保存
 - `head_circumference`: Float (cm, Nullable)
 - `notes`: String (Nullable)
-- `created_at`: DateTime
 
 ## API
 
-- `GET /api/growth_records/?baby_id={id}`
+- `GET /api/growths/?baby_id={id}`
     - 指定した赤ちゃんの全記録を日付順（降順または昇順）で取得。
-- `POST /api/growth_records/`
+- `POST /api/growths/`
     - 新規作成。
-- `PUT /api/growth_records/{id}`
+- `PUT /api/growths/{id}`
     - 編集更新。
-- `DELETE /api/growth_records/{id}`
+- `DELETE /api/growths/{id}`
     - 削除。
 
 ### レスポンススキーマ (`GrowthResponse`)
@@ -113,8 +113,8 @@ interface GrowthResponse {
   weight: number | null
   head_circumference: number | null
   notes: string | null
-  created_at: string
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number
 }
 ```
 

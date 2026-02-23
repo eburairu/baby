@@ -17,16 +17,25 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 
+const POOP_COLORS = ["黄色", "緑", "茶色", "黒", "白", "その他"] as const;
+const POOP_AMOUNTS = ["少量", "普通", "多量", "その他"] as const;
+
 const diaperSchema = z.object({
     diaper_type: z.nativeEnum(DiaperType),
     change_time: z.string(),
     notes: z.string().optional(),
+    poop_color: z.string().optional(),
+    custom_poop_color: z.string().optional(),
+    poop_amount: z.string().optional(),
+    custom_poop_amount: z.string().optional(),
 })
 
 type DiaperFormValues = z.infer<typeof diaperSchema>
@@ -46,25 +55,50 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
             diaper_type: DiaperType.WET,
             change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
             notes: "",
+            poop_color: "",
+            custom_poop_color: "",
+            poop_amount: "",
+            custom_poop_amount: "",
         },
     })
 
     const selectedType = form.watch("diaper_type")
+    const selectedColor = form.watch("poop_color")
+    const selectedAmount = form.watch("poop_amount")
 
     const onSubmit = async (values: DiaperFormValues) => {
         setIsSubmitting(true)
         setError(null)
         try {
+            let finalNotes = values.notes || ""
+
+            if (values.diaper_type !== DiaperType.WET) {
+                const color = values.poop_color === "その他" ? values.custom_poop_color : values.poop_color
+                const amount = values.poop_amount === "その他" ? values.custom_poop_amount : values.poop_amount
+
+                if (color || amount) {
+                    const prefixParts = []
+                    if (color) prefixParts.push(`色: ${color}`)
+                    if (amount) prefixParts.push(`量: ${amount}`)
+                    const prefix = prefixParts.join("、")
+                    finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                }
+            }
+
             const newRecord = await api.post<{ id: number }>("/diapers/", {
                 baby_id: Number(babyId),
                 diaper_type: values.diaper_type,
                 change_time: new Date(values.change_time).toISOString(),
-                notes: values.notes || undefined,
+                notes: finalNotes || undefined,
             })
             form.reset({
                 diaper_type: DiaperType.WET,
                 change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
                 notes: "",
+                poop_color: "",
+                custom_poop_color: "",
+                poop_amount: "",
+                custom_poop_amount: "",
             })
             onSuccess(newRecord?.id)
         } catch (e) {
@@ -121,6 +155,108 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                 <span className="text-xs font-medium">両方</span>
                             </button>
                         </div>
+
+                        {selectedType !== DiaperType.WET && (
+                            <div className="space-y-4 pt-2 border-t border-muted/20 mt-2">
+                                <FormField
+                                    control={form.control}
+                                    name="poop_color"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-2">
+                                            <FormLabel className="text-xs text-muted-foreground">うんちの色</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                    className="flex flex-wrap gap-2"
+                                                >
+                                                    {POOP_COLORS.map((color) => (
+                                                        <div key={color} className="flex items-center">
+                                                            <RadioGroupItem value={color} id={`color-${color}`} className="sr-only" />
+                                                            <Label
+                                                                htmlFor={`color-${color}`}
+                                                                className={cn(
+                                                                    "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all",
+                                                                    field.value === color
+                                                                        ? "bg-amber-500 border-amber-500 text-white font-medium shadow-sm"
+                                                                        : "bg-white border-muted text-muted-foreground hover:border-amber-200"
+                                                                )}
+                                                            >
+                                                                {color}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {selectedColor === "その他" && (
+                                    <FormField
+                                        control={form.control}
+                                        name="custom_poop_color"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input placeholder="具体的な色を入力..." {...field} className="h-9 text-sm rounded-lg" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
+
+                                <FormField
+                                    control={form.control}
+                                    name="poop_amount"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-2">
+                                            <FormLabel className="text-xs text-muted-foreground">うんちの量</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                    className="flex flex-wrap gap-2"
+                                                >
+                                                    {POOP_AMOUNTS.map((amount) => (
+                                                        <div key={amount} className="flex items-center">
+                                                            <RadioGroupItem value={amount} id={`amount-${amount}`} className="sr-only" />
+                                                            <Label
+                                                                htmlFor={`amount-${amount}`}
+                                                                className={cn(
+                                                                    "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all",
+                                                                    field.value === amount
+                                                                        ? "bg-amber-500 border-amber-500 text-white font-medium shadow-sm"
+                                                                        : "bg-white border-muted text-muted-foreground hover:border-amber-200"
+                                                                )}
+                                                            >
+                                                                {amount}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {selectedAmount === "その他" && (
+                                    <FormField
+                                        control={form.control}
+                                        name="custom_poop_amount"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input placeholder="具体的な量を入力..." {...field} className="h-9 text-sm rounded-lg" />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
+                            </div>
+                        )}
 
                         <FormField
                             control={form.control}

@@ -1,7 +1,6 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
@@ -9,6 +8,7 @@ import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { WidgetContent } from "./WidgetContent"
+import { WidgetQuickButton } from "./WidgetQuickButton"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
@@ -76,6 +76,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
             href={`/sleep?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-indigo-500 dark:hover:text-indigo-400"
+            ariaLabel="睡眠の詳細を見る"
         >
             <WidgetContent
                 isLoading={isLoading}
@@ -90,20 +91,16 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                 )}
             </WidgetContent>
             {canWrite ? (
-                <Button
-                    size="sm"
+                <WidgetQuickButton
+                    color="indigo"
+                    isActive={isSleeping}
                     loading={loading}
                     disabled={loading}
                     onClick={isSleeping ? handleEnd : handleStart}
-                    className={`w-full text-xs h-8 border-0 transition-colors ${isSleeping
-                        ? "bg-indigo-500 dark:bg-indigo-600 text-white hover:bg-indigo-600 dark:hover:bg-indigo-700"
-                        : "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50"
-                        }`}
-                    variant="outline"
-                    data-sentry-unmask
+                    className="w-full"
                 >
                     {isSleeping ? "睡眠終了" : "睡眠開始"}
-                </Button>
+                </WidgetQuickButton>
             ) : null}
         </WidgetCard>
     )
