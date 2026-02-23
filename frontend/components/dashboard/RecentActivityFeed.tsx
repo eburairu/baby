@@ -90,38 +90,41 @@ export const RecentActivityFeed = React.memo(function RecentActivityFeed({ babyI
                             <ul className="space-y-3">
                                 {recent.map((record: BabyRecord, index: number) => (
                                     <React.Fragment key={`${record.type}-${record.id}`}>
-                                        <li
-                                            className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800 p-1 rounded-lg transition-colors"
-                                            onClick={() => handleRecordClick(record)}
-                                        >
-                                            <span className="text-xl">{TYPE_ICONS[record.type] ?? "📝"}</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
-                                                    {TYPE_LABELS[record.type] ?? record.type}
-                                                </p>
-                                                {record.details.notes ? (
-                                                    <p className="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2">{record.details.notes}</p>
-                                                ) : null}
-                                                <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                                                    {record.recorded_by_display_name ? (
-                                                        <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500">
-                                                            <User className="w-3 h-3" />
-                                                            {record.recorded_by_display_name}
-                                                        </span>
+                                        <li>
+                                            <button
+                                                type="button"
+                                                className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
+                                                onClick={() => handleRecordClick(record)}
+                                            >
+                                                <span className="text-xl" aria-hidden="true">{TYPE_ICONS[record.type] ?? "📝"}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
+                                                        {TYPE_LABELS[record.type] ?? record.type}
+                                                    </p>
+                                                    {record.details.notes ? (
+                                                        <p className="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2">{record.details.notes}</p>
                                                     ) : null}
-                                                    {record.comment_count > 0 ? (
-                                                        <span className="inline-flex items-center gap-1">
-                                                            <MessageCircle className="w-3 h-3 text-orange-400" />
-                                                            <span className="text-[10px] font-medium text-orange-500">
-                                                                {record.comment_count}件のメッセージ
+                                                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                                                        {record.recorded_by_display_name ? (
+                                                            <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500">
+                                                                <User className="w-3 h-3" />
+                                                                {record.recorded_by_display_name}
                                                             </span>
-                                                        </span>
-                                                    ) : null}
+                                                        ) : null}
+                                                        {record.comment_count > 0 ? (
+                                                            <span className="inline-flex items-center gap-1">
+                                                                <MessageCircle className="w-3 h-3 text-orange-400" />
+                                                                <span className="text-[10px] font-medium text-orange-500">
+                                                                    {record.comment_count}件のメッセージ
+                                                                </span>
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
-                                                {formatElapsed(record.timestamp)}
-                                            </span>
+                                                <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
+                                                    {formatElapsed(record.timestamp)}
+                                                </span>
+                                            </button>
                                         </li>
                                         {(index + 1) % 10 === 0 && (
                                             <li className="list-none">
