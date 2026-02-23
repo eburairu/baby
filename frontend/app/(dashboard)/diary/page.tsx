@@ -21,7 +21,6 @@ import { usePermissions } from "@/hooks/usePermissions"
 import { DiarySummaryCard } from "@/components/diary/DiarySummaryCard"
 import { DiaryEditDialog } from "@/components/diary/DiaryEditDialog"
 import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
-import { PageLoading } from "@/components/ui/page-loading"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaryTips } from "@/lib/tips-data"
 import { DailySummary } from "@/types/dailySummary"
@@ -125,6 +124,7 @@ export default function DiaryPage() {
             icon={BookOpen}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
+            isDataLoading={summariesLoading}
             apiError={summariesError}
             babyId={effectiveBabyIdStr ?? undefined}
             onRefresh={handleRefresh}
@@ -170,9 +170,7 @@ export default function DiaryPage() {
             )}
 
             {/* 日誌一覧 */}
-            {summariesLoading ? (
-                <PageLoading />
-            ) : !summaries || summaries.length === 0 ? (
+            {!summaries || summaries.length === 0 ? (
                 <div className="text-center text-gray-400 dark:text-zinc-500 py-12">
                     <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-40" />
                     <p className="text-sm">まだ育児日誌がありません。</p>
