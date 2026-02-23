@@ -32,6 +32,10 @@ export default function NotePage() {
         mutate: mutateNotes
     } = useNotes(babyId ?? null)
 
+    const handleRefresh = async () => {
+        await mutateNotes()
+    }
+
     return (
         <RecordPageLayout
             title="メモ一覧"
@@ -40,6 +44,7 @@ export default function NotePage() {
             isLoading={babiesLoading}
             apiError={notesError}
             babyId={babyId}
+            onRefresh={handleRefresh}
         >
             <TipsCard {...noteTips} />
 

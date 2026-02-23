@@ -17,17 +17,10 @@ import { MemberPasswordResetDialog } from "./MemberPasswordResetDialog"
 import { api } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
 import { UserRole } from "@/lib/constants"
-
-interface Member {
-    user_id: number
-    username: string
-    display_name: string | null
-    role: string
-    joined_at: string
-}
+import { FamilyMember } from "@/types/family"
 
 interface Props {
-    members: Member[]
+    members: FamilyMember[]
     currentUserId: number
     isAdmin: boolean
     onUpdated: () => void
@@ -39,9 +32,9 @@ function formatDate(iso: string) {
 }
 
 export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props) {
-    const [roleDialogTarget, setRoleDialogTarget] = useState<Member | null>(null)
-    const [deleteTarget, setDeleteTarget] = useState<Member | null>(null)
-    const [passwordResetTarget, setPasswordResetTarget] = useState<Member | null>(null)
+    const [roleDialogTarget, setRoleDialogTarget] = useState<FamilyMember | null>(null)
+    const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null)
+    const [passwordResetTarget, setPasswordResetTarget] = useState<FamilyMember | null>(null)
     const [deleting, setDeleting] = useState(false)
 
     const handleDelete = async () => {

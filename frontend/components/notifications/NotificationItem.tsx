@@ -30,9 +30,10 @@ function formatRelativeTime(isoString: string): string {
 type Props = {
     notification: AppNotification
     onRead: () => void
+    onClick?: () => void
 }
 
-export function NotificationItem({ notification, onRead }: Props) {
+export function NotificationItem({ notification, onRead, onClick }: Props) {
     const router = useRouter()
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -40,6 +41,9 @@ export function NotificationItem({ notification, onRead }: Props) {
         if (isProcessing) return
 
         setIsProcessing(true)
+        // 通知を選択したら即座にドロップダウンを閉じる
+        onClick?.()
+
         try {
             if (!notification.is_read) {
                 await markAsRead(notification.id)

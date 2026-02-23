@@ -51,6 +51,7 @@ export default function FeedingPage() {
             isLoading={babiesLoading}
             apiError={feedingError}
             babyId={babyId}
+            onRefresh={refreshFeedings}
         >
             <FeedingStats summary={summary} />
 

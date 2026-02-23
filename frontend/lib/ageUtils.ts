@@ -60,6 +60,27 @@ export function formatElapsed(isoDateStr: string): string {
     return `${diffDay}日前`;
 }
 
+/**
+ * 秒数を "MM:SS" 形式にフォーマットする。
+ * 1時間以上の場合は "HH:MM:SS" にはせず、分に繰り上げる。
+ */
+export function formatTimeMMSS(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * 秒数を "M分S秒" 形式にフォーマットする。
+ * 1分未満の場合は "S秒" のみ返す。
+ */
+export function formatSecondsToJapanese(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    if (m > 0) return `${m}分${s}秒`;
+    return `${s}秒`;
+}
+
 export function formatDuration(startIso: string, endIso?: string | null): string {
     const start = new Date(startIso);
     const end = endIso ? new Date(endIso) : new Date();

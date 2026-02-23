@@ -127,6 +127,7 @@ export function NotificationBell() {
                                     key={n.id}
                                     notification={n}
                                     onRead={handleRead}
+                                    onClick={() => setOpen(false)}
                                 />
                             ))
                         )}

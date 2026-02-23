@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSleeps } from "@/hooks/useData"
 import { api } from "@/lib/api"
 import { formatElapsed } from "@/lib/ageUtils"
 import { Moon, Sun } from "lucide-react"
+import { useInterval } from "@/hooks/useInterval"
 
 interface Props {
     babyId: string
@@ -20,21 +21,21 @@ export function SleepTimer({ babyId }: Props) {
     const activeSleep = sleeps?.find((s) => !s.end_time) ?? null
     const isSleeping = !!activeSleep
 
-    useEffect(() => {
-        if (!activeSleep) {
-            setElapsed(null)
-            return
-        }
-
-        const updateElapsed = () => {
+    const updateElapsed = useCallback(() => {
+        if (activeSleep) {
             setElapsed(formatElapsed(activeSleep.start_time))
+        } else {
+            setElapsed(null)
         }
-
-        updateElapsed()
-        const interval = setInterval(updateElapsed, 1000 * 60) // Update every minute
-
-        return () => clearInterval(interval)
     }, [activeSleep])
+
+    // 1分ごとに経過時間を更新
+    useInterval(updateElapsed, isSleeping ? 60000 : null)
+
+    // 初期表示および activeSleep 変更時の更新
+    useEffect(() => {
+        updateElapsed()
+    }, [updateElapsed])
 
     const handleStart = async () => {
         setLoading(true)

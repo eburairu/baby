@@ -1,19 +1,19 @@
 "use client"
-import { useState, useMemo, memo } from "react"
+import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { toast } from "sonner"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { WidgetLoading } from "./WidgetLoading"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { WidgetContent } from "./WidgetContent"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
-    const [loading, setLoading] = useState(false)
+    const { loading, execute } = useAsyncAction()
     const { triggerFeedback } = useRecordFeedback(babyId)
 
     const { todayCount, elapsed } = useMemo(() => {
@@ -27,24 +27,22 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
     const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        if (loading) return
-        setLoading(true)
+
         const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
-        try {
+
+        await execute(async () => {
             const record = await api.post<{ id: number }>("/feedings/", {
                 baby_id: Number(babyId),
                 feeding_type: feedingType.toUpperCase(),
                 feeding_time: new Date().toISOString(),
             })
-            toast.success(`${typeLabel}を記録しました`)
             triggerFeedback("feeding", record.id)
             if (mutate) mutate()
-        } catch (e) {
-            console.error(e)
-            toast.error(`${typeLabel}の記録に失敗しました`)
-        } finally {
-            setLoading(false)
-        }
+            return record
+        }, {
+            successMessage: `${typeLabel}を記録しました`,
+            errorMessage: `${typeLabel}の記録に失敗しました`
+        })
     }
 
     return (
@@ -54,20 +52,12 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             isError={isError}
             actionHoverColor="hover:text-rose-500 dark:hover:text-rose-400"
         >
-            <div>
-                {isLoading ? (
-                    <WidgetLoading className="text-rose-400" />
-                ) : (
-                    <>
-                        {elapsed ? (
-                            <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
-                        ) : (
-                            <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
-                        )}
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日: {todayCount}回</p>
-                    </>
-                )}
-            </div>
+            <WidgetContent
+                isLoading={isLoading}
+                loadingColorClass="text-rose-400"
+                elapsed={elapsed}
+                subContent={`今日: ${todayCount}回`}
+            />
             {canWrite ? (
                 <div className="flex gap-2">
                     <Button
