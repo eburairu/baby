@@ -1,18 +1,18 @@
 "use client"
-import { useState, useMemo, memo } from "react"
+import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { toast } from "sonner"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetLoading } from "./WidgetLoading"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
-    const [loading, setLoading] = useState(false)
+    const { loading, execute } = useAsyncAction()
 
     const { activeSleep, isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
@@ -36,38 +36,31 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
     }, [records])
 
     const handleStart = async () => {
-        if (loading) return
-        setLoading(true)
-        try {
+        await execute(async () => {
             await api.post("/sleeps/", {
                 baby_id: Number(babyId),
                 start_time: new Date().toISOString(),
             })
-            toast.success("睡眠を開始しました")
             if (mutate) mutate()
-        } catch (e) {
-            console.error(e)
-            toast.error("睡眠の開始に失敗しました")
-        } finally {
-            setLoading(false)
-        }
+        }, {
+            successMessage: "睡眠を開始しました",
+            errorMessage: "睡眠の開始に失敗しました"
+        })
     }
 
     const handleEnd = async () => {
-        if (!activeSleep || loading) return
-        setLoading(true)
-        try {
-            await api.patch(`/sleeps/${activeSleep.id}`, {
+        if (!activeSleep) return
+
+        const sleepId = activeSleep.id
+        await execute(async () => {
+            await api.patch(`/sleeps/${sleepId}`, {
                 end_time: new Date().toISOString(),
             })
-            toast.success("睡眠を終了しました")
             if (mutate) mutate()
-        } catch (e) {
-            console.error(e)
-            toast.error("睡眠の終了に失敗しました")
-        } finally {
-            setLoading(false)
-        }
+        }, {
+            successMessage: "睡眠を終了しました",
+            errorMessage: "睡眠の終了に失敗しました"
+        })
     }
 
     return (

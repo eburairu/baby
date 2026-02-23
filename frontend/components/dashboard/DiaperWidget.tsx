@@ -1,20 +1,20 @@
 "use client"
-import { useState, useMemo, memo } from "react"
+import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { DiaperType } from "@/types/diaper"
-import { toast } from "sonner"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetLoading } from "./WidgetLoading"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
-    const [loading, setLoading] = useState(false)
+    const { loading, execute } = useAsyncAction()
     const { triggerFeedback } = useRecordFeedback(babyId)
 
     const { wetCount, dirtyCount, elapsed } = useMemo(() => {
@@ -30,24 +30,22 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
     const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        if (loading) return
-        setLoading(true)
+
         const typeLabel = diaperType === DiaperType.WET ? "おしっこ" : "うんち"
-        try {
+
+        await execute(async () => {
             const record = await api.post<{ id: number }>("/diapers/", {
                 baby_id: Number(babyId),
                 diaper_type: diaperType,
                 change_time: new Date().toISOString(),
             })
-            toast.success(`${typeLabel}を記録しました`)
             triggerFeedback("diaper", record.id)
             if (mutate) mutate()
-        } catch (e) {
-            console.error(e)
-            toast.error(`${typeLabel}の記録に失敗しました`)
-        } finally {
-            setLoading(false)
-        }
+            return record
+        }, {
+            successMessage: `${typeLabel}を記録しました`,
+            errorMessage: `${typeLabel}の記録に失敗しました`
+        })
     }
 
     return (
