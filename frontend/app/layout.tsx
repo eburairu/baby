@@ -19,8 +19,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Baby App",
-  description: "家族で共有する育児記録アプリ",
+  title: {
+    default: "Baby App - 家族で共有する育児記録アプリ",
+    template: "%s | Baby App",
+  },
+  description: "授乳・睡眠・おむつ記録をリアルタイムで家族共有。AIによる育児サマリーで赤ちゃんの成長をもっと身近に。招待制のプライベートな育児記録アプリです。",
+  keywords: ["育児記録", "授乳記録", "睡眠記録", "おむつ記録", "家族共有", "赤ちゃん", "育児アプリ"],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -30,6 +34,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
     apple: "/icons/icon-192x192.svg",
+  },
+  openGraph: {
+    title: "Baby App - 家族で共有する育児記録アプリ",
+    description: "授乳・睡眠・おむつ記録をリアルタイムで家族共有。AIサマリーで育児をもっと楽しく。",
+    locale: "ja_JP",
+    type: "website",
   },
 };
 
@@ -47,7 +57,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

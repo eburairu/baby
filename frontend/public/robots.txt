@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://baby-app-next.onrender.com/sitemap.xml
