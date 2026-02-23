@@ -43,6 +43,14 @@ function createLabel(months: number, days: number): string {
 }
 
 
+/**
+ * ISO文字列またはDateオブジェクトを受け取り、"HH:MM" 形式（日本時間）にフォーマットする。
+ */
+export function formatTimeHHMM(date: string | Date): string {
+    const d = typeof date === "string" ? new Date(date) : date;
+    return d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+}
+
 export function formatElapsed(isoDateStr: string): string {
     const date = new Date(isoDateStr);
     const now = new Date();

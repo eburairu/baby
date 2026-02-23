@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import { api } from "@/lib/api"
+import { formatTimeHHMM, formatSecondsToJapanese } from "@/lib/ageUtils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,17 +33,6 @@ import { useUser } from "@/hooks/useAuth"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 
-function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    if (m > 0) return `${m}分${s}秒`
-    return `${s}秒`
-}
-
-function formatTime(isoString: string): string {
-    const d = new Date(isoString)
-    return d.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
-}
 
 interface ContractionHistoryProps {
     contractions: ContractionRecord[]
@@ -147,17 +137,17 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                             <div key={record.id} className="flex items-center justify-between px-6 py-3 hover:bg-muted/50 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <span className="text-sm font-medium w-14">
-                                        {formatTime(record.start_time)}
+                                        {formatTimeHHMM(record.start_time)}
                                     </span>
                                     <div className="flex flex-col sm:flex-row sm:gap-4 text-sm text-muted-foreground">
                                         {record.duration_seconds != null && (
                                             <span>
-                                                持続: <span className="font-medium text-foreground">{formatDuration(record.duration_seconds)}</span>
+                                                持続: <span className="font-medium text-foreground">{formatSecondsToJapanese(record.duration_seconds)}</span>
                                             </span>
                                         )}
                                         {record.interval_seconds != null && (
                                             <span>
-                                                間隔: <span className="font-medium text-foreground">{formatDuration(record.interval_seconds)}</span>
+                                                間隔: <span className="font-medium text-foreground">{formatSecondsToJapanese(record.interval_seconds)}</span>
                                             </span>
                                         )}
                                         {record.recorded_by_display_name && (
