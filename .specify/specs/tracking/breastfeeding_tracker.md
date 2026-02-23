@@ -224,6 +224,7 @@ interface FeedingResponse {
   feeding_completion: "FULL" | "PARTIAL" | null
   notes: string | null
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number
 }
 ```
 

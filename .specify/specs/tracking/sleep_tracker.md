@@ -27,7 +27,7 @@
     - 開始日時 (Start Time): 必須。
     - 終了日時 (End Time): 任意（進行中の場合は未設定）。
     - メモ: 自由記述（例: 「抱っこで寝落ち」「夜泣きあり」など）。
-- **保存**: API に POST/PUT して保存する。
+- **保存**: API に POST/PATCH して保存する。
     - **処理中フィードバック（新規・HIGH）**: 保存ボタン（および開始/停止ボタン）が押された後、API レスポンスが返るまでの間、ボタンを無効化（Disabled）し、テキスト置換（「保存」→「保存中...」）およびスピナーを表示して処理中であることを示す。二重送信を完全に防止する。
 
 ### F2: 睡眠記録一覧 (タイムライン)
@@ -101,7 +101,7 @@
 
 - `GET /api/sleeps/?baby_id={id}`: 指定した赤ちゃんの睡眠記録一覧を取得
 - `POST /api/sleeps/`: 新しい睡眠記録を作成（開始）
-- `PUT /api/sleeps/{id}`: 既存の睡眠記録を更新（終了時間の記録、修正）
+- `PATCH /api/sleeps/{id}`: 既存の睡眠記録を更新（終了時間の記録、修正）
 - `DELETE /api/sleeps/{id}`: 削除
 
 ### リクエストスキーマ (`SleepCreate` / `SleepUpdate`)
@@ -134,6 +134,7 @@ interface SleepResponse {
   end_time: string | null
   notes: string | null
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number
 }
 ```
 

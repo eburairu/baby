@@ -92,6 +92,7 @@
 
 - `GET /api/diapers/?baby_id={id}` - 記録一覧取得
 - `POST /api/diapers/` - 記録作成
+- `PUT /api/diapers/{id}` - 記録更新
 - `DELETE /api/diapers/{id}` - 記録削除
 
 ### リクエスト/レスポンス スキーマ
@@ -116,6 +117,7 @@ interface DiaperResponse extends DiaperCreate {
   id: number
   user_id: number
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number
 }
 ```
 
