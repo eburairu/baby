@@ -131,3 +131,13 @@
 
 アクション:
 - 他のコンポーネントでも時間フォーマットを独自に行っている場所があれば、`ageUtils.ts` の関数に置き換える。
+
+2026-02-23 - [Refactor] SleepWidgetのフック統合
+
+学び:
+- `SleepWidget` が `usePermissions` と `useAsyncAction` を個別に呼び出しており、他のウィジェット（`FeedingWidget`, `DiaperWidget`）で使用されている `useQuickRecord` パターンと異なっていた。
+- `useQuickRecord` を適用することで、権限チェック、ローディング状態管理、API呼び出しのボイラープレートを削減し、コードの一貫性を向上させた。
+- `useQuickRecord` は `feedbackType` がなくても汎用的に使用できることが確認できた。
+
+アクション:
+- 他のウィジェットや機能でも、同様の「権限チェック + 非同期アクション」のパターンがあれば、`useQuickRecord` の適用を検討する。
