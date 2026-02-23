@@ -7,7 +7,7 @@ class Baby(Base):
     __tablename__ = "babies"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    family_id = Column(Integer, ForeignKey("families.id"), nullable=False)
+    family_id = Column(Integer, ForeignKey("families.id"), nullable=False, index=True)
     name = Column(String, nullable=False)
     birthday = Column(Date, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
@@ -23,7 +23,7 @@ class BabyPermission(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     record_type = Column(String, nullable=False)
     can_view = Column(Boolean, nullable=False)
 
