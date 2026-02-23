@@ -33,7 +33,7 @@ export function PullToRefresh({
     const handleTouchStart = (e: React.TouchEvent) => {
         if (isRefreshing) return
         const scrollTop = window.scrollY || document.documentElement.scrollTop
-        if (scrollTop === 0) {
+        if (scrollTop <= 0) {
             setStartY(e.touches[0].clientY)
         } else {
             setStartY(null)
