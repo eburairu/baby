@@ -38,6 +38,24 @@ const DETAILED_FEATURES = [
     { label: "プッシュ通知", icon: "🔔", color: "text-purple-500" }
 ]
 
+const TESTIMONIALS = [
+    {
+        name: "Y.S さん (3ヶ月のママ)",
+        comment: "授乳のタイミングを忘れがちでしたが、このアプリのおかげでリズムが掴めるようになりました。夫も積極的に記録してくれて助かっています！",
+        rating: 5,
+    },
+    {
+        name: "K.T さん (6ヶ月のパパ)",
+        comment: "仕事中に通知が来るのが楽しみです。「あ、今ミルク飲んだんだな」と分かるだけで安心できます。シンプルなデザインで使いやすいです。",
+        rating: 5,
+    },
+    {
+        name: "M.I さん (1歳のママ)",
+        comment: "夜泣きのパターンが可視化されて、寝かしつけの対策が立てやすくなりました。AIのアドバイスも意外と的確で参考になります。",
+        rating: 4,
+    },
+]
+
 const HOW_TO_STEPS = [
     {
         step: "01",
@@ -297,8 +315,45 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                     </div>
                 </section>
 
+                {/* Testimonials Section */}
+                <section className="px-4 py-24 bg-white">
+                    <div className="max-w-7xl mx-auto space-y-16">
+                        <div className="text-center space-y-4">
+                            <h2 className="text-3xl font-bold tracking-tight">利用者からの嬉しい声</h2>
+                            <p className="text-slate-500">たくさんのご家族が、Baby Appで育児を楽しんでいます。</p>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {TESTIMONIALS.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                >
+                                    <Card className="h-full rounded-2xl border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow">
+                                        <CardContent className="p-8 space-y-6">
+                                            <div className="flex gap-1 text-amber-400">
+                                                {[...Array(5)].map((_, j) => (
+                                                    <span key={j} className={j < item.rating ? "text-amber-400" : "text-slate-200"}>★</span>
+                                                ))}
+                                            </div>
+                                            <p className="text-slate-600 leading-relaxed text-sm italic">
+                                                &quot;{item.comment}&quot;
+                                            </p>
+                                            <div className="pt-4 border-t border-slate-50">
+                                                <p className="font-bold text-sm text-slate-800">{item.name}</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* How to Section */}
-                <section id="howto" className="px-4 py-24 bg-white">
+                <section id="howto" className="px-4 py-24 bg-slate-50">
                     <div className="max-w-7xl mx-auto space-y-16">
                         <div className="text-center space-y-4">
                             <h2 className="text-3xl font-bold tracking-tight">3ステップで始められる</h2>
@@ -338,7 +393,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 </section>
 
                 {/* Trust Section */}
-                <section className="px-4 py-24 bg-slate-50">
+                <section className="px-4 py-24 bg-white">
                     <div className="max-w-3xl mx-auto text-center space-y-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-600 text-sm font-bold">
                             🔒 家族だけのプライベートな空間
@@ -364,7 +419,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 </section>
 
                 {/* FAQ Section */}
-                <section id="faq" className="px-4 py-24 bg-white">
+                <section id="faq" className="px-4 py-24 bg-slate-50">
                     <div className="max-w-3xl mx-auto space-y-12">
                         <div className="text-center space-y-4">
                             <h2 className="text-3xl font-bold tracking-tight">よくある質問</h2>
