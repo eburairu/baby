@@ -203,7 +203,42 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <div className="absolute -top-10 -right-10 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
+                            {/* Floating Notification 1: Real-time sharing */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 1.2, duration: 0.5 }}
+                                className="absolute -right-12 top-24 z-20 hidden md:flex items-center gap-3 bg-white/95 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-slate-100 pr-6"
+                            >
+                                <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+                                    <span className="text-xl">🍼</span>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-slate-800">パパが記録しました</p>
+                                    <p className="text-xs text-slate-500">ミルク 140ml</p>
+                                </div>
+                            </motion.div>
+
+                            {/* Floating Notification 2: AI Advice */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 1.8, duration: 0.5 }}
+                                className="absolute -left-12 bottom-32 z-20 hidden md:flex items-start gap-3 bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-slate-100 max-w-[260px]"
+                            >
+                                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                                    <MessageSquare className="h-5 w-5 text-indigo-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold text-slate-800">AIアドバイス</p>
+                                    <p className="text-xs text-slate-600 leading-relaxed">
+                                        そろそろお昼寝の時間かも？<br/>
+                                        部屋を暗くしてみましょう 💤
+                                    </p>
+                                </div>
+                            </motion.div>
+
+<div className="absolute -top-10 -right-10 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
                             <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
                         </motion.div>
                     </div>
@@ -347,9 +382,9 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 <section className="px-4 py-24 bg-indigo-600 text-white">
                     <div className="max-w-7xl mx-auto text-center space-y-12">
                         <div className="space-y-4">
-                            <h2 className="text-4xl font-extrabold tracking-tight">さあ、今日から始めましょう</h2>
+                            <h2 className="text-4xl font-extrabold tracking-tight">もう、育児の記録で迷わない。</h2>
                             <p className="text-indigo-100 text-lg">
-                                育児をもっと楽しく、もっとスムーズに。
+                                今日から家族みんなでシェアして、余裕のある時間を。
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
