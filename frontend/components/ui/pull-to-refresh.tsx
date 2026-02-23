@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { motion, useMotionValue, useTransform, animate, PanInfo } from "framer-motion"
+import { motion, useMotionValue, useTransform, animate } from "framer-motion"
 import { BabyBottleLoading } from "./baby-bottle-loading"
 import { cn } from "@/lib/utils"
 
@@ -28,44 +28,65 @@ export function PullToRefresh({
 
     const containerRef = React.useRef<HTMLDivElement>(null)
 
-    const handlePan = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const [startY, setStartY] = React.useState<number | null>(null)
+
+    const handleTouchStart = (e: React.TouchEvent) => {
         if (isRefreshing) return
-
-        // Only allow pulling down if at the top of the container
         const scrollTop = window.scrollY || document.documentElement.scrollTop
-        if (scrollTop > 0) return
-
-        if (info.offset.y > 0) {
-            // Resistance: pull harder as it goes deeper
-            const newY = Math.min(info.offset.y * 0.4, pullThreshold + 20)
-            y.set(newY)
+        if (scrollTop === 0) {
+            setStartY(e.touches[0].clientY)
+        } else {
+            setStartY(null)
         }
     }
 
-    const handlePanEnd = async (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-        if (isRefreshing) return
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (startY === null || isRefreshing) return
+        
+        const currentY = e.touches[0].clientY
+        const diff = currentY - startY
+        
+        if (diff > 0) {
+            // Pull down at the top
+            const newY = Math.min(diff * 0.4, pullThreshold + 20)
+            y.set(newY)
+            
+            // Prevent browser's native pull-to-refresh if possible when we handle it
+            if (diff > 10 && e.cancelable) {
+                e.preventDefault()
+            }
+        } else if (diff < 0) {
+            // User is scrolling up (normal scroll down behavior)
+            y.set(0)
+            setStartY(null)
+        }
+    }
 
+    const handleTouchEnd = () => {
+        if (startY === null || isRefreshing) return
+        
         if (y.get() >= pullThreshold) {
             setIsRefreshing(true)
-            // Animate to holding position
             animate(y, pullThreshold, { type: "spring", stiffness: 300, damping: 30 })
             
-            try {
-                await onRefresh()
-            } finally {
+            onRefresh().finally(() => {
                 setIsRefreshing(false)
                 animate(y, 0, { type: "spring", stiffness: 300, damping: 30 })
-            }
+            })
         } else {
             animate(y, 0, { type: "spring", stiffness: 300, damping: 30 })
         }
+        setStartY(null)
     }
 
     return (
         <div 
             ref={containerRef} 
-            className={cn("relative w-full overflow-hidden", className)}
-            style={{ overscrollBehaviorY: "contain" }}
+            className={cn("relative w-full", className)}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
         >
             {/* Loading Indicator Area */}
             <motion.div
@@ -81,11 +102,6 @@ export function PullToRefresh({
 
             {/* Content Area */}
             <motion.div
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={0.6}
-                onPan={handlePan}
-                onPanEnd={handlePanEnd}
                 style={{ y }}
                 className="relative z-10 will-change-transform"
             >
