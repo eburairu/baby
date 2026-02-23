@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from "react"
+import { useEffect, useCallback } from "react"
 import { useBabies, useRecords } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
@@ -37,6 +37,10 @@ export default function DashboardPage() {
     }, [babies, selectedBabyId, setSelectedBabyId])
 
     const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(selectedBabyId)
+
+    const handleMutateRecords = useCallback(() => {
+        return mutateRecords()
+    }, [mutateRecords])
 
     const handleRefresh = async () => {
         await Promise.all([
@@ -85,21 +89,21 @@ export default function DashboardPage() {
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
-                            mutate={() => mutateRecords()}
+                            mutate={handleMutateRecords}
                         />
                         <SleepWidget
                             babyId={effectiveBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
-                            mutate={() => mutateRecords()}
+                            mutate={handleMutateRecords}
                         />
                         <DiaperWidget
                             babyId={effectiveBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
-                            mutate={() => mutateRecords()}
+                            mutate={handleMutateRecords}
                         />
                         <GrowthWidget
                             babyId={effectiveBabyId}
