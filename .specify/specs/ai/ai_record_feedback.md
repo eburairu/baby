@@ -137,7 +137,7 @@ has_concern は以下の場合に true としてください（いずれかに�
 ### ユーザープロンプト（動的生成）
 
 ```
-{baby_name}ちゃんの記録です。今ちょうど「{record_type_ja}」を記録しました。
+{baby_name}ちゃん（生後{age_days}日）の記録です。今ちょうど「{record_type_ja}」を記録しました。
 
 【直近24時間の記録】
 {records_text}

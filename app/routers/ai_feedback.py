@@ -30,7 +30,7 @@ def create_record_feedback(
 
     try:
         feedback_text, has_concern, model_name = generate_record_feedback(
-            db, baby_id, baby.name, body.record_type, body.record_id
+            db, baby_id, baby, body.record_type, body.record_id
         )
     except RuntimeError as e:
         raise HTTPException(
