@@ -1,3 +1,4 @@
+import logging
 import secrets
 from typing import List
 
@@ -17,6 +18,7 @@ from app.schemas.family import (
 from app.services.auth import get_password_hash
 
 router = APIRouter(prefix="/api/family", tags=["family"])
+logger = logging.getLogger(__name__)
 
 
 def _get_family_user(db: Session, current_user: User) -> FamilyUser:
@@ -52,6 +54,7 @@ def update_family(
         raise HTTPException(status_code=422, detail="Family name cannot be empty")
     family = db.query(Family).filter(Family.id == family_user.family_id).first()
     family.name = body.name.strip()
+    logger.info("Family updated: family_id=%s, name='%s', by user_id=%s", family.id, family.name, current_user.id)
     db.commit()
     db.refresh(family)
     return family
@@ -69,6 +72,7 @@ def regenerate_invite_code(
     while db.query(Family).filter(Family.invite_code == new_code).first():
         new_code = secrets.token_hex(8).upper()
     family.invite_code = new_code
+    logger.info("Invite code regenerated: family_id=%s, by user_id=%s", family.id, current_user.id)
     db.commit()
     db.refresh(family)
     return family
@@ -129,6 +133,7 @@ def update_member_role(
         if admin_count <= 1:
             raise HTTPException(status_code=400, detail="At least one admin is required")
     target.role = body.role
+    logger.info("Member role updated: target_user_id=%s, new_role=%s, by user_id=%s", user_id, body.role, current_user.id)
     db.commit()
     db.refresh(target)
     return FamilyMemberResponse(
@@ -164,6 +169,7 @@ def reset_member_password(
         raise HTTPException(status_code=404, detail="User not found")
     temporary_password = secrets.token_urlsafe(9)  # ~12 chars
     target_user.hashed_password = get_password_hash(temporary_password)
+    logger.info("Member password reset: target_user_id=%s, by user_id=%s", user_id, current_user.id)
     db.query(UserSession).filter(UserSession.user_id == user_id).delete()
     db.commit()
     return PasswordResetResponse(temporary_password=temporary_password)
@@ -197,4 +203,5 @@ def delete_member(
         if admin_count <= 1:
             raise HTTPException(status_code=400, detail="At least one admin is required")
     db.delete(target)
+    logger.info("Member deleted: target_user_id=%s, from family_id=%s, by user_id=%s", user_id, family_user.family_id, current_user.id)
     db.commit()
