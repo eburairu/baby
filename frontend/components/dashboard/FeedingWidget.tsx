@@ -51,6 +51,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             href={`/feeding?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-rose-500 dark:hover:text-rose-400"
+            ariaLabel="授乳の詳細を見る"
         >
             <WidgetContent
                 isLoading={isLoading}

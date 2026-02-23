@@ -13,6 +13,7 @@ interface WidgetCardProps {
     children: ReactNode
     headerAction?: ReactNode
     actionHoverColor?: string
+    ariaLabel?: string
 }
 
 export function WidgetCard({
@@ -21,9 +22,11 @@ export function WidgetCard({
     isError,
     children,
     headerAction,
-    actionHoverColor = "hover:text-indigo-500 dark:hover:text-indigo-400"
+    actionHoverColor = "hover:text-indigo-500 dark:hover:text-indigo-400",
+    ariaLabel
 }: WidgetCardProps) {
     const isAccessDenied = isApiError(isError) && isError.status === 403
+    const label = ariaLabel || "詳細を見る"
 
     if (isAccessDenied) {
         return (
@@ -57,8 +60,8 @@ export function WidgetCard({
                                 "h-6 w-6 -mr-2 text-gray-400 dark:text-zinc-600 transition-colors",
                                 actionHoverColor
                             )}
-                            aria-label="詳細を見る"
-                            title="詳細を見る"
+                            aria-label={label}
+                            title={label}
                         >
                             <ArrowRight className="h-4 w-4" />
                         </Button>

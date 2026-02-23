@@ -76,6 +76,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
             href={`/sleep?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-indigo-500 dark:hover:text-indigo-400"
+            ariaLabel="睡眠の詳細を見る"
         >
             <WidgetContent
                 isLoading={isLoading}

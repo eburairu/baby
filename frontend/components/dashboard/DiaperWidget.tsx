@@ -54,6 +54,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             href={`/diaper?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-amber-500 dark:hover:text-amber-400"
+            ariaLabel="排泄の詳細を見る"
         >
             <WidgetContent
                 isLoading={isLoading}
