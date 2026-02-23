@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Baby, Smile, MessageSquare, ChevronDown, ChevronUp } from "lucide-react"
+import { Baby, Smile, MessageSquare, ChevronDown, ChevronUp, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -172,9 +172,20 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                                     今すぐ無料で始める
                                                 </Button>
                                             </Link>
-                                            <p className="text-xs text-slate-500 font-medium">
-                                                クレジットカード登録不要・完全無料
-                                            </p>
+                                            <div className="flex flex-col sm:flex-row gap-x-3 gap-y-1 mt-1 text-xs font-medium text-slate-500">
+                                                <span className="flex items-center gap-1">
+                                                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                                    登録は1分で完了
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                                    完全無料
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                                    カード登録不要
+                                                </span>
+                                            </div>
                                         </div>
                                         <Link href="/register?join=true">
                                             <Button variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-2xl border-slate-200 hover:bg-slate-50 transition-all">
