@@ -11,13 +11,14 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu } from "lucide-react"
 import { useBabies } from "@/hooks/useData"
 import { useBabyStore } from "@/stores/babyStore"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
+import { Badge } from "@/components/ui/badge"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
 import {
     Sheet,
@@ -77,6 +78,39 @@ export default function DashboardLayout({
     const isTopLevelPage = pathname === "/dashboard"
     const currentPageLabel = navItems.find(item => item.href === pathname)?.label || "育児記録"
 
+    const babySelector = selectedBaby ? (
+        babies && babies.length > 1 ? (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
+                        <span className="opacity-80">🍼</span>
+                        <span className="font-medium">{selectedBaby.name}</span>
+                        <ChevronDown className="h-3 w-3 opacity-60" />
+                    </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 p-1 dark:bg-zinc-900 dark:border-zinc-800">
+                    {babies.map((baby) => (
+                        <DropdownMenuItem
+                            key={baby.id}
+                            onClick={() => setSelectedBabyId(String(baby.id))}
+                            className="flex items-center gap-2 cursor-pointer rounded-lg dark:text-zinc-300"
+                        >
+                            <Check
+                                className={cn("h-4 w-4 text-rose-500", String(baby.id) === selectedBabyId ? "opacity-100" : "opacity-0")}
+                            />
+                            {baby.name}
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        ) : (
+            <Badge variant="secondary" className="text-xs font-medium dark:bg-zinc-800 dark:text-zinc-300 border-0 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                <span className="opacity-80">🍼</span>
+                {selectedBaby.name}
+            </Badge>
+        )
+    ) : null
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col transition-colors">
             {/* Desktop Navbar */}
@@ -105,6 +139,8 @@ export default function DashboardLayout({
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {babySelector}
+                        <div className="w-px h-4 bg-gray-200 dark:bg-zinc-800 mx-1" />
                         <NotificationBell />
                         <ThemeToggle />
                         <DropdownMenu>
@@ -150,6 +186,7 @@ export default function DashboardLayout({
                     </div>
 
                     <div className="flex items-center gap-1">
+                        {babySelector}
                         <NotificationBell />
                         <ThemeToggle />
                         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
