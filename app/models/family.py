@@ -25,7 +25,7 @@ class FamilyUser(Base):
     __tablename__ = "family_users"
 
     family_id = Column(Integer, ForeignKey("families.id"), primary_key=True, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True, nullable=False, index=True)
     role = Column(String, nullable=False)
     joined_at = Column(DateTime, nullable=False, server_default=func.now())
 
