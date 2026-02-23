@@ -7,8 +7,8 @@ import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { WidgetLoading } from "./WidgetLoading"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { WidgetContent } from "./WidgetContent"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
@@ -77,24 +77,18 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
             isError={isError}
             actionHoverColor="hover:text-indigo-500 dark:hover:text-indigo-400"
         >
-            <div>
-                {isLoading ? (
-                    <WidgetLoading className="text-indigo-400" />
-                ) : isSleeping ? (
-                    <>
-                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
-                        <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
-                    </>
-                ) : (
-                    <>
-                        <p className="text-sm text-gray-500 dark:text-zinc-400">
-                            {lastElapsed ? `${lastElapsed}に起床` : "記録なし"}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日の合計: {todayTotal}</p>
-                    </>
+            <WidgetContent
+                isLoading={isLoading}
+                loadingColorClass="text-indigo-400"
+                elapsed={elapsed}
+                emptyContent={lastElapsed ? `${lastElapsed}に起床` : "記録なし"}
+                emptyContentClassName="text-gray-500 dark:text-zinc-400"
+                subContent={`今日の合計: ${todayTotal}`}
+            >
+                {isSleeping && (
+                    <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
                 )}
-            </div>
+            </WidgetContent>
             {canWrite ? (
                 <Button
                     size="sm"
