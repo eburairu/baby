@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useSWRConfig } from "swr";
 
-type RecordType = "feeding" | "diaper" | "growth" | "note";
+export type RecordType = "feeding" | "diaper" | "growth" | "note";
 
 interface FeedbackResponse {
   feedback: string;
