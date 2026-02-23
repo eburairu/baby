@@ -7,6 +7,7 @@ import { InviteCodeCard } from "@/components/settings/InviteCodeCard"
 import { MemberList } from "@/components/settings/MemberList"
 
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
+import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 
 export default function FamilySettingsPage() {
     const { user } = useUser()
@@ -24,7 +25,7 @@ export default function FamilySettingsPage() {
 
     if (!user || !family) return null
 
-    // 現在のユーザーの情報を取得（MemberListに渡すため）
+    // 現在のユーザーの情報を取得（MemberListに渡す ため）
     const currentMember = members?.find((m) => m.username === user.username)
 
     const handleFamilyUpdated = () => {
@@ -34,36 +35,46 @@ export default function FamilySettingsPage() {
         mutateMembers()
     }
 
+    const handleRefresh = async () => {
+        await Promise.all([
+            mutateFamily(),
+            mutateMembers()
+        ])
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             {/* sticky header */}
             <SettingsHeader title="家族設定" />
 
-            <div className="max-w-2xl mx-auto p-4 space-y-4">
-                {/* 家族名 */}
-                <FamilyNameForm
-                    name={family.name}
-                    isAdmin={isAdmin}
-                    onUpdated={handleFamilyUpdated}
-                />
-
-                {/* 招待コード */}
-                <InviteCodeCard
-                    inviteCode={family.invite_code}
-                    isAdmin={isAdmin}
-                    onRegenerated={handleFamilyUpdated}
-                />
-
-                {/* メンバー一覧 */}
-                {members && (
-                    <MemberList
-                        members={members}
-                        currentUserId={currentMember?.user_id ?? -1}
+            <PullToRefresh onRefresh={handleRefresh}>
+                <div className="max-w-2xl mx-auto p-4 space-y-4 pb-20">
+                    {/* 家族名 */}
+                    <FamilyNameForm
+                        name={family.name}
                         isAdmin={isAdmin}
-                        onUpdated={handleMembersUpdated}
+                        onUpdated={handleFamilyUpdated}
                     />
-                )}
-            </div>
+
+                    {/* 招待コード */}
+                    <InviteCodeCard
+                        inviteCode={family.invite_code}
+                        isAdmin={isAdmin}
+                        onRegenerated={handleFamilyUpdated}
+                    />
+
+                    {/* メンバー一覧 */}
+                    {members && (
+                        <MemberList
+                            members={members}
+                            currentUserId={currentMember?.user_id ?? -1}
+                            isAdmin={isAdmin}
+                            onUpdated={handleMembersUpdated}
+                        />
+                    )}
+                </div>
+            </PullToRefresh>
         </div>
     )
 }
+

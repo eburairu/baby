@@ -12,6 +12,7 @@ import { AddBabyDialog } from "@/components/settings/AddBabyDialog"
 import { BabyDeleteDialog } from "@/components/settings/BabyDeleteDialog"
 import { Baby } from "@/types/baby"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
+import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 
 export default function BabySettingsPage() {
     const { user } = useUser()
@@ -23,7 +24,7 @@ export default function BabySettingsPage() {
     const [deleteTarget, setDeleteTarget] = useState<Baby | null>(null)
     const [addOpen, setAddOpen] = useState(false)
 
-    // 管理者以外はリダイレクト (正確な判定に基づいた修正済みの usePermissions を使用)
+    // 管理者以外はリダイレクト (正確な判定に基づい た修正済みの usePermissions を使用)
     useEffect(() => {
         if (!permsLoading && !isAdmin && !user?.is_superadmin) {
             router.push("/dashboard")
@@ -42,6 +43,10 @@ export default function BabySettingsPage() {
 
     if (!user || !canManage) return null
 
+    const handleRefresh = async () => {
+        await mutate()
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             {/* sticky header */}
@@ -58,34 +63,37 @@ export default function BabySettingsPage() {
                 )}
             </SettingsHeader>
 
-            <div className="max-w-2xl mx-auto p-4 space-y-4">
-                {!babies || babies.length === 0 ? (
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-8 text-center transition-colors">
-                        <p className="text-gray-400 dark:text-zinc-500 text-sm mb-4">👶 まだ赤ちゃんが登録されていません</p>
-                        {canManage && (
-                            <Button
-                                onClick={() => setAddOpen(true)}
-                                className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
-                            >
-                                <Plus className="h-4 w-4 mr-1" />
-                                最初の赤ちゃんを追加
-                            </Button>
-                        )}
-                    </div>
-                ) : (
-                    babies.map((baby: Baby) => (
-                        <BabyCard
-                            key={baby.id}
-                            baby={baby}
-                            isAdmin={Boolean(canManage)}
-                            onEdit={setEditTarget}
-                            onDelete={setDeleteTarget}
-                        />
-                    ))
-                )}
-            </div>
+            <PullToRefresh onRefresh={handleRefresh}>
+                <div className="max-w-2xl mx-auto p-4 space-y-4 pb-20">
+                    {!babies || babies.length === 0 ? (
+                        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-8 text-center transition-colors">
+                            <p className="text-gray-400 dark:text-zinc-500 text-sm mb-4">👶 まだ赤ちゃんが登 録されていません</p>
+                            {canManage && (
+                                <Button
+                                    onClick={() => setAddOpen(true)}
+                                    className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
+                                >
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    最初の赤ちゃんを追加
+                                </Button>
+                            )}
+                        </div>
+                    ) : (
+                        babies.map((baby: Baby) => (
+                            <BabyCard
+                                key={baby.id}
+                                baby={baby}
+                                isAdmin={Boolean(canManage)}
+                                onEdit={setEditTarget}
+                                onDelete={setDeleteTarget}
+                            />
+                        ))
+                    )}
+                </div>
+            </PullToRefresh>
 
             <BabyEditDialog
+
                 baby={editTarget}
                 open={editTarget !== null}
                 onClose={() => setEditTarget(null)}
