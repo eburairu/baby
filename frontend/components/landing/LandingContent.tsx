@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Baby, Smile, MessageSquare, ChevronDown, ChevronUp } from "lucide-react"
+import { Baby, Smile, MessageSquare, ChevronDown, ChevronUp, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -150,12 +150,13 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                             className="text-center lg:text-left space-y-8"
                         >
                             <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                                家族の絆を、<br />
-                                <span className="text-indigo-600">育児記録</span>で深める。
+                                「いつミルクあげた？」<br />
+                                その確認、もう不要です。<br />
+                                <span className="text-indigo-600">リアルタイム育児記録</span>で、<br className="hidden lg:block" />夫婦の連携をもっとスムーズに。
                             </h1>
                             <p className="text-lg text-slate-600 max-w-lg mx-auto lg:mx-0">
-                                授乳、睡眠、おむつの記録をリアルタイムで共有。
-                                AIによる振り返りで、赤ちゃんの成長をもっと身近に.
+                                授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
+                                AIアドバイスで、初めての育児も安心サポート。
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
                                 {isLoggedIn ? (
@@ -169,7 +170,8 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                         <div className="flex flex-col gap-2 w-full sm:w-auto items-center sm:items-start">
                                             <Link href="/register" className="w-full sm:w-auto">
                                                 <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
-                                                    今すぐ無料で始める
+                                                    無料でアカウント作成
+                                                    <ArrowRight className="ml-2 h-5 w-5" />
                                                 </Button>
                                             </Link>
                                             <p className="text-xs text-slate-500 font-medium">
