@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
-import { BabyRecord } from "@/hooks/useData"
+import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User } from "lucide-react"
 import dynamic from "next/dynamic"
