@@ -1,20 +1,16 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { usePermissions } from "@/hooks/usePermissions"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
-    const { canWrite } = usePermissions()
-    const { loading, execute } = useAsyncAction()
-    const { triggerFeedback } = useRecordFeedback(babyId)
+    const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
 
     const { todayCount, elapsed } = useMemo(() => {
         const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
@@ -30,18 +26,15 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
 
         const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
 
-        await execute(async () => {
-            const record = await api.post<{ id: number }>("/feedings/", {
+        await executeRecord(async () => {
+            return api.post<{ id: number }>("/feedings/", {
                 baby_id: Number(babyId),
                 feeding_type: feedingType.toUpperCase(),
                 feeding_time: new Date().toISOString(),
             })
-            triggerFeedback("feeding", record.id)
-            if (mutate) mutate()
-            return record
         }, {
-            successMessage: `${typeLabel}を記録しました`,
-            errorMessage: `${typeLabel}の記録に失敗しました`
+            label: typeLabel,
+            feedbackType: "feeding"
         })
     }
 
