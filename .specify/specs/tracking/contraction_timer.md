@@ -152,6 +152,7 @@ interface ContractionResponse extends ContractionCreate {
   id: number
   user_id: number
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number                    // コメント数
 }
 ```
 
