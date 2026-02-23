@@ -23,10 +23,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         }
     }, [records])
 
-    const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-
+    const handleQuickRecord = async (diaperType: DiaperType) => {
         const typeLabel = diaperType === DiaperType.WET ? "おしっこ" : "うんち"
 
         await executeRecord(async () => {
@@ -61,7 +58,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         color="amber"
                         loading={loading}
                         disabled={loading}
-                        onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
+                        onClick={() => handleQuickRecord(DiaperType.WET)}
                         className="flex-1"
                         aria-label="おしっこ"
                     >
@@ -71,7 +68,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         color="amber"
                         loading={loading}
                         disabled={loading}
-                        onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
+                        onClick={() => handleQuickRecord(DiaperType.DIRTY)}
                         className="flex-1"
                         aria-label="うんち"
                     >

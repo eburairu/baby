@@ -1,13 +1,13 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
-import { useQuickRecord } from "@/hooks/useQuickRecord"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
@@ -20,10 +20,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         }
     }, [records])
 
-    const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-
+    const handleQuickRecord = async (feedingType: string) => {
         const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
 
         await executeRecord(async () => {
@@ -58,7 +55,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         color="rose"
                         loading={loading}
                         disabled={loading}
-                        onClick={(e) => handleQuickRecord("bottle", e)}
+                        onClick={() => handleQuickRecord("bottle")}
                         className="flex-1"
                     >
                         ミルク
@@ -67,7 +64,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         color="rose"
                         loading={loading}
                         disabled={loading}
-                        onClick={(e) => handleQuickRecord("breast", e)}
+                        onClick={() => handleQuickRecord("breast")}
                         className="flex-1"
                     >
                         母乳
