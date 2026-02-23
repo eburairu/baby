@@ -88,7 +88,7 @@ class DailySummary(Base):
 | メソッド | パス | 概要 |
 |---------|-----|------|
 | `POST` | `/api/babies/{baby_id}/daily-summary` | 日誌の AI 生成（詳細は `ai_daily_summary.md`） |
-| `GET` | `/api/babies/{baby_id}/daily-summary` | 日誌一覧取得（各アイテムに `image_urls` 含む） |
+| `GET` | `/api/babies/{baby_id}/daily-summary` | 日誌一覧取得（**直近30件**、日付降順、`image_urls` 含む） |
 | `GET` | `/api/babies/{baby_id}/daily-summary/{date}` | 指定日の日誌取得（`image_urls` 含む） |
 | `PATCH` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の手動編集（`edited_content`, `image_urls` 更新） |
 | `DELETE` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の削除 |
@@ -104,7 +104,7 @@ class DailySummary(Base):
 - アクション: 全文表示（ダイアログまたはページ遷移）。
 
 ### 2. 日誌一覧ページ (`/diary`)
-- カレンダーまたはリスト形式で過去の日誌を表示。
+- カレンダーまたはリスト形式で過去の日誌を表示（**直近30日分のみ**）。
 - 未来の日付は選択不可。
 - 「日誌を生成」ボタンにより AI 生成プロセスを開始。
 - リスト表示時、画像がある場合はサムネイルアイコンを表示。

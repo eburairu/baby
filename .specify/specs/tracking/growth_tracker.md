@@ -93,7 +93,7 @@
 ## API
 
 - `GET /api/growths/?baby_id={id}`
-    - 指定した赤ちゃんの全記録を日付順（降順または昇順）で取得。
+    - 指定した赤ちゃんの全記録を日付順（降順のみ）で取得。
 - `POST /api/growths/`
     - 新規作成。
 - `PUT /api/growths/{id}`
