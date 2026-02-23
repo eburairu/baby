@@ -47,3 +47,8 @@
 **Vulnerability:** Several Pydantic schemas (`FeedingCreate`, `SleepCreate`, etc.) lacked `max_length` constraints on free-text fields like `notes`. This could allow attackers to send excessively long strings, potentially causing Denial of Service (DoS) or storage exhaustion.
 **Learning:** Pydantic's default `str` type does not enforce length limits. Explicit validation is necessary for all user-supplied text to prevent abuse.
 **Prevention:** Added `Field(..., max_length=2000)` to all free-text fields in schemas. Always define reasonable upper bounds for string inputs.
+
+## 2026-03-05 - Insecure File Upload (MIME Type Spoofing)
+**Vulnerability:** The file upload endpoint trusted user-provided Content-Type headers and file extensions. Attackers could upload malicious scripts (e.g., PHP, HTML) with image extensions or MIME types, leading to Stored XSS or RCE.
+**Learning:** Never trust client-side input for file types. "Magic bytes" (file signatures) are the only reliable way to determine file content on the server.
+**Prevention:** Implemented strict server-side validation using magic bytes to detect the true MIME type and enforce the correct file extension and Content-Type when saving to storage.
