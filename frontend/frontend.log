@@ -17,7 +17,72 @@
   · optimizePackageImports
 
 ✓ Starting...
-○ Compiling instrumentation Node.js ...
-✓ Ready in 8s
- ELIFECYCLE  Command failed.
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 5.9s
+○ Compiling / ...
+ HEAD / 200 in 10.4s (compile: 9.5s, render: 922ms)
+ GET / 200 in 518ms (compile: 60ms, render: 458ms)
+ GET / 200 in 129ms (compile: 16ms, render: 113ms)
+⨯ ./frontend/components/landing/LandingContent.tsx:160:35
+Parsing ecmascript source code failed
+[0m [90m 158 |[39m                                 授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
+ [90m 159 |[39m                                 [33mAIアドバイスで、初めての育児も安心サポート。[39m
+[31m[1m>[22m[39m[90m 160 |[39m                             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m     |[39m                                   [31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 161 |[39m                             [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start"[39m[33m>[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 162 |[39m                                 {isLoggedIn [33m?[39m (
+ [90m 163 |[39m                                     [33m<[39m[33mLink[39m href[33m=[39m[32m"/dashboard"[39m[33m>[39m
+ [90m 164 |[39m                                         [33m<[39m[33mButton[39m className[33m=[39m[32m"w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105"[39m[33m>[39m[0m
+
+Expected '</', got 'jsx text'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/components/landing/LandingContent.tsx [Client Component Browser]
+    ./frontend/app/page.tsx [Client Component Browser]
+    ./frontend/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/components/landing/LandingContent.tsx [Client Component SSR]
+    ./frontend/app/page.tsx [Client Component SSR]
+    ./frontend/app/page.tsx [Server Component]
+
+
+○ Compiling /_error ...
+ GET / 500 in 4.3s (compile: 3.8s, render: 499ms)
+⨯ ./frontend/components/landing/LandingContent.tsx:160:35
+Parsing ecmascript source code failed
+[0m [90m 158 |[39m                                 授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
+ [90m 159 |[39m                                 [33mAIアドバイスで、初めての育児も安心サポート。[39m
+[31m[1m>[22m[39m[90m 160 |[39m                             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m     |[39m                                   [31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 161 |[39m                             [33m<[39m[33mdiv[39m className[33m=[39m[32m"flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start"[39m[33m>[39m
+ [90m     |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 162 |[39m                                 {isLoggedIn [33m?[39m (
+ [90m 163 |[39m                                     [33m<[39m[33mLink[39m href[33m=[39m[32m"/dashboard"[39m[33m>[39m
+ [90m 164 |[39m                                         [33m<[39m[33mButton[39m className[33m=[39m[32m"w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105"[39m[33m>[39m[0m
+
+Expected '</', got 'jsx text'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/components/landing/LandingContent.tsx [Client Component Browser]
+    ./frontend/app/page.tsx [Client Component Browser]
+    ./frontend/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/components/landing/LandingContent.tsx [Client Component SSR]
+    ./frontend/app/page.tsx [Client Component SSR]
+    ./frontend/app/page.tsx [Server Component]
+
+
+ GET / 500 in 47ms (compile: 31ms, render: 16ms)
+RangeError: Invalid count value: -52
+    at String.repeat (<anonymous>)
 [?25h
+ ELIFECYCLE  Command failed with exit code 1.
