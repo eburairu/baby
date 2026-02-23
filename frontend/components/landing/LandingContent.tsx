@@ -82,7 +82,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                 授乳、睡眠、おむつの記録をリアルタイムで共有。
                                 AIによる振り返りで、赤ちゃんの成長をもっと身近に.
                             </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
                                 {isLoggedIn ? (
                                     <Link href="/dashboard">
                                         <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
@@ -91,11 +91,16 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                     </Link>
                                 ) : (
                                     <>
-                                        <Link href="/register">
-                                            <Button className="w-full sm:w-auto h-14 px-8 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
-                                                新しく家族を登録する
+                                        <div className="flex flex-col gap-2 w-full sm:w-auto items-center sm:items-start">
+                                            <Link href="/register" className="w-full sm:w-auto">
+                                            <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
+                                                今すぐ無料で始める
                                             </Button>
                                         </Link>
+                                            <p className="text-xs text-slate-500 font-medium">
+                                                クレジットカード登録不要・完全無料
+                                            </p>
+                                        </div>
                                         <Link href="/register?join=true">
                                             <Button variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-2xl border-slate-200 hover:bg-slate-50 transition-all">
                                                 招待コードで参加する
@@ -115,7 +120,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img 
                                     src="/screenshots/dashboard.png" 
-                                    alt="App Screenshot" 
+                                    alt="育児記録ダッシュボードの画面。授乳や睡眠の記録が一目でわかり、AIによる分析も表示されます"
                                     className="w-full h-full object-cover"
                                 />
                             </div>
