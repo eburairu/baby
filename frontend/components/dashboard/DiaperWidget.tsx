@@ -2,25 +2,22 @@
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { api } from "@/lib/api"
-import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { DiaperType } from "@/types/diaper"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
+import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
 
-    const { wetCount, dirtyCount, elapsed } = useMemo(() => {
-        const diaperRecords = records?.filter(r => r.type === 'diaper') ?? []
-        const todayDiapers = diaperRecords.filter((d) => isToday(d.timestamp))
-        return {
-            wetCount: todayDiapers.filter((d) => d.details.diaper_type === DiaperType.WET || d.details.diaper_type === DiaperType.BOTH).length,
-            dirtyCount: todayDiapers.filter((d) => d.details.diaper_type === DiaperType.DIRTY || d.details.diaper_type === DiaperType.BOTH).length,
-            elapsed: diaperRecords[0] ? formatElapsed(diaperRecords[0].timestamp) : null,
-        }
+    const { wetCount, dirtyCount, lastElapsed } = useMemo(() => {
+        const diaperRecords = records
+            ?.map(normalizeDiaperFromRecord)
+            .filter((d): d is NormalizedDiaper => d !== null) ?? []
+        return calculateDiaperStats(diaperRecords)
     }, [records])
 
     const handleQuickRecord = async (diaperType: DiaperType) => {
@@ -49,7 +46,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             <WidgetContent
                 isLoading={isLoading}
                 loadingColorClass="text-amber-400"
-                elapsed={elapsed}
+                elapsed={lastElapsed}
                 subContent={`今日: 💧${wetCount} / 💩${dirtyCount}`}
             />
             {canWrite ? (

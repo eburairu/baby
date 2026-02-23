@@ -1,31 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Diaper, DiaperType } from "@/types/diaper"
-import { isToday, formatElapsed } from "@/lib/ageUtils"
+import { Diaper } from "@/types/diaper"
 import { Droplets, Trash2 } from "lucide-react"
 import { StatsBlock } from "@/components/ui/stats-block"
+import { calculateDiaperStats, normalizeDiaperFromEntity } from "@/lib/diaperUtils"
 
 interface Props {
     diapers: Diaper[]
 }
 
 export function DiaperStats({ diapers }: Props) {
-    // Current day stats
-    const todayDiapers = diapers.filter((d) => isToday(d.change_time))
-
-    const wetCount = todayDiapers.filter(
-        (d) => d.diaper_type === DiaperType.WET || d.diaper_type === DiaperType.BOTH
-    ).length
-
-    const dirtyCount = todayDiapers.filter(
-        (d) => d.diaper_type === DiaperType.DIRTY || d.diaper_type === DiaperType.BOTH
-    ).length
-
-    // Last record time
-    const lastWet = diapers.find(
-        (d) => d.diaper_type === DiaperType.WET || d.diaper_type === DiaperType.BOTH
-    )
-    const lastDirty = diapers.find(
-        (d) => d.diaper_type === DiaperType.DIRTY || d.diaper_type === DiaperType.BOTH
+    const stats = calculateDiaperStats(
+        diapers.map(normalizeDiaperFromEntity)
     )
 
     return (
@@ -35,21 +20,21 @@ export function DiaperStats({ diapers }: Props) {
                     <StatsBlock
                         icon={Droplets}
                         label="おしっこ"
-                        value={`${wetCount}回`}
+                        value={`${stats.wetCount}回`}
                         color="amber"
                     >
                         <p className="text-[10px] text-gray-500 dark:text-zinc-500">
-                            {lastWet ? formatElapsed(lastWet.change_time) : 'なし'}
+                            {stats.lastWetElapsed ? stats.lastWetElapsed : 'なし'}
                         </p>
                     </StatsBlock>
                     <StatsBlock
                         icon={Trash2}
                         label="うんち"
-                        value={`${dirtyCount}回`}
+                        value={`${stats.dirtyCount}回`}
                         color="amber"
                     >
                          <p className="text-[10px] text-gray-500 dark:text-zinc-500">
-                            {lastDirty ? formatElapsed(lastDirty.change_time) : 'なし'}
+                            {stats.lastDirtyElapsed ? stats.lastDirtyElapsed : 'なし'}
                         </p>
                     </StatsBlock>
                 </div>
