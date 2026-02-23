@@ -141,7 +141,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
             <main className="pt-16">
                 {/* Hero Section */}
-                <section className="relative px-4 py-20 lg:py-32 overflow-hidden">
+                <section className="relative px-4 py-12 lg:py-32 overflow-hidden">
                     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
@@ -149,7 +149,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                             transition={{ duration: 0.6 }}
                             className="text-center lg:text-left space-y-8"
                         >
-                            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
                                 「いつミルクあげた？」<br />
                                 その確認、もう不要です。<br />
                                 <span className="text-indigo-600">リアルタイム育児記録</span>で、<br className="hidden lg:block" />夫婦の連携をもっとスムーズに。
@@ -174,9 +174,11 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                                     <ArrowRight className="ml-2 h-5 w-5" />
                                                 </Button>
                                             </Link>
-                                            <p className="text-xs text-slate-500 font-medium">
-                                                クレジットカード登録不要・完全無料
-                                            </p>
+                                            <div className="text-xs font-bold mt-2 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-slate-500">
+                                                <span>✨ クレジットカード不要・完全無料</span>
+                                                <span className="hidden sm:inline text-slate-300">|</span>
+                                                <span className="text-indigo-600">1分で登録完了</span>
+                                            </div>
                                         </div>
                                         <Link href="/register?join=true">
                                             <Button variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-2xl border-slate-200 hover:bg-slate-50 transition-all">
