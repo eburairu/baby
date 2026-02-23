@@ -14,7 +14,7 @@ import { WidgetLoading } from "./WidgetLoading"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
-    const [loading, setLoading] = useState(false)
+    const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const { triggerFeedback } = useRecordFeedback(babyId)
 
     const { wetCount, dirtyCount, elapsed } = useMemo(() => {
@@ -30,8 +30,8 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
     const handleQuickRecord = async (diaperType: DiaperType, e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        if (loading) return
-        setLoading(true)
+        if (loadingAction) return
+        setLoadingAction(diaperType)
         const typeLabel = diaperType === DiaperType.WET ? "おしっこ" : "うんち"
         try {
             const record = await api.post<{ id: number }>("/diapers/", {
@@ -46,7 +46,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             console.error(e)
             toast.error(`${typeLabel}の記録に失敗しました`)
         } finally {
-            setLoading(false)
+            setLoadingAction(null)
         }
     }
 
@@ -77,27 +77,27 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                 <div className="flex gap-2">
                     <Button
                         size="sm"
-                        loading={loading}
-                        disabled={loading}
+                        loading={loadingAction === DiaperType.WET}
+                        disabled={loadingAction !== null}
                         onClick={(e) => handleQuickRecord(DiaperType.WET, e)}
                         className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
                         variant="outline"
                         aria-label="おしっこ"
                         data-sentry-unmask
                     >
-                        💧
+                        <span role="img" aria-hidden="true">💧</span>
                     </Button>
                     <Button
                         size="sm"
-                        loading={loading}
-                        disabled={loading}
+                        loading={loadingAction === DiaperType.DIRTY}
+                        disabled={loadingAction !== null}
                         onClick={(e) => handleQuickRecord(DiaperType.DIRTY, e)}
                         className="flex-1 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border-0 text-xs h-8"
                         variant="outline"
                         aria-label="うんち"
                         data-sentry-unmask
                     >
-                        💩
+                        <span role="img" aria-hidden="true">💩</span>
                     </Button>
                 </div>
             ) : null}

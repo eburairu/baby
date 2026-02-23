@@ -13,7 +13,7 @@ import { WidgetLoading } from "./WidgetLoading"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
-    const [loading, setLoading] = useState(false)
+    const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const { triggerFeedback } = useRecordFeedback(babyId)
 
     const { todayCount, elapsed } = useMemo(() => {
@@ -24,11 +24,11 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         }
     }, [records])
 
-    const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
+    const handleQuickRecord = async (feedingType: "bottle" | "breast", e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        if (loading) return
-        setLoading(true)
+        if (loadingAction) return
+        setLoadingAction(feedingType)
         const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
         try {
             const record = await api.post<{ id: number }>("/feedings/", {
@@ -43,7 +43,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             console.error(e)
             toast.error(`${typeLabel}の記録に失敗しました`)
         } finally {
-            setLoading(false)
+            setLoadingAction(null)
         }
     }
 
@@ -72,22 +72,24 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                 <div className="flex gap-2">
                     <Button
                         size="sm"
-                        loading={loading}
-                        disabled={loading}
+                        loading={loadingAction === "bottle"}
+                        disabled={loadingAction !== null}
                         onClick={(e) => handleQuickRecord("bottle", e)}
                         className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
                         variant="outline"
+                        aria-label="ミルクを記録"
                         data-sentry-unmask
                     >
                         ミルク
                     </Button>
                     <Button
                         size="sm"
-                        loading={loading}
-                        disabled={loading}
+                        loading={loadingAction === "breast"}
+                        disabled={loadingAction !== null}
                         onClick={(e) => handleQuickRecord("breast", e)}
                         className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
                         variant="outline"
+                        aria-label="母乳を記録"
                         data-sentry-unmask
                     >
                         母乳
