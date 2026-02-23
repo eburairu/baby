@@ -32,6 +32,10 @@ export default function ContractionPage() {
     const numericBabyId = babyId ? parseInt(babyId, 10) : undefined
     const { contractions, isLoading: contractionsLoading, isError: contractionError, mutate } = useContractions(numericBabyId ?? null)
 
+    const handleRefresh = async () => {
+        await mutate()
+    }
+
     const handleRecorded = () => mutate()
     const handleDeleted = () => mutate()
     const handleUpdated = () => mutate()
@@ -46,6 +50,7 @@ export default function ContractionPage() {
             isLoading={babiesLoading}
             apiError={contractionError}
             babyId={babyId}
+            onRefresh={handleRefresh}
         >
             {/* Baby選択 */}
             {babies && babies.length > 1 && (

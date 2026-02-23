@@ -16,6 +16,7 @@ import { QuickActionBar } from "@/components/dashboard/QuickActionBar"
 import { isBorn } from "@/lib/babyUtils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
+import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
@@ -37,6 +38,13 @@ export default function DashboardPage() {
 
     const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(selectedBabyId)
 
+    const handleRefresh = async () => {
+        await Promise.all([
+            mutateBabies(),
+            mutateRecords()
+        ])
+    }
+
     if (isLoading && !babies) {
         return <DashboardSkeleton />
     }
@@ -56,66 +64,68 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
-            <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
-                <BabyProfileCard
-                    babies={babiesWithStrId}
-                    selectedBabyId={effectiveBabyId}
-                />
-
-                {!born && canWrite && selectedBaby && (
-                    <BirthRegistrationDialog
-                        babyId={effectiveBabyId}
-                        babyName={selectedBaby.name}
-                        onSuccess={mutateBabies}
+            <PullToRefresh onRefresh={handleRefresh}>
+                <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+                    <BabyProfileCard
+                        babies={babiesWithStrId}
+                        selectedBabyId={effectiveBabyId}
                     />
-                )}
 
-                <div className="grid grid-cols-2 gap-4">
-                    <FeedingWidget
+                    {!born && canWrite && selectedBaby && (
+                        <BirthRegistrationDialog
+                            babyId={effectiveBabyId}
+                            babyName={selectedBaby.name}
+                            onSuccess={mutateBabies}
+                        />
+                    )}
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <FeedingWidget
+                            babyId={effectiveBabyId}
+                            records={records}
+                            isLoading={recordsLoading}
+                            isError={recordsError}
+                            mutate={() => mutateRecords()}
+                        />
+                        <SleepWidget
+                            babyId={effectiveBabyId}
+                            records={records}
+                            isLoading={recordsLoading}
+                            isError={recordsError}
+                            mutate={() => mutateRecords()}
+                        />
+                        <DiaperWidget
+                            babyId={effectiveBabyId}
+                            records={records}
+                            isLoading={recordsLoading}
+                            isError={recordsError}
+                            mutate={() => mutateRecords()}
+                        />
+                        <GrowthWidget
+                            babyId={effectiveBabyId}
+                            records={records}
+                            isLoading={recordsLoading}
+                            isError={recordsError}
+                        />
+                        <NoteWidget
+                            babyId={effectiveBabyId}
+                            records={records}
+                            isLoading={recordsLoading}
+                            isError={recordsError}
+                        />
+                        <DiaryWidget
+                            babyId={effectiveBabyId}
+                        />
+                    </div>
+
+                    <RecentActivityFeed
                         babyId={effectiveBabyId}
                         records={records}
                         isLoading={recordsLoading}
-                        isError={recordsError}
                         mutate={() => mutateRecords()}
                     />
-                    <SleepWidget
-                        babyId={effectiveBabyId}
-                        records={records}
-                        isLoading={recordsLoading}
-                        isError={recordsError}
-                        mutate={() => mutateRecords()}
-                    />
-                    <DiaperWidget
-                        babyId={effectiveBabyId}
-                        records={records}
-                        isLoading={recordsLoading}
-                        isError={recordsError}
-                        mutate={() => mutateRecords()}
-                    />
-                    <GrowthWidget
-                        babyId={effectiveBabyId}
-                        records={records}
-                        isLoading={recordsLoading}
-                        isError={recordsError}
-                    />
-                    <NoteWidget
-                        babyId={effectiveBabyId}
-                        records={records}
-                        isLoading={recordsLoading}
-                        isError={recordsError}
-                    />
-                    <DiaryWidget
-                        babyId={effectiveBabyId}
-                    />
-                </div>
-
-                <RecentActivityFeed
-                    babyId={effectiveBabyId}
-                    records={records}
-                    isLoading={recordsLoading}
-                    mutate={() => mutateRecords()}
-                />
-            </main>
+                </main>
+            </PullToRefresh>
 
             {born && (
                 <QuickActionBar

@@ -5,6 +5,7 @@ import { LucideIcon } from "lucide-react"
 import { PageLoading } from "@/components/ui/page-loading"
 import { AccessDenied } from "@/components/ui/access-denied"
 import { isApiError } from "@/lib/api"
+import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 
 interface RecordPageLayoutProps {
     /** ページタイトル */
@@ -21,10 +22,12 @@ interface RecordPageLayoutProps {
     babyId?: string
     /** 子要素 (メインコンテンツ) */
     children: ReactNode
+    /** 下に引っ張って更新する際のコールバック */
+    onRefresh?: () => Promise<unknown>
 }
 
 /**
- * 育児記録ページ共通のレイアウト・エラーハンドリング・ローディング表示コンポーネント
+ * 育児記録ページ共通のレイアウト・エラーハンドリン グ・ローディング表示コンポーネント
  */
 export function RecordPageLayout({
     title,
@@ -34,6 +37,7 @@ export function RecordPageLayout({
     apiError,
     babyId,
     children,
+    onRefresh,
 }: RecordPageLayoutProps) {
     // 赤ちゃん情報や権限の初期ロード中
     if (isLoading) {
@@ -52,8 +56,14 @@ export function RecordPageLayout({
     // 権限エラー (403 Forbidden)
     const isAccessDenied = isApiError(apiError) && apiError.status === 403
 
+    const content = (
+        <main className="max-w-2xl mx-auto p-4 space-y-6 pb-24">
+            {isAccessDenied ? <AccessDenied /> : children}
+        </main>
+    )
+
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-24 transition-colors">
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             {/* 共通ヘッダー */}
             <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
                 <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
@@ -65,9 +75,14 @@ export function RecordPageLayout({
             </header>
 
             {/* メインコンテンツ */}
-            <main className="max-w-2xl mx-auto p-4 space-y-6">
-                {isAccessDenied ? <AccessDenied /> : children}
-            </main>
+            {onRefresh ? (
+                <PullToRefresh onRefresh={onRefresh}>
+                    {content}
+                </PullToRefresh>
+            ) : (
+                content
+            )}
         </div>
     )
 }
+

@@ -25,9 +25,13 @@ export default function SleepPage() {
         commentRecordId,
     } = useRecordPage()
 
-    const { isError: sleepError, isLoading: sleepsLoading } = useSleeps(babyId ?? null)
+    const { isError: sleepError, isLoading: sleepsLoading, mutate: refreshSleeps } = useSleeps(babyId ?? null)
 
     const babiesWithStrId = babies?.map((b) => ({ ...b, id: String(b.id) })) ?? []
+
+    const handleRefresh = async () => {
+        await refreshSleeps()
+    }
 
     return (
         <RecordPageLayout
@@ -37,6 +41,7 @@ export default function SleepPage() {
             isLoading={babiesLoading}
             apiError={sleepError}
             babyId={babyId}
+            onRefresh={handleRefresh}
         >
             <BabyProfileCard
                 babies={babiesWithStrId}

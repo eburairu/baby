@@ -25,6 +25,10 @@ export default function DiaperPage() {
 
     const { diapers, isLoading: diapersLoading, isError: diaperError, mutate } = useDiapers(babyId ?? null)
 
+    const handleRefresh = async () => {
+        await mutate()
+    }
+
     return (
         <RecordPageLayout
             title="おむつ記録"
@@ -33,6 +37,7 @@ export default function DiaperPage() {
             isLoading={babiesLoading}
             apiError={diaperError}
             babyId={babyId}
+            onRefresh={handleRefresh}
         >
             {diapersLoading ? (
                 <div className="flex justify-center py-12">

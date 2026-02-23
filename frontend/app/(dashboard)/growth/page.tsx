@@ -30,6 +30,10 @@ export default function GrowthPage() {
 
     const { growths, isLoading: growthsLoading, isError: growthError, mutate } = useGrowths(babyId ?? null)
 
+    const handleRefresh = async () => {
+        await mutate()
+    }
+
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingRecord, setEditingRecord] = useState<Growth | null>(null)
 
@@ -53,6 +57,7 @@ export default function GrowthPage() {
             isLoading={babiesLoading}
             apiError={growthError}
             babyId={babyId}
+            onRefresh={handleRefresh}
         >
             <TipsCard {...growthTips} />
 
