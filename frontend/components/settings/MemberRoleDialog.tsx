@@ -10,15 +10,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { api, isApiError } from "@/lib/api"
 import { UserRole } from "@/lib/constants"
-
-interface Member {
-    user_id: number
-    username: string
-    role: string
-}
+import { FamilyMember } from "@/types/family"
 
 interface Props {
-    member: Member | null
+    member: FamilyMember | null
     open: boolean
     onClose: () => void
     onUpdated: () => void

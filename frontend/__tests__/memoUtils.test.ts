@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest"
 import { areRecordsEqual, createWidgetMemoComparison } from "@/lib/memoUtils"
-import { BabyRecord } from "@/hooks/useData"
+import { BabyRecord } from "@/types/record"
 import { BaseWidgetProps } from "@/types/widget"
 
 describe("areRecordsEqual", () => {

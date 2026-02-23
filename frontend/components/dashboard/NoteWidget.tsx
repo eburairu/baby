@@ -3,7 +3,7 @@ import { memo } from "react"
 import { areRecordsEqual } from "@/lib/memoUtils"
 import { formatElapsed } from "@/lib/ageUtils"
 import { StickyNote } from "lucide-react"
-import { BabyRecord } from "@/hooks/useData"
+import { BabyRecord } from "@/types/record"
 import { WidgetCard } from "./WidgetCard"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 

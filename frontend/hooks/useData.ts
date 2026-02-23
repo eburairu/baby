@@ -6,11 +6,14 @@ import type { Diaper } from '@/types/diaper';
 import type { Sleep } from '@/types/sleep';
 import type { Growth } from '@/types/growth';
 import type { Baby } from '@/types/baby';
+import { Family, FamilyMember } from "@/types/family";
+import { BabyRecord } from "@/types/record";
+import { useBabyResource } from "@/hooks/useBabyResource";
 
 export function useFamilySettings() {
-    const { data, error, isLoading, mutate } = useSWR('/family/', fetcher);
+    const { data, error, isLoading, mutate } = useSWR<Family>('/family/', fetcher);
     return {
-        family: data as { id: number; name: string; invite_code: string; created_at: string } | undefined,
+        family: data,
         isLoading,
         isError: error,
         mutate,
@@ -18,9 +21,9 @@ export function useFamilySettings() {
 }
 
 export function useFamilyMembers() {
-    const { data, error, isLoading, mutate } = useSWR('/family/members', fetcher);
+    const { data, error, isLoading, mutate } = useSWR<FamilyMember[]>('/family/members', fetcher);
     return {
-        members: data as { user_id: number; username: string; display_name: string | null; role: string; joined_at: string }[] | undefined,
+        members: data,
         isLoading,
         isError: error,
         mutate,
@@ -41,33 +44,6 @@ export function useBabies(options?: { fallbackData?: Baby[] }) {
         isError: error,
         mutate,
     };
-}
-
-function useBabyResource<T>(endpoint: string, babyId: string | number | null) {
-    const { data, error, isLoading, mutate } = useSWR<T[]>(
-        babyId ? `/${endpoint}/?baby_id=${babyId}` : null,
-        fetcher,
-        { keepPreviousData: true }
-    );
-    return {
-        data,
-        isLoading,
-        isError: error,
-        mutate,
-    };
-}
-
-
-export interface BabyRecord {
-    id: number;
-    type: 'feeding' | 'sleep' | 'diaper' | 'growth' | 'contraction' | 'note';
-    timestamp: string;
-    details: {
-        notes?: string;
-        [key: string]: unknown;
-    };
-    comment_count: number;
-    recorded_by_display_name?: string | null;
 }
 
 export function useRecords(babyId: string | null) {

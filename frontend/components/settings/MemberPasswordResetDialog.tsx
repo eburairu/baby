@@ -21,15 +21,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { api, isApiError } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
-
-interface Member {
-    user_id: number
-    username: string
-    display_name: string | null
-}
+import { FamilyMember } from "@/types/family"
 
 interface Props {
-    member: Member | null
+    member: FamilyMember | null
     open: boolean
     onClose: () => void
 }

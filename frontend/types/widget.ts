@@ -1,4 +1,4 @@
-import { BabyRecord } from "@/hooks/useData"
+import { BabyRecord } from "@/types/record"
 
 export interface BaseWidgetProps {
     babyId: string
