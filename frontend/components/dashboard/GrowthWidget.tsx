@@ -1,18 +1,11 @@
 "use client"
 import { memo } from "react"
-import { areRecordsEqual } from "@/lib/memoUtils"
-import { BabyRecord } from "@/types/record"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { WidgetCard } from "./WidgetCard"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { WidgetLoading } from "./WidgetLoading"
+import { BaseWidgetProps } from "@/types/widget"
 
-interface Props {
-  babyId: string
-  records?: BabyRecord[]
-  isLoading?: boolean
-  isError?: unknown
-}
-
-export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError }: Props) {
+export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError }: BaseWidgetProps) {
     const growthRecords = records?.filter(r => r.type === 'growth') ?? []
     const latest = growthRecords[0] ?? null
 
@@ -32,9 +25,7 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
             ariaLabel="成長の詳細を見る"
         >
             {isLoading ? (
-                <div className="flex justify-center py-4">
-                    <BabyBottleLoading className="w-8 h-8 text-emerald-400" />
-                </div>
+                <WidgetLoading className="text-emerald-400" />
             ) : latest ? (
                 <div className="space-y-1">
                     {weight != null && (
@@ -56,9 +47,4 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
             )}
         </WidgetCard>
     )
-}, (prev, next) => {
-    if (prev.isLoading !== next.isLoading) return false
-    if (prev.isError !== next.isError) return false
-    if (prev.babyId !== next.babyId) return false
-    return areRecordsEqual(prev.records, next.records, 'growth')
-})
+}, createWidgetMemoComparison('growth'))

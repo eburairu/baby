@@ -1,20 +1,13 @@
 "use client"
 import { memo } from "react"
-import { areRecordsEqual } from "@/lib/memoUtils"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { formatElapsed } from "@/lib/ageUtils"
 import { StickyNote } from "lucide-react"
-import { BabyRecord } from "@/types/record"
 import { WidgetCard } from "./WidgetCard"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { WidgetLoading } from "./WidgetLoading"
+import { BaseWidgetProps } from "@/types/widget"
 
-interface Props {
-  babyId: string
-  records?: BabyRecord[]
-  isLoading?: boolean
-  isError?: unknown
-}
-
-export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading, isError }: Props) {
+export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading, isError }: BaseWidgetProps) {
   const noteRecords = records?.filter(r => r.type === 'note') ?? []
   const lastNote = noteRecords[0]
   const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
@@ -33,9 +26,7 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading,
       ariaLabel="メモの詳細を見る"
     >
       {isLoading ? (
-        <div className="flex justify-center py-4">
-          <BabyBottleLoading className="w-8 h-8 text-amber-400" />
-        </div>
+        <WidgetLoading className="text-amber-400" />
       ) : lastNote ? (
         <div className="space-y-1">
           <p className="text-xs text-gray-500 dark:text-zinc-400 font-medium">{elapsed}</p>
@@ -50,9 +41,4 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading,
       )}
     </WidgetCard>
   )
-}, (prev, next) => {
-    if (prev.isLoading !== next.isLoading) return false
-    if (prev.isError !== next.isError) return false
-    if (prev.babyId !== next.babyId) return false
-    return areRecordsEqual(prev.records, next.records, 'note')
-})
+}, createWidgetMemoComparison('note'))
