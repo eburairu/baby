@@ -126,7 +126,7 @@ export default function DashboardPage() {
                         babyId={effectiveBabyId}
                         records={records}
                         isLoading={recordsLoading}
-                        mutate={() => mutateRecords()}
+                        mutate={handleMutateRecords}
                     />
                 </main>
             </PullToRefresh>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
             {born && (
                 <QuickActionBar
                     babyId={effectiveBabyId}
-                    mutateRecords={() => mutateRecords()}
+                    mutateRecords={handleMutateRecords}
                     records={records}
                 />
             )}
