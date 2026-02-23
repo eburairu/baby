@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useCallback } from "react"
+import { useInterval } from "./useInterval"
+import { formatTimeMMSS } from "@/lib/ageUtils"
 
 export type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
@@ -18,20 +20,16 @@ export function useFeedingTimer({
     const rightBaseRef = useRef<number | null>(null)
 
     // タイマーインターバル
-    useEffect(() => {
-        if (activeBreastSide === null) return
-        const interval = setInterval(() => {
-            const now = Date.now()
-            if (activeBreastSide === "LEFT" && leftBaseRef.current !== null) {
-                const diff = Math.floor((now - leftBaseRef.current) / 1000)
-                setLeftSeconds(diff)
-            } else if (activeBreastSide === "RIGHT" && rightBaseRef.current !== null) {
-                const diff = Math.floor((now - rightBaseRef.current) / 1000)
-                setRightSeconds(diff)
-            }
-        }, 1000)
-        return () => clearInterval(interval)
-    }, [activeBreastSide])
+    useInterval(() => {
+        const now = Date.now()
+        if (activeBreastSide === "LEFT" && leftBaseRef.current !== null) {
+            const diff = Math.floor((now - leftBaseRef.current) / 1000)
+            setLeftSeconds(diff)
+        } else if (activeBreastSide === "RIGHT" && rightBaseRef.current !== null) {
+            const diff = Math.floor((now - rightBaseRef.current) / 1000)
+            setRightSeconds(diff)
+        }
+    }, activeBreastSide !== null ? 1000 : null)
 
     const startTimer = (side: "LEFT" | "RIGHT") => {
         // 反対側が動いていれば停止
@@ -69,12 +67,6 @@ export function useFeedingTimer({
         setRightSeconds(0)
     }, [])
 
-    const formatTimer = (seconds: number) => {
-        const mins = Math.floor(seconds / 60)
-        const secs = seconds % 60
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-
     const totalSeconds = leftSeconds + rightSeconds
 
     return {
@@ -85,7 +77,7 @@ export function useFeedingTimer({
         activeBreastSide,
         toggleTimer,
         resetAllTimers,
-        formatTimer,
+        formatTimer: formatTimeMMSS,
         totalSeconds
     }
 }

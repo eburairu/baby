@@ -1,18 +1,14 @@
 "use client"
 
-import { useEffect, useCallback, useState } from "react"
+import { useCallback, useState } from "react"
 import { useContractionTimer } from "@/stores/contractionStore"
 import { api } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ContractionRecord } from "@/types/contraction"
 import { toast } from "sonner"
-
-function formatTime(seconds: number): string {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
-}
+import { useInterval } from "@/hooks/useInterval"
+import { formatTimeMMSS } from "@/lib/ageUtils"
 
 interface ContractionTimerProps {
     babyId: number
@@ -24,12 +20,10 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
     const { status, elapsedSeconds, start, stop, tick } = useContractionTimer()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    const isTiming = status === "timing"
+
     // 毎秒のtick更新
-    useEffect(() => {
-        if (status !== "timing") return
-        const interval = setInterval(() => tick(), 1000)
-        return () => clearInterval(interval)
-    }, [status, tick])
+    useInterval(tick, isTiming ? 1000 : null)
 
     const handleToggle = useCallback(async (offsetMs: number = 0) => {
         if (status === "idle") {
@@ -59,8 +53,6 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
         }
     }, [status, babyId, start, stop, onRecorded])
 
-    const isTiming = status === "timing"
-
     return (
         <Card className={`transition-all duration-300 ${isTiming ? "border-red-400 bg-red-50 dark:bg-red-950/30 shadow-lg shadow-red-100 dark:shadow-red-900/20" : ""}`}>
             <CardContent className="flex flex-col items-center gap-6 py-8">
@@ -70,7 +62,7 @@ export default function ContractionTimer({ babyId, onRecorded, lastContraction }
                         {isTiming ? "計測中..." : "ボタンを押して計測開始"}
                     </p>
                     <div className={`text-6xl font-mono font-bold tabular-nums tracking-wider ${isTiming ? "text-red-600 dark:text-red-400" : "text-muted-foreground/40"}`}>
-                        {formatTime(elapsedSeconds)}
+                        {formatTimeMMSS(elapsedSeconds)}
                     </div>
                 </div>
 
