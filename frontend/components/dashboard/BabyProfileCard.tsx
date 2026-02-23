@@ -1,5 +1,6 @@
 "use client"
 import React from "react"
+import { Sparkles } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
 
@@ -37,10 +38,14 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
 
                 {selected?.characteristics && (
                     <div className="mt-1 pt-3 border-t border-gray-50 dark:border-zinc-800">
-                        <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed italic bg-slate-50/50 dark:bg-zinc-800/50 p-4 rounded-xl border border-slate-100/50 dark:border-zinc-800/50 relative whitespace-pre-wrap">
-                            <span className="text-indigo-300 dark:text-indigo-700 absolute top-0 left-1 text-2xl font-serif">“</span>
+                        <div className="flex items-center gap-1.5 mb-2 px-1">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 fill-amber-500/10" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+                                赤ちゃんの特徴
+                            </span>
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed bg-amber-50/30 dark:bg-amber-950/10 p-3.5 rounded-xl border border-amber-100/50 dark:border-amber-900/20 whitespace-pre-wrap">
                             {selected.characteristics}
-                            <span className="text-indigo-300 dark:text-indigo-700 absolute bottom-0 right-1 text-2xl font-serif">”</span>
                         </p>
                     </div>
                 )}
