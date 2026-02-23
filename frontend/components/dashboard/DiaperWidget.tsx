@@ -9,8 +9,8 @@ import { DiaperType } from "@/types/diaper"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { WidgetLoading } from "./WidgetLoading"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { WidgetContent } from "./WidgetContent"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite } = usePermissions()
@@ -55,22 +55,12 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             isError={isError}
             actionHoverColor="hover:text-amber-500 dark:hover:text-amber-400"
         >
-            <div>
-                {isLoading ? (
-                    <WidgetLoading className="text-amber-400" />
-                ) : (
-                    <>
-                        {elapsed ? (
-                            <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
-                        ) : (
-                            <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
-                        )}
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-                            今日: 💧{wetCount} / 💩{dirtyCount}
-                        </p>
-                    </>
-                )}
-            </div>
+            <WidgetContent
+                isLoading={isLoading}
+                loadingColorClass="text-amber-400"
+                elapsed={elapsed}
+                subContent={`今日: 💧${wetCount} / 💩${dirtyCount}`}
+            />
             {canWrite ? (
                 <div className="flex gap-2">
                     <Button
