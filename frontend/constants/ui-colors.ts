@@ -91,6 +91,41 @@ export const UI_COLORS = {
   },
 } as const;
 
+export const UI_BUTTONS = {
+  primary: "bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white",
+} as const;
+
+export const UI_FORMS = {
+  timer: {
+    rose: {
+      container: "bg-rose-50 dark:bg-rose-950/30",
+      title: "text-rose-700 dark:text-rose-300",
+      timer: "text-rose-600 dark:text-rose-400",
+      buttonActive: "bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50",
+      buttonInactive: "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white",
+      totalText: "text-rose-600 dark:text-rose-400",
+    },
+  },
+  selection: {
+    amberBordered: {
+      active: "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400",
+      inactive: "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900",
+    },
+    blueSolid: {
+        active: "bg-blue-500 text-white border-blue-500",
+        inactive: "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-blue-300",
+    },
+    greenSolid: {
+        active: "bg-green-500 text-white border-green-500",
+        inactive: "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-gray-300",
+    },
+    amberSolid: {
+        active: "bg-amber-500 text-white border-amber-500",
+        inactive: "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-gray-300",
+    }
+  },
+} as const;
+
 export const TIPS_CARD_CONFIG = {
   rose: {
     border: UI_COLORS.rose.border,

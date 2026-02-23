@@ -9,6 +9,8 @@ import { format } from "date-fns"
 import { Play, Pause, RotateCcw, Save } from "lucide-react"
 import { toast } from "sonner"
 
+import { cn } from "@/lib/utils"
+import { UI_COLORS, UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -203,12 +205,12 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                             <TabsContent value="BREAST" className="space-y-4 mt-0">
                                 {/* 左右タイマーセクション (新規作成時のみ表示) */}
                                 {!isEditing && (
-                                    <div className="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-lg space-y-3 transition-colors">
+                                    <div className={cn(UI_FORMS.timer.rose.container, "p-4 rounded-lg space-y-3 transition-colors")}>
                                         <div className="grid grid-cols-2 gap-3">
                                             {/* 左乳タイマー */}
                                             <div className="text-center space-y-2">
-                                                <p className="text-xs font-medium text-rose-700 dark:text-rose-300">左乳</p>
-                                                <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
+                                                <p className={cn("text-xs font-medium", UI_FORMS.timer.rose.title)}>左乳</p>
+                                                <div className={cn("text-2xl font-mono font-bold", UI_FORMS.timer.rose.timer)}>
                                                     {formatTimer(leftSeconds)}
                                                 </div>
                                                 <Button
@@ -216,8 +218,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                                     size="sm"
                                                     variant={activeBreastSide === "LEFT" ? "outline" : "default"}
                                                     className={activeBreastSide === "LEFT"
-                                                        ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                                                        : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
+                                                        ? cn("w-full", UI_FORMS.timer.rose.buttonActive)
+                                                        : cn("w-full", UI_FORMS.timer.rose.buttonInactive)}
                                                     onClick={() => toggleTimer("LEFT")}
                                                 >
                                                     {activeBreastSide === "LEFT"
@@ -228,8 +230,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                             </div>
                                             {/* 右乳タイマー */}
                                             <div className="text-center space-y-2">
-                                                <p className="text-xs font-medium text-rose-700 dark:text-rose-300">右乳</p>
-                                                <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
+                                                <p className={cn("text-xs font-medium", UI_FORMS.timer.rose.title)}>右乳</p>
+                                                <div className={cn("text-2xl font-mono font-bold", UI_FORMS.timer.rose.timer)}>
                                                     {formatTimer(rightSeconds)}
                                                 </div>
                                                 <Button
@@ -237,8 +239,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                                     size="sm"
                                                     variant={activeBreastSide === "RIGHT" ? "outline" : "default"}
                                                     className={activeBreastSide === "RIGHT"
-                                                        ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                                                        : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
+                                                        ? cn("w-full", UI_FORMS.timer.rose.buttonActive)
+                                                        : cn("w-full", UI_FORMS.timer.rose.buttonInactive)}
                                                     onClick={() => toggleTimer("RIGHT")}
                                                 >
                                                     {activeBreastSide === "RIGHT"
@@ -250,7 +252,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                         </div>
                                         {/* 合計表示 & リセット */}
                                         <div className="flex items-center justify-between">
-                                            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                                            <p className={cn("text-xs font-medium", UI_FORMS.timer.rose.totalText)}>
                                                 合計: {formatTimer(totalSeconds)}
                                             </p>
                                             <Button type="button" variant="ghost" size="sm" onClick={resetAllTimers} className="h-7 text-xs">
@@ -314,11 +316,12 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                                 key={value}
                                                 type="button"
                                                 onClick={() => setBottleContentType(prev => prev === value ? null : value)}
-                                                className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-colors
-                                                    ${bottleContentType === value
-                                                        ? "bg-blue-500 text-white border-blue-500"
-                                                        : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-blue-300"
-                                                    }`}
+                                                className={cn(
+                                                    "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
+                                                    bottleContentType === value
+                                                        ? UI_FORMS.selection.blueSolid.active
+                                                        : UI_FORMS.selection.blueSolid.inactive
+                                                )}
                                             >
                                                 {label}
                                             </button>
@@ -353,13 +356,16 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                             key={value}
                                             type="button"
                                             onClick={() => setFeedingCompletion(prev => prev === value ? null : value)}
-                                            className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-colors
-                                                ${feedingCompletion === value
+                                            className={cn(
+                                                "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
+                                                feedingCompletion === value
                                                     ? value === "FULL"
-                                                        ? "bg-green-500 text-white border-green-500"
-                                                        : "bg-amber-500 text-white border-amber-500"
-                                                    : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-gray-300"
-                                                }`}
+                                                        ? UI_FORMS.selection.greenSolid.active
+                                                        : UI_FORMS.selection.amberSolid.active
+                                                    : value === "FULL"
+                                                        ? UI_FORMS.selection.greenSolid.inactive
+                                                        : UI_FORMS.selection.amberSolid.inactive
+                                            )}
                                         >
                                             {label}
                                         </button>
@@ -383,7 +389,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
 
                             <Button
                                 type="submit"
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
+                                className={cn("w-full rounded-xl h-11", UI_BUTTONS.primary)}
                                 loading={isSubmitting}
                                 data-sentry-unmask
                             >
