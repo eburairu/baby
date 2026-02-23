@@ -42,3 +42,8 @@
 **Vulnerability:** A Time-of-Check to Time-of-Use (TOCTOU) race condition existed in user registration. Concurrent requests with the same username (case-insensitive) could bypass the initial existence check and trigger an unhandled `IntegrityError` during insertion, causing a 500 Internal Server Error.
 **Learning:** Checking for existence before insertion is insufficient for uniqueness guarantees in concurrent environments. Database constraints are the final source of truth.
 **Prevention:** Always wrap database insertion logic in `try...except IntegrityError` blocks when unique constraints are involved. Convert database errors into user-friendly HTTP 400 responses.
+
+## 2026-03-04 - Missing Input Length Validation
+**Vulnerability:** Several Pydantic schemas (`FeedingCreate`, `SleepCreate`, etc.) lacked `max_length` constraints on free-text fields like `notes`. This could allow attackers to send excessively long strings, potentially causing Denial of Service (DoS) or storage exhaustion.
+**Learning:** Pydantic's default `str` type does not enforce length limits. Explicit validation is necessary for all user-supplied text to prevent abuse.
+**Prevention:** Added `Field(..., max_length=2000)` to all free-text fields in schemas. Always define reasonable upper bounds for string inputs.

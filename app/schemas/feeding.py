@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator, Field
 from typing import Optional
 from datetime import datetime
 from app.models.feeding import FeedingType, BreastSide, BottleContentType, FeedingCompletion
@@ -10,7 +10,7 @@ class FeedingCreate(BaseModel):
     feeding_type: FeedingType
     amount_ml: Optional[float] = None
     duration_minutes: Optional[int] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
     # Phase 1
     left_breast_minutes: Optional[int] = None
     right_breast_minutes: Optional[int] = None
@@ -41,7 +41,7 @@ class FeedingUpdate(BaseModel):
     feeding_type: Optional[FeedingType] = None
     amount_ml: Optional[float] = None
     duration_minutes: Optional[int] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
     # Phase 1
     left_breast_minutes: Optional[int] = None
     right_breast_minutes: Optional[int] = None
