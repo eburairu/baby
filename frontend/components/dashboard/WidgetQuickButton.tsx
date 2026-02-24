@@ -1,6 +1,7 @@
 "use client"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { Loader2 } from "lucide-react"
 
 // カラーマップ定義
 // Tailwindのクラスを完全に記述して、Purgeされないようにする
@@ -24,6 +25,7 @@ type WidgetColor = keyof typeof colorStyles
 interface WidgetQuickButtonProps extends ButtonProps {
     color: WidgetColor
     isActive?: boolean
+    hideContentOnLoading?: boolean
 }
 
 export function WidgetQuickButton({
@@ -33,10 +35,33 @@ export function WidgetQuickButton({
     children,
     variant = "outline",
     size = "sm",
+    hideContentOnLoading = false,
     ...props
 }: WidgetQuickButtonProps) {
     const styles = colorStyles[color]
     const colorClass = isActive ? styles.active : styles.default
+    const loading = props.loading
+
+    if (loading && hideContentOnLoading) {
+        return (
+            <Button
+                variant={variant}
+                size={size}
+                className={cn(
+                    "border-0 text-xs h-8 transition-colors",
+                    colorClass,
+                    className
+                )}
+                aria-busy={true}
+                data-sentry-unmask
+                {...props}
+                disabled={true}
+                loading={false}
+            >
+                <Loader2 className="h-4 w-4 animate-spin" />
+            </Button>
+        )
+    }
 
     return (
         <Button
@@ -47,6 +72,7 @@ export function WidgetQuickButton({
                 colorClass,
                 className
             )}
+            aria-busy={loading}
             data-sentry-unmask
             {...props}
         >

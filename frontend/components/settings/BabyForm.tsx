@@ -176,6 +176,7 @@ export function BabyForm({
                     <Button
                         type="submit"
                         disabled={isSubmitting}
+                        loading={isSubmitting}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
                         {submitLabel}

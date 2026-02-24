@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Optional
 
 
 class CommentBase(BaseModel):
-    content: str
+    content: str = Field(..., max_length=2000)
 
 
 class CommentCreate(CommentBase):

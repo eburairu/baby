@@ -1,18 +1,16 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { usePermissions } from "@/hooks/usePermissions"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
-    const { canWrite } = usePermissions()
-    const { loading, execute } = useAsyncAction()
+    const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
 
     const { activeSleep, isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
@@ -36,12 +34,11 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
     }, [records])
 
     const handleStart = async () => {
-        await execute(async () => {
-            await api.post("/sleeps/", {
+        await executeRecord(async () => {
+            return api.post<{ id: number }>("/sleeps/", {
                 baby_id: Number(babyId),
                 start_time: new Date().toISOString(),
             })
-            if (mutate) mutate()
         }, {
             successMessage: "睡眠を開始しました",
             errorMessage: "睡眠の開始に失敗しました"
@@ -52,11 +49,10 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
         if (!activeSleep) return
 
         const sleepId = activeSleep.id
-        await execute(async () => {
-            await api.patch(`/sleeps/${sleepId}`, {
+        await executeRecord(async () => {
+            return api.patch<{ id: number }>(`/sleeps/${sleepId}`, {
                 end_time: new Date().toISOString(),
             })
-            if (mutate) mutate()
         }, {
             successMessage: "睡眠を終了しました",
             errorMessage: "睡眠の終了に失敗しました"

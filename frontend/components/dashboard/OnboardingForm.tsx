@@ -132,8 +132,9 @@ export function OnboardingForm({ isAdmin, onSuccess }: OnboardingFormProps) {
                             type="submit"
                             className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
                             disabled={submitting}
+                            loading={submitting}
                         >
-                            登録する
+                            {submitting ? "登録中..." : "登録する"}
                         </Button>
                     </form>
                 </CardContent>

@@ -1,20 +1,16 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { usePermissions } from "@/hooks/usePermissions"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { api } from "@/lib/api"
 import { formatElapsed, isToday } from "@/lib/ageUtils"
-import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
-    const { canWrite } = usePermissions()
-    const { loading, execute } = useAsyncAction()
-    const { triggerFeedback } = useRecordFeedback(babyId)
+    const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
 
     const { todayCount, elapsed } = useMemo(() => {
         const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
@@ -24,24 +20,18 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         }
     }, [records])
 
-    const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-
+    const handleQuickRecord = async (feedingType: string) => {
         const typeLabel = feedingType === "bottle" ? "ミルク" : "母乳"
 
-        await execute(async () => {
-            const record = await api.post<{ id: number }>("/feedings/", {
+        await executeRecord(async () => {
+            return api.post<{ id: number }>("/feedings/", {
                 baby_id: Number(babyId),
                 feeding_type: feedingType.toUpperCase(),
                 feeding_time: new Date().toISOString(),
             })
-            triggerFeedback("feeding", record.id)
-            if (mutate) mutate()
-            return record
         }, {
-            successMessage: `${typeLabel}を記録しました`,
-            errorMessage: `${typeLabel}の記録に失敗しました`
+            label: typeLabel,
+            feedbackType: "feeding"
         })
     }
 
@@ -65,7 +55,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         color="rose"
                         loading={loading}
                         disabled={loading}
-                        onClick={(e) => handleQuickRecord("bottle", e)}
+                        onClick={() => handleQuickRecord("bottle")}
                         className="flex-1"
                     >
                         ミルク
@@ -74,7 +64,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         color="rose"
                         loading={loading}
                         disabled={loading}
-                        onClick={(e) => handleQuickRecord("breast", e)}
+                        onClick={() => handleQuickRecord("breast")}
                         className="flex-1"
                     >
                         母乳

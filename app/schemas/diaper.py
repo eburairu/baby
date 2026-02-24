@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 from app.models.diaper import DiaperType
@@ -8,13 +8,13 @@ class DiaperCreate(BaseModel):
     baby_id: int
     change_time: datetime
     diaper_type: DiaperType
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class DiaperUpdate(BaseModel):
     change_time: Optional[datetime] = None
     diaper_type: Optional[DiaperType] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 

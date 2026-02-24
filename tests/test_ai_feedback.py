@@ -73,7 +73,7 @@ def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
 
     # 実行
     feedback, has_concern, model = generate_record_feedback(
-        db, baby.id, baby.name, "feeding", feeding.id
+        db, baby.id, baby, "feeding", feeding.id
     )
 
     # 検証

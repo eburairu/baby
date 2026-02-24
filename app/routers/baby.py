@@ -6,6 +6,7 @@ from typing import List
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
+import logging
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -22,6 +23,8 @@ from app.models.comment import RecordComment
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
+
+logger = logging.getLogger(__name__)
 
 JST = timezone(timedelta(hours=9))
 
@@ -87,6 +90,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
     db.add(new_baby)
     db.commit()
     db.refresh(new_baby)
+    logger.info("Baby created: baby_id=%s, family_id=%s, by user_id=%s", new_baby.id, new_baby.family_id, current_user.id)
     return new_baby
 
 
@@ -113,6 +117,7 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
     from app.services.baby import update_baby as update_baby_service
     
     updated_baby = update_baby_service(db, baby, baby_in)
+    logger.info("Baby updated: baby_id=%s, by user_id=%s", updated_baby.id, current_user.id)
     return updated_baby
 
 
@@ -144,8 +149,14 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     db.query(Schedule).filter(Schedule.baby_id == baby_id).delete()
     db.query(Note).filter(Note.baby_id == baby_id).delete()
     db.query(RecordComment).filter(RecordComment.baby_id == baby_id).delete()
+
+    deleted_baby_id = baby.id
+    deleted_baby_family_id = baby.family_id
+
     db.delete(baby)
     db.commit()
+
+    logger.info("Baby deleted: baby_id=%s, family_id=%s, by user_id=%s", deleted_baby_id, deleted_baby_family_id, current_user.id)
 
 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])

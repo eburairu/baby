@@ -14,8 +14,10 @@ from app.models.feeding import Feeding
 from app.models.diaper import Diaper
 from app.models.growth import Growth
 from app.models.note import Note
+from app.models.baby import Baby
 from app.services.ai_summary import get_llm_client, _fetch_records_in_range
 from app.services.ai_settings import get_ai_config
+from app.services.baby import get_baby_age_in_days
 
 logger = logging.getLogger(__name__)
 
@@ -203,7 +205,7 @@ def _build_growth_context(db: Session, baby_id: int, growth_id: int) -> str:
 def build_feedback_prompt(
     db: Session,
     baby_id: int,
-    baby_name: str,
+    baby: Baby,
     record_type: str,
     record_id: int,
 ) -> str:
@@ -221,8 +223,11 @@ def build_feedback_prompt(
     trigger_focus = TRIGGER_FOCUS.get(record_type, "全体的な状態")
     record_type_ja = RECORD_TYPE_JA.get(record_type, record_type)
 
+    age_days = get_baby_age_in_days(baby, now.date())
+    age_str = f"（生後{age_days}日）" if age_days is not None else ""
+
     prompt = (
-        f"{baby_name}ちゃんの記録です。今ちょうど「{record_type_ja}」を記録しました。\n\n"
+        f"{baby.name}ちゃん{age_str}の記録です。今ちょうど「{record_type_ja}」を記録しました。\n\n"
         f"【直近24時間の記録】\n{records_text}\n\n"
         f"この記録を踏まえて、{trigger_focus}を中心に分析し、JSONで返してください。"
     )
@@ -232,7 +237,7 @@ def build_feedback_prompt(
 def generate_record_feedback(
     db: Session,
     baby_id: int,
-    baby_name: str,
+    baby: Baby,
     record_type: str,
     record_id: int,
 ) -> Tuple[str, bool, str]:
@@ -244,7 +249,7 @@ def generate_record_feedback(
     if not config.get("ai_enabled_feedback", True):
         raise RuntimeError("AI 記録フィードバック機能は現在無効化されています。")
 
-    prompt = build_feedback_prompt(db, baby_id, baby_name, record_type, record_id)
+    prompt = build_feedback_prompt(db, baby_id, baby, record_type, record_id)
     client, model_name = get_llm_client(db)
 
     last_error: Exception = RuntimeError("no attempts made")

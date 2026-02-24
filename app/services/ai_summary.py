@@ -5,6 +5,8 @@ from typing import Tuple, Type
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from app.services.ai_settings import get_ai_config
+from app.models.baby import Baby
+from app.services.baby import get_baby_age_in_days
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -64,7 +66,7 @@ def _fetch_records_in_range(
 def build_daily_prompt(
     db: Session,
     baby_id: int,
-    baby_name: str,
+    baby: Baby,
     target_date: date,
 ) -> Tuple[str, int, str]:
     """プロンプト文字列、記録件数の合計、記録テキスト自体を返す。"""
@@ -101,7 +103,9 @@ def build_daily_prompt(
     total_records = len(feedings) + len(sleeps) + len(diapers) + len(notes) + len(growths)
 
     date_str = target_date.strftime("%Y年%m月%d日")
-    lines = [f"{baby_name}ちゃんの{date_str}の育児記録です。", ""]
+    age_days = get_baby_age_in_days(baby, target_date)
+    age_str = f"（生後{age_days}日）" if age_days is not None else ""
+    lines = [f"{baby.name}ちゃん{age_str}の{date_str}の育児記録です。", ""]
 
     if feedings:
         lines.append(f"【授乳】{len(feedings)}回")
@@ -247,7 +251,7 @@ def update_baby_characteristics(
 def generate_daily_summary(
     db: Session,
     baby_id: int,
-    baby_name: str,
+    baby: Baby,
     target_date: date,
 ) -> Tuple[str, str]:
     """(generated_content, model_name) を返す。
@@ -259,14 +263,12 @@ def generate_daily_summary(
     if not config.get("ai_enabled_summary", True):
         raise RuntimeError("AI 日誌生成機能は現在無効化されています。")
 
-    prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby_name, target_date)
+    prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby, target_date)
 
     if total_records == 0:
         raise ValueError("この日の育児記録がありません。")
 
     # 現在の特徴を取得してプロンプトに追加
-    from app.models.baby import Baby
-    baby = db.query(Baby).filter(Baby.id == baby_id).first()
     current_characteristics = baby.characteristics if baby else None
 
     if current_characteristics:
@@ -316,7 +318,7 @@ def generate_daily_summary(
     update_baby_characteristics(
         db, 
         baby_id, 
-        baby_name, 
+        baby.name, 
         target_date, 
         current_characteristics, 
         records_text, 

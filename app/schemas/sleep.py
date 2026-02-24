@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
@@ -7,13 +7,13 @@ class SleepCreate(BaseModel):
     baby_id: int
     start_time: datetime
     end_time: Optional[datetime] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class SleepUpdate(BaseModel):
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class SleepResponse(SleepCreate):

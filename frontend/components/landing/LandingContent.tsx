@@ -38,6 +38,24 @@ const DETAILED_FEATURES = [
     { label: "プッシュ通知", icon: "🔔", color: "text-purple-500" }
 ]
 
+const TESTIMONIALS = [
+    {
+        name: "Y.S さん (3ヶ月のママ)",
+        comment: "授乳のタイミングを忘れがちでしたが、このアプリのおかげでリズムが掴めるようになりました。夫も積極的に記録してくれて助かっています！",
+        rating: 5,
+    },
+    {
+        name: "K.T さん (6ヶ月のパパ)",
+        comment: "仕事中に通知が来るのが楽しみです。「あ、今ミルク飲んだんだな」と分かるだけで安心できます。シンプルなデザインで使いやすいです。",
+        rating: 5,
+    },
+    {
+        name: "M.I さん (1歳のママ)",
+        comment: "夜泣きのパターンが可視化されて、寝かしつけの対策が立てやすくなりました。AIのアドバイスも意外と的確で参考になります。",
+        rating: 4,
+    },
+]
+
 const HOW_TO_STEPS = [
     {
         step: "01",
@@ -141,7 +159,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
             <main className="pt-16">
                 {/* Hero Section */}
-                <section className="relative px-4 py-20 lg:py-32 overflow-hidden">
+                <section className="relative px-4 py-12 lg:py-32 overflow-hidden">
                     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
@@ -149,7 +167,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                             transition={{ duration: 0.6 }}
                             className="text-center lg:text-left space-y-8"
                         >
-                            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
                                 「いつミルクあげた？」<br />
                                 その確認、もう不要です。<br />
                                 <span className="text-indigo-600">リアルタイム育児記録</span>で、<br className="hidden lg:block" />夫婦の連携をもっとスムーズに。
@@ -174,9 +192,11 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                                     <ArrowRight className="ml-2 h-5 w-5" />
                                                 </Button>
                                             </Link>
-                                            <p className="text-xs text-slate-500 font-medium">
-                                                クレジットカード登録不要・完全無料
-                                            </p>
+                                            <div className="text-xs font-bold mt-2 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-slate-500">
+                                                <span>✨ クレジットカード不要・完全無料</span>
+                                                <span className="hidden sm:inline text-slate-300">|</span>
+                                                <span className="text-indigo-600">1分で登録完了</span>
+                                            </div>
                                         </div>
                                         <Link href="/register?join=true">
                                             <Button variant="outline" className="w-full sm:w-auto h-14 px-8 text-lg font-bold rounded-2xl border-slate-200 hover:bg-slate-50 transition-all">
@@ -201,6 +221,41 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                     className="w-full h-full object-cover"
                                 />
                             </div>
+                            {/* Floating Notification 1: Real-time sharing */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 1.2, duration: 0.5 }}
+                                className="absolute -right-12 top-24 z-20 hidden md:flex items-center gap-3 bg-white/95 backdrop-blur-sm p-3 rounded-2xl shadow-xl border border-slate-100 pr-6"
+                            >
+                                <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+                                    <span className="text-xl">🍼</span>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-slate-800">パパが記録しました</p>
+                                    <p className="text-xs text-slate-500">ミルク 140ml</p>
+                                </div>
+                            </motion.div>
+
+                            {/* Floating Notification 2: AI Advice */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 1.8, duration: 0.5 }}
+                                className="absolute -left-12 bottom-32 z-20 hidden md:flex items-start gap-3 bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-slate-100 max-w-[260px]"
+                            >
+                                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                                    <MessageSquare className="h-5 w-5 text-indigo-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold text-slate-800">AIアドバイス</p>
+                                    <p className="text-xs text-slate-600 leading-relaxed">
+                                        そろそろお昼寝の時間かも？<br/>
+                                        部屋を暗くしてみましょう 💤
+                                    </p>
+                                </div>
+                            </motion.div>
+
                             <div className="absolute -top-10 -right-10 w-64 h-64 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
                             <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
                         </motion.div>
@@ -260,8 +315,45 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                     </div>
                 </section>
 
+                {/* Testimonials Section */}
+                <section className="px-4 py-24 bg-white">
+                    <div className="max-w-7xl mx-auto space-y-16">
+                        <div className="text-center space-y-4">
+                            <h2 className="text-3xl font-bold tracking-tight">利用者からの嬉しい声</h2>
+                            <p className="text-slate-500">たくさんのご家族が、Baby Appで育児を楽しんでいます。</p>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {TESTIMONIALS.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                >
+                                    <Card className="h-full rounded-2xl border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow">
+                                        <CardContent className="p-8 space-y-6">
+                                            <div className="flex gap-1 text-amber-400">
+                                                {[...Array(5)].map((_, j) => (
+                                                    <span key={j} className={j < item.rating ? "text-amber-400" : "text-slate-200"}>★</span>
+                                                ))}
+                                            </div>
+                                            <p className="text-slate-600 leading-relaxed text-sm italic">
+                                                &quot;{item.comment}&quot;
+                                            </p>
+                                            <div className="pt-4 border-t border-slate-50">
+                                                <p className="font-bold text-sm text-slate-800">{item.name}</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
                 {/* How to Section */}
-                <section id="howto" className="px-4 py-24 bg-white">
+                <section id="howto" className="px-4 py-24 bg-slate-50">
                     <div className="max-w-7xl mx-auto space-y-16">
                         <div className="text-center space-y-4">
                             <h2 className="text-3xl font-bold tracking-tight">3ステップで始められる</h2>
@@ -301,7 +393,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 </section>
 
                 {/* Trust Section */}
-                <section className="px-4 py-24 bg-slate-50">
+                <section className="px-4 py-24 bg-white">
                     <div className="max-w-3xl mx-auto text-center space-y-8">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-600 text-sm font-bold">
                             🔒 家族だけのプライベートな空間
@@ -327,7 +419,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 </section>
 
                 {/* FAQ Section */}
-                <section id="faq" className="px-4 py-24 bg-white">
+                <section id="faq" className="px-4 py-24 bg-slate-50">
                     <div className="max-w-3xl mx-auto space-y-12">
                         <div className="text-center space-y-4">
                             <h2 className="text-3xl font-bold tracking-tight">よくある質問</h2>
@@ -345,9 +437,9 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 <section className="px-4 py-24 bg-indigo-600 text-white">
                     <div className="max-w-7xl mx-auto text-center space-y-12">
                         <div className="space-y-4">
-                            <h2 className="text-4xl font-extrabold tracking-tight">さあ、今日から始めましょう</h2>
+                            <h2 className="text-4xl font-extrabold tracking-tight">もう、育児の記録で迷わない。</h2>
                             <p className="text-indigo-100 text-lg">
-                                育児をもっと楽しく、もっとスムーズに。
+                                今日から家族みんなでシェアして、余裕のある時間を。
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">

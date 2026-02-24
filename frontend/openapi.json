@@ -164,6 +164,7 @@
           "characteristics": {
             "anyOf": [
               {
+                "maxLength": 1000,
                 "type": "string"
               },
               {
@@ -201,6 +202,7 @@
             "title": "Gender"
           },
           "name": {
+            "maxLength": 100,
             "title": "Name",
             "type": "string"
           }
@@ -291,6 +293,7 @@
           "characteristics": {
             "anyOf": [
               {
+                "maxLength": 1000,
                 "type": "string"
               },
               {
@@ -341,6 +344,7 @@
             "type": "integer"
           },
           "name": {
+            "maxLength": 100,
             "title": "Name",
             "type": "string"
           }
@@ -371,6 +375,7 @@
           "characteristics": {
             "anyOf": [
               {
+                "maxLength": 1000,
                 "type": "string"
               },
               {
@@ -410,6 +415,7 @@
           "name": {
             "anyOf": [
               {
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -457,6 +463,7 @@
       "CommentCreate": {
         "properties": {
           "content": {
+            "maxLength": 2000,
             "title": "Content",
             "type": "string"
           }
@@ -481,6 +488,7 @@
             "title": "Ai Has Concern"
           },
           "content": {
+            "maxLength": 2000,
             "title": "Content",
             "type": "string"
           },
@@ -579,6 +587,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -652,6 +661,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -718,6 +728,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -900,6 +911,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -943,6 +955,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1013,6 +1026,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1255,6 +1269,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1372,6 +1387,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1516,6 +1532,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1575,6 +1592,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1647,6 +1665,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1730,6 +1749,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2257,6 +2277,7 @@
           "description": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2276,6 +2297,7 @@
             "type": "string"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           }
@@ -2302,6 +2324,7 @@
           "description": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2325,6 +2348,7 @@
             "type": "string"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           },
@@ -2365,6 +2389,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2416,6 +2441,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2471,6 +2497,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {

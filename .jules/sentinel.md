@@ -42,3 +42,23 @@
 **Vulnerability:** A Time-of-Check to Time-of-Use (TOCTOU) race condition existed in user registration. Concurrent requests with the same username (case-insensitive) could bypass the initial existence check and trigger an unhandled `IntegrityError` during insertion, causing a 500 Internal Server Error.
 **Learning:** Checking for existence before insertion is insufficient for uniqueness guarantees in concurrent environments. Database constraints are the final source of truth.
 **Prevention:** Always wrap database insertion logic in `try...except IntegrityError` blocks when unique constraints are involved. Convert database errors into user-friendly HTTP 400 responses.
+
+## 2026-03-04 - Missing Input Length Validation
+**Vulnerability:** Several Pydantic schemas (`FeedingCreate`, `SleepCreate`, etc.) lacked `max_length` constraints on free-text fields like `notes`. This could allow attackers to send excessively long strings, potentially causing Denial of Service (DoS) or storage exhaustion.
+**Learning:** Pydantic's default `str` type does not enforce length limits. Explicit validation is necessary for all user-supplied text to prevent abuse.
+**Prevention:** Added `Field(..., max_length=2000)` to all free-text fields in schemas. Always define reasonable upper bounds for string inputs.
+
+## 2026-03-05 - Insecure File Upload (MIME Type Spoofing)
+**Vulnerability:** The file upload endpoint trusted user-provided Content-Type headers and file extensions. Attackers could upload malicious scripts (e.g., PHP, HTML) with image extensions or MIME types, leading to Stored XSS or RCE.
+**Learning:** Never trust client-side input for file types. "Magic bytes" (file signatures) are the only reliable way to determine file content on the server.
+**Prevention:** Implemented strict server-side validation using magic bytes to detect the true MIME type and enforce the correct file extension and Content-Type when saving to storage.
+
+## 2026-02-23 - 自由記述フィールドにおける入力長制限の欠如
+**脆弱性:** `Baby` スキーマ（名前、特徴）および `Comment` スキーマ（本文）において、Pydanticの入力長制限（`max_length`）が設定されておらず、DoS攻撃（巨大なペイロードによるメモリ/ストレージ枯渇）のリスクがあった。
+**学び:** Pydanticの `str` 型はデフォルトで長さ制限を持たないため、データベースのカラム型（例: `String`）がPostgreSQLのTEXTとして扱われる場合、事実上無制限にデータを受け入れてしまう。
+**予防:** 文字列フィールドには常に `pydantic.Field(..., max_length=N)` を使用して明示的な上限を設定する。また、`openapi.json` に `maxLength` が反映されることを確認し、フロントエンドとバックエンドの両方で契約を守らせる。
+
+## 2026-02-23 - BabyUpdateにおけるNull許容とIntegrityError
+**脆弱性:** `BabyUpdate` スキーマで `name` が `Optional[str]`（デフォルト `None`）となっていたため、明示的に `{"name": null}` を送信すると、DBの `NOT NULL` 制約により `IntegrityError` (500 Internal Server Error) が発生していた。
+**学び:** Pydanticの `Optional` フィールドは `None` を値として受け入れる。更新用スキーマで「省略可能だがNull不可」を実現するには、型定義だけでは不十分であり、`field_validator` で明示的に `None` を拒否する必要がある。
+**予防:** 更新用スキーマで非Nullカラムに対応するフィールドには、`@field_validator('field_name')` を使用して `v is None` のチェックを追加する。

@@ -1,12 +1,12 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
 
 class ScheduleCreate(BaseModel):
     baby_id: int
-    title: str
-    description: Optional[str] = None
+    title: str = Field(..., max_length=100)
+    description: Optional[str] = Field(None, max_length=2000)
     scheduled_time: datetime
     is_completed: bool = False
 

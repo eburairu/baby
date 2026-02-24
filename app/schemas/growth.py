@@ -1,5 +1,5 @@
 import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
 
@@ -9,7 +9,7 @@ class GrowthCreate(BaseModel):
     weight: Optional[int] = None  # in grams
     height: Optional[float] = None  # in cm
     head_circumference: Optional[float] = None  # in cm
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class GrowthUpdate(BaseModel):
@@ -17,7 +17,7 @@ class GrowthUpdate(BaseModel):
     weight: Optional[int] = None
     height: Optional[float] = None
     head_circumference: Optional[float] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class GrowthResponse(GrowthCreate):
