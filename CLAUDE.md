@@ -71,6 +71,18 @@ npm run schema:generate
 git add frontend/openapi.json
 ```
 
+### TDD を必ず実践する（テストを先に書く）
+
+機能実装・バグ修正の際は以下の順序を守る:
+
+1. 仕様書（`.specify/specs/`）から受け入れ条件（AC）を抽出
+2. テストを先に書く（実行して Red であることを確認）
+3. 最小実装でテストを Green にする
+4. リファクタリング
+5. `sh scripts/verify_all.sh` で全チェック
+
+詳細手順: `.specify/specs/development/tdd_workflow.md`
+
 ### コミット禁止ファイル
 
 絶対にコミットしないもの:

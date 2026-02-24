@@ -190,7 +190,25 @@ develop の最新 15 コミットを確認し、同一・類似機能が既に�
 **STEP 2: 仕様確認（SDD 優先）**
 `.specify/specs/` 配下の関連仕様書を必ず読んでから実装を始める。
 
+**STEP 2.5: テスト設計・作成（TDD Red フェーズ）**
+
+参照: `.specify/specs/development/tdd_workflow.md`
+
+1. 仕様書の受け入れ条件（AC）を箇条書きで列挙する
+2. 各 AC に対応するテストケースを設計する
+3. テストコードを先に書く
+   - バックエンド: `tests/test_<feature>.py`
+   - フロントエンド: `frontend/__tests__/<feature>.test.ts`
+4. テストを実行して Red（失敗）であることを確認する
+   ```bash
+   npm run test:backend   # または
+   npm run test:frontend
+   ```
+5. Red 確認後、STEP 3（実装）に進む
+
 **STEP 3: 実装**
+実装は「テストを Green にする最小実装」を目指す。Green 確認後、必要に応じてリファクタリングを行う（テストは引き続き Green を維持すること）。
+
 長時間の作業では定期的に develop を取り込む:
 ```bash
 git fetch origin develop && git merge origin/develop
