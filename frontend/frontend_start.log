@@ -3,7 +3,7 @@
 > next dev
 
 ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /app/package-lock.json as the root directory.
+ We detected multiple lockfiles and selected the directory of /app/pnpm-lock.yaml as the root directory.
  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
  Detected additional lockfiles:
@@ -24,22 +24,25 @@ https://nextjs.org/telemetry
 
 ✓ Ready in 6.3s
 ○ Compiling /dashboard ...
- GET /dashboard 200 in 16.0s (compile: 14.3s, render: 1629ms)
+ GET /dashboard?baby_id=1 200 in 16.6s (compile: 15.0s, render: 1613ms)
 ○ Compiling /_not-found/page ...
- GET /api/version 404 in 5.8s (compile: 5.5s, render: 298ms)
- GET /api/babies 404 in 5.6s (compile: 5.5s, render: 124ms)
- GET /api/notifications/unread-count 404 in 142ms (compile: 14ms, render: 128ms)
- GET /api/notifications 404 in 142ms (compile: 40ms, render: 102ms)
- GET /dashboard 200 in 136ms (compile: 13ms, render: 123ms)
- GET /api/babies 404 in 128ms (compile: 14ms, render: 114ms)
- GET /dashboard 200 in 82ms (compile: 8ms, render: 74ms)
- GET /api/babies 404 in 90ms (compile: 11ms, render: 79ms)
- GET /dashboard 200 in 184ms (compile: 18ms, render: 165ms)
- GET /api/babies 404 in 240ms (compile: 30ms, render: 210ms)
- GET /dashboard 200 in 84ms (compile: 7ms, render: 77ms)
- GET /api/babies 404 in 113ms (compile: 10ms, render: 103ms)
- GET /dashboard 200 in 86ms (compile: 6ms, render: 80ms)
- POST /api/babies/1/record-feedback 404 in 91ms (compile: 8ms, render: 83ms)
- GET /dashboard 200 in 84ms (compile: 7ms, render: 77ms)
- ELIFECYCLE  Command failed.
-[?25h
+ GET /api/version 404 in 5.0s (compile: 4.5s, render: 470ms)
+ GET /api/babies 404 in 5.0s (compile: 4.8s, render: 186ms)
+ GET /api/notifications 404 in 220ms (compile: 68ms, render: 152ms)
+ GET /api/notifications/unread-count 404 in 241ms (compile: 43ms, render: 198ms)
+ GET /api/notifications 404 in 83ms (compile: 10ms, render: 74ms)
+ GET /api/notifications/unread-count 404 in 120ms (compile: 12ms, render: 109ms)
+ GET /api/version 404 in 69ms (compile: 10ms, render: 60ms)
+ GET /dashboard?baby_id=1 200 in 101ms (compile: 12ms, render: 89ms)
+ GET /api/babies 404 in 87ms (compile: 10ms, render: 77ms)
+ GET /api/notifications/unread-count 404 in 78ms (compile: 17ms, render: 61ms)
+ GET /api/notifications/unread-count 404 in 71ms (compile: 8ms, render: 63ms)
+ GET /dashboard?baby_id=1 200 in 76ms (compile: 7ms, render: 70ms)
+ GET /api/babies 404 in 99ms (compile: 11ms, render: 88ms)
+ GET /api/notifications/unread-count 404 in 74ms (compile: 10ms, render: 65ms)
+ GET /api/notifications/unread-count 404 in 66ms (compile: 7ms, render: 58ms)
+ GET /dashboard?baby_id=1 200 in 74ms (compile: 6ms, render: 68ms)
+ GET /dashboard?baby_id=1 200 in 73ms (compile: 6ms, render: 67ms)
+ POST /api/babies/1/record-feedback 404 in 63ms (compile: 8ms, render: 56ms)
+ GET /dashboard?baby_id=1 200 in 101ms (compile: 8ms, render: 94ms)
+ POST /api/babies/1/record-feedback 404 in 68ms (compile: 10ms, render: 58ms)
