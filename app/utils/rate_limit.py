@@ -26,16 +26,27 @@ class RateLimiter:
         """
         now = time.time()
 
-        # Prevent memory exhaustion by clearing if too large
-        if len(self.requests) > self.max_size:
-            self.requests.clear()
+        # Clean up old requests for this key first
+        if key in self.requests:
+            self.requests[key] = [
+                req_time for req_time in self.requests[key]
+                if now - req_time < self.time_window
+            ]
+            # If the key becomes empty, remove it
+            if not self.requests[key]:
+                del self.requests[key]
 
-        # Clean up old requests for this key
-        self.requests[key] = [
-            req_time for req_time in self.requests[key]
-            if now - req_time < self.time_window
-        ]
+        # If this is a new key (or was deleted above), check max_size before adding
+        if key not in self.requests and len(self.requests) >= self.max_size:
+            # Instead of clearing everything (DoS vulnerability), remove the oldest entry
+            try:
+                oldest_key = next(iter(self.requests))
+                del self.requests[oldest_key]
+            except StopIteration:
+                pass  # Should not happen if len >= max_size > 0
 
+        # Check request limit
+        # Accessing self.requests[key] creates the list if it doesn't exist (defaultdict)
         if len(self.requests[key]) >= self.requests_limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
