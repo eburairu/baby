@@ -1,23 +1,24 @@
 "use client"
+import { RECORD_TYPES } from '@/types/enums';
+
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { api } from "@/lib/api"
-import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
+import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
 
-    const { todayCount, elapsed } = useMemo(() => {
-        const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
-        return {
-            todayCount: feedingRecords.filter((f) => isToday(f.timestamp)).length,
-            elapsed: feedingRecords[0] ? formatElapsed(feedingRecords[0].timestamp) : null,
-        }
+    const { todayCount, lastElapsed } = useMemo(() => {
+        const feedingRecords = records
+            ?.map(normalizeFeedingFromRecord)
+            .filter((f): f is NormalizedFeeding => f !== null) ?? []
+        return calculateFeedingStats(feedingRecords)
     }, [records])
 
     const handleQuickRecord = async (feedingType: string) => {
@@ -31,7 +32,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             })
         }, {
             label: typeLabel,
-            feedbackType: "feeding"
+            feedbackType: RECORD_TYPES.FEEDING
         })
     }
 
@@ -46,7 +47,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             <WidgetContent
                 isLoading={isLoading}
                 loadingColorClass="text-rose-400"
-                elapsed={elapsed}
+                elapsed={lastElapsed}
                 subContent={`今日: ${todayCount}回`}
             />
             {canWrite ? (

@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import useSWR from "swr"
 import { fetcher, api, ApiError } from "@/lib/api"
+import { SWR_REFRESH_INTERVAL_MS } from "@/constants"
 
 export type AppNotification = {
     id: number
@@ -18,7 +19,7 @@ export function useUnreadCount() {
     const { data, mutate } = useSWR<{ count: number }>(
         "/notifications/unread-count",
         fetcher,
-        { refreshInterval: 30000 }
+        { refreshInterval: SWR_REFRESH_INTERVAL_MS }
     )
 
     // Service Worker からの BroadcastChannel メッセージを受信して未読数を更新

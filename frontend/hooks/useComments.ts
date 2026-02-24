@@ -1,3 +1,4 @@
+import { USER_ROLES } from '@/types/enums';
 import useSWR from "swr";
 import { fetcher, api } from "@/lib/api";
 
@@ -5,7 +6,7 @@ export type CommentResponse = {
   id: number;
   user_id: number | null;
   user_display_name: string | null;
-  user_role: "admin" | "member" | "viewer" | "ai" | "unknown";
+  user_role: typeof USER_ROLES.ADMIN | typeof USER_ROLES.MEMBER | typeof USER_ROLES.VIEWER | "ai" | "unknown";
   content: string;
   created_at: string;
   is_ai_generated: boolean;

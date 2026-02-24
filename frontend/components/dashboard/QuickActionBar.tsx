@@ -1,4 +1,6 @@
 "use client"
+import { RECORD_TYPES } from '@/types/enums';
+
 import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
@@ -37,7 +39,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     feeding_type: type === "feeding_bottle" ? "BOTTLE" : "BREAST",
                     feeding_time: new Date().toISOString(),
                 })
-                triggerFeedback("feeding", record.id)
+                triggerFeedback(RECORD_TYPES.FEEDING, record.id)
             } else if (type === "sleep") {
                 if (activeSleep) {
                     await api.patch(`/sleeps/${activeSleep.id}`, {

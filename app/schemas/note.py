@@ -1,16 +1,17 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional
+from app.core.constants import NOTE_MAX_LENGTH
 
 class NoteBase(BaseModel):
-    content: str = Field(..., min_length=1, max_length=2000)
+    content: str = Field(..., min_length=1, max_length=NOTE_MAX_LENGTH)
     note_time: datetime
 
 class NoteCreate(NoteBase):
     pass
 
 class NoteUpdate(BaseModel):
-    content: Optional[str] = Field(None, min_length=1, max_length=2000)
+    content: Optional[str] = Field(None, min_length=1, max_length=NOTE_MAX_LENGTH)
     note_time: Optional[datetime] = None
 
 class NoteResponse(NoteBase):

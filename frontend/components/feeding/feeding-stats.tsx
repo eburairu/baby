@@ -1,12 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { FeedingSummary } from "@/types/feeding";
+import { FeedingStatsResult } from "@/lib/feedingUtils";
 import { Clock, Baby } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { StatsBlock } from "@/components/ui/stats-block";
 
 interface FeedingStatsProps {
-    summary: FeedingSummary;
+    summary: FeedingStatsResult;
 }
 
 const BREAST_SIDE_LABEL: Record<string, string> = {
@@ -22,14 +22,14 @@ const NEXT_SIDE_GUIDE: Record<string, string> = {
 };
 
 export function FeedingStats({ summary }: FeedingStatsProps) {
-    const timeSinceLast = summary.last_feeding_time
-        ? formatDistanceToNow(new Date(summary.last_feeding_time), {
+    const timeSinceLast = summary.lastFeedingTime
+        ? formatDistanceToNow(new Date(summary.lastFeedingTime), {
             addSuffix: true,
             locale: ja,
         })
         : "記録なし";
 
-    const hasLeftRight = summary.today_left_duration > 0 || summary.today_right_duration > 0;
+    const hasLeftRight = summary.todayLeftDuration > 0 || summary.todayRightDuration > 0;
 
     return (
         <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 mb-6 transition-colors">
@@ -39,20 +39,20 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
                     <StatsBlock
                         icon={Baby}
                         label="今日"
-                        value={`${summary.today_count}回`}
+                        value={`${summary.todayCount}回`}
                         color="rose"
                     >
                         <div className="text-[10px] text-gray-500 dark:text-zinc-500 space-y-0.5 mt-0.5">
-                            {summary.today_duration > 0 && (
-                                <p>母乳 {summary.today_duration}分</p>
+                            {summary.todayDuration > 0 && (
+                                <p>母乳 {summary.todayDuration}分</p>
                             )}
                             {hasLeftRight && (
                                 <p className="text-rose-500 dark:text-rose-400">
-                                    └ 左{summary.today_left_duration}分 / 右{summary.today_right_duration}分
+                                    └ 左{summary.todayLeftDuration}分 / 右{summary.todayRightDuration}分
                                 </p>
                             )}
-                            {summary.today_amount > 0 && (
-                                <p>ミルク {summary.today_amount}ml</p>
+                            {summary.todayAmount > 0 && (
+                                <p>ミルク {summary.todayAmount}ml</p>
                             )}
                         </div>
                     </StatsBlock>
@@ -66,16 +66,16 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
                     >
                         <div className="text-[10px] text-gray-500 dark:text-zinc-500 space-y-0.5 mt-0.5">
                             <p>
-                                {summary.last_feeding_type === "BREAST" ? "母乳" : null}
-                                {summary.last_feeding_type === "BOTTLE" ? "ミルク" : null}
-                                {summary.last_feeding_type === "MIXED" ? "混合" : null}
-                                {summary.last_breast_side && summary.last_feeding_type !== "BOTTLE" ? (
-                                    <span className="ml-1">({BREAST_SIDE_LABEL[summary.last_breast_side]}から)</span>
+                                {summary.lastFeedingType === "BREAST" ? "母乳" : null}
+                                {summary.lastFeedingType === "BOTTLE" ? "ミルク" : null}
+                                {summary.lastFeedingType === "MIXED" ? "混合" : null}
+                                {summary.lastBreastSide && summary.lastFeedingType !== "BOTTLE" ? (
+                                    <span className="ml-1">({BREAST_SIDE_LABEL[summary.lastBreastSide]}から)</span>
                                 ) : null}
                             </p>
-                            {summary.last_breast_side && summary.last_breast_side !== "BOTH" && (
+                            {summary.lastBreastSide && summary.lastBreastSide !== "BOTH" && (
                                 <p className="text-rose-500 dark:text-rose-400 font-medium">
-                                    💡 {NEXT_SIDE_GUIDE[summary.last_breast_side]}
+                                    💡 {NEXT_SIDE_GUIDE[summary.lastBreastSide]}
                                 </p>
                             )}
                         </div>

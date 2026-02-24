@@ -1,7 +1,8 @@
 import imageCompression from "browser-image-compression"
+import { MAX_IMAGE_DIMENSION } from "@/constants"
 
 const MAX_SIZE_MB = 0.8
-const MAX_DIMENSION = 1200
+const MAX_DIMENSION = MAX_IMAGE_DIMENSION
 const MAX_UPLOAD_SIZE_MB = 5
 
 export class ImageTooLargeError extends Error {

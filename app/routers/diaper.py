@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
+from app.core.constants import MAX_PAGINATION_LIMIT
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -26,7 +27,7 @@ def _build_diaper_response(record: Diaper, user_map: dict, comment_count_map: di
 def get_diapers(
     baby_id: int,
     skip: int = 0,
-    limit: int = 100,
+    limit: int = MAX_PAGINATION_LIMIT,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
