@@ -262,6 +262,47 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                     </div>
                 </section>
 
+                {/* Article Section (SEO & AdSense Optimization) */}
+                <section className="px-4 py-24 bg-slate-50 border-t border-slate-100">
+                    <div className="max-w-4xl mx-auto space-y-12">
+                        <div className="space-y-6 text-center">
+                            <h2 className="text-3xl font-bold tracking-tight text-slate-800">
+                                育児の負担を軽減する、新しい記録のカタチ
+                            </h2>
+                            <p className="text-slate-600 leading-relaxed text-lg text-left">
+                                はじめての育児は不安や疑問の連続です。「最後の授乳から何時間経った？」「今日はおむつを何回替えた？」「最近、夜泣きが増えている気がする…」そんな日々の小さな疑問を解決するのが、Baby Appのような育児記録アプリの役割です。
+                                アプリを使って記録を可視化することで、赤ちゃんの生活リズムがはっきりと見えてきます。
+                            </p>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                                <h3 className="text-xl font-bold text-slate-800 mb-4">家族で育児を「シェア」するメリット</h3>
+                                <p className="text-slate-600 leading-relaxed">
+                                    これまで、育児の記録は母親のノートや記憶に頼ることが多く、どうしても一人に負担が集中しがちでした。Baby Appを使えば、スマホ一つで簡単に記録ができ、そのデータはリアルタイムでパートナーや家族に共有されます。
+                                    パパが仕事の休憩中に赤ちゃんの様子を確認したり、離れて暮らす祖父母が成長を見守ったりと、家族全員が育児の「当事者」として参加できる環境が生まれます。
+                                    これにより、夫婦間のコミュニケーションが円滑になり、育児の孤立感を防ぐことにもつながります。
+                                </p>
+                            </div>
+                            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                                <h3 className="text-xl font-bold text-slate-800 mb-4">AIが導き出す、最適な育児リズム</h3>
+                                <p className="text-slate-600 leading-relaxed">
+                                    単に記録を残すだけでなく、蓄積されたデータを活用できるのがデジタルの強みです。Baby Appでは、最新のAI技術を用いて、毎日の睡眠時間や授乳間隔から赤ちゃんの生活パターンを分析します。
+                                    「そろそろお昼寝の時間かも」「ミルクの間隔が安定してきましたね」といった具体的なアドバイスをAIが提供することで、親は次に何をすべきかを予測しやすくなります。
+                                    予測可能な育児は、心と時間のゆとりを生み出し、より笑顔で赤ちゃんに接することができるようになります。
+                                </p>
+                            </div>
+                        </div>
+                        <div className="bg-indigo-50 p-8 rounded-3xl border border-indigo-100">
+                            <h3 className="text-xl font-bold text-indigo-900 mb-4">ずっと残る、かけがえのない思い出として</h3>
+                            <p className="text-indigo-800 leading-relaxed">
+                                日々の授乳やおむつ替えの記録は、時間が経てばいつか終わるものです。しかし、アプリに残された一つひとつの記録や家族からの応援コメントは、赤ちゃんの成長の軌跡そのものです。
+                                Baby Appは、単なる実用的なツールであると同時に、家族のかけがえのない思い出を記録するデジタルな母子手帳としての役割も果たします。
+                                セキュリティに配慮されたプライベートな空間で、安心してお子様の成長記録を残していくことができます。
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Features Section */}
                 <section id="features" className="px-4 py-24 bg-white">
                     <div className="max-w-7xl mx-auto space-y-16">
@@ -484,6 +525,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                                     <Link href="/about" className="block text-slate-500 hover:text-indigo-600 transition-colors">運営者情報</Link>
                                     <Link href="/privacy" className="block text-slate-500 hover:text-indigo-600 transition-colors">プライバシーポリシー</Link>
                                     <Link href="/terms" className="block text-slate-500 hover:text-indigo-600 transition-colors">利用規約</Link>
+                                    <Link href="/contact" className="block text-slate-500 hover:text-indigo-600 transition-colors">お問い合わせ</Link>
                                 </div>
                             </div>
                         </div>
