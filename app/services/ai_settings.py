@@ -3,6 +3,7 @@ from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from google import genai
 from app.models.system_settings import SystemSetting
+from app.core.constants import AI_MAX_TOKENS
 
 
 def get_ai_config(db: Session) -> Dict[str, Any]:
@@ -18,13 +19,13 @@ def get_ai_config(db: Session) -> Dict[str, Any]:
         try:
             config["llm_temperature"] = float(config["llm_temperature"])
         except (ValueError, TypeError):
-            config["llm_temperature"] = 0.7
+            config["llm_temperature"] = AI_TEMPERATURE
     
     if "llm_max_tokens" in config:
         try:
             config["llm_max_tokens"] = int(config["llm_max_tokens"])
         except (ValueError, TypeError):
-            config["llm_max_tokens"] = 800
+            config["llm_max_tokens"] = AI_MAX_TOKENS
 
     # 機能フラグの Boolean 変換
     for key in ["ai_enabled_chat", "ai_enabled_summary", "ai_enabled_feedback"]:

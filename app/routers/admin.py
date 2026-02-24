@@ -5,6 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 import logging
+from app.core.constants import MAX_PAGINATION_LIMIT
 
 from app.database import SessionLocal
 from app.dependencies import get_db, get_current_superadmin
@@ -76,7 +77,7 @@ def get_admin_families(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
     skip: int = 0,
-    limit: int = 100
+    limit: int = MAX_PAGINATION_LIMIT
 ):
     families = db.query(Family).offset(skip).limit(limit).all()
     result = []
@@ -95,7 +96,7 @@ def get_admin_users(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
     skip: int = 0,
-    limit: int = 100
+    limit: int = MAX_PAGINATION_LIMIT
 ):
     # UserResponse スキーマが is_superadmin を持っているのでそれを利用
     users = db.query(User).offset(skip).limit(limit).all()

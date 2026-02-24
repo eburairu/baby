@@ -1,4 +1,6 @@
 "use client"
+import { RECORD_TYPES } from '@/types/enums';
+
 
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -53,7 +55,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
       const body: Record<string, string | null> = { notes }
 
       switch (record.type) {
-        case "feeding":
+        case RECORD_TYPES.FEEDING:
           endpoint = `/feedings/${record.id}`
           body.feeding_time = isoTimestamp
           await api.patch(endpoint, body)
@@ -102,7 +104,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     try {
       let endpoint = ""
       switch (record.type) {
-        case "feeding": endpoint = `/feedings/${record.id}`; break
+        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
         case "sleep": endpoint = `/sleeps/${record.id}`; break
         case "diaper": endpoint = `/diapers/${record.id}`; break
         case "growth": endpoint = `/growths/${record.id}`; break

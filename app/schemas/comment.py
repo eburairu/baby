@@ -1,10 +1,11 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Optional
+from app.core.constants import NOTE_MAX_LENGTH
 
 
 class CommentBase(BaseModel):
-    content: str = Field(..., max_length=2000)
+    content: str = Field(..., max_length=NOTE_MAX_LENGTH)
 
 
 class CommentCreate(CommentBase):

@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { USER_ROLES } from '@/types/enums';
+;
 
 import { useState } from "react";
 import { useComments } from "@/hooks/useComments";
@@ -113,7 +115,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
               key={comment.id}
               className={cn(
                 "p-3 rounded-lg text-sm relative group transition-colors",
-                comment.user_role === "viewer"
+                comment.user_role === USER_ROLES.VIEWER
                   ? "bg-orange-50 border border-orange-100 dark:bg-orange-950/20 dark:border-orange-900"
                   : "bg-gray-50 border border-gray-100 dark:bg-gray-800 dark:border-gray-700"
               )}
@@ -123,12 +125,12 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
                   <span className="font-semibold text-gray-800 dark:text-gray-200">
                     {comment.user_display_name}
                   </span>
-                  {comment.user_role === "viewer" && (
+                  {comment.user_role === USER_ROLES.VIEWER && (
                     <Badge className="bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200 border-none text-[10px] h-4 px-1">
                       応援
                     </Badge>
                   )}
-                  {comment.user_role === "admin" && (
+                  {comment.user_role === USER_ROLES.ADMIN && (
                     <Badge variant="outline" className="text-[10px] h-4 px-1">
                       管理者
                     </Badge>

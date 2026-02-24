@@ -1,4 +1,6 @@
 "use client"
+import { RECORD_TYPES } from '@/types/enums';
+
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button";
@@ -223,7 +225,7 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
                 <RecordCommentDialog
                     open={commentTarget !== null}
                     onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="feeding"
+                    recordType={RECORD_TYPES.FEEDING}
                     recordId={commentTarget.id}
                     title={commentTarget.title}
                     currentUserId={user?.id}
