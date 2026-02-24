@@ -17,8 +17,16 @@
   · optimizePackageImports
 
 ✓ Starting...
-✓ Ready in 5.8s
-○ Compiling / ...
- GET / 200 in 11.5s (compile: 10.3s, render: 1193ms)
+✓ Ready in 5.9s
+○ Compiling /dashboard ...
+ GET /dashboard 200 in 14.5s (compile: 13.0s, render: 1472ms)
 ○ Compiling /_not-found/page ...
- GET /api/auth/me 404 in 4.0s (compile: 3.7s, render: 300ms)
+ GET /api/version 404 in 5.2s (compile: 4.9s, render: 273ms)
+ GET /api/notifications 404 in 4.5s (compile: 4.3s, render: 211ms)
+ GET /api/notifications/unread-count 404 in 4.5s (compile: 4.3s, render: 177ms)
+ GET /diaper?baby_id=1 200 in 2.9s (compile: 2.7s, render: 258ms)
+ GET /api/version 404 in 110ms (compile: 11ms, render: 98ms)
+ GET /api/notifications/unread-count 404 in 158ms (compile: 13ms, render: 145ms)
+ GET /api/notifications 404 in 159ms (compile: 76ms, render: 83ms)
+ ELIFECYCLE  Command failed.
+[?25h
