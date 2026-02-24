@@ -48,7 +48,7 @@ export function WidgetQuickButton({
                 variant={variant}
                 size={size}
                 className={cn(
-                    "border-0 text-xs h-8 transition-colors",
+                    "border-0 text-xs h-8 transition-colors relative",
                     colorClass,
                     className
                 )}
@@ -58,7 +58,12 @@ export function WidgetQuickButton({
                 disabled={true}
                 loading={false}
             >
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="opacity-0 flex items-center justify-center gap-2 w-full h-full pointer-events-none select-none">
+                    {children}
+                </span>
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
             </Button>
         )
     }
