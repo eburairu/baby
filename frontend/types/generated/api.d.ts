@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/families/{family_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Family Detail */
+        get: operations["get_admin_family_detail_api_admin_families__family_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/stats": {
         parameters: {
             query?: never;
@@ -1005,6 +1022,22 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** AdminFamilyMemberResponse */
+        AdminFamilyMemberResponse: {
+            /** Display Name */
+            display_name?: string | null;
+            /**
+             * Joined At
+             * Format: date-time
+             */
+            joined_at: string;
+            /** Role */
+            role: string;
+            /** User Id */
+            user_id: number;
+            /** Username */
+            username: string;
+        };
         /** AdminStats */
         AdminStats: {
             /** Active Users Last 24H */
@@ -1034,6 +1067,22 @@ export interface components {
             type: components["schemas"]["NotificationType"];
             /** Url */
             url?: string | null;
+        };
+        /** BabyAdminResponse */
+        BabyAdminResponse: {
+            /** Birthday */
+            birthday?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Gender */
+            gender?: string | null;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
         };
         /** BabyCreate */
         BabyCreate: {
@@ -1342,6 +1391,24 @@ export interface components {
             password: string;
             /** Username */
             username: string;
+        };
+        /** FamilyDetailResponse */
+        FamilyDetailResponse: {
+            /** Babies */
+            babies: components["schemas"]["BabyAdminResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Member Count */
+            member_count: number;
+            /** Members */
+            members: components["schemas"]["AdminFamilyMemberResponse"][];
+            /** Name */
+            name: string;
         };
         /** FamilyMemberResponse */
         FamilyMemberResponse: {
@@ -1938,6 +2005,7 @@ export interface operations {
             query?: {
                 skip?: number;
                 limit?: number;
+                search?: string | null;
             };
             header?: never;
             path?: never;
@@ -1952,6 +2020,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FamilyAdminResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_family_detail_api_admin_families__family_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                family_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyDetailResponse"];
                 };
             };
             /** @description Validation Error */

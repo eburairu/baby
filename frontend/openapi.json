@@ -64,6 +64,46 @@
         "title": "AISettingsSummary",
         "type": "object"
       },
+      "AdminFamilyMemberResponse": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "role",
+          "joined_at"
+        ],
+        "title": "AdminFamilyMemberResponse",
+        "type": "object"
+      },
       "AdminStats": {
         "properties": {
           "active_users_last_24h": {
@@ -1168,7 +1208,7 @@
           },
           "members": {
             "items": {
-              "$ref": "#/components/schemas/app__routers__admin__FamilyMemberResponse"
+              "$ref": "#/components/schemas/AdminFamilyMemberResponse"
             },
             "title": "Members",
             "type": "array"
@@ -1187,6 +1227,45 @@
           "babies"
         ],
         "title": "FamilyDetailResponse",
+        "type": "object"
+      },
+      "FamilyMemberResponse": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "role",
+          "joined_at"
+        ],
+        "title": "FamilyMemberResponse",
         "type": "object"
       },
       "FamilyResponse": {
@@ -2900,85 +2979,6 @@
           "version"
         ],
         "title": "VersionResponse",
-        "type": "object"
-      },
-      "app__routers__admin__FamilyMemberResponse": {
-        "properties": {
-          "display_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Display Name"
-          },
-          "joined_at": {
-            "format": "date-time",
-            "title": "Joined At",
-            "type": "string"
-          },
-          "role": {
-            "title": "Role",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "integer"
-          },
-          "username": {
-            "title": "Username",
-            "type": "string"
-          }
-        },
-        "required": [
-          "user_id",
-          "username",
-          "role",
-          "joined_at"
-        ],
-        "title": "FamilyMemberResponse",
-        "type": "object"
-      },
-      "app__schemas__family__FamilyMemberResponse": {
-        "properties": {
-          "display_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Display Name"
-          },
-          "joined_at": {
-            "format": "date-time",
-            "title": "Joined At",
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "integer"
-          },
-          "username": {
-            "title": "Username",
-            "type": "string"
-          }
-        },
-        "required": [
-          "user_id",
-          "username",
-          "role",
-          "joined_at"
-        ],
-        "title": "FamilyMemberResponse",
         "type": "object"
       }
     }
@@ -4824,7 +4824,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/app__schemas__family__FamilyMemberResponse"
+                    "$ref": "#/components/schemas/FamilyMemberResponse"
                   },
                   "title": "Response Get Family Members Api Family Members Get",
                   "type": "array"
@@ -4946,7 +4946,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/app__schemas__family__FamilyMemberResponse"
+                  "$ref": "#/components/schemas/FamilyMemberResponse"
                 }
               }
             },
