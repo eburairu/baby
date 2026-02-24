@@ -47,13 +47,14 @@ class RateLimiter:
 
         # Check request limit
         # Accessing self.requests[key] creates the list if it doesn't exist (defaultdict)
-        if len(self.requests[key]) >= self.requests_limit:
+        current_requests = self.requests[key]
+        if len(current_requests) >= self.requests_limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail=self.error_message,
             )
 
-        self.requests[key].append(now)
+        current_requests.append(now)
 
     async def __call__(self, request: Request):
         # Rely on request.client.host, which is populated by uvicorn (with --proxy-headers)
