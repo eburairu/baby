@@ -37,7 +37,7 @@ class FamilyAdminResponse(BaseModel):
     member_count: int
     created_at: datetime
 
-class FamilyMemberResponse(BaseModel):
+class AdminFamilyMemberResponse(BaseModel):
     user_id: int
     username: str
     display_name: Optional[str] = None
@@ -56,7 +56,7 @@ class FamilyDetailResponse(BaseModel):
     name: str
     member_count: int
     created_at: datetime
-    members: List[FamilyMemberResponse]
+    members: List[AdminFamilyMemberResponse]
     babies: List[BabyAdminResponse]
 
 class UserAdminResponse(UserResponse):
@@ -137,7 +137,7 @@ def get_admin_family_detail(
         .all()
     )
     members = [
-        FamilyMemberResponse(
+        AdminFamilyMemberResponse(
             user_id=fu.user.id,
             username=fu.user.username,
             display_name=fu.user.display_name,
