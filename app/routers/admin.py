@@ -4,6 +4,7 @@ from sqlalchemy import func
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
+import logging
 
 from app.database import SessionLocal
 from app.dependencies import get_db, get_current_superadmin
@@ -19,6 +20,8 @@ from app.models.note import Note
 from app.schemas.user import UserResponse, SuperAdminToggleRequest
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+logger = logging.getLogger(__name__)
 
 class AdminStats(BaseModel):
     total_users: int
@@ -116,4 +119,5 @@ def toggle_superadmin(
     user.is_superadmin = request.is_superadmin
     db.commit()
     db.refresh(user)
+    logger.info("SuperAdmin status updated: target_user_id=%s, new_status=%s, by admin_id=%s", user.id, request.is_superadmin, admin.id)
     return user
