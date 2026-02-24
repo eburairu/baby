@@ -4,8 +4,8 @@ import { ArrowLeft, Mail, MessageCircle, AlertCircle, ExternalLink } from "lucid
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "お問い合わせ - Baby App",
-    description: "Baby Appに関するお問い合わせ、ご意見、不具合のご報告はこちらからお願いいたします。",
+    title: "お問い合わせ - Botoro",
+    description: "Botoroに関するお問い合わせ、ご意見、不具合のご報告はこちらからお願いいたします。",
 }
 
 const CONTACT_FORM_URL = "https://forms.gle/JKkkRdm37bfTKwqn6"
@@ -25,7 +25,7 @@ export default function ContactPage() {
                     <div className="space-y-2">
                         <h1 className="text-3xl font-bold tracking-tight">お問い合わせ</h1>
                         <p className="text-slate-600 leading-relaxed">
-                            Baby Appをご利用いただきありがとうございます。サービスに関するご質問、ご意見、または不具合のご報告は、専用のお問い合わせフォームよりお願いいたします。
+                            Botoroをご利用いただきありがとうございます。サービスに関するご質問、ご意見、または不具合のご報告は、専用のお問い合わせフォームよりお願いいたします。
                         </p>
                     </div>
 

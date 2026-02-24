@@ -5,7 +5,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
     title: "利用規約",
-    description: "Baby App の利用規約です。サービスを利用するにあたってのルールと条件をご確認ください。",
+    description: "Botoro の利用規約です。サービスを利用するにあたってのルールと条件をご確認ください。",
 }
 
 export default function TermsPage() {
@@ -26,7 +26,7 @@ export default function TermsPage() {
                     </div>
 
                     <p className="text-slate-600 leading-relaxed">
-                        この利用規約（以下「本規約」）は、Baby App運営者（以下「当方」）が提供するBaby App（以下「本サービス」）の利用条件を定めるものです。本サービスを利用するすべての方（以下「利用者」）は、本規約に同意した上でご利用ください。
+                        この利用規約（以下「本規約」）は、Botoro運営者（以下「当方」）が提供するBotoro（以下「本サービス」）の利用条件を定めるものです。本サービスを利用するすべての方（以下「利用者」）は、本規約に同意した上でご利用ください。
                     </p>
 
                     <section className="space-y-4">
@@ -39,7 +39,7 @@ export default function TermsPage() {
                     <section className="space-y-4">
                         <h2 className="text-xl font-bold border-b border-slate-100 pb-2">2. 定義</h2>
                         <ul className="list-disc list-inside text-slate-600 space-y-2 pl-2">
-                            <li><strong>「本サービス」:</strong> 当方が提供する育児記録共有アプリ「Baby App」およびその関連サービス。</li>
+                            <li><strong>「本サービス」:</strong> 当方が提供する育児記録共有アプリ「Botoro」およびその関連サービス。</li>
                             <li><strong>「利用者」:</strong> 本サービスのアカウントを作成・利用するすべての個人。</li>
                             <li><strong>「ファミリー」:</strong> 本サービス上の招待制グループ単位。</li>
                             <li><strong>「コンテンツ」:</strong> 利用者が本サービスに登録・投稿するすべての情報（育児記録、コメント等）。</li>
