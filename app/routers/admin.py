@@ -82,7 +82,7 @@ def get_admin_families(
     families = db.query(Family).offset(skip).limit(limit).all()
     result = []
     for f in families:
-        member_count = db.query(func.count(FamilyUser.id)).filter(FamilyUser.family_id == f.id).scalar()
+        member_count = db.query(func.count(FamilyUser.user_id)).filter(FamilyUser.family_id == f.id).scalar()
         result.append(FamilyAdminResponse(
             id=f.id,
             name=f.name,
