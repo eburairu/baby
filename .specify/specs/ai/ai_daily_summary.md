@@ -107,6 +107,46 @@ AI に対し、以下の情報を元に特徴の抽出を依頼する。
 3. **新規生成**: レコードが存在しない場合は新規作成する。
 4. **通知**: 作成または更新完了時に、家族メンバー（`Family`）に対してアプリ内通知を送信する。
 
+### `GET /api/babies/{baby_id}/daily-summary`
+
+**概要**: 日誌一覧を取得する。
+
+**挙動**:
+- 指定した赤ちゃん (`baby_id`) の日誌を **日付の降順** で取得する。
+- ページネーションはないが、**直近30件** に制限される。
+- 各レコードには `image_urls` が含まれる。
+
+### `GET /api/babies/{baby_id}/daily-summary/{date}`
+
+**概要**: 指定日の日誌を取得する。
+
+**パラメータ**:
+- `date`: `YYYY-MM-DD` 形式の日付。
+
+**挙動**:
+- 指定した日付の日誌が存在しない場合は `404 Not Found` を返す。
+
+### `PATCH /api/babies/{baby_id}/daily-summary/{date}`
+
+**概要**: 日誌を手動編集する。
+
+**リクエストボディ (`DailySummaryEdit`)**:
+- `edited_content`: 編集後のテキスト (Nullable)。
+- `image_urls`: 更新する画像URLリスト (Optional)。
+
+**挙動**:
+- `edited_content` に文字列が指定された場合、`is_edited` は `true` に更新される。
+- `edited_content` に `null` が指定された場合、`is_edited` は `false` にリセットされ、AI生成内容 (`generated_content`) が表示されるようになる。
+- `image_urls` が指定された場合、既存のリストを上書きする。
+
+### `DELETE /api/babies/{baby_id}/daily-summary/{date}`
+
+**概要**: 指定日の日誌を削除する。
+
+**挙動**:
+- 指定した日付の日誌を物理削除する。
+- 成功時は `204 No Content` を返す。
+
 ---
 
 ## 参照先ドキュメント
