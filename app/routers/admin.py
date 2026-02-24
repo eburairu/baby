@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import List, Optional
 from pydantic import BaseModel
@@ -130,18 +130,23 @@ def get_admin_family_detail(
     if not family:
         raise HTTPException(status_code=404, detail="Family not found")
 
-    family_users = db.query(FamilyUser).filter(FamilyUser.family_id == family_id).all()
-    members = []
-    for fu in family_users:
-        user = db.query(User).filter(User.id == fu.user_id).first()
-        if user:
-            members.append(FamilyMemberResponse(
-                user_id=user.id,
-                username=user.username,
-                display_name=user.display_name,
-                role=fu.role,
-                joined_at=fu.joined_at
-            ))
+    family_users = (
+        db.query(FamilyUser)
+        .options(joinedload(FamilyUser.user))
+        .filter(FamilyUser.family_id == family_id)
+        .all()
+    )
+    members = [
+        FamilyMemberResponse(
+            user_id=fu.user.id,
+            username=fu.user.username,
+            display_name=fu.user.display_name,
+            role=fu.role,
+            joined_at=fu.joined_at
+        )
+        for fu in family_users
+        if fu.user
+    ]
 
     babies_db = db.query(Baby).filter(Baby.family_id == family_id).all()
     babies = [
