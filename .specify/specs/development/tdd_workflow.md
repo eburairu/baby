@@ -87,18 +87,27 @@ class TestProtectedEndpoint:
         res = c.get("/api/protected/")
         assert res.status_code == 200
 
-    def test_member_cannot_admin_action(self, auth_client, client):
-        # Admin ユーザーで赤ちゃん作成
-        admin = auth_client(username="admin", family_name="Family A")
-        baby_res = admin.post("/api/babies/", json={"name": "Taro"})
+    def test_member_cannot_admin_action(self, client):
+        # Admin ユーザーで家族を作成し、赤ちゃんを登録
+        client.post("/api/auth/register/family", json={
+            "name": "Test Family",
+            "username": "admin_user",
+            "password": "password123",
+        })
+        baby_res = client.post("/api/babies/", json={"name": "Taro"})
         baby_id = baby_res.json()["id"]
+        invite_code = client.get("/api/family/").json()["invite_code"]
 
-        # Member ユーザーを招待（別途テスト対象に応じて変更）
-        # member = auth_client(username="member", family_name="Family B")
+        # Member ユーザーが同一家族に参加
+        client.cookies.clear()
+        client.post(f"/api/auth/register/join?invite_code={invite_code}", json={
+            "username": "member_user",
+            "password": "password123",
+        })
 
-        # 権限外の操作が 403 になること
-        res = admin.delete(f"/api/babies/{baby_id}")
-        # ...アサーション
+        # Member として管理者専用の操作を試みる → 403
+        res = client.delete(f"/api/babies/{baby_id}")
+        assert res.status_code == 403
 ```
 
 ### テスト実行コマンド
