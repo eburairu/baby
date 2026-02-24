@@ -2,14 +2,17 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Monitor, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 interface LandingHeroProps {
     isLoggedIn?: boolean
 }
 
 export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
+    const [activeView, setActiveView] = useState<"desktop" | "mobile">("desktop")
+
     return (
         <section className="relative px-4 py-12 lg:py-32 overflow-hidden">
             <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
@@ -58,17 +61,82 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="relative mx-auto lg:mx-0"
+                    className="relative mx-auto lg:mx-0 flex flex-col items-center gap-4"
                 >
-                    <div className="relative w-full max-w-md aspect-square bg-gradient-to-tr from-indigo-100 to-rose-50 rounded-full blur-3xl opacity-50 absolute -z-10 animate-pulse" />
-                    <img
-                        src="/hero-image.png"
-                        alt="App Screenshot"
-                        className="relative z-10 w-full max-w-md mx-auto drop-shadow-2xl rounded-[2.5rem] border-8 border-white"
-                        onError={(e) => {
-                            e.currentTarget.src = "https://placehold.co/600x1200/indigo/white?text=Mobile+App+UI"
-                        }}
-                    />
+                    {/* 切り替えタブ */}
+                    <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
+                        <button
+                            onClick={() => setActiveView("desktop")}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                                activeView === "desktop"
+                                    ? "bg-white text-slate-800 shadow-sm"
+                                    : "text-slate-500 hover:text-slate-700"
+                            }`}
+                        >
+                            <Monitor className="w-3.5 h-3.5" />
+                            デスクトップ
+                        </button>
+                        <button
+                            onClick={() => setActiveView("mobile")}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                                activeView === "mobile"
+                                    ? "bg-white text-slate-800 shadow-sm"
+                                    : "text-slate-500 hover:text-slate-700"
+                            }`}
+                        >
+                            <Smartphone className="w-3.5 h-3.5" />
+                            モバイル
+                        </button>
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100 to-rose-50 rounded-3xl blur-3xl opacity-50 -z-10" />
+
+                    {/* デスクトップモックアップ */}
+                    {activeView === "desktop" && (
+                        <motion.div
+                            key="desktop"
+                            initial={{ opacity: 0, scale: 0.97 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.25 }}
+                            className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 bg-white w-full"
+                        >
+                            <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 border-b border-slate-200">
+                                <div className="w-3 h-3 rounded-full bg-red-400" />
+                                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                                <div className="w-3 h-3 rounded-full bg-green-400" />
+                                <div className="flex-1 mx-3 py-1 px-3 rounded-md bg-white text-xs text-slate-400 text-center border border-slate-200">
+                                    baby-app.example.com/dashboard
+                                </div>
+                            </div>
+                            <img
+                                src="/screenshots/dashboard.png"
+                                alt="ダッシュボードのスクリーンショット（デスクトップ）"
+                                className="w-full"
+                            />
+                        </motion.div>
+                    )}
+
+                    {/* モバイルモックアップ */}
+                    {activeView === "mobile" && (
+                        <motion.div
+                            key="mobile"
+                            initial={{ opacity: 0, scale: 0.97 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.25 }}
+                            className="relative mx-auto"
+                            style={{ width: 260 }}
+                        >
+                            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-slate-800 bg-slate-800">
+                                {/* パンチホール */}
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-5 bg-slate-800 rounded-full z-10" />
+                                <img
+                                    src="/screenshots/dashboard-mobile.png"
+                                    alt="ダッシュボードのスクリーンショット（モバイル）"
+                                    className="w-full"
+                                />
+                            </div>
+                        </motion.div>
+                    )}
                 </motion.div>
             </div>
         </section>
