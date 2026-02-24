@@ -1,8 +1,10 @@
+import { RECORD_TYPES } from '@/types/enums';
 import { useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useSWRConfig } from "swr";
+import { API_TIMEOUT_MS } from "@/constants";
 
-export type RecordType = "feeding" | "diaper" | "growth" | "note";
+export type RecordType = typeof RECORD_TYPES.FEEDING | "diaper" | "growth" | "note";
 
 interface FeedbackResponse {
   feedback: string;
@@ -26,7 +28,7 @@ export function useRecordFeedback(babyId: number | string | null) {
       setError(null);
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
       try {
         await api.post<FeedbackResponse>(

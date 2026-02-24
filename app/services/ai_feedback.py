@@ -4,6 +4,7 @@ import logging
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Tuple
+from app.core.constants import AI_MAX_TOKENS
 
 import openai
 from sqlalchemy.orm import Session
@@ -263,7 +264,7 @@ def generate_record_feedback(
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                "max_tokens": int(config.get("llm_max_tokens", 2048)),
+                "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
                 "temperature": float(config.get("llm_temperature", 0.5)),
                 "response_format": {"type": "json_object"},
             }

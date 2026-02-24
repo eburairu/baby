@@ -21,6 +21,7 @@ from app.models.schedule import Schedule
 from app.models.note import Note
 from app.models.comment import RecordComment
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
+from app.core.constants import DEFAULT_PAGINATION_LIMIT, MAX_PAGINATION_LIMIT
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
 
@@ -162,7 +163,7 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
 def get_records(
     baby_id: int,
-    limit: int = Query(50, ge=1, le=1000),
+    limit: int = Query(DEFAULT_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

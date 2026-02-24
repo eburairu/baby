@@ -1,4 +1,6 @@
 "use client"
+import { RECORD_TYPES } from '@/types/enums';
+
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
@@ -31,7 +33,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             })
         }, {
             label: typeLabel,
-            feedbackType: "feeding"
+            feedbackType: RECORD_TYPES.FEEDING
         })
     }
 

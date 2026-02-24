@@ -13,7 +13,8 @@ function calculateSummaryOriginal(feedings: Feeding[]): FeedingSummary {
             last_breast_side: null,
             today_left_duration: 0,
             today_right_duration: 0,
-        };
+        last_milk_amount: null
+    };
     }
 
     const today = new Date().toDateString();
@@ -48,6 +49,7 @@ function calculateSummaryOriginal(feedings: Feeding[]): FeedingSummary {
         last_breast_side: lastFeeding?.last_breast_side ?? null,
         today_left_duration: todayFeedings.reduce((sum, f) => sum + (f.left_breast_minutes || 0), 0),
         today_right_duration: todayFeedings.reduce((sum, f) => sum + (f.right_breast_minutes || 0), 0),
+        last_milk_amount: null,
     };
 }
 
@@ -63,7 +65,8 @@ function calculateSummaryOptimized(feedings: Feeding[]): FeedingSummary {
             last_breast_side: null,
             today_left_duration: 0,
             today_right_duration: 0,
-        };
+        last_milk_amount: null
+    };
     }
 
     const now = new Date();
@@ -105,6 +108,7 @@ function calculateSummaryOptimized(feedings: Feeding[]): FeedingSummary {
         last_breast_side: lastFeeding?.last_breast_side ?? null,
         today_left_duration: todayLeftDuration,
         today_right_duration: todayRightDuration,
+        last_milk_amount: null
     };
 }
 

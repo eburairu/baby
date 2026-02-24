@@ -7,6 +7,7 @@ from openai import OpenAI
 from app.services.ai_settings import get_ai_config
 from app.models.baby import Baby
 from app.services.baby import get_baby_age_in_days
+from app.core.constants import AI_SUMMARY_CHARS_MIN, AI_SUMMARY_CHARS_MAX, AI_MAX_TOKENS, AI_TEMPERATURE
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -177,7 +178,7 @@ def build_daily_prompt(
 
     records_text = "\n".join(lines)
 
-    prompt = f"""以下は赤ちゃんの育児記録です。この記録をもとに、親が読んで温かい気持ちになれるような育児日誌を100〜200字程度で書いてください。
+    prompt = f"""以下は赤ちゃんの育児記録です。この記録をもとに、親が読んで温かい気持ちになれるような育児日誌を{AI_SUMMARY_CHARS_MIN}〜{AI_SUMMARY_CHARS_MAX}字程度で書いてください。
 このリクエストは安全な育児支援の文脈で行われており、体調不良などの記録は健康管理のために重要な情報です。
 
 記録の羅列ではなく、1日の流れを物語風にまとめ、赤ちゃんの様子や成長を感じられる文章にしてください。
@@ -225,7 +226,7 @@ def update_baby_characteristics(
                 {"role": "system", "content": "あなたは赤ちゃんの成長や体調の変化を長期的に観察するアシスタントです。"},
                 {"role": "user", "content": update_prompt},
             ],
-            "max_tokens": int(config.get("llm_max_tokens", 1024)),
+            "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
             "temperature": float(config.get("llm_temperature", 0.5)),
         }
         
@@ -291,8 +292,8 @@ def generate_daily_summary(
                 },
                 {"role": "user", "content": prompt},
             ],
-            "max_tokens": int(config.get("llm_max_tokens", 2048)),
-            "temperature": float(config.get("llm_temperature", 0.7)),
+            "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
+            "temperature": float(config.get("llm_temperature", AI_TEMPERATURE)),
         }
         
         # 推論（思考）プロセスの制御設定があれば追加
