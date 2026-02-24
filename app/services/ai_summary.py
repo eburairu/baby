@@ -7,7 +7,7 @@ from openai import OpenAI
 from app.services.ai_settings import get_ai_config
 from app.models.baby import Baby
 from app.services.baby import get_baby_age_in_days
-from app.core.constants import AI_SUMMARY_CHARS_MIN, AI_SUMMARY_CHARS_MAX
+from app.core.constants import AI_SUMMARY_CHARS_MIN, AI_SUMMARY_CHARS_MAX, AI_MAX_TOKENS, AI_TEMPERATURE
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -226,7 +226,7 @@ def update_baby_characteristics(
                 {"role": "system", "content": "あなたは赤ちゃんの成長や体調の変化を長期的に観察するアシスタントです。"},
                 {"role": "user", "content": update_prompt},
             ],
-            "max_tokens": int(config.get("llm_max_tokens", 1024)),
+            "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
             "temperature": float(config.get("llm_temperature", 0.5)),
         }
         

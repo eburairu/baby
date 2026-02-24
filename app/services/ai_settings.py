@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from google import genai
 from app.models.system_settings import SystemSetting
-from app.core.constants import AI_MAX_TOKENS
+from app.core.constants import AI_MAX_TOKENS, AI_TEMPERATURE
 
 
 def get_ai_config(db: Session) -> Dict[str, Any]:
