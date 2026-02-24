@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import type { Growth } from "@/types/growth"
 import { generateWhoSeries, mergeData } from "@/utils/growthUtils"
 import { useMemo, useState } from "react"
-import { format, subMonths } from "date-fns"
+import { format, subMonths, subDays } from "date-fns"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
@@ -52,10 +52,10 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     const defaultRange = useMemo(() => {
         if (records.length === 0) return { left: "dataMin" as const, right: "dataMax" as const };
         const latestDate = new Date(Math.max(...records.map(r => new Date(r.date).getTime())));
-        const sixMonthsAgo = subMonths(latestDate, 6).getTime();
+        const sevenDaysAgo = subDays(latestDate, 7).getTime();
         const firstRecordDate = new Date(Math.min(...records.map(r => new Date(r.date).getTime()))).getTime();
         return {
-            left: Math.max(sixMonthsAgo, firstRecordDate),
+            left: Math.max(sevenDaysAgo, firstRecordDate),
             right: latestDate.getTime()
         };
     }, [records]);
@@ -63,15 +63,20 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     const currentLeft = left !== undefined ? left : defaultRange.left;
     const currentRight = right !== undefined ? right : defaultRange.right;
 
-    const handleQuickRange = (months: number | "all") => {
+    const handleQuickRange = (range: number | "all" | "7days") => {
         if (records.length === 0) return;
         
         const latestDate = new Date(Math.max(...records.map(r => new Date(r.date).getTime())));
-        if (months === "all") {
+        if (range === "all") {
             setLeft("dataMin");
             setRight("dataMax");
+        } else if (range === "7days") {
+            const startDate = subDays(latestDate, 7).getTime();
+            const firstRecordDate = new Date(Math.min(...records.map(r => new Date(r.date).getTime()))).getTime();
+            setLeft(Math.max(startDate, firstRecordDate));
+            setRight(latestDate.getTime());
         } else {
-            const startDate = subMonths(latestDate, months).getTime();
+            const startDate = subMonths(latestDate, range).getTime();
             const firstRecordDate = new Date(Math.min(...records.map(r => new Date(r.date).getTime()))).getTime();
             setLeft(Math.max(startDate, firstRecordDate));
             setRight(latestDate.getTime());
@@ -118,6 +123,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                         tickFormatter={formatDateTick}
                         type="number"
                         scale="time"
+                        allowDataOverflow
                         tick={{ fill: textColor, fontSize: 10 }}
                     />
                     <YAxis unit={unit} domain={["auto", "auto"]} tick={{ fill: textColor, fontSize: 10 }} />
@@ -136,7 +142,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                     {/* WHO Areas */}
                     {showWho ? (
                         <>
-                            <Area type="monotone" dataKey={`who_${dataKey}_p97`} stroke="none" fill={whoFillColor} fillOpacity={0.4} connectNulls stackId="who" />
+                            <Area type="monotone" dataKey={`who_${dataKey}_p97`} stroke="none" fill={whoFillColor} fillOpacity={0.4} connectNulls stackId="who" legendType="none" />
                             <Line type="monotone" dataKey={`who_${dataKey}_p97`} stroke={whoLineColor} strokeDasharray="5 5" dot={false} name="WHO P97" connectNulls />
                             <Line type="monotone" dataKey={`who_${dataKey}_p50`} stroke={isDark ? "#71717a" : "#999"} strokeWidth={2} dot={false} name="WHO P50" connectNulls />
                             <Line type="monotone" dataKey={`who_${dataKey}_p3`} stroke={whoLineColor} strokeDasharray="5 5" dot={false} name="WHO P3" connectNulls />
@@ -183,6 +189,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                 <CardTitle className="text-lg dark:text-zinc-100">成長曲線</CardTitle>
                 <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => handleQuickRange("7days")}>7日</Button>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => handleQuickRange(1)}>1ヶ月</Button>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => handleQuickRange(6)}>6ヶ月</Button>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => handleQuickRange(12)}>1年</Button>
