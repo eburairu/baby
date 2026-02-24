@@ -50,12 +50,16 @@
 ```python
 # app/models/note.py
 
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Index
 from sqlalchemy.sql import func
 from .base import Base
 
 class Note(Base):
     __tablename__ = "notes"
+
+    __table_args__ = (
+        Index("idx_note_baby_time", "baby_id", "note_time"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False)
@@ -85,6 +89,23 @@ class Note(Base):
 
 - **`content`**: 1文字以上 2000文字以内。
 - **`note_time`**: 未来の日時は原則として許可しない。ただし、クライアントとサーバーの時刻同期のズレを考慮し、5分以内の未来日時は許容する。
+
+### リクエスト/レスポンス スキーマ
+
+```typescript
+// レスポンス
+interface NoteResponse {
+    id: number
+    baby_id: number
+    user_id: number | null
+    content: string
+    note_time: string // ISO 8601
+    created_at: string // ISO 8601
+    updated_at: string // ISO 8601
+    recorded_by_display_name: string | null  // 記録者の表示名
+    comment_count: number
+}
+```
 
 ---
 
