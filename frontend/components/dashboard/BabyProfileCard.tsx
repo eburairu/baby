@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { Sparkles, ChevronDown } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
@@ -22,10 +22,6 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
     const age = selected?.birthday ? calcAge(selected.birthday) : null
     const prenatalLabel = !selected?.birthday ? getPrenatalLabel(selected?.due_date) : null
     const [isCharacteristicsExpanded, setIsCharacteristicsExpanded] = useState(false)
-
-    useEffect(() => {
-        setIsCharacteristicsExpanded(false)
-    }, [selectedBabyId])
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">

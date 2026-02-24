@@ -71,6 +71,7 @@ export default function DashboardPage() {
             <PullToRefresh onRefresh={handleRefresh}>
                 <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
                     <BabyProfileCard
+                        key={effectiveBabyId}
                         babies={babiesWithStrId}
                         selectedBabyId={effectiveBabyId}
                     />
