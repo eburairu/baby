@@ -1,7 +1,7 @@
 # 認証仕様書 (Authentication Specification)
 
 ## 概要
-本ドキュメントは、Baby Appにおけるユーザー認証の仕様、特にセッション管理とセキュリティ対策について定義する。
+本ドキュメントは、Botoroにおけるユーザー認証の仕様、特にセッション管理とセキュリティ対策について定義する。
 
 ## 1. セッション管理
 
@@ -53,7 +53,7 @@
 
 | 項目 | 英語 (現状) | 日本語 (規定) |
 | :--- | :--- | :--- |
-| タイトル | Login to Baby App | Baby App にログイン |
+| タイトル | Login to Botoro | Botoro にログイン |
 | 説明 | Enter your username below to login to your account | ユーザー名を入力してログインしてください |
 | ユーザー名ラベル | Username | ユーザー名 |
 | パスワードラベル | Password | パスワード |

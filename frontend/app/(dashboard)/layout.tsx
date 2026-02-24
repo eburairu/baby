@@ -118,7 +118,7 @@ export default function DashboardLayout({
                 <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-6">
                         <Link href="/dashboard" className="text-xl font-bold bg-gradient-to-r from-rose-500 to-indigo-600 bg-clip-text text-transparent">
-                            Baby App
+                            Botoro
                         </Link>
                         <nav className="flex items-center gap-1">
                             {navItems.map(item => (

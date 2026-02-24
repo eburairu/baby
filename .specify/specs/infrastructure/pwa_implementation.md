@@ -1,6 +1,6 @@
 # PWA (Progressive Web App) 対応仕様書
 
-本ドキュメントは、Baby App を Progressive Web App (PWA) に対応させるための仕様と実装詳細を定義します。
+本ドキュメントは、Botoro を Progressive Web App (PWA) に対応させるための仕様と実装詳細を定義します。
 
 ## 1. 目的
 
@@ -22,7 +22,7 @@
 
 | 項目 | 設定値 | 備考 |
 | :--- | :--- | :--- |
-| `name` | Baby App | アプリの完全名称 |
+| `name` | Botoro | アプリの完全名称 |
 | `short_name` | BabyApp | ホーム画面などに表示される短縮名 |
 | `description` | 家族で共有する育児記録アプリ | |
 | `start_url` | `/` | アプリ起動時のURL |
@@ -93,13 +93,13 @@ export default withPWA(nextConfig);
 ```typescript
 // frontend/app/layout.tsx
 export const metadata: Metadata = {
-  title: "Baby App",
+  title: "Botoro",
   description: "家族で共有する育児記録アプリ",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Baby App",
+    title: "Botoro",
   },
   icons: {
     icon: "/favicon.ico", // または SVG

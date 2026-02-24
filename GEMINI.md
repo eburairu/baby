@@ -4,7 +4,7 @@
 
 ## プロジェクト概要
 
-Baby App — 家族単位で赤ちゃんの育児記録（授乳・睡眠・おむつ・成長等）を共同管理する招待制 Web アプリ。
+Botoro — 家族単位で赤ちゃんの育児記録（授乳・睡眠・おむつ・成長等）を共同管理する招待制 Web アプリ。
 
 - **Backend**: FastAPI, SQLAlchemy 2.0, Pydantic v2, Alembic
 - **Frontend**: Next.js (App Router, Static Export), TypeScript (strict), Tailwind CSS v4, SWR, Zustand, shadcn/ui

@@ -57,7 +57,7 @@ export function SplashScreen() {
                             <BabyBottleLoading className="w-28 h-28 text-indigo-500 dark:text-indigo-400 relative z-10" />
                         </div>
                         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mt-2 font-geist-sans drop-shadow-sm">
-                            Baby App
+                            Botoro
                         </h1>
                     </motion.div>
                 </motion.div>

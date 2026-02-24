@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = FastAPI(title="Baby App API")
+app = FastAPI(title="Botoro API")
 
 # Trigger reload
 

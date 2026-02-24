@@ -214,7 +214,7 @@
 * setup semantic-release ([6652824](https://github.com/eburairu/baby/commit/66528242d7bc07297b675163e94792dad94d5b69))
 * **sleep:** 睡眠記録機能を追加 ([8dc5403](https://github.com/eburairu/baby/commit/8dc5403dcfa0f1888679780146b5485caa155a03))
 * Standardize Button Loading State ([e51440a](https://github.com/eburairu/baby/commit/e51440a34e9922d106f82a79e5b29480e901bf89))
-* unify app name to 'Baby App' and update PWA settings project-wide ([8e53fba](https://github.com/eburairu/baby/commit/8e53fba63ad063101dcd195c5de01e9b910f4bbe))
+* unify app name to 'Botoro' and update PWA settings project-wide ([8e53fba](https://github.com/eburairu/baby/commit/8e53fba63ad063101dcd195c5de01e9b910f4bbe))
 * unify dashboard widget navigation with SleepWidget style ([66a177f](https://github.com/eburairu/baby/commit/66a177fcb9b41ed3173682bfb7ea1d23b52e5f2a))
 * unify UI/UX design across all detail pages according to specs ([8805b81](https://github.com/eburairu/baby/commit/8805b817cc954332d0b8e17bbbabe9e3d18deede))
 * おむつ交換記録機能の仕様書を追加 ([018c45c](https://github.com/eburairu/baby/commit/018c45c2112fa300137a2093ca7ba864e9ec22a9))
@@ -601,7 +601,7 @@
 
 ### Features
 
-* unify app name to 'Baby App' and update PWA settings project-wide ([0b61afa](https://github.com/eburairu/baby/commit/0b61afade5662b5fb45af4ed37fab475bc14eac8))
+* unify app name to 'Botoro' and update PWA settings project-wide ([0b61afa](https://github.com/eburairu/baby/commit/0b61afade5662b5fb45af4ed37fab475bc14eac8))
 
 ## [1.3.1](https://github.com/eburairu/baby/compare/v1.3.0...v1.3.1) (2026-02-15)
 

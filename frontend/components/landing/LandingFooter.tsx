@@ -8,7 +8,7 @@ export function LandingFooter() {
             <div className="max-w-7xl mx-auto space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                     <div className="space-y-2">
-                        <div className="text-indigo-600 font-bold text-lg">Baby App</div>
+                        <div className="text-indigo-600 font-bold text-lg">Botoro</div>
                         <p className="text-slate-400 text-sm max-w-xs">家族で共有する育児記録アプリ。授乳・睡眠・おむつをリアルタイムで記録・共有。</p>
                     </div>
                     <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm">
@@ -33,7 +33,7 @@ export function LandingFooter() {
                     </div>
                 </div>
                 <div className="border-t border-slate-100 pt-6 text-center text-slate-400 text-sm">
-                    &copy; 2026 Baby App. All rights reserved.
+                    &copy; 2026 Botoro. All rights reserved.
                 </div>
             </div>
         </footer>
