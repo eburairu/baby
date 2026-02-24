@@ -37,8 +37,8 @@ export default function ContactPage() {
                             <p className="text-slate-600 text-sm leading-relaxed">
                                 サービスの使い方、機能に関するご質問、またはメディア・取材に関するお問い合わせはこちら。
                             </p>
-                            <a href="mailto:support@example.com" className="inline-block mt-4 text-indigo-600 font-bold hover:underline">
-                                support@example.com
+                            <a href="mailto:ry1e@ebuchi.net" className="inline-block mt-4 text-indigo-600 font-bold hover:underline">
+                                ry1e@ebuchi.net
                             </a>
                         </div>
 
@@ -51,8 +51,8 @@ export default function ContactPage() {
                             <p className="text-slate-600 text-sm leading-relaxed">
                                 「こんな機能が欲しい」「ここが使いにくい」など、皆様からのフィードバックをお待ちしております。
                             </p>
-                            <a href="mailto:feedback@example.com" className="inline-block mt-4 text-rose-600 font-bold hover:underline">
-                                feedback@example.com
+                            <a href="mailto:ry1e@ebuchi.net" className="inline-block mt-4 text-rose-600 font-bold hover:underline">
+                                ry1e@ebuchi.net
                             </a>
                         </div>
                     </div>
@@ -63,7 +63,7 @@ export default function ContactPage() {
                             <h2 className="text-lg font-bold text-slate-800">不具合・バグのご報告</h2>
                         </div>
                         <p className="text-slate-600 text-sm leading-relaxed">
-                            アプリの動作がおかしい、エラーが表示されるなどの不具合を発見された場合は、大変お手数ですが以下の情報を添えて <strong>support@example.com</strong> までご連絡ください。
+                            アプリの動作がおかしい、エラーが表示されるなどの不具合を発見された場合は、大変お手数ですが以下の情報を添えて <strong>ry1e@ebuchi.net</strong> までご連絡ください。
                         </p>
                         <ul className="list-disc list-inside text-slate-600 text-sm space-y-1 mt-2 bg-white/50 p-4 rounded-xl">
                             <li>ご利用の端末（例: iPhone 14, Android 等）</li>
