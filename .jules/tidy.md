@@ -199,3 +199,15 @@
 アクション:
 - 他のフォーム（例えば `FeedingForm` や `NoteForm`）でも同様にスキーマを分離する。
 - ウィジェット内のロジックが複雑になった場合は、積極的に `utils` に抽出する。
+
+2026-02-24 - [Refactor] Contraction機能の構造化とロジック抽出
+
+学び:
+- `ContractionWaveGraph` 内の複雑なデータ変換ロジック（`useMemo`）を `useContractionWaveData` フックに抽出することで、コンポーネントの見通しが劇的に改善した。チャート描画とデータ準備の責務分離は効果的。
+- `ContractionHistory` の削除・編集・コメント機能の状態管理とAPIコールを `useContractionActions` フックにまとめることで、Fat Componentを解消できた。
+- ルートの `components/` に散らばっていた関連コンポーネントを `components/contraction/` に集約することで、凝集度が高まり、ディレクトリ構造がスッキリした。
+
+アクション:
+- 他のグラフコンポーネント（Growth, Sleepなど）でもデータ変換ロジックのフック化を検討する。
+- 履歴表示コンポーネント（FeedingHistoryなど）でもアクションフックの導入を進める。
+- 機能単位でのディレクトリ分割（Colocation）を他の機能にも適用していく。
