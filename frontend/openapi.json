@@ -147,6 +147,52 @@
         "title": "AppNotificationResponse",
         "type": "object"
       },
+      "BabyAdminResponse": {
+        "properties": {
+          "birthday": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthday"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "created_at"
+        ],
+        "title": "BabyAdminResponse",
+        "type": "object"
+      },
       "BabyCreate": {
         "properties": {
           "birthday": {
@@ -1098,43 +1144,49 @@
         "title": "FamilyCreate",
         "type": "object"
       },
-      "FamilyMemberResponse": {
+      "FamilyDetailResponse": {
         "properties": {
-          "display_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Display Name"
+          "babies": {
+            "items": {
+              "$ref": "#/components/schemas/BabyAdminResponse"
+            },
+            "title": "Babies",
+            "type": "array"
           },
-          "joined_at": {
+          "created_at": {
             "format": "date-time",
-            "title": "Joined At",
+            "title": "Created At",
             "type": "string"
           },
-          "role": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "user_id": {
-            "title": "User Id",
+          "id": {
+            "title": "Id",
             "type": "integer"
           },
-          "username": {
-            "title": "Username",
+          "member_count": {
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/app__routers__admin__FamilyMemberResponse"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
             "type": "string"
           }
         },
         "required": [
-          "user_id",
-          "username",
-          "role",
-          "joined_at"
+          "id",
+          "name",
+          "member_count",
+          "created_at",
+          "members",
+          "babies"
         ],
-        "title": "FamilyMemberResponse",
+        "title": "FamilyDetailResponse",
         "type": "object"
       },
       "FamilyResponse": {
@@ -2849,6 +2901,85 @@
         ],
         "title": "VersionResponse",
         "type": "object"
+      },
+      "app__routers__admin__FamilyMemberResponse": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "role",
+          "joined_at"
+        ],
+        "title": "FamilyMemberResponse",
+        "type": "object"
+      },
+      "app__schemas__family__FamilyMemberResponse": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "role",
+          "joined_at"
+        ],
+        "title": "FamilyMemberResponse",
+        "type": "object"
       }
     }
   },
@@ -2881,6 +3012,22 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
           }
         ],
         "responses": {
@@ -2910,6 +3057,48 @@
           }
         },
         "summary": "Get Admin Families",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/families/{family_id}": {
+      "get": {
+        "operationId": "get_admin_family_detail_api_admin_families__family_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "family_id",
+            "required": true,
+            "schema": {
+              "title": "Family Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admin Family Detail",
         "tags": [
           "admin"
         ]
@@ -4635,7 +4824,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/FamilyMemberResponse"
+                    "$ref": "#/components/schemas/app__schemas__family__FamilyMemberResponse"
                   },
                   "title": "Response Get Family Members Api Family Members Get",
                   "type": "array"
@@ -4757,7 +4946,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FamilyMemberResponse"
+                  "$ref": "#/components/schemas/app__schemas__family__FamilyMemberResponse"
                 }
               }
             },

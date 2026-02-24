@@ -2,23 +2,24 @@
 
 import useSWR from "swr";
 import { fetcher } from "@/lib/api";
-import { 
-  UsersRound, 
+import {
   Search,
   ChevronRight,
   Calendar
 } from "lucide-react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
+import { useState } from "react";
+import Link from "next/link";
 
 interface FamilyAdminResponse {
   id: number;
@@ -28,7 +29,11 @@ interface FamilyAdminResponse {
 }
 
 export default function AdminFamilies() {
-  const { data: families, isLoading } = useSWR<FamilyAdminResponse[]>("/admin/families", fetcher);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { data: families, isLoading } = useSWR<FamilyAdminResponse[]>(
+    `/admin/families${searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""}`,
+    fetcher
+  );
 
   return (
     <div className="space-y-8">
@@ -42,9 +47,11 @@ export default function AdminFamilies() {
       <div className="flex items-center justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input 
-            placeholder="家族名で検索..." 
+          <Input
+            placeholder="家族名で検索..."
             className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -86,9 +93,12 @@ export default function AdminFamilies() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <button className="text-muted-foreground hover:text-primary transition-colors">
+                    <Link
+                      href={`/admin/families/${family.id}`}
+                      className="text-muted-foreground hover:text-primary transition-colors inline-flex"
+                    >
                       <ChevronRight className="h-5 w-5" />
-                    </button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))
