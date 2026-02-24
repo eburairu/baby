@@ -5,6 +5,8 @@ from pywebpush import webpush, WebPushException
 from sqlalchemy.orm import Session
 from app.models.notification import AppNotification, PushSubscription, NotificationSetting
 from datetime import datetime, time
+from fastapi import BackgroundTasks
+from app.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -165,3 +167,15 @@ def notify_family_members(db: Session, family_id: int, exclude_user_id: int, tit
 
     for member in members:
         notify_user(db, member.user_id, title, body, url, category)
+
+
+def notify_family_members_bg(background_tasks: BackgroundTasks, family_id: int, exclude_user_id: int, title: str, body: str, url: str = "/", category: str = "family_record"):
+    """家族メンバー全員（本人を除く）に通知を送信する（バックグラウンドタスク）"""
+    def _task():
+        db = SessionLocal()
+        try:
+            notify_family_members(db, family_id, exclude_user_id, title, body, url, category)
+        finally:
+            db.close()
+
+    background_tasks.add_task(_task)
