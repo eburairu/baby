@@ -8,7 +8,9 @@ export type Feeding = components["schemas"]["FeedingResponse"]
 export type FeedingCreate = components["schemas"]["FeedingCreate"]
 export type FeedingUpdate = components["schemas"]["FeedingUpdate"]
 
-// フロントエンド固有の計算型（手動管理）
+/**
+ * @deprecated Use FeedingStatsResult from @/lib/feedingUtils instead
+ */
 export interface FeedingSummary {
     today_count: number
     today_duration: number // minutes (母乳合計)

@@ -176,3 +176,13 @@
 
 アクション:
 - 授乳（Feeding）や睡眠（Sleep）など、他の記録タイプでも同様の「ウィジェット vs 詳細ページ」の重複パターンがあるため、この正規化アダプターパターンを適用してリファクタリングを進める。
+
+2026-02-24 - [共通化] 授乳統計ロジックの正規化と共通化
+
+学び:
+- `FeedingWidget` と `useFeeding` フックで、授乳データの統計計算ロジック（今日の回数、経過時間など）が重複しており、データの型も異なっていた（`BabyRecord` vs `Feeding`）。
+- `diaperUtils` のパターンに倣い、`NormalizedFeeding` 型と正規化関数（`normalizeFeedingFromRecord`, `normalizeFeedingFromEntity`）を導入することで、異なる入力ソースから同一の統計ロジック（`calculateFeedingStats`）を利用できるようになった。
+- `FeedingStats` コンポーネントのプロップスを `snake_case` から `camelCase` に変更することで、TypeScript/JavaScript の標準的な命名規則に準拠させ、可読性を向上させた。
+
+アクション:
+- まだ `Growth` や `Sleep` に同様の重複が残っている可能性があるため、順次この「正規化アダプターパターン」を適用していく。
