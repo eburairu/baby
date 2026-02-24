@@ -55,6 +55,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         color="amber"
                         loading={loading}
                         disabled={loading}
+                        hideContentOnLoading={true}
                         onClick={() => handleQuickRecord(DiaperType.WET)}
                         className="flex-1"
                         aria-label="おしっこ"
@@ -65,6 +66,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         color="amber"
                         loading={loading}
                         disabled={loading}
+                        hideContentOnLoading={true}
                         onClick={() => handleQuickRecord(DiaperType.DIRTY)}
                         className="flex-1"
                         aria-label="うんち"
