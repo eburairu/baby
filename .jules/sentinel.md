@@ -62,3 +62,7 @@
 **脆弱性:** `BabyUpdate` スキーマで `name` が `Optional[str]`（デフォルト `None`）となっていたため、明示的に `{"name": null}` を送信すると、DBの `NOT NULL` 制約により `IntegrityError` (500 Internal Server Error) が発生していた。
 **学び:** Pydanticの `Optional` フィールドは `None` を値として受け入れる。更新用スキーマで「省略可能だがNull不可」を実現するには、型定義だけでは不十分であり、`field_validator` で明示的に `None` を拒否する必要がある。
 **予防:** 更新用スキーマで非Nullカラムに対応するフィールドには、`@field_validator('field_name')` を使用して `v is None` のチェックを追加する。
+## 2024-05-24 - Rate Limiter DoS Fix
+**脆弱性:** RateLimiter の `check` メソッドで `max_size` を超えた際に全履歴を `clear()` してしまう実装があり、攻撃者が意図的にリミッターをリセットさせることで DoS 攻撃やブルートフォース攻撃を容易にする可能性があった。
+**学び:** インメモリキャッシュやリミッターを実装する際、容量制限（`max_size`）に達したときの挙動（Eviction Policy）は慎重に設計する必要がある。全削除は攻撃ベクトルになり得る。
+**予防:** `requests.clear()` の代わりに、FIFO や LRU などの適切な追い出し戦略を採用する。Python 3.7+ の辞書は挿入順を保持するため、`next(iter(dict))` で最古の要素を O(1) で取得・削除できる。
