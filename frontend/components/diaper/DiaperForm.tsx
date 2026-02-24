@@ -17,20 +17,19 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
 import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { SegmentedSelection } from "@/components/ui/segmented-selection"
 
 const POOP_COLORS = ["黄色", "緑", "茶色", "黒", "白", "その他"] as const;
 const POOP_AMOUNTS = ["少量", "普通", "多量", "その他"] as const;
 
 const diaperSchema = z.object({
     diaper_type: z.nativeEnum(DiaperType),
-    change_time: z.string(),
+    change_time: z.string().min(1, "記録日時は必須です"),
     notes: z.string().optional(),
     poop_color: z.string().optional(),
     custom_poop_color: z.string().optional(),
@@ -114,47 +113,18 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
             <CardContent className="pt-6">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-3 gap-3">
-                            <button
-                                type="button"
-                                onClick={() => form.setValue("diaper_type", DiaperType.WET)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.WET
-                                        ? UI_FORMS.selection.amberBordered.active
-                                        : UI_FORMS.selection.amberBordered.inactive
-                                )}
-                            >
-                                <span className="text-2xl">💧</span>
-                                <span className="text-xs font-medium">おしっこ</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => form.setValue("diaper_type", DiaperType.DIRTY)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.DIRTY
-                                        ? UI_FORMS.selection.amberBordered.active
-                                        : UI_FORMS.selection.amberBordered.inactive
-                                )}
-                            >
-                                <span className="text-2xl">💩</span>
-                                <span className="text-xs font-medium">うんち</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => form.setValue("diaper_type", DiaperType.BOTH)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.BOTH
-                                        ? UI_FORMS.selection.amberBordered.active
-                                        : UI_FORMS.selection.amberBordered.inactive
-                                )}
-                            >
-                                <span className="text-2xl">💧💩</span>
-                                <span className="text-xs font-medium">両方</span>
-                            </button>
-                        </div>
+                        <SegmentedSelection
+                            options={[
+                                { value: DiaperType.WET, label: <><span className="text-2xl">💧</span><span className="text-xs font-medium">おしっこ</span></> },
+                                { value: DiaperType.DIRTY, label: <><span className="text-2xl">💩</span><span className="text-xs font-medium">うんち</span></> },
+                                { value: DiaperType.BOTH, label: <><span className="text-2xl">💧💩</span><span className="text-xs font-medium">両方</span></> },
+                            ]}
+                            value={selectedType}
+                            onChange={(val) => form.setValue("diaper_type", val)}
+                            variant="amberBordered"
+                            itemClassName="h-20 flex flex-col items-center justify-center gap-1 border-2"
+                            className="mb-4"
+                        />
 
                         {selectedType !== DiaperType.WET && (
                             <div className="space-y-4 pt-2 border-t border-muted/20 mt-2">
@@ -165,28 +135,14 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         <FormItem className="space-y-2">
                                             <FormLabel className="text-xs text-muted-foreground">うんちの色</FormLabel>
                                             <FormControl>
-                                                <RadioGroup
-                                                    onValueChange={field.onChange}
+                                                <SegmentedSelection
+                                                    options={POOP_COLORS.map(color => ({ value: color, label: color }))}
                                                     value={field.value}
-                                                    className="flex flex-wrap gap-2"
-                                                >
-                                                    {POOP_COLORS.map((color) => (
-                                                        <div key={color} className="flex items-center">
-                                                            <RadioGroupItem value={color} id={`color-${color}`} className="sr-only" />
-                                                            <Label
-                                                                htmlFor={`color-${color}`}
-                                                                className={cn(
-                                                                    "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all",
-                                                                    field.value === color
-                                                                        ? "bg-amber-500 border-amber-500 text-white font-medium shadow-sm"
-                                                                        : "bg-white border-muted text-muted-foreground hover:border-amber-200"
-                                                                )}
-                                                            >
-                                                                {color}
-                                                            </Label>
-                                                        </div>
-                                                    ))}
-                                                </RadioGroup>
+                                                    onChange={(val) => field.onChange(val)}
+                                                    variant="amberSolid"
+                                                    className="flex-wrap"
+                                                    itemClassName="px-3 py-1.5 rounded-full flex-none w-auto"
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -214,28 +170,14 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         <FormItem className="space-y-2">
                                             <FormLabel className="text-xs text-muted-foreground">うんちの量</FormLabel>
                                             <FormControl>
-                                                <RadioGroup
-                                                    onValueChange={field.onChange}
+                                                <SegmentedSelection
+                                                    options={POOP_AMOUNTS.map(amount => ({ value: amount, label: amount }))}
                                                     value={field.value}
-                                                    className="flex flex-wrap gap-2"
-                                                >
-                                                    {POOP_AMOUNTS.map((amount) => (
-                                                        <div key={amount} className="flex items-center">
-                                                            <RadioGroupItem value={amount} id={`amount-${amount}`} className="sr-only" />
-                                                            <Label
-                                                                htmlFor={`amount-${amount}`}
-                                                                className={cn(
-                                                                    "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all",
-                                                                    field.value === amount
-                                                                        ? "bg-amber-500 border-amber-500 text-white font-medium shadow-sm"
-                                                                        : "bg-white border-muted text-muted-foreground hover:border-amber-200"
-                                                                )}
-                                                            >
-                                                                {amount}
-                                                            </Label>
-                                                        </div>
-                                                    ))}
-                                                </RadioGroup>
+                                                    onChange={(val) => field.onChange(val)}
+                                                    variant="amberSolid"
+                                                    className="flex-wrap"
+                                                    itemClassName="px-3 py-1.5 rounded-full flex-none w-auto"
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

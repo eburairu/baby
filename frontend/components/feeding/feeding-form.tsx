@@ -10,7 +10,8 @@ import { Play, Pause, RotateCcw, Save } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
-import { UI_COLORS, UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { SegmentedSelection } from "@/components/ui/segmented-selection"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -306,27 +307,16 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                 {/* ボトルコンテンツタイプ */}
                                 <div>
                                     <p className="text-sm font-medium mb-2">種類</p>
-                                    <div className="flex gap-2">
-                                        {([
-                                            { value: "FORMULA" as BottleContentType, label: "粉ミルク" },
-                                            { value: "EXPRESSED_MILK" as BottleContentType, label: "搾母乳" },
-                                            { value: "MIXED" as BottleContentType, label: "混合" },
-                                        ] as const).map(({ value, label }) => (
-                                            <button
-                                                key={value}
-                                                type="button"
-                                                onClick={() => setBottleContentType(prev => prev === value ? null : value)}
-                                                className={cn(
-                                                    "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
-                                                    bottleContentType === value
-                                                        ? UI_FORMS.selection.blueSolid.active
-                                                        : UI_FORMS.selection.blueSolid.inactive
-                                                )}
-                                            >
-                                                {label}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <SegmentedSelection
+                                        options={[
+                                            { value: "FORMULA", label: "粉ミルク" },
+                                            { value: "EXPRESSED_MILK", label: "搾母乳" },
+                                            { value: "MIXED", label: "混合" },
+                                        ]}
+                                        value={bottleContentType}
+                                        onChange={(val) => setBottleContentType(prev => prev === val ? null : val)}
+                                        variant="blueSolid"
+                                    />
                                 </div>
 
                                 <FormField
@@ -347,30 +337,14 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                             {/* 共通: 授乳完全度 */}
                             <div>
                                 <p className="text-sm font-medium mb-2">授乳完全度</p>
-                                <div className="flex gap-2">
-                                    {([
-                                        { value: "FULL" as FeedingCompletion, label: "しっかり飲んだ" },
-                                        { value: "PARTIAL" as FeedingCompletion, label: "途中でやめた" },
-                                    ] as const).map(({ value, label }) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            onClick={() => setFeedingCompletion(prev => prev === value ? null : value)}
-                                            className={cn(
-                                                "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
-                                                feedingCompletion === value
-                                                    ? value === "FULL"
-                                                        ? UI_FORMS.selection.greenSolid.active
-                                                        : UI_FORMS.selection.amberSolid.active
-                                                    : value === "FULL"
-                                                        ? UI_FORMS.selection.greenSolid.inactive
-                                                        : UI_FORMS.selection.amberSolid.inactive
-                                            )}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
+                                <SegmentedSelection
+                                        options={[
+                                            { value: "FULL", label: "しっかり飲んだ", variant: "greenSolid" },
+                                            { value: "PARTIAL", label: "途中でやめた", variant: "amberSolid" },
+                                        ]}
+                                        value={feedingCompletion}
+                                        onChange={(val) => setFeedingCompletion(prev => prev === val ? null : val)}
+                                    />
                             </div>
 
                             <FormField

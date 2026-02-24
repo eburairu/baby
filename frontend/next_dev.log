@@ -1,0 +1,101 @@
+
+> frontend@0.1.0 dev /app/frontend
+> next dev
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /app/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles:
+   * /app/frontend/pnpm-lock.yaml
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+
+✓ Starting...
+✓ Ready in 5.5s
+○ Compiling / ...
+ GET / 200 in 7.7s (compile: 7.0s, render: 698ms)
+○ Compiling /feeding ...
+ GET /feeding 200 in 5.3s (compile: 4.7s, render: 574ms)
+ GET /api/version 404 in 1569ms (compile: 1398ms, render: 171ms)
+ GET /api/babies 404 in 1517ms (compile: 1259ms, render: 258ms)
+ GET /api/version 404 in 234ms (compile: 41ms, render: 193ms)
+ GET /api/version 404 in 67ms (compile: 8ms, render: 58ms)
+ GET /feeding 200 in 72ms (compile: 9ms, render: 64ms)
+ GET /api/version 404 in 143ms (compile: 10ms, render: 133ms)
+ GET /api/babies 404 in 81ms (compile: 10ms, render: 71ms)
+ GET /api/notifications 404 in 131ms (compile: 37ms, render: 94ms)
+ GET /api/notifications/unread-count 404 in 140ms (compile: 12ms, render: 128ms)
+ GET /api/version 404 in 61ms (compile: 8ms, render: 54ms)
+ GET /api/notifications 404 in 115ms (compile: 7ms, render: 108ms)
+ GET /api/notifications/unread-count 404 in 59ms (compile: 7ms, render: 52ms)
+ GET /feeding 200 in 89ms (compile: 12ms, render: 77ms)
+ GET /api/version 404 in 139ms (compile: 15ms, render: 124ms)
+ GET /api/babies 404 in 77ms (compile: 15ms, render: 63ms)
+ GET /api/notifications/unread-count 404 in 114ms (compile: 10ms, render: 104ms)
+ GET /api/notifications 404 in 115ms (compile: 49ms, render: 66ms)
+ GET /api/version 404 in 72ms (compile: 7ms, render: 65ms)
+ GET /api/notifications 404 in 58ms (compile: 9ms, render: 49ms)
+ GET /api/notifications/unread-count 404 in 58ms (compile: 12ms, render: 46ms)
+ GET /api/version 404 in 60ms (compile: 7ms, render: 53ms)
+ GET /api/notifications/unread-count 404 in 53ms (compile: 7ms, render: 47ms)
+ GET /api/notifications 404 in 62ms (compile: 7ms, render: 55ms)
+ GET /feeding 200 in 67ms (compile: 12ms, render: 55ms)
+ GET /api/version 404 in 116ms (compile: 10ms, render: 106ms)
+ GET /api/babies 404 in 60ms (compile: 6ms, render: 54ms)
+ GET /api/notifications 404 in 127ms (compile: 36ms, render: 91ms)
+ GET /api/notifications/unread-count 404 in 135ms (compile: 11ms, render: 124ms)
+ GET /api/notifications 404 in 111ms (compile: 7ms, render: 103ms)
+ GET /api/notifications/unread-count 404 in 60ms (compile: 8ms, render: 52ms)
+ GET /diaper 200 in 1964ms (compile: 1824ms, render: 140ms)
+ GET /api/version 404 in 140ms (compile: 12ms, render: 128ms)
+ GET /api/babies 404 in 69ms (compile: 8ms, render: 62ms)
+ GET /api/notifications/unread-count 404 in 109ms (compile: 9ms, render: 100ms)
+ GET /api/notifications 404 in 110ms (compile: 31ms, render: 79ms)
+ GET /api/notifications/unread-count 404 in 107ms (compile: 8ms, render: 99ms)
+ GET /api/notifications 404 in 66ms (compile: 12ms, render: 55ms)
+ GET /feeding 200 in 57ms (compile: 6ms, render: 51ms)
+ GET /api/version 404 in 68ms (compile: 10ms, render: 58ms)
+ GET /api/notifications/unread-count 404 in 107ms (compile: 12ms, render: 95ms)
+ GET /api/notifications 404 in 107ms (compile: 35ms, render: 72ms)
+ GET /diaper 200 in 59ms (compile: 6ms, render: 54ms)
+ GET /api/version 404 in 63ms (compile: 8ms, render: 55ms)
+ GET /api/notifications/unread-count 404 in 115ms (compile: 13ms, render: 102ms)
+ GET /api/notifications 404 in 117ms (compile: 54ms, render: 63ms)
+ GET /feeding 200 in 100ms (compile: 8ms, render: 92ms)
+ GET /api/version 404 in 78ms (compile: 11ms, render: 68ms)
+ GET /api/notifications/unread-count 404 in 121ms (compile: 15ms, render: 106ms)
+ GET /api/notifications 404 in 120ms (compile: 39ms, render: 80ms)
+ GET /diaper 200 in 64ms (compile: 6ms, render: 58ms)
+ GET /api/version 404 in 76ms (compile: 14ms, render: 62ms)
+ GET /api/notifications/unread-count 404 in 126ms (compile: 8ms, render: 118ms)
+ GET /api/notifications 404 in 124ms (compile: 60ms, render: 65ms)
+ GET /feeding 200 in 77ms (compile: 6ms, render: 71ms)
+ GET /api/version 404 in 63ms (compile: 9ms, render: 54ms)
+ GET /api/notifications/unread-count 404 in 113ms (compile: 10ms, render: 103ms)
+ GET /api/notifications 404 in 112ms (compile: 48ms, render: 64ms)
+ GET /diaper 200 in 57ms (compile: 5ms, render: 52ms)
+ GET /api/version 404 in 53ms (compile: 7ms, render: 46ms)
+ GET /api/notifications/unread-count 404 in 130ms (compile: 10ms, render: 120ms)
+ GET /api/notifications 404 in 129ms (compile: 36ms, render: 93ms)
+ GET /feeding 200 in 137ms (compile: 13ms, render: 124ms)
+ GET /api/version 404 in 59ms (compile: 11ms, render: 47ms)
+ GET /api/notifications/unread-count 404 in 94ms (compile: 9ms, render: 86ms)
+ GET /api/notifications 404 in 95ms (compile: 41ms, render: 54ms)
+ GET /diaper 200 in 983ms (compile: 201ms, render: 782ms)
+ GET /api/version 404 in 64ms (compile: 8ms, render: 56ms)
+ GET /api/notifications 404 in 110ms (compile: 35ms, render: 74ms)
+ GET /api/notifications/unread-count 404 in 114ms (compile: 14ms, render: 101ms)
+ GET /feeding 200 in 87ms (compile: 9ms, render: 78ms)
+ GET /api/version 404 in 70ms (compile: 7ms, render: 63ms)
+ GET /api/notifications/unread-count 404 in 130ms (compile: 16ms, render: 114ms)
+ GET /api/notifications 404 in 129ms (compile: 61ms, render: 67ms)
+ GET /diaper 200 in 961ms (compile: 194ms, render: 767ms)
+ GET /api/version 404 in 66ms (compile: 11ms, render: 55ms)
+ GET /api/notifications/unread-count 404 in 124ms (compile: 12ms, render: 112ms)
+ GET /api/notifications 404 in 123ms (compile: 54ms, render: 69ms)
