@@ -221,7 +221,7 @@ export function usePermissions() {
 
 ## BabyPermission との関係
 
-RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細かい閲覧権限** を `BabyPermission` テーブルで制御する。詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
+RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細かい閲覧権限** を `BabyPermission` テーブルで制御する。詳細は [baby_permissions.md](../settings/baby_permissions.md) を参照。
 
 - ADMIN は `BabyPermission` の制約を受けない（常にすべてにアクセス可能）
 - MEMBER / VIEWER は `can_view=true` が設定された赤ちゃん・記録タイプのみアクセスできる
@@ -246,14 +246,11 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] `GET /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
 - [x] `PUT /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
 - [x] `verify_baby_access()` をデフォルト拒否に変更（BabyPermission が存在しない場合に 403）
+- [x] `GET /api/babies/` を `allowed_baby_ids` フィルタ（opt-in 型）に変更
+- [x] `GET /api/babies/{baby_id}/permissions` の BabyPermission 未設定時のデフォルト値を `False` に変更
+- [x] Alembic マイグレーション（既存 MEMBER/VIEWER への `can_view=true` 一括付与）
 
-### バックエンド（未実装）
-
-- [ ] `GET /api/babies/` を `allowed_baby_ids` フィルタ（opt-in 型）に変更
-- [ ] `GET /api/babies/{baby_id}/permissions` の BabyPermission 未設定時のデフォルト値を `False` に変更
-- [ ] Alembic マイグレーション（既存 MEMBER/VIEWER への `can_view=true` 一括付与）
-
-詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
+詳細は [baby_permissions.md](../settings/baby_permissions.md) を参照。
 
 ### フロントエンド（実装済み）
 
@@ -262,16 +259,12 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] 各記録画面の FAB・編集/削除ボタンの表示制御
 - [x] `RecordDetailDialog` での VIEWER 制限（保存・削除非表示、入力無効化）
 - [x] ファミリー設定画面でのロール表示と変更機能
-- [x] `BabyPermissionDialog.tsx`（旧 UI。`/settings/babies` の各 BabyCard に統合済み）
+- [x] `BabyPermissionDialog.tsx`（旧 UI）の廃止
+- [x] `/settings/permissions` 専用ページ（メンバー中心の管理 UI）
+- [x] `MemberPermissionCard.tsx`（アコーディオン型、Baby 毎のアクセス設定）
+- [x] 設定ナビゲーションに「権限管理」メニュー追加（ADMIN のみ）
 
-### フロントエンド（未実装 — 権限管理 UI の刷新）
-
-- [ ] `/settings/permissions` 専用ページ（メンバー中心の管理 UI）
-- [ ] `MemberPermissionCard.tsx`（アコーディオン型、Baby 毎のアクセス設定）
-- [ ] `BabyPermissionDialog.tsx` の廃止
-- [ ] 設定ナビゲーションに「権限管理」メニュー追加（ADMIN のみ）
-
-詳細は [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) を参照。
+詳細は [baby_permissions.md](../settings/baby_permissions.md) を参照。
 
 ### テスト（実装済み）
 
@@ -323,12 +316,12 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 ### ロール互換性
 
 - 既存のロール（ADMIN / MEMBER / VIEWER）は維持される
-- 認証仕様については [authentication.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/auth/authentication.md) を参照
+- 認証仕様については [authentication.md](./authentication.md) を参照
 
 ---
 
 ## 参照先ドキュメント
 
-- [authentication.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/auth/authentication.md) — 認証・セッション管理
-- [baby_permissions.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/baby_permissions.md) — 赤ちゃん別アクセス権限
-- [family_settings.md](file:///Users/ry1e/Documents/work/baby/.specify/specs/settings/family_settings.md) — ファミリー管理
+- [authentication.md](./authentication.md) — 認証・セッション管理
+- [baby_permissions.md](../settings/baby_permissions.md) — 赤ちゃん別アクセス権限
+- [family_settings.md](../settings/family_settings.md) — ファミリー管理
