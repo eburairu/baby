@@ -52,20 +52,19 @@ export function WidgetCard({
                 </CardTitle>
                 <div className="flex items-center gap-1">
                     {headerAction}
-                    <Link href={href}>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                                "h-6 w-6 -mr-2 text-gray-400 dark:text-zinc-600 transition-colors",
-                                actionHoverColor
-                            )}
-                            aria-label={label}
-                            title={label}
-                        >
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn(
+                            "h-6 w-6 -mr-2 text-gray-400 dark:text-zinc-600 transition-colors",
+                            actionHoverColor
+                        )}
+                        asChild
+                    >
+                        <Link href={href} aria-label={label} title={label}>
                             <ArrowRight className="h-4 w-4" />
-                        </Button>
-                    </Link>
+                        </Link>
+                    </Button>
                 </div>
             </CardHeader>
             <CardContent className="space-y-3">
