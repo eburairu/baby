@@ -23,9 +23,9 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     className="text-center lg:text-left space-y-8"
                 >
                     <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                        「いつミルクあげた？」<br />
+                        「あれ、さっきいつあげた？」<br />
                         その確認、もう不要です。<br />
-                        <span className="text-indigo-600">リアルタイム育児記録</span>で、<br className="hidden lg:block" />夫婦の連携をもっとスムーズに。
+                        <span className="text-indigo-600">夫婦で共有する育児記録</span>で、<br className="hidden lg:block" />毎日の不安と手間をゼロに。
                     </h1>
                     <p className="text-lg text-slate-600 max-w-lg mx-auto lg:mx-0">
                         授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
@@ -43,14 +43,14 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                                 <div className="flex flex-col gap-2 w-full sm:w-auto items-center sm:items-start">
                                     <Link href="/register" className="w-full sm:w-auto">
                                         <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
-                                            無料でアカウント作成
+                                            無料で育児記録を始める
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
                                     <div className="text-xs font-bold mt-2 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-slate-500">
-                                        <span>✨ クレジットカード不要・完全無料</span>
+                                        <span>✨ 1分で簡単スタート ・ 夫婦で共有OK</span>
                                         <span className="hidden sm:inline text-slate-300">|</span>
-                                        <span className="text-indigo-600">1分で登録完了</span>
+                                        <span className="text-indigo-600">完全無料</span>
                                     </div>
                                 </div>
                             </>
