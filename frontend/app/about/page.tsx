@@ -4,8 +4,8 @@ import { ArrowLeft, Heart, Shield, Zap, Users } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Baby App について",
-    description: "Baby Appは、育児をもっと楽しく・家族で共有できるようにするために作られた育児記録アプリです。開発の想いとサービス情報をご紹介します。",
+    title: "Botoro について",
+    description: "Botoroは、育児をもっと楽しく・家族で共有できるようにするために作られた育児記録アプリです。開発の想いとサービス情報をご紹介します。",
 }
 
 export default function AboutPage() {
@@ -22,7 +22,7 @@ export default function AboutPage() {
                 {/* メインカード */}
                 <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm space-y-10 text-slate-900">
                     <div className="space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight">Baby App について</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">Botoro について</h1>
                         <p className="text-indigo-600 font-medium">家族の育児を、もっとつながりのある時間に。</p>
                     </div>
 
@@ -33,14 +33,14 @@ export default function AboutPage() {
                             赤ちゃんが生まれると、育児は24時間365日の連続した仕事になります。授乳のタイミング、最後のおむつ交換から何時間が経ったか、今日はどれだけ眠れたか——これらを一人で把握し続けることは、とても大変なことです。
                         </p>
                         <p className="text-slate-600 leading-relaxed">
-                            Baby Appは、「育児を一人で抱え込まず、家族全員で分かち合える」ようにするために作られました。
-                            パパが記録すれば、ママが確認できる。おじいちゃん・おばあちゃんも一緒に成長を見守れる。そんな「つながりのある育児」を実現するのが、Baby Appのミッションです。
+                            Botoroは、「育児を一人で抱え込まず、家族全員で分かち合える」ようにするために作られました。
+                            パパが記録すれば、ママが確認できる。おじいちゃん・おばあちゃんも一緒に成長を見守れる。そんな「つながりのある育児」を実現するのが、Botoroのミッションです。
                         </p>
                     </section>
 
                     {/* 特徴 */}
                     <section className="space-y-6">
-                        <h2 className="text-xl font-bold border-b border-slate-100 pb-2">Baby App の特徴</h2>
+                        <h2 className="text-xl font-bold border-b border-slate-100 pb-2">Botoro の特徴</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="flex gap-4 items-start">
                                 <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0">
@@ -109,11 +109,11 @@ export default function AboutPage() {
                         <div className="space-y-3 text-slate-600">
                             <div className="flex flex-col sm:flex-row sm:gap-4">
                                 <span className="font-medium text-slate-800 w-32 shrink-0">サービス名</span>
-                                <span>Baby App</span>
+                                <span>Botoro</span>
                             </div>
                             <div className="flex flex-col sm:flex-row sm:gap-4">
                                 <span className="font-medium text-slate-800 w-32 shrink-0">運営者</span>
-                                <span>Baby App 運営者</span>
+                                <span>Botoro 運営者</span>
                             </div>
                             <div className="flex flex-col sm:flex-row sm:gap-4">
                                 <span className="font-medium text-slate-800 w-32 shrink-0">サービス開始</span>
@@ -132,7 +132,7 @@ export default function AboutPage() {
 
                     {/* CTA */}
                     <div className="bg-indigo-50 rounded-2xl p-6 text-center space-y-4">
-                        <p className="font-bold text-slate-800">Baby Appを使ってみませんか？</p>
+                        <p className="font-bold text-slate-800">Botoroを使ってみませんか？</p>
                         <p className="text-slate-600 text-sm">今すぐ無料でアカウントを作成できます。</p>
                         <Link href="/register">
                             <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8">

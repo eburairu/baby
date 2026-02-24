@@ -209,7 +209,7 @@ export default function SettingsPage() {
                                     <Heart className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">Baby App について</p>
+                                    <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">Botoro について</p>
                                     <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">アプリの紹介を見る</p>
                                 </div>
                                 <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />

@@ -1,6 +1,6 @@
 {
-  "name": "Baby App",
-  "short_name": "BabyApp",
+  "name": "Botoro",
+  "short_name": "Botoro",
   "description": "家族で共有する育児記録アプリ",
   "start_url": "/",
   "display": "standalone",

@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex h-16 items-center border-b px-6">
             <Link href="/" className="flex items-center gap-2 font-bold text-primary">
               <ShieldCheck className="h-6 w-6" />
-              <span>Baby App Admin</span>
+              <span>Botoro Admin</span>
             </Link>
           </div>
           <nav className="flex-1 space-y-1 p-4">
@@ -90,7 +90,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <div className="flex h-16 items-center border-b px-6">
                   <SheetTitle className="flex items-center gap-2 font-bold text-primary">
                     <ShieldCheck className="h-6 w-6" />
-                    <span>Baby App Admin</span>
+                    <span>Botoro Admin</span>
                   </SheetTitle>
                   <SheetDescription className="sr-only">
                     管理者用ナビゲーションメニュー

@@ -69,7 +69,7 @@
 
 **ファイル**: `frontend/app/(dashboard)/layout.tsx`
 
-- アプリ名 "Baby App" の右隣にバッジを表示
+- アプリ名 "Botoro" の右隣にバッジを表示
 - バッジ内容: `v{version}` 形式（例: `v1.19.1`）
 - shadcn/ui `Badge variant="outline"` を使用
 - レスポンシブ: `hidden sm:inline-flex`（モバイルでは非表示）

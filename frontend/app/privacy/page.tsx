@@ -5,7 +5,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
     title: "プライバシーポリシー",
-    description: "Baby App のプライバシーポリシーです。個人情報の取り扱いについて説明します。",
+    description: "Botoro のプライバシーポリシーです。個人情報の取り扱いについて説明します。",
 }
 
 export default function PrivacyPage() {
@@ -26,14 +26,14 @@ export default function PrivacyPage() {
                     </div>
 
                     <p className="text-slate-600 leading-relaxed">
-                        Baby App運営者（以下「当方」）は、Baby App（以下「本サービス」）における利用者の個人情報の取り扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
+                        Botoro運営者（以下「当方」）は、Botoro（以下「本サービス」）における利用者の個人情報の取り扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
                     </p>
 
                     <section className="space-y-4">
                         <h2 className="text-xl font-bold border-b border-slate-100 pb-2">1. 運営者情報</h2>
                         <p className="text-slate-600 leading-relaxed">
-                            サービス名: Baby App<br />
-                            運営者: Baby App 運営者<br />
+                            サービス名: Botoro<br />
+                            運営者: Botoro 運営者<br />
                             お問い合わせ: <a href="https://baby-app-next.onrender.com/" className="text-indigo-600 underline">サービストップページ</a>よりご確認ください。
                         </p>
                     </section>

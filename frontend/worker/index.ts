@@ -3,7 +3,7 @@ const sw = self as unknown as ServiceWorkerGlobalScope;
 
 sw.addEventListener("push", (event) => {
   const data = event.data ? JSON.parse(event.data.text()) : {};
-  const title = data.title || "Baby App";
+  const title = data.title || "Botoro";
   const body = data.body || "新しい通知があります。";
   const url = data.url || "/";
 

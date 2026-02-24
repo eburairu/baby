@@ -60,7 +60,7 @@ export default function LoginPage() {
     return (
         <Card className="rounded-2xl shadow-sm border-0">
             <CardHeader>
-                <CardTitle data-sentry-unmask>Baby App にログイン</CardTitle>
+                <CardTitle data-sentry-unmask>Botoro にログイン</CardTitle>
                 <CardDescription data-sentry-unmask>ユーザー名を入力してログインしてください</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
