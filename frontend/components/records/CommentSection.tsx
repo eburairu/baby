@@ -23,6 +23,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
   const { comments, addComment, deleteComment, isLoading, error } = useComments(recordType, recordId);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,11 +44,14 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
   };
 
   const handleDelete = async (commentId: number) => {
+    setDeletingId(commentId);
     try {
       await deleteComment(commentId);
       onCommentChange?.();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -145,17 +149,21 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
               </p>
 
               {(currentUserId === comment.user_id) && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => {
                     if (window.confirm("このコメントを削除しますか？")) {
                       handleDelete(comment.id);
                     }
                   }}
+                  loading={deletingId === comment.id}
+                  hideContentOnLoading
                   aria-label="コメントを削除"
-                  className="absolute top-2 right-2 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 rounded"
+                  className="absolute top-2 right-2 h-6 w-6 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-transparent"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               )}
             </div>
           );

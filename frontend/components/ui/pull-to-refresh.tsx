@@ -90,10 +90,10 @@ export function PullToRefresh({
         >
             {/* Loading Indicator Area */}
             <motion.div
-                style={{ y, opacity, scale, height: pullThreshold }}
-                className="absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden"
+                style={{ opacity, scale, height: pullThreshold }}
+                className="absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none z-0"
             >
-                <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-lg border border-slate-200 dark:border-zinc-700 mt-2">
+                <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-lg border border-slate-200 dark:border-zinc-700">
                     <motion.div style={{ rotate: isRefreshing ? undefined : rotate }}>
                         <BabyBottleLoading className="w-8 h-8 text-primary" />
                     </motion.div>

@@ -26,4 +26,9 @@ frontend/.next/
 
 # Git Worktree
 worktrees/
-\n# PR body temporary files\npr_body*.md
+
+# PR body temporary files
+pr_body*.md
+
+# Playwright MCP
+.playwright-mcp/

@@ -23,6 +23,8 @@ export default function NotificationsPage() {
   const { permission, requestPermission, subscribeUser, sendSubscriptionToBackend } = usePushNotification();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dndInputsVisible, setDndInputsVisible] = useState(false);
+  const dndEnabled = !!(settings?.dnd_start_time && settings?.dnd_end_time);
 
   useEffect(() => {
     fetchSettings();
@@ -34,11 +36,49 @@ export default function NotificationsPage() {
       if (response.ok) {
         const data = await response.json();
         setSettings(data);
+        setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
       }
     } catch (error) {
       console.error("Failed to fetch settings:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDndToggle = async (enabled: boolean) => {
+    setDndInputsVisible(enabled);
+    if (!enabled) {
+      const newSettings = { ...settings!, dnd_start_time: null, dnd_end_time: null };
+      setSettings(newSettings);
+      try {
+        const res = await fetch("/api/notifications/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dnd_start_time: null, dnd_end_time: null }),
+        });
+        if (!res.ok) throw new Error();
+        toast.success("おやすみモードを無効にしました");
+      } catch {
+        toast.error("設定の更新に失敗しました");
+        fetchSettings();
+      }
+    } else {
+      const defaultStart = "21:00";
+      const defaultEnd = "08:00";
+      const newSettings = { ...settings!, dnd_start_time: defaultStart, dnd_end_time: defaultEnd };
+      setSettings(newSettings);
+      try {
+        const res = await fetch("/api/notifications/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dnd_start_time: defaultStart, dnd_end_time: defaultEnd }),
+        });
+        if (!res.ok) throw new Error();
+        toast.success("おやすみモードを有効にしました");
+      } catch {
+        toast.error("設定の更新に失敗しました");
+        fetchSettings();
+      }
     }
   };
 
@@ -235,34 +275,42 @@ export default function NotificationsPage() {
 
         <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-indigo-500" />
-              おやすみモード
-            </CardTitle>
-            <CardDescription>指定した時間帯は通知を送信しません</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">開始時間</label>
-                <input
-                  type="time"
-                  className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
-                  value={settings?.dnd_start_time || ""}
-                  onChange={(e) => updateSetting("dnd_start_time", e.target.value || null)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">終了時間</label>
-                <input
-                  type="time"
-                  className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
-                  value={settings?.dnd_end_time || ""}
-                  onChange={(e) => updateSetting("dnd_end_time", e.target.value || null)}
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Clock className="h-5 w-5 text-indigo-500" />
+                おやすみモード
+              </CardTitle>
+              <Switch
+                checked={dndEnabled}
+                onCheckedChange={handleDndToggle}
+              />
             </div>
-          </CardContent>
+            <CardDescription>指定した時間帯はプッシュ通知を送信しません</CardDescription>
+          </CardHeader>
+          {dndInputsVisible && (
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">開始時間</label>
+                  <input
+                    type="time"
+                    className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
+                    value={settings?.dnd_start_time || ""}
+                    onChange={(e) => updateSetting("dnd_start_time", e.target.value || null)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">終了時間</label>
+                  <input
+                    type="time"
+                    className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
+                    value={settings?.dnd_end_time || ""}
+                    onChange={(e) => updateSetting("dnd_end_time", e.target.value || null)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          )}
         </Card>
       </div>
     </div>

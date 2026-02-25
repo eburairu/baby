@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
@@ -24,21 +23,10 @@ import { DiaperType } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
 
 const POOP_COLORS = ["黄色", "緑", "茶色", "黒", "白", "その他"] as const;
 const POOP_AMOUNTS = ["少量", "普通", "多量", "その他"] as const;
-
-const diaperSchema = z.object({
-    diaper_type: z.nativeEnum(DiaperType),
-    change_time: z.string(),
-    notes: z.string().optional(),
-    poop_color: z.string().optional(),
-    custom_poop_color: z.string().optional(),
-    poop_amount: z.string().optional(),
-    custom_poop_amount: z.string().optional(),
-})
-
-type DiaperFormValues = z.infer<typeof diaperSchema>
 
 interface Props {
     babyId: string

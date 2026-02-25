@@ -1,22 +1,16 @@
 "use client"
-import { RECORD_TYPES } from '@/types/enums';
-import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button";
-import { Feeding, FeedingUpdate } from "@/types/feeding";
-import { Trash2, Milk, Baby, User, MessageCircle, Pencil } from "lucide-react";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
-import { useUser } from "@/hooks/useAuth";
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog";
-import { FeedingForm } from "./feeding-form";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import { useRecordDelete } from "@/hooks/useRecordDelete";
-import { HistoryCard } from "@/components/records/HistoryCard";
+import { useState } from "react"
+import { Feeding, FeedingUpdate } from "@/types/feeding"
+import { RECORD_TYPES } from "@/types/enums"
+import { User, MessageCircle, Baby, Milk } from "lucide-react"
+import { format } from "date-fns"
+import { ja } from "date-fns/locale"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
+import { HistoryCard } from "@/components/records/HistoryCard"
+import { RecordListItem } from "@/components/records/RecordListItem"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
+import { FeedingEditDialog } from "./FeedingEditDialog"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 interface FeedingHistoryProps {
     feedings: Feeding[];
@@ -58,10 +52,7 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
 }
 
 export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWrite = true, initialCommentRecordId, babyId }: FeedingHistoryProps) {
-    const { user } = useUser();
     const [editTarget, setEditTarget] = useState<Feeding | null>(null);
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null);
-    const initializedRef = useRef(false);
 
     const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
         onDelete,
@@ -69,17 +60,13 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
         resourceName: "授乳記録"
     });
 
-    useEffect(() => {
-        if (initialCommentRecordId && feedings.length > 0 && !initializedRef.current) {
-            const target = feedings.find(f => f.id === initialCommentRecordId);
-            if (target) {
-                initializedRef.current = true;
-                setTimeout(() => {
-                    setCommentTarget({ id: target.id, title: `授乳 ${format(new Date(target.feeding_time), "HH:mm", { locale: ja })}` });
-                }, 0);
-            }
-        }
-    }, [initialCommentRecordId, feedings]);
+    const { openComment, CommentDialog } = useRecordComments({
+        records: feedings,
+        recordType: RECORD_TYPES.FEEDING,
+        initialCommentRecordId,
+        getTitle: (record) => `授乳 ${format(new Date(record.feeding_time), "HH:mm", { locale: ja })}`,
+        onCommentChange: onRefresh
+    });
 
     const isEmpty = !feedings || feedings.length === 0;
 
@@ -87,119 +74,81 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
         <>
             <HistoryCard title="最近の記録" isEmpty={isEmpty} emptyMessage="まだ記録がありません。">
                 {(feedings || []).map((feeding) => (
-                    <div
+                    <RecordListItem
                         key={feeding.id}
-                        className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0"
-                    >
-                        <div className="flex items-start space-x-4">
-                            <div className={`p-2 rounded-full shrink-0 mt-0.5 ${feeding.feeding_type === 'BREAST' ? 'bg-pink-100 text-pink-600' : 'bg-blue-100 text-blue-600'}`}>
+                        icon={
+                            <div className={`p-2 rounded-full shrink-0 ${feeding.feeding_type === 'BREAST' ? 'bg-pink-100 text-pink-600' : 'bg-blue-100 text-blue-600'}`}>
                                 {feeding.feeding_type === 'BREAST' ? <Baby className="w-5 h-5" /> : <Milk className="w-5 h-5" />}
                             </div>
-                            <div className="space-y-1">
-                                <div className="font-medium">
-                                    {format(new Date(feeding.feeding_time), "HH:mm", { locale: ja })}
-                                    <span className="ml-2 text-sm text-muted-foreground">
-                                        {feeding.feeding_type === 'BREAST' ? '母乳' : feeding.feeding_type === 'BOTTLE' ? 'ミルク' : '混合'}
-                                    </span>
-                                </div>
-                                <div className="text-sm text-gray-500 dark:text-zinc-400">
-                                    {feeding.feeding_type === 'BREAST' && <BreastDuration feeding={feeding} />}
-                                    {feeding.feeding_type === 'BOTTLE' && feeding.amount_ml && (
-                                        <span>
-                                            {feeding.amount_ml}ml
-                                            {feeding.bottle_content_type && (
-                                                <span className="ml-1 text-xs text-gray-400">
-                                                    ({BOTTLE_CONTENT_LABEL[feeding.bottle_content_type]})
-                                                </span>
-                                            )}
-                                        </span>
-                                    )}
-                                    {feeding.notes && (
-                                        <span className="ml-2 text-xs text-gray-400">({feeding.notes})</span>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    {feeding.feeding_completion && (
-                                        <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${COMPLETION_STYLE[feeding.feeding_completion].className}`}>
-                                            {COMPLETION_STYLE[feeding.feeding_completion].label}
-                                        </span>
-                                    )}
-                                    {feeding.recorded_by_display_name && (
-                                        <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500">
-                                            <User className="w-3 h-3" />
-                                            {feeding.recorded_by_display_name}
-                                        </span>
-                                    )}
-                                    <button
-                                        onClick={() => setCommentTarget({ id: feeding.id, title: `授乳 ${format(new Date(feeding.feeding_time), "HH:mm", { locale: ja })}` })}
-                                        className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
-                                    >
-                                        <MessageCircle className="w-3 h-3" />
-                                        {feeding.comment_count > 0 && <span>{feeding.comment_count}</span>}
-                                    </button>
-                                </div>
-                            </div>
+                        }
+                        actions={
+                            <RecordActionButtons
+                                canWrite={canWrite}
+                                onEdit={() => setEditTarget(feeding)}
+                                onDelete={() => setDeleteTargetId(feeding.id)}
+                            />
+                        }
+                    >
+                        <div className="font-medium">
+                            {format(new Date(feeding.feeding_time), "HH:mm", { locale: ja })}
+                            <span className="ml-2 text-sm text-muted-foreground">
+                                {feeding.feeding_type === 'BREAST' ? '母乳' : feeding.feeding_type === 'BOTTLE' ? 'ミルク' : '混合'}
+                            </span>
                         </div>
-                        {canWrite && (
-                            <div className="flex items-center gap-1 shrink-0 ml-4">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-400 hover:text-indigo-500"
-                                    onClick={() => setEditTarget(feeding)}
-                                >
-                                    <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-400 hover:text-red-500"
-                                    onClick={() => setDeleteTargetId(feeding.id)}
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        )}
-                    </div>
+                        <div className="text-sm text-gray-500 dark:text-zinc-400">
+                            {feeding.feeding_type === 'BREAST' && <BreastDuration feeding={feeding} />}
+                            {feeding.feeding_type === 'BOTTLE' && feeding.amount_ml && (
+                                <span>
+                                    {feeding.amount_ml}ml
+                                    {feeding.bottle_content_type && (
+                                        <span className="ml-1 text-xs text-gray-400">
+                                            ({BOTTLE_CONTENT_LABEL[feeding.bottle_content_type]})
+                                        </span>
+                                    )}
+                                </span>
+                            )}
+                            {feeding.notes && (
+                                <span className="ml-2 text-xs text-gray-400">({feeding.notes})</span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap mt-1">
+                            {feeding.feeding_completion && (
+                                <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${COMPLETION_STYLE[feeding.feeding_completion].className}`}>
+                                    {COMPLETION_STYLE[feeding.feeding_completion].label}
+                                </span>
+                            )}
+                            {feeding.recorded_by_display_name && (
+                                <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500">
+                                    <User className="w-3 h-3" />
+                                    {feeding.recorded_by_display_name}
+                                </span>
+                            )}
+                            <button
+                                onClick={() => openComment(feeding)}
+                                className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                            >
+                                <MessageCircle className="w-3 h-3" />
+                                {feeding.comment_count > 0 && <span>{feeding.comment_count}</span>}
+                            </button>
+                        </div>
+                    </RecordListItem>
                 ))}
             </HistoryCard>
 
             <ConfirmDeleteDialog />
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType={RECORD_TYPES.FEEDING}
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onRefresh}
-                />
-            )}
+            <CommentDialog />
 
             {/* 編集ダイアログ */}
-            <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) setEditTarget(null) }}>
-                <DialogContent className="max-w-md p-0 overflow-hidden border-0 sm:border rounded-2xl">
-                    <DialogHeader className="p-4 border-b bg-slate-50 dark:bg-zinc-900/50">
-                        <DialogTitle className="text-lg font-bold flex items-center gap-2">
-                            <Pencil className="w-5 h-5 text-indigo-500" />
-                            授乳記録の編集
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="p-4 max-h-[80vh] overflow-y-auto">
-                        {editTarget && babyId && (
-                            <FeedingForm
-                                babyId={babyId}
-                                initialData={editTarget}
-                                onUpdate={onUpdate}
-                                onSuccess={() => setEditTarget(null)}
-                            />
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <FeedingEditDialog
+                feeding={editTarget}
+                open={editTarget !== null}
+                onOpenChange={(open) => { if (!open) setEditTarget(null) }}
+                babyId={babyId}
+                onUpdate={onUpdate}
+                onSuccess={() => setEditTarget(null)}
+            />
         </>
     );
 }

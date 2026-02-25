@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -9,7 +9,7 @@ from app.models.feeding import Feeding, FeedingType
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 from app.utils.timezone import to_jst_naive
-from app.utils.notifications import notify_family_members
+from app.utils.notifications import notify_family_members_bg
 from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/feedings", tags=["feedings"])
@@ -41,7 +41,12 @@ def get_feedings(baby_id: int, db: Session = Depends(get_db), current_user: User
 
 
 @router.post("/", response_model=FeedingResponse)
-def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_feeding(
+    feeding_in: FeedingCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     verify_baby_access(db, feeding_in.baby_id, current_user.id, record_type="feeding", require_write=True)
     new_feeding = Feeding(
         user_id=current_user.id,
@@ -65,8 +70,8 @@ def create_feeding(feeding_in: FeedingCreate, db: Session = Depends(get_db), cur
     baby = db.query(Baby).filter(Baby.id == new_feeding.baby_id).first()
     display_name = current_user.display_name or current_user.username
     if baby:
-        notify_family_members(
-            db,
+        notify_family_members_bg(
+            background_tasks,
             baby.family_id,
             current_user.id,
             title="授乳の記録",

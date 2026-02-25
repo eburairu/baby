@@ -117,3 +117,16 @@ def disable_rate_limiter(request, monkeypatch):
         pass
 
     monkeypatch.setattr(RateLimiter, "__call__", no_op)
+
+
+@pytest.fixture(autouse=True)
+def patch_session_local(monkeypatch):
+    """
+    Patch app.database.SessionLocal so that background tasks use the test database engine.
+    Also patch app.utils.notifications.SessionLocal to ensure the correct session factory is used.
+    """
+    import app.database
+    import app.utils.notifications
+
+    monkeypatch.setattr(app.database, "SessionLocal", TestingSessionLocal)
+    monkeypatch.setattr(app.utils.notifications, "SessionLocal", TestingSessionLocal)

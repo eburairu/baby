@@ -1,14 +1,14 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
-import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, User, MessageCircle } from "lucide-react"
+import { User, MessageCircle } from "lucide-react"
 import { api } from "@/lib/api"
 import { DiaperEditDialog } from "./DiaperEditDialog"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { HistoryCard } from "@/components/records/HistoryCard"
+import { RecordListItem } from "@/components/records/RecordListItem"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 // Minimal date formatter if date-fns is missing, or use Intl.DateTimeFormat
 const formatDate = (isoString: string) => {
@@ -66,11 +66,8 @@ interface Props {
 }
 
 export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initialCommentRecordId }: Props) {
-    const { user } = useUser()
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
 
     const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
         onDelete: async (id) => {
@@ -80,19 +77,16 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
         resourceName: "おむつ記録"
     });
 
-    useEffect(() => {
-        if (initialCommentRecordId && diapers.length > 0 && !initializedRef.current) {
-            const target = diapers.find(d => d.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                const style = getStyles(target.diaper_type)
-                // Avoid synchronous state update in effect
-                setTimeout(() => {
-                    setCommentTarget({ id: target.id, title: `${style.label} ${formatDate(target.change_time)}` })
-                }, 0)
-            }
-        }
-    }, [initialCommentRecordId, diapers])
+    const { openComment, CommentDialog } = useRecordComments({
+        records: diapers,
+        recordType: "diaper",
+        initialCommentRecordId,
+        getTitle: (d) => {
+            const style = getStyles(d.diaper_type)
+            return `${style.label} ${formatDate(d.change_time)}`
+        },
+        onCommentChange: onDeleteSuccess
+    });
 
     const handleEdit = (diaper: Diaper) => {
         setEditingDiaper(diaper)
@@ -107,61 +101,46 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                 {(diapers || []).map((diaper) => {
                     const style = getStyles(diaper.diaper_type)
                     return (
-                        <div
+                        <RecordListItem
                             key={diaper.id}
-                            className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${style.bg} ${style.border}`}
-                        >
-                            <div className="flex items-center gap-3">
+                            className={`${style.bg} ${style.border}`}
+                            icon={
                                 <span className="text-2xl">{style.icon}</span>
-                                <div>
-                                    <div className={`text-sm font-bold ${style.text}`}>
-                                        {style.label}
-                                        <span className="text-xs font-normal text-gray-500 dark:text-zinc-500 ml-2">
-                                            {formatDate(diaper.change_time)}
-                                        </span>
-                                    </div>
-                                    {diaper.notes ? (
-                                        <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{diaper.notes}</div>
-                                    ) : null}
-                                    {diaper.recorded_by_display_name ? (
-                                        <div className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
-                                            <User className="w-3 h-3" />
-                                            {diaper.recorded_by_display_name}
-                                        </div>
-                                    ) : null}
-                                    <button
-                                        onClick={() => setCommentTarget({ id: diaper.id, title: `${style.label} ${formatDate(diaper.change_time)}` })}
-                                        aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント`}
-                                        className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5"
-                                    >
-                                        <MessageCircle className="w-3 h-3" />
-                                        {(diaper.comment_count ?? 0) > 0 && <span>{diaper.comment_count}</span>}
-                                    </button>
-                                </div>
+                            }
+                            actions={
+                                <RecordActionButtons
+                                    canWrite={canWrite}
+                                    onEdit={() => handleEdit(diaper)}
+                                    onDelete={() => setDeleteTargetId(diaper.id)}
+                                    editLabel={`${style.label} ${formatDate(diaper.change_time)} を編集`}
+                                    deleteLabel={`${style.label} ${formatDate(diaper.change_time)} を削除`}
+                                />
+                            }
+                        >
+                            <div className={`text-sm font-bold ${style.text}`}>
+                                {style.label}
+                                <span className="text-xs font-normal text-gray-500 dark:text-zinc-500 ml-2">
+                                    {formatDate(diaper.change_time)}
+                                </span>
                             </div>
-                            {canWrite ? (
-                                <div className="flex gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-transparent"
-                                        onClick={() => handleEdit(diaper)}
-                                        aria-label={`${style.label} ${formatDate(diaper.change_time)} を編集`}
-                                    >
-                                        <Pencil className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-transparent"
-                                        onClick={() => setDeleteTargetId(diaper.id)}
-                                        aria-label={`${style.label} ${formatDate(diaper.change_time)} を削除`}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                            {diaper.notes ? (
+                                <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{diaper.notes}</div>
+                            ) : null}
+                            {diaper.recorded_by_display_name ? (
+                                <div className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
+                                    <User className="w-3 h-3" />
+                                    {diaper.recorded_by_display_name}
                                 </div>
                             ) : null}
-                        </div>
+                            <button
+                                onClick={() => openComment(diaper)}
+                                aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント`}
+                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5"
+                            >
+                                <MessageCircle className="w-3 h-3" />
+                                {(diaper.comment_count ?? 0) > 0 && <span>{diaper.comment_count}</span>}
+                            </button>
+                        </RecordListItem>
                     )
                 })}
             </HistoryCard>
@@ -176,17 +155,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
             />
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="diaper"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onDeleteSuccess}
-                />
-            )}
+            <CommentDialog />
         </>
     )
 }

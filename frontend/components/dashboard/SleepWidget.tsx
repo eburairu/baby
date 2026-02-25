@@ -3,34 +3,17 @@ import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { api } from "@/lib/api"
-import { formatElapsed, isToday } from "@/lib/ageUtils"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
+import { calculateSleepStats } from "@/lib/sleepUtils"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
 
     const { activeSleep, isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
-        const sleepRecords = records?.filter(r => r.type === 'sleep') ?? []
-        const activeSleep = sleepRecords.find((s) => !s.details.end_time) ?? null
-        const todayTotalMin = sleepRecords
-            .filter((s) => s.details.end_time && isToday(s.timestamp))
-            .reduce((acc: number, s) => {
-                const ms = new Date(s.details.end_time as string).getTime() - new Date(s.timestamp).getTime()
-                return acc + Math.floor(ms / 60000)
-            }, 0)
-        const lastSleep = sleepRecords.find((s) => s.details.end_time)
-        return {
-            activeSleep,
-            isSleeping: !!activeSleep,
-            todayTotal: todayTotalMin > 0
-                ? `${Math.floor(todayTotalMin / 60)}時間${todayTotalMin % 60}分`
-                : "0分",
-            elapsed: activeSleep ? formatElapsed(activeSleep.timestamp) : null,
-            lastElapsed: lastSleep ? formatElapsed(lastSleep.details.end_time as string) : null,
-        }
+        return calculateSleepStats(records)
     }, [records])
 
     const handleStart = async () => {

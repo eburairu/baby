@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -25,19 +24,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { Growth } from "@/types/growth"
-
-const growthSchema = z.object({
-    date: z.string().min(1, "日付を選択してください"),
-    height: z.string().optional(),
-    weight: z.string().optional(),
-    head_circumference: z.string().optional(),
-    notes: z.string().optional(),
-}).refine(data => data.height || data.weight || data.head_circumference, {
-    message: "身長、体重、頭囲の少なくとも1つを入力してください",
-    path: ["height"],
-})
-
-type GrowthFormValues = z.infer<typeof growthSchema>
+import { growthSchema, GrowthFormValues } from "@/schemas/growth"
 
 interface GrowthRecordFormProps {
     babyId: number
