@@ -34,7 +34,7 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
                         {isLoggedIn ? (
                             <Link href="/dashboard">
-                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
+                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200">
                                     ダッシュボードに戻る
                                 </Button>
                             </Link>
@@ -42,7 +42,7 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                             <>
                                 <div className="flex flex-col gap-2 w-full sm:w-auto items-center sm:items-start">
                                     <Link href="/register" className="w-full sm:w-auto">
-                                        <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
+                                        <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200">
                                             無料で育児記録を始める
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
@@ -67,7 +67,7 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
                         <button
                             onClick={() => setActiveView("desktop")}
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
                                 activeView === "desktop"
                                     ? "bg-white text-slate-800 shadow-sm"
                                     : "text-slate-500 hover:text-slate-700"
@@ -78,7 +78,7 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                         </button>
                         <button
                             onClick={() => setActiveView("mobile")}
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
                                 activeView === "mobile"
                                     ? "bg-white text-slate-800 shadow-sm"
                                     : "text-slate-500 hover:text-slate-700"

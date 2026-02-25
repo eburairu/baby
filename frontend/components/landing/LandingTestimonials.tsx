@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { Star } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 const TESTIMONIALS = [
@@ -40,15 +41,18 @@ export function LandingTestimonials() {
                         >
                             <Card className="h-full rounded-2xl border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow">
                                 <CardContent className="p-8 space-y-6">
-                                    <div className="flex gap-1 text-amber-400">
+                                    <div className="flex gap-0.5">
                                         {[...Array(5)].map((_, j) => (
-                                            <span key={j} className={j < item.rating ? "text-amber-400" : "text-slate-200"}>★</span>
+                                            <Star
+                                                key={j}
+                                                className={`h-4 w-4 ${j < item.rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`}
+                                            />
                                         ))}
                                     </div>
                                     <p className="text-slate-600 leading-relaxed text-sm italic">
                                         &quot;{item.comment}&quot;
                                     </p>
-                                    <div className="pt-4 border-t border-slate-50">
+                                    <div className="pt-4 border-t border-slate-100">
                                         <p className="font-bold text-sm text-slate-800">{item.name}</p>
                                     </div>
                                 </CardContent>
