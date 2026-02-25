@@ -1,10 +1,11 @@
 "use client"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { BabyRecord } from "@/types/record"
 import dynamic from "next/dynamic"
 import { ActivityItem } from "./ActivityItem"
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 
 const RecordDetailDialog = dynamic(() => import("./RecordDetailDialog").then(mod => mod.RecordDetailDialog), {
     ssr: false
@@ -26,29 +27,14 @@ interface Props {
 export const RecentActivityFeed = React.memo(function RecentActivityFeed({ babyId, records, isLoading, mutate }: Props) {
     const [selectedRecord, setSelectedRecord] = useState<BabyRecord | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
-    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-    const sentinelRef = useRef<HTMLDivElement>(null)
 
     const allRecords = records ?? []
-    const recent = allRecords.slice(0, visibleCount)
-    const hasMore = visibleCount < allRecords.length
 
-    // センチネル要素が見えたら次の PAGE_SIZE 件を追加表示
-    useEffect(() => {
-        const sentinel = sentinelRef.current
-        if (!sentinel || !hasMore) return
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting) {
-                    setVisibleCount((prev) => prev + PAGE_SIZE)
-                }
-            },
-            { threshold: 0.1 }
-        )
-        observer.observe(sentinel)
-        return () => observer.disconnect()
-    }, [hasMore, recent.length])
+    const { visibleItems: recent, hasMore, sentinelRef } = useInfiniteScroll(allRecords, {
+        initialCount: PAGE_SIZE,
+        step: PAGE_SIZE,
+        threshold: 0.1
+    })
 
     const handleRecordClick = (record: BabyRecord) => {
         setSelectedRecord(record)

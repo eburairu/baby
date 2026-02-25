@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
 import { usePermissions } from "@/hooks/usePermissions"
 import { BabyRecord } from "@/types/record"
-import { Moon, Bed, Loader2, StickyNote } from "lucide-react"
+import { Moon, Bed, Loader2, StickyNote, Droplets, Baby, Zap } from "lucide-react"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
+import { useUIVersion } from "@/hooks/use-ui-version"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
 import { toast } from "sonner"
@@ -23,6 +24,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const [noteDialogOpen, setNoteDialogOpen] = useState(false)
     const { triggerFeedback } = useRecordFeedback(babyId)
+    const { isV2 } = useUIVersion()
 
     const activeSleep = useMemo(() => {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
@@ -82,10 +84,10 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 >
                     {loadingAction === "feeding_bottle" ? (
                         <Loader2 className="animate-spin" />
+                    ) : isV2 ? (
+                        <Droplets className="h-6 w-6" />
                     ) : (
-                        <span className="text-xl" role="img" aria-hidden="true">
-                            🍼
-                        </span>
+                        <span className="text-xl" role="img" aria-hidden="true">🍼</span>
                     )}
                 </Button>
                 <Button
@@ -117,10 +119,10 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 >
                     {loadingAction === "diaper_wet" ? (
                         <Loader2 className="animate-spin" />
+                    ) : isV2 ? (
+                        <Baby className="h-6 w-6" />
                     ) : (
-                        <span className="text-xl" role="img" aria-hidden="true">
-                            💧
-                        </span>
+                        <span className="text-xl" role="img" aria-hidden="true">💧</span>
                     )}
                 </Button>
                 <Button
@@ -134,10 +136,10 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 >
                     {loadingAction === "diaper_dirty" ? (
                         <Loader2 className="animate-spin" />
+                    ) : isV2 ? (
+                        <Zap className="h-6 w-6" />
                     ) : (
-                        <span className="text-xl" role="img" aria-hidden="true">
-                            💩
-                        </span>
+                        <span className="text-xl" role="img" aria-hidden="true">💩</span>
                     )}
                 </Button>
                 <div className="w-px h-8 bg-gray-200 dark:bg-zinc-700 mx-1" />

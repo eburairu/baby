@@ -3,6 +3,8 @@ import React, { useState } from "react"
 import { Sparkles, ChevronDown } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
+import { useUIVersion } from "@/hooks/use-ui-version"
+import { cn } from "@/lib/utils"
 
 interface Baby {
     id: string
@@ -22,9 +24,15 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
     const age = selected?.birthday ? calcAge(selected.birthday) : null
     const prenatalLabel = !selected?.birthday ? getPrenatalLabel(selected?.due_date) : null
     const [isCharacteristicsExpanded, setIsCharacteristicsExpanded] = useState(false)
+    const { isV2 } = useUIVersion()
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
+        <div className={cn(
+            "rounded-2xl p-4 transition-colors",
+            isV2
+                ? "bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 shadow-sm border border-pink-100/50 dark:border-pink-900/20"
+                : "bg-white dark:bg-zinc-900 shadow-sm"
+        )}>
             <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                     <div>
