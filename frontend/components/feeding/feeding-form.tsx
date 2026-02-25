@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
 import { format } from "date-fns"
-import { Play, Pause, RotateCcw, Save } from "lucide-react"
+import { Play, Pause, RotateCcw, Save, Heart, Milk } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -171,8 +171,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
             <CardContent className={isEditing ? "p-0" : "pt-6"}>
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedingType)} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="BREAST" data-sentry-unmask>🤱 母乳</TabsTrigger>
-                        <TabsTrigger value="BOTTLE" data-sentry-unmask>🍼 ミルク</TabsTrigger>
+                        <TabsTrigger value="BREAST" data-sentry-unmask><Heart className="w-4 h-4 mr-1" /> 母乳</TabsTrigger>
+                        <TabsTrigger value="BOTTLE" data-sentry-unmask><Milk className="w-4 h-4 mr-1" /> ミルク</TabsTrigger>
                     </TabsList>
 
                     <Form {...form}>

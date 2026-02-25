@@ -8,6 +8,7 @@ import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 import { calculateSleepStats } from "@/lib/sleepUtils"
+import { Moon } from "lucide-react"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
@@ -46,7 +47,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
         <WidgetCard
             title={
                 <span className="text-indigo-500 dark:text-indigo-400 flex items-center">
-                    💤 睡眠
+                    <Moon className="w-4 h-4 mr-1" /> 睡眠
                     {isSleeping ? (
                         <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
                     ) : null}

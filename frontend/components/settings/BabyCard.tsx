@@ -1,9 +1,9 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { Pencil, Trash2 } from "lucide-react"
+import { Baby as BabyIcon, Pencil, Trash2 } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 
-import { Baby } from "@/types/baby"
+import type { Baby } from "@/types/baby"
 
 interface Props {
     baby: Baby
@@ -25,7 +25,7 @@ export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
             <div className="flex items-start justify-between">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                        <span className="text-pink-500 dark:text-pink-400 font-semibold text-sm">👶 {baby.name}</span>
+                        <span className="text-pink-500 dark:text-pink-400 font-semibold text-sm flex items-center gap-1"><BabyIcon className="w-4 h-4" /> {baby.name}</span>
                     </div>
                     {age && <p className="text-sm text-gray-600 dark:text-zinc-400">{age}</p>}
                     {baby.birthday && (
