@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useFeedingTimer } from "@/hooks/useFeedingTimer"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
 import { format } from "date-fns"
 import { Play, Pause, RotateCcw, Save } from "lucide-react"
 import { toast } from "sonner"
@@ -26,16 +26,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Feeding, FeedingCreate, FeedingUpdate, FeedingType, BreastSide, BottleContentType, FeedingCompletion } from "@/types/feeding"
 
-const feedingSchema = z.object({
-    feeding_time: z.string(),
-    feeding_type: z.enum(["BREAST", "BOTTLE", "MIXED"]),
-    left_breast_minutes: z.coerce.number().min(0).optional(),
-    right_breast_minutes: z.coerce.number().min(0).optional(),
-    amount_ml: z.coerce.number().optional(),
-    notes: z.string().optional(),
-})
 
-type FeedingFormValues = z.infer<typeof feedingSchema>
 
 interface FeedingFormProps {
     babyId: number

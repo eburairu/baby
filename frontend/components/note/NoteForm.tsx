@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { noteSchema, NoteFormValues } from "@/schemas/note"
 import { format } from "date-fns"
 import { Plus, Save } from "lucide-react"
 
@@ -24,12 +24,7 @@ import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS } from "@/constants/ui-colors"
 
-const noteSchema = z.object({
-    note_time: z.string().min(1, "日時は必須です"),
-    content: z.string().min(1, "内容は必須です").max(2000, "2000文字以内で入力してください"),
-})
 
-type NoteFormValues = z.infer<typeof noteSchema>
 
 interface Props {
     babyId: number
