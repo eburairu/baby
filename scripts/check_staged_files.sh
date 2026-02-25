@@ -3,6 +3,25 @@
 # scripts/check_staged_files.sh
 # コミット対象（ステージング済み）のファイルに禁止ファイルが含まれていないかチェックする
 
+# ============================================================
+# ルートリポジトリの保護ブランチへの直接コミットをブロック
+# ワークツリーでは .git がファイル（"gitdir: ..."）になるため区別できる
+# ============================================================
+GIT_DIR_PATH=$(git rev-parse --git-dir 2>/dev/null)
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+PROTECTED_BRANCHES=("develop" "main")
+
+if [ -d "$GIT_DIR_PATH" ]; then
+  for branch in "${PROTECTED_BRANCHES[@]}"; do
+    if [ "$CURRENT_BRANCH" = "$branch" ]; then
+      echo "❌ エラー: ルートリポジトリの '$branch' ブランチに直接コミットできません。"
+      echo "   ワークツリーを作成してから作業してください:"
+      echo "   sh scripts/setup_worktree.sh feat/your-feature-name"
+      exit 1
+    fi
+  done
+fi
+
 FORBIDDEN_PATTERNS=(".venv" "node_modules" "worktrees/")
 EXIT_CODE=0
 
