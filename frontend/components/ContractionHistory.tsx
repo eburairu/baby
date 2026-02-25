@@ -158,9 +158,10 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                         )}
                                         <button
                                             onClick={() => setCommentTarget({ id: record.id, title: `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
-                                            className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-indigo-500 transition-colors"
+                                            className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-indigo-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-sm p-0.5"
+                                            aria-label={(record.comment_count ?? 0) > 0 ? `${record.comment_count}件のコメントを表示` : "コメントを追加"}
                                         >
-                                            <MessageCircle className="w-3 h-3" />
+                                            <MessageCircle className="w-3 h-3" aria-hidden="true" />
                                             {(record.comment_count ?? 0) > 0 && <span>{record.comment_count}</span>}
                                         </button>
                                     </div>
