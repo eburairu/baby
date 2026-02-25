@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect, useRef } from "react"
-import { api } from "@/lib/api"
+import { useEffect, useRef } from "react"
 import { formatTimeHHMM, formatSecondsToJapanese } from "@/lib/ageUtils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -32,6 +31,7 @@ import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import { useUser } from "@/hooks/useAuth"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
+import { useContractionActions } from "@/hooks/useContractionActions"
 
 
 interface ContractionHistoryProps {
@@ -44,70 +44,34 @@ interface ContractionHistoryProps {
 
 export default function ContractionHistory({ contractions, onDeleted, onUpdated, canWrite = true, initialCommentRecordId }: ContractionHistoryProps) {
     const { user } = useUser()
-    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
-    const [editTarget, setEditTarget] = useState<ContractionRecord | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [isUpdating, setIsUpdating] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
     const initializedRef = useRef(false)
+
+    // Custom Hook logic
+    const {
+        deleteTargetId, editTarget, commentTarget,
+        isDeleting, isUpdating,
+        openDeleteDialog, closeDeleteDialog, executeDelete,
+        openEditDialog, closeEditDialog, executeUpdate,
+        openCommentDialog, closeCommentDialog
+    } = useContractionActions({
+        onDeleted,
+        onUpdated
+    })
 
     useEffect(() => {
         if (initialCommentRecordId && contractions.length > 0 && !initializedRef.current) {
             const target = contractions.find(c => c.id === initialCommentRecordId)
             if (target) {
                 initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `陣痛 ${format(new Date(target.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
+                openCommentDialog(target.id, `陣痛 ${format(new Date(target.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}`)
             }
         }
-    }, [initialCommentRecordId, contractions])
+    }, [initialCommentRecordId, contractions, openCommentDialog])
 
-    const handleDelete = useCallback(async () => {
-        if (deleteTargetId === null) return
-        setIsDeleting(true)
-        try {
-            await api.delete(`/contractions/${deleteTargetId}`)
-            onDeleted()
-        } catch (err) {
-            console.error("Failed to delete contraction", err)
-        } finally {
-            setIsDeleting(false)
-            setDeleteTargetId(null)
-        }
-    }, [deleteTargetId, onDeleted])
 
-    const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!editTarget) return
-
-        setIsUpdating(true)
-        try {
-            const formData = new FormData(e.currentTarget)
-            const startTimeStr = formData.get("start_time") as string
-            const durationStr = formData.get("duration_seconds") as string
-            const notes = formData.get("notes") as string
-
-            // 日付部分は維持しつつ時刻だけ更新
-            const originalStart = new Date(editTarget.start_time)
-            const [hours, minutes] = startTimeStr.split(":").map(Number)
-            const newStart = new Date(originalStart)
-            newStart.setHours(hours, minutes, 0, 0)
-
-            const durationSeconds = parseInt(durationStr, 10)
-            const newEnd = new Date(newStart.getTime() + durationSeconds * 1000)
-
-            await api.patch(`/contractions/${editTarget.id}`, {
-                start_time: newStart.toISOString(),
-                end_time: newEnd.toISOString(),
-                duration_seconds: durationSeconds,
-                notes: notes,
-            })
-            setEditTarget(null)
-            onUpdated?.()
-        } catch (err) {
-            console.error("Failed to update contraction", err)
-        } finally {
-            setIsUpdating(false)
-        }
+        await executeUpdate(new FormData(e.currentTarget))
     }
 
     if (contractions.length === 0) {
@@ -157,7 +121,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                             </span>
                                         )}
                                         <button
-                                            onClick={() => setCommentTarget({ id: record.id, title: `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
+                                            onClick={() => openCommentDialog(record.id, `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}`)}
                                             className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-indigo-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-sm p-0.5"
                                             aria-label={(record.comment_count ?? 0) > 0 ? `${record.comment_count}件のコメントを表示` : "コメントを追加"}
                                         >
@@ -172,7 +136,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                             variant="ghost"
                                             size="sm"
                                             className="text-muted-foreground hover:text-primary h-8 w-8 p-0"
-                                            onClick={() => setEditTarget(record)}
+                                            onClick={() => openEditDialog(record)}
                                             aria-label="編集"
                                         >
                                             <Pencil className="h-4 w-4" />
@@ -181,7 +145,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                             variant="ghost"
                                             size="sm"
                                             className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
-                                            onClick={() => setDeleteTargetId(record.id)}
+                                            onClick={() => openDeleteDialog(record.id)}
                                             aria-label="削除"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -198,7 +162,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
             {commentTarget && (
                 <RecordCommentDialog
                     open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
+                    onOpenChange={(open) => { if (!open) closeCommentDialog() }}
                     recordType="contraction"
                     recordId={commentTarget.id}
                     title={commentTarget.title}
@@ -208,9 +172,9 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
             )}
 
             {/* 編集ダイアログ */}
-            <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) setEditTarget(null) }}>
+            <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) closeEditDialog() }}>
                 <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={handleUpdate}>
+                    <form onSubmit={handleUpdateSubmit}>
                         <DialogHeader>
                             <DialogTitle>記録の編集</DialogTitle>
                             <DialogDescription>
@@ -253,7 +217,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setEditTarget(null)}>キャンセル</Button>
+                            <Button type="button" variant="outline" onClick={closeEditDialog}>キャンセル</Button>
                             <Button type="submit" disabled={isUpdating}>
                                 {isUpdating ? "保存中..." : "保存する"}
                             </Button>
@@ -263,7 +227,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
             </Dialog>
 
             {/* 削除確認ダイアログ */}
-            <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
+            <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) closeDeleteDialog() }}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>記録の削除</AlertDialogTitle>
@@ -273,7 +237,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
+                        <AlertDialogAction onClick={executeDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
                             {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             削除
                         </AlertDialogAction>
