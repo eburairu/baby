@@ -1,5 +1,7 @@
 "use client"
 
+import { BOTTLE_CONTENT_TYPES, FEEDING_COMPLETIONS } from "@/constants/feeding"
+
 import { useState, useEffect, useCallback } from "react"
 import { useFeedingTimer } from "@/hooks/useFeedingTimer"
 import { useForm } from "react-hook-form"
@@ -300,11 +302,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                 <div>
                                     <p className="text-sm font-medium mb-2">種類</p>
                                     <div className="flex gap-2">
-                                        {([
-                                            { value: "FORMULA" as BottleContentType, label: "粉ミルク" },
-                                            { value: "EXPRESSED_MILK" as BottleContentType, label: "搾母乳" },
-                                            { value: "MIXED" as BottleContentType, label: "混合" },
-                                        ] as const).map(({ value, label }) => (
+                                        {BOTTLE_CONTENT_TYPES.map(({ value, label }) => (
                                             <button
                                                 key={value}
                                                 type="button"
@@ -342,10 +340,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                             <div>
                                 <p className="text-sm font-medium mb-2">授乳完全度</p>
                                 <div className="flex gap-2">
-                                    {([
-                                        { value: "FULL" as FeedingCompletion, label: "しっかり飲んだ" },
-                                        { value: "PARTIAL" as FeedingCompletion, label: "途中でやめた" },
-                                    ] as const).map(({ value, label }) => (
+                                    {FEEDING_COMPLETIONS.map(({ value, label }) => (
                                         <button
                                             key={value}
                                             type="button"

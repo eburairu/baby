@@ -10,12 +10,23 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/check_root_edit.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/ry1e/Documents/work/baby/scripts/check_openapi_hook.sh"
+            "command": "bash scripts/check_openapi_hook.sh"
           }
         ]
       }
