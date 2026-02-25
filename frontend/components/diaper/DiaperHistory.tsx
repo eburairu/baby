@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
-import { User, MessageCircle } from "lucide-react"
+import { User, MessageCircle, Droplets, Wind } from "lucide-react"
 import { api } from "@/lib/api"
 import { DiaperEditDialog } from "./DiaperEditDialog"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
@@ -28,7 +28,7 @@ const getStyles = (type: DiaperType) => {
                 bg: "bg-blue-50 dark:bg-blue-950/30",
                 border: "border-blue-100 dark:border-blue-900/50",
                 text: "text-blue-700 dark:text-blue-400",
-                icon: "💧",
+                icon: <Droplets className="w-6 h-6" />,
                 label: "おしっこ"
             }
         case DiaperType.DIRTY:
@@ -36,7 +36,7 @@ const getStyles = (type: DiaperType) => {
                 bg: "bg-amber-50 dark:bg-amber-950/30",
                 border: "border-amber-100 dark:border-amber-900/50",
                 text: "text-amber-700 dark:text-amber-400",
-                icon: "💩",
+                icon: <Wind className="w-6 h-6" />,
                 label: "うんち"
             }
         case DiaperType.BOTH:
@@ -44,7 +44,7 @@ const getStyles = (type: DiaperType) => {
                 bg: "bg-purple-50 dark:bg-purple-950/30",
                 border: "border-purple-100 dark:border-purple-900/50",
                 text: "text-purple-700 dark:text-purple-400",
-                icon: "💧💩",
+                icon: <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Wind className="w-6 h-6" /></span>,
                 label: "両方"
             }
         default:
@@ -104,9 +104,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                         <RecordListItem
                             key={diaper.id}
                             className={`${style.bg} ${style.border}`}
-                            icon={
-                                <span className="text-2xl">{style.icon}</span>
-                            }
+                            icon={style.icon}
                             actions={
                                 <RecordActionButtons
                                     canWrite={canWrite}

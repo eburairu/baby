@@ -2,19 +2,9 @@
 import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
-import { MessageCircle, User, Droplets, Moon, Baby, TrendingUp, StickyNote, Zap, type LucideIcon } from "lucide-react"
-import { RECORD_TYPE_ICONS, RECORD_TYPE_LABELS } from "@/constants/ui"
-import { RECORD_TYPES } from "@/types/enums"
+import { MessageCircle, User } from "lucide-react"
+import { RECORD_TYPE_ICONS, RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
 import { useUIVersion } from "@/hooks/use-ui-version"
-
-const RECORD_TYPE_LUCIDE_ICONS: Record<string, LucideIcon> = {
-    [RECORD_TYPES.FEEDING]: Droplets,
-    [RECORD_TYPES.SLEEP]: Moon,
-    [RECORD_TYPES.DIAPER]: Baby,
-    [RECORD_TYPES.GROWTH]: TrendingUp,
-    [RECORD_TYPES.NOTE]: StickyNote,
-    [RECORD_TYPES.CONTRACTION]: Zap,
-}
 
 interface ActivityItemProps {
     record: BabyRecord
@@ -22,7 +12,7 @@ interface ActivityItemProps {
 }
 
 export const ActivityItem = React.memo(function ActivityItem({ record, onClick }: ActivityItemProps) {
-    const recordType = record.type as keyof typeof RECORD_TYPE_ICONS
+    const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
     const icon = RECORD_TYPE_ICONS[recordType] || "📝"
     const { isV2 } = useUIVersion()

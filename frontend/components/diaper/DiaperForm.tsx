@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Droplets, Wind } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -113,7 +114,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
-                                <span className="text-2xl">💧</span>
+                                <Droplets className="w-6 h-6" />
                                 <span className="text-xs font-medium">おしっこ</span>
                             </button>
                             <button
@@ -126,7 +127,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
-                                <span className="text-2xl">💩</span>
+                                <Wind className="w-6 h-6" />
                                 <span className="text-xs font-medium">うんち</span>
                             </button>
                             <button
@@ -139,7 +140,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
-                                <span className="text-2xl">💧💩</span>
+                                <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Wind className="w-6 h-6" /></span>
                                 <span className="text-xs font-medium">両方</span>
                             </button>
                         </div>
