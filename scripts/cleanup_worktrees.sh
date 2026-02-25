@@ -52,6 +52,8 @@ else
         elif [ "$is_synced" = "true" ]; then
             echo "☁️  $branch は未マージですがリモートと同期済みです。安全に削除します..."
             git worktree remove --force "$wt_path"
+            # 同期済みなのでローカルブランチも削除（未マージのため -D が必要）
+            git branch -D "$branch" 2>/dev/null || true
         else
             echo "⏳ $branch は未マージで、ローカルにのみ変更があります。維持します。"
         fi
