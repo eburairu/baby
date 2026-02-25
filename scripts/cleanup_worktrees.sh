@@ -24,8 +24,8 @@ git fetch origin main develop --quiet
 echo "🗑️ 一時的な PR body ファイル（pr_body*.md）を削除しています..."
 find . -name "pr_body*.md" -type f -delete 2>/dev/null || true
 
-# メインのワークツリー（ルート）以外のワークツリーを取得
-WORKTREES=$(git worktree list --porcelain | grep "^worktree " | awk '{print $2}' | tail -n +2)
+# メインのワークツリー（ルート）以外のワークツリーを取得（ネストしたものを先に消せるよう逆順にソート）
+WORKTREES=$(git worktree list --porcelain | grep "^worktree " | awk '{print $2}' | tail -n +2 | sort -r)
 
 if [ -z "$WORKTREES" ]; then
     echo "✅ 削除対象のワークツリーはありません。"
@@ -37,15 +37,23 @@ else
         
         echo "チェック $branch ($wt_path)..."
         
-        # origin/main または origin/develop にマージされているか確認
-        if git merge-base --is-ancestor "$branch" origin/main 2>/dev/null || \
-           git merge-base --is-ancestor "$branch" origin/develop 2>/dev/null; then
+        # 削除条件の判定
+        is_merged_main=$(git merge-base --is-ancestor "$branch" origin/main 2>/dev/null && echo "true" || echo "false")
+        is_merged_develop=$(git merge-base --is-ancestor "$branch" origin/develop 2>/dev/null && echo "true" || echo "false")
+        
+        local_hash=$(git rev-parse "$branch" 2>/dev/null || echo "local_missing")
+        remote_hash=$(git rev-parse "origin/$branch" 2>/dev/null || echo "remote_missing")
+        is_synced=$([ "$local_hash" = "$remote_hash" ] && [ "$local_hash" != "local_missing" ] && echo "true" || echo "false")
+
+        if [ "$is_merged_main" = "true" ] || [ "$is_merged_develop" = "true" ]; then
             echo "✨ $branch はマージ済みです。削除します..."
             git worktree remove --force "$wt_path"
-            # 関連するローカルブランチも削除（マージ済みなので -d で安全に削除可能）
-            git branch -d "$branch"
+            git branch -d "$branch" 2>/dev/null || true
+        elif [ "$is_synced" = "true" ]; then
+            echo "☁️  $branch は未マージですがリモートと同期済みです。安全に削除します..."
+            git worktree remove --force "$wt_path"
         else
-            echo "⏳ $branch はまだマージされていません。維持します。"
+            echo "⏳ $branch は未マージで、ローカルにのみ変更があります。維持します。"
         fi
     done
 fi
