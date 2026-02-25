@@ -16,8 +16,16 @@ from app.models.note import Note
 from app.schemas.comment import CommentCreate, CommentResponse
 from app.utils.notifications import notify_family_members
 from app.models.baby import Baby
+from app.utils.rate_limit import RateLimiter
 
 router = APIRouter(prefix="/api", tags=["comments"])
+
+# Rate limit for comments: 10 comments per minute per user
+comment_limiter = RateLimiter(
+    requests_limit=10,
+    time_window=60,
+    error_message="Too many comments. Please wait a moment.",
+)
 
 
 def get_record_baby_id(db: Session, record_type: str, record_id: int) -> int:
@@ -94,6 +102,9 @@ def create_record_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Check rate limit
+    comment_limiter.check(f"user_{current_user.id}")
+
     baby_id = get_record_baby_id(db, record_type, record_id)
     # viewer も投稿可能とするため require_write=False
     verify_baby_access(db, baby_id, current_user.id, record_type=record_type)
