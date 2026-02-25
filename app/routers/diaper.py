@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -10,7 +10,7 @@ from app.models.diaper import Diaper
 from app.models.comment import RecordComment
 from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
 from app.utils.timezone import to_jst_naive
-from app.utils.notifications import notify_family_members
+from app.utils.notifications import notify_family_members_bg
 from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
@@ -48,7 +48,12 @@ def get_diapers(
 
 
 @router.post("/", response_model=DiaperResponse)
-def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_diaper(
+    diaper_in: DiaperCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     verify_baby_access(db, diaper_in.baby_id, current_user.id, record_type="diaper", require_write=True)
     new_diaper = Diaper(
         user_id=current_user.id,
@@ -65,8 +70,8 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
     baby = db.query(Baby).filter(Baby.id == new_diaper.baby_id).first()
     display_name = current_user.display_name or current_user.username
     if baby:
-        notify_family_members(
-            db,
+        notify_family_members_bg(
+            background_tasks,
             baby.family_id,
             current_user.id,
             title="オムツの記録",
