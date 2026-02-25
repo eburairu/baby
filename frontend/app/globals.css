@@ -8,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans, var(--font-geist-sans));
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -115,6 +115,59 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ============================================================
+   v2 新デザイン（Claymorphism + パステルピンク）
+   [data-ui-v2] 属性が <html> に付与されると適用
+   ============================================================ */
+[data-ui-v2] {
+  --radius: 1rem;
+  --background: oklch(0.98 0.012 350);
+  --foreground: oklch(0.35 0.08 350);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.35 0.08 350);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.35 0.08 350);
+  --primary: oklch(0.72 0.18 350);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.90 0.07 350);
+  --secondary-foreground: oklch(0.35 0.08 350);
+  --muted: oklch(0.93 0.03 350);
+  --muted-foreground: oklch(0.55 0.06 350);
+  --accent: oklch(0.72 0.19 142);
+  --accent-foreground: oklch(1 0 0);
+  --border: oklch(0.87 0.04 350);
+  --input: oklch(0.90 0.04 350);
+  --ring: oklch(0.72 0.18 350);
+  --font-sans: var(--font-nunito);
+}
+
+[data-ui-v2].dark,
+[data-ui-v2] .dark {
+  --background: oklch(0.18 0.04 280);
+  --foreground: oklch(0.93 0.02 350);
+  --card: oklch(0.23 0.04 280);
+  --card-foreground: oklch(0.93 0.02 350);
+  --primary: oklch(0.78 0.16 350);
+  --primary-foreground: oklch(0.15 0.04 280);
+  --secondary: oklch(0.30 0.06 280);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.78 0.16 350);
+  --font-sans: var(--font-nunito);
+}
+
+/* ============================================================
+   Claymorphism ユーティリティ
+   ============================================================ */
+@utility clay-card {
+  border-radius: var(--radius-2xl);
+  border: 2.5px solid oklch(from var(--primary) l c h / 20%);
+  box-shadow:
+    0 4px 0 oklch(from var(--primary) calc(l - 0.15) c h / 30%),
+    0 8px 24px oklch(from var(--primary) l c h / 10%);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 @utility pb-safe {
