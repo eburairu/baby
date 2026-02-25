@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import List, Optional
@@ -103,11 +103,14 @@ def get_admin_families(
     admin: User = Depends(get_current_superadmin),
     skip: int = 0,
     limit: int = MAX_PAGINATION_LIMIT,
-    search: Optional[str] = None
+    search: Optional[str] = Query(None, max_length=100)
 ):
     query = db.query(Family)
     if search:
-        query = query.filter(Family.name.ilike(f"%{search}%"))
+        # Escape wildcard characters to prevent DoS and ensure literal search
+        # Using backslash as escape character
+        escaped_search = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        query = query.filter(Family.name.ilike(f"%{escaped_search}%", escape="\\"))
     families = query.offset(skip).limit(limit).all()
     result = []
     for f in families:
