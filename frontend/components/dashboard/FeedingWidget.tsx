@@ -10,6 +10,7 @@ import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
+import { Milk } from "lucide-react"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
@@ -38,7 +39,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
 
     return (
         <WidgetCard
-            title={<span className="text-rose-500 dark:text-rose-400">🍼 授乳</span>}
+            title={<span className="text-rose-500 dark:text-rose-400 flex items-center gap-1"><Milk className="w-4 h-4" /> 授乳</span>}
             href={`/feeding?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-rose-500 dark:hover:text-rose-400"

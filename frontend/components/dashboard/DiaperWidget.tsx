@@ -1,5 +1,6 @@
 "use client"
 import { useMemo, memo } from "react"
+import { Baby, Droplets, Wind } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
@@ -37,7 +38,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
 
     return (
         <WidgetCard
-            title={<span className="text-amber-500 dark:text-amber-400">👶 おむつ</span>}
+            title={<span className="text-amber-500 dark:text-amber-400 flex items-center gap-1"><Baby className="w-4 h-4" /> おむつ</span>}
             href={`/diaper?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-amber-500 dark:hover:text-amber-400"
@@ -47,7 +48,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                 isLoading={isLoading}
                 loadingColorClass="text-amber-400"
                 elapsed={lastElapsed}
-                subContent={`今日: 💧${wetCount} / 💩${dirtyCount}`}
+                subContent={<span className="flex items-center gap-1">今日: <Droplets className="w-3 h-3 inline-block" />{wetCount} / <Wind className="w-3 h-3 inline-block" />{dirtyCount}</span>}
             />
             {canWrite ? (
                 <div className="flex gap-2">
@@ -60,7 +61,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         className="flex-1"
                         aria-label="おしっこ"
                     >
-                        💧
+                        <Droplets className="w-5 h-5" />
                     </WidgetQuickButton>
                     <WidgetQuickButton
                         color="amber"
@@ -71,7 +72,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         className="flex-1"
                         aria-label="うんち"
                     >
-                        💩
+                        <Wind className="w-5 h-5" />
                     </WidgetQuickButton>
                 </div>
             ) : null}

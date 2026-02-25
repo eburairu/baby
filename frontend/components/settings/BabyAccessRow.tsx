@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { Baby, ChevronDown, ChevronUp } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import type { BabyAccess } from "@/hooks/usePermissionsPage"
@@ -63,7 +63,7 @@ export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
       {/* 折りたたみヘッダー行 */}
       <div className="flex items-center gap-3 px-3 py-2.5">
         <span className="text-sm text-gray-700 dark:text-zinc-300 flex-1 font-medium">
-          👶 {babyAccess.babyName}
+          <Baby className="w-4 h-4 inline-block mr-1" /> {babyAccess.babyName}
         </span>
 
         <div className="flex items-center gap-2">

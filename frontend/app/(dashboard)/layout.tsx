@@ -108,7 +108,7 @@ export default function DashboardLayout({
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
-                        <span className="opacity-80">🍼</span>
+                        <Baby className="w-4 h-4 opacity-80" />
                         <span className="font-medium">{selectedBaby.name}</span>
                         <ChevronDown className="h-3 w-3 opacity-60" />
                     </button>
@@ -130,7 +130,7 @@ export default function DashboardLayout({
             </DropdownMenu>
         ) : (
             <Badge variant="secondary" className="text-xs font-medium dark:bg-zinc-800 dark:text-zinc-300 border-0 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                <span className="opacity-80">🍼</span>
+                <Baby className="w-4 h-4 opacity-80" />
                 {selectedBaby.name}
             </Badge>
         )

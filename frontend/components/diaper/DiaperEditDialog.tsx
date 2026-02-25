@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { api } from "@/lib/api"
 import { Textarea } from "@/components/ui/textarea"
+import { Droplets, Wind } from "lucide-react"
 
 interface Props {
     diaper: Diaper | null
@@ -69,7 +70,7 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                                     : "dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"}
                                 data-sentry-unmask onClick={() => setType(DiaperType.WET)}
                             >
-                                💧 おしっこ
+                                <Droplets className="w-4 h-4 mr-1" /> おしっこ
                             </Button>
                             <Button
                                 type="button"
@@ -79,7 +80,7 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                                     : "dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"}
                                 data-sentry-unmask onClick={() => setType(DiaperType.DIRTY)}
                             >
-                                💩 うんち
+                                <Wind className="w-4 h-4 mr-1" /> うんち
                             </Button>
                             <Button
                                 type="button"
@@ -89,7 +90,7 @@ export function DiaperEditDialog({ diaper, open, onOpenChange, onSuccess }: Prop
                                     : "dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"}
                                 data-sentry-unmask onClick={() => setType(DiaperType.BOTH)}
                             >
-                                💧💩 両方
+                                <Droplets className="w-4 h-4 mr-0.5" /><Wind className="w-4 h-4 mr-1" /> 両方
                             </Button>
                         </div>
                     </div>
