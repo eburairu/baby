@@ -172,16 +172,24 @@ const babySchema = z.object({
 | PATCH | `/api/babies/{baby_id}` | ✅ 実装済み | 赤ちゃん情報更新 |
 | DELETE | `/api/babies/{baby_id}` | ✅ 実装済み | 赤ちゃん削除（関連記録含む） |
 
-#### 新規スキーマ（追加が必要）
+#### スキーマ定義
+
+`app/schemas/baby.py`
 
 ```python
-# app/schemas/baby.py に追加
-
 class BabyUpdate(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, max_length=100)
     birthday: Optional[date] = None
     due_date: Optional[date] = None
-    characteristics: Optional[str] = None  # 追加
+    gender: Optional[Literal["boy", "girl", "unknown"]] = None
+    characteristics: Optional[str] = Field(None, max_length=1000)
+
+    @field_validator('name')
+    @classmethod
+    def name_must_not_be_none(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            raise ValueError('Name cannot be null')
+        return v
 ```
 
 #### 削除時のカスケード仕様
@@ -228,16 +236,16 @@ class BabyUpdate(BaseModel):
 
 - [x] `PATCH /api/babies/{baby_id}` エンドポイント実装（admin のみ）
 - [x] `DELETE /api/babies/{baby_id}` エンドポイント実装（admin のみ、関連記録カスケード削除）
-- [ ] 各子テーブルの `ondelete="CASCADE"` 設定確認・必要に応じてマイグレーション追加
-- [ ] `BabyUpdate` スキーマ修正（`characteristics` 対応）（`app/schemas/baby.py`）
-- [ ] `Baby` モデル修正（重複定義削除）（`app/models/baby.py`）
+- [x] 各子テーブルの `ondelete="CASCADE"` 設定確認・必要に応じてマイグレーション追加
+- [x] `BabyUpdate` スキーマ修正（`characteristics` 対応）（`app/schemas/baby.py`）
+- [x] `Baby` モデル修正（重複定義削除）（`app/models/baby.py`）
 
 ### フロントエンド
 
 - [x] `frontend/app/(dashboard)/settings/babies/page.tsx` 作成
-- [ ] `BabyCard.tsx` 改修（特徴表示）
-- [ ] `BabyEditDialog.tsx` 改修（特徴フィールド追加）
-- [ ] `AddBabyDialog.tsx` 改修（特徴フィールド追加、ダッシュボードの追加ロジックを移植・共通化）
+- [x] `BabyCard.tsx` 改修（特徴表示）
+- [x] `BabyEditDialog.tsx` 改修（特徴フィールド追加）
+- [x] `AddBabyDialog.tsx` 改修（特徴フィールド追加、ダッシュボードの追加ロジックを移植・共通化）
 - [ ] ダッシュボードから `AddBabyDialog` を共通コンポーネントとして利用するようリファクタリング
 - [ ] `cd frontend && pnpm build` でビルド確認
 
