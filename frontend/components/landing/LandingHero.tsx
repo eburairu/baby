@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, Monitor, Smartphone } from "lucide-react"
+import { ArrowRight, Monitor, Smartphone, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
@@ -22,35 +22,41 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     transition={{ duration: 0.6 }}
                     className="text-center lg:text-left space-y-8"
                 >
-                    <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                        「あれ、さっきいつあげた？」<br />
-                        その確認、もう不要です。<br />
-                        <span className="text-indigo-600">夫婦で共有する育児記録</span>で、<br className="hidden lg:block" />毎日の不安と手間をゼロに。
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-slate-900">
+                        ひとりで抱え込まない。<br />
+                        <span className="text-indigo-600">ふたりで育てる</span>安心を。
                     </h1>
-                    <p className="text-lg text-slate-600 max-w-lg mx-auto lg:mx-0">
-                        授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
-                        AIアドバイスで、初めての育児も安心サポート。
+                    <p className="text-lg text-slate-600 max-w-lg mx-auto lg:mx-0 mt-6">
+                        授乳も、睡眠も、おむつ交換も。
+                        タップひとつでリアルタイム共有。
+                        「今」の様子がわかるから、離れていても心はそばに。
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
                         {isLoggedIn ? (
                             <Link href="/dashboard">
-                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200">
+                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200 hover:-translate-y-0.5">
                                     ダッシュボードに戻る
                                 </Button>
                             </Link>
                         ) : (
                             <>
-                                <div className="flex flex-col gap-2 w-full sm:w-auto items-center sm:items-start">
+                                <div className="flex flex-col gap-3 w-full sm:w-auto items-center sm:items-start">
                                     <Link href="/register" className="w-full sm:w-auto">
-                                        <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200">
+                                        <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200 hover:-translate-y-0.5">
                                             無料で育児記録を始める
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
-                                    <div className="text-xs font-bold mt-2 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-slate-500">
-                                        <span>✨ 1分で簡単スタート ・ 夫婦で共有OK</span>
+                                    <div className="text-xs font-bold flex flex-col sm:flex-row items-center gap-2 text-slate-500">
+                                        <span className="flex items-center gap-1">
+                                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                            クレジットカード不要
+                                        </span>
                                         <span className="hidden sm:inline text-slate-300">|</span>
-                                        <span className="text-indigo-600">完全無料</span>
+                                        <span className="flex items-center gap-1">
+                                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                            30秒で登録完了
+                                        </span>
                                     </div>
                                 </div>
                             </>

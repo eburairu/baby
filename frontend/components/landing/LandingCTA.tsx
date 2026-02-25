@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { CheckCircle2 } from "lucide-react"
 
 interface LandingCTAProps {
     isLoggedIn?: boolean
@@ -17,19 +18,34 @@ export function LandingCTA({ isLoggedIn = false }: LandingCTAProps) {
                         今日から家族みんなでシェアして、余裕のある時間を。
                     </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    {isLoggedIn ? (
-                        <Link href="/dashboard">
-                            <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 rounded-2xl shadow-xl transition-all">
-                                ダッシュボードに戻る
-                            </Button>
-                        </Link>
-                    ) : (
-                        <Link href="/register">
-                            <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 rounded-2xl shadow-xl transition-all">
-                                今すぐ無料で始める
-                            </Button>
-                        </Link>
+                <div className="flex flex-col items-center gap-6">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+                        {isLoggedIn ? (
+                            <Link href="/dashboard">
+                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 rounded-full shadow-xl transition-all">
+                                    ダッシュボードに戻る
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link href="/register">
+                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white text-indigo-600 hover:bg-indigo-50 rounded-full shadow-xl transition-all hover:-translate-y-0.5">
+                                    今すぐ無料で始める
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                    {!isLoggedIn && (
+                        <div className="text-indigo-100 text-sm font-medium flex flex-col sm:flex-row items-center gap-2">
+                            <span className="flex items-center gap-1">
+                                <CheckCircle2 className="w-4 h-4" />
+                                クレジットカード不要
+                            </span>
+                            <span className="hidden sm:inline opacity-50">|</span>
+                            <span className="flex items-center gap-1">
+                                <CheckCircle2 className="w-4 h-4" />
+                                完全無料
+                            </span>
+                        </div>
                     )}
                 </div>
             </div>
