@@ -19,11 +19,23 @@ const UIVersionContext = createContext<UIVersionContextValue>({
 })
 
 export function UIVersionProvider({ children }: { children: React.ReactNode }) {
-  const [version, setVersionState] = useState<UIVersion>(() => {
-    if (typeof window === "undefined") return "v1"
+  // SSR/hydration安全のため常に"v1"で初期化する。
+  // Lazy InitializerでlocalStorageを読むとビルド時(v1)とクライアント初回レンダリング(v2)が
+  // 不一致になりhydrationエラーが発生するため、useEffect内で読み込む。
+  const [version, setVersionState] = useState<UIVersion>("v1")
+
+  useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as UIVersion | null
-    return stored === "v2" ? "v2" : "v1"
-  })
+    const v: UIVersion = stored === "v2" ? "v2" : "v1"
+    // DOMへの反映は同期的に行い、UIのちらつきを最小化する
+    if (v === "v2") {
+      document.documentElement.setAttribute("data-ui-v2", "")
+    }
+    if (v !== "v1") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVersionState(v)
+    }
+  }, [])
 
   useEffect(() => {
     if (version === "v2") {
