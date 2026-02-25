@@ -34,11 +34,13 @@
 |---------|---|-----|-----|
 | `id` | Integer | Primary Key, autoincrement | コメント ID |
 | `baby_id` | Integer | ForeignKey("babies.id"), nullable=False | フィルタリング用の赤ちゃん ID |
-| `user_id` | Integer | ForeignKey("users.id"), nullable=False | 投稿者 ID |
+| `user_id` | Integer | ForeignKey("users.id"), nullable=True | 投稿者 ID（AIの場合はNULL） |
 | `record_type` | String | nullable=False | 記録の種類（`feeding` 等） |
 | `record_id` | Integer | nullable=False | 対象記録の ID |
 | `content` | String | nullable=False | コメント内容 |
 | `created_at` | DateTime | nullable=False, default=now() | 投稿日時 |
+| `is_ai_generated` | Boolean | nullable=False, default=False | AIによる生成か |
+| `ai_has_concern` | Boolean | nullable=True | AIが懸念を示しているか（AI生成時のみ） |
 
 **注意**: 本モデルはポリモーフィックな関連（複数のテーブルを横断して参照）であるため、`record_id` に対して DB レベルの外部キー制約を貼ることができない。
 
@@ -68,13 +70,18 @@ class CommentCreate(CommentBase):
 
 class CommentResponse(CommentBase):
     id: int
-    user_id: int
+    user_id: Optional[int]
     user_display_name: Optional[str]
-    user_role: str  # "admin", "member", "viewer" (フロントエンドでの強調表示用)
+    user_role: str  # "admin", "member", "viewer", "ai" (フロントエンドでの強調表示用)
     created_at: datetime
+    is_ai_generated: bool = False
+    ai_has_concern: Optional[bool] = None
 
     class Config:
         from_attributes = True
+
+**AIフィードバック機能**:
+AIによる自動生成コメントについては、[AI記録フィードバック機能 仕様書](../ai/ai_record_feedback.md) を参照のこと。
 ```
 
 ### 既存スキーマの拡張
