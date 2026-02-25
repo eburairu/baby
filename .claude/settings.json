@@ -10,6 +10,17 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/ry1e/Documents/work/baby/scripts/check_root_edit.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
