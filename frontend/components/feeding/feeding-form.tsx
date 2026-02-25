@@ -10,7 +10,7 @@ import { Play, Pause, RotateCcw, Save } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
-import { UI_COLORS, UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -221,6 +221,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                                         ? cn("w-full", UI_FORMS.timer.rose.buttonActive)
                                                         : cn("w-full", UI_FORMS.timer.rose.buttonInactive)}
                                                     onClick={() => toggleTimer("LEFT")}
+                                                    aria-label={activeBreastSide === "LEFT" ? "左乳のタイマーを一時停止" : "左乳のタイマーを開始"}
                                                 >
                                                     {activeBreastSide === "LEFT"
                                                         ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
@@ -242,6 +243,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                                         ? cn("w-full", UI_FORMS.timer.rose.buttonActive)
                                                         : cn("w-full", UI_FORMS.timer.rose.buttonInactive)}
                                                     onClick={() => toggleTimer("RIGHT")}
+                                                    aria-label={activeBreastSide === "RIGHT" ? "右乳のタイマーを一時停止" : "右乳のタイマーを開始"}
                                                 >
                                                     {activeBreastSide === "RIGHT"
                                                         ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
@@ -315,6 +317,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                             <button
                                                 key={value}
                                                 type="button"
+                                                aria-pressed={bottleContentType === value}
                                                 onClick={() => setBottleContentType(prev => prev === value ? null : value)}
                                                 className={cn(
                                                     "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
@@ -355,6 +358,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                         <button
                                             key={value}
                                             type="button"
+                                            aria-pressed={feedingCompletion === value}
                                             onClick={() => setFeedingCompletion(prev => prev === value ? null : value)}
                                             className={cn(
                                                 "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
