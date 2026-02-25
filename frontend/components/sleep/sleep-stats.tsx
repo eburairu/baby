@@ -2,9 +2,9 @@
 
 import { useSleeps } from "@/hooks/useData"
 import { isToday } from "@/lib/ageUtils"
-import { Card, CardContent } from "@/components/ui/card"
 import { Moon, Clock } from "lucide-react"
 import { StatsBlock } from "@/components/ui/stats-block"
+import { StatsCard } from "@/components/ui/stats-card"
 
 interface Props {
     babyId: string
@@ -27,23 +27,21 @@ export function SleepStats({ babyId }: Props) {
     const count = todaySleeps.length
 
     return (
-        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 mb-6 transition-colors">
-            <CardContent className="pt-6">
-                <div className="grid grid-cols-2 gap-4">
-                    <StatsBlock
-                        icon={Moon}
-                        label="今日の睡眠回数"
-                        value={`${count}回`}
-                        color="indigo"
-                    />
-                    <StatsBlock
-                        icon={Clock}
-                        label="合計時間"
-                        value={`${hours}h ${minutes}m`}
-                        color="indigo"
-                    />
-                </div>
-            </CardContent>
-        </Card>
+        <StatsCard>
+            <div className="grid grid-cols-2 gap-4">
+                <StatsBlock
+                    icon={Moon}
+                    label="今日の睡眠回数"
+                    value={`${count}回`}
+                    color="indigo"
+                />
+                <StatsBlock
+                    icon={Clock}
+                    label="合計時間"
+                    value={`${hours}h ${minutes}m`}
+                    color="indigo"
+                />
+            </div>
+        </StatsCard>
     )
 }

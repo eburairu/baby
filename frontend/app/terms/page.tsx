@@ -1,7 +1,5 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import type { Metadata } from "next"
+import { StaticPageLayout } from "@/components/ui/static-page-layout"
 
 export const metadata: Metadata = {
     title: "利用規約",
@@ -10,17 +8,8 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
     return (
-        <div className="min-h-screen bg-slate-50 py-20 px-4">
-            <div className="max-w-3xl mx-auto space-y-12">
-                <Link href="/">
-                    <Button variant="ghost" className="gap-2 text-slate-600">
-                        <ArrowLeft className="h-4 w-4" />
-                        トップページに戻る
-                    </Button>
-                </Link>
-
-                <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm space-y-10 text-slate-900">
-                    <div className="space-y-2">
+        <StaticPageLayout>
+            <div className="space-y-2">
                         <h1 className="text-3xl font-bold tracking-tight">利用規約</h1>
                         <p className="text-slate-500 text-sm">最終更新日: 2026年2月23日</p>
                     </div>
@@ -153,14 +142,12 @@ export default function TermsPage() {
                         </p>
                     </section>
 
-                    <section className="space-y-4">
-                        <h2 className="text-xl font-bold border-b border-slate-100 pb-2">12. 準拠法・管轄</h2>
-                        <p className="text-slate-600 leading-relaxed">
-                            本規約は日本法に準拠します。本サービスに関する紛争は、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
-                        </p>
-                    </section>
-                </div>
-            </div>
-        </div>
+            <section className="space-y-4">
+                <h2 className="text-xl font-bold border-b border-slate-100 pb-2">12. 準拠法・管轄</h2>
+                <p className="text-slate-600 leading-relaxed">
+                    本規約は日本法に準拠します。本サービスに関する紛争は、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
+                </p>
+            </section>
+        </StaticPageLayout>
     )
 }
