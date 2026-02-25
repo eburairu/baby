@@ -125,7 +125,8 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
                             )}
                             <button
                                 onClick={() => openComment(feeding)}
-                                className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                aria-label={feeding.comment_count > 0 ? `${feeding.comment_count}件のコメントを表示` : "コメントを追加"}
+                                className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
                             >
                                 <MessageCircle className="w-3 h-3" />
                                 {feeding.comment_count > 0 && <span>{feeding.comment_count}</span>}
