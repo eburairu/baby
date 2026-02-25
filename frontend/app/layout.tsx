@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { UIVersionProvider } from "@/components/ui-version-provider";
 import { SplashScreen } from "@/components/ui/splash-screen";
 import Script from "next/script";
 
@@ -75,7 +74,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <UIVersionProvider>
           {process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID && (
             <Script
               async
@@ -87,7 +85,6 @@ export default function RootLayout({
           <SplashScreen />
           {children}
           <Toaster />
-          </UIVersionProvider>
         </ThemeProvider>
       </body>
     </html>

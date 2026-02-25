@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
-import { User, MessageCircle, Droplets, Wind } from "lucide-react"
+import { User, MessageCircle, Droplets, Biohazard } from "lucide-react"
 import { api } from "@/lib/api"
 import { DiaperEditDialog } from "./DiaperEditDialog"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
@@ -36,7 +36,7 @@ const getStyles = (type: DiaperType) => {
                 bg: "bg-amber-50 dark:bg-amber-950/30",
                 border: "border-amber-100 dark:border-amber-900/50",
                 text: "text-amber-700 dark:text-amber-400",
-                icon: <Wind className="w-6 h-6" />,
+                icon: <Biohazard className="w-6 h-6" />,
                 label: "うんち"
             }
         case DiaperType.BOTH:
@@ -44,7 +44,7 @@ const getStyles = (type: DiaperType) => {
                 bg: "bg-purple-50 dark:bg-purple-950/30",
                 border: "border-purple-100 dark:border-purple-900/50",
                 text: "text-purple-700 dark:text-purple-400",
-                icon: <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Wind className="w-6 h-6" /></span>,
+                icon: <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>,
                 label: "両方"
             }
         default:

@@ -1,6 +1,6 @@
 "use client"
 import { useMemo, memo } from "react"
-import { Baby, Droplets, Wind } from "lucide-react"
+import { Baby, Droplets, Biohazard } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
@@ -48,7 +48,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                 isLoading={isLoading}
                 loadingColorClass="text-amber-400"
                 elapsed={lastElapsed}
-                subContent={<span className="flex items-center gap-1">今日: <Droplets className="w-3 h-3 inline-block" />{wetCount} / <Wind className="w-3 h-3 inline-block" />{dirtyCount}</span>}
+                subContent={<span className="flex items-center gap-1">今日: <Droplets className="w-3 h-3 inline-block" />{wetCount} / <Biohazard className="w-3 h-3 inline-block" />{dirtyCount}</span>}
             />
             {canWrite ? (
                 <div className="flex gap-2">
@@ -72,7 +72,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         className="flex-1"
                         aria-label="うんち"
                     >
-                        <Wind className="w-5 h-5" />
+                        <Biohazard className="w-5 h-5" />
                     </WidgetQuickButton>
                 </div>
             ) : null}

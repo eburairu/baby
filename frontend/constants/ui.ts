@@ -8,15 +8,6 @@ import { Milk, Moon, Baby, TrendingUp, FileText, Zap, type LucideIcon } from 'lu
 export const TOAST_DURATION_MS = 3000;
 export const MOBILE_BREAKPOINT_PX = 768;
 
-export const RECORD_TYPE_ICONS = {
-  [RECORD_TYPES.FEEDING]: '🍼',
-  [RECORD_TYPES.SLEEP]: '💤',
-  [RECORD_TYPES.DIAPER]: '👶',
-  [RECORD_TYPES.GROWTH]: '📏',
-  [RECORD_TYPES.NOTE]: '📝',
-  [RECORD_TYPES.CONTRACTION]: '⚡',
-} as const;
-
 export const RECORD_TYPE_LABELS = {
   [RECORD_TYPES.FEEDING]: '授乳',
   [RECORD_TYPES.SLEEP]: '睡眠',
