@@ -3,40 +3,15 @@ import { api } from "@/lib/api"
 import type { ContractionRecord } from "@/types/contraction"
 
 interface UseContractionActionsOptions {
-    onDeleted?: () => void
     onUpdated?: () => void
 }
 
-export function useContractionActions({ onDeleted, onUpdated }: UseContractionActionsOptions = {}) {
-    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
+export function useContractionActions({ onUpdated }: UseContractionActionsOptions = {}) {
     const [editTarget, setEditTarget] = useState<ContractionRecord | null>(null)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-
-    const [isDeleting, setIsDeleting] = useState(false)
     const [isUpdating, setIsUpdating] = useState(false)
-
-    const openDeleteDialog = useCallback((id: number) => setDeleteTargetId(id), [])
-    const closeDeleteDialog = useCallback(() => setDeleteTargetId(null), [])
 
     const openEditDialog = useCallback((record: ContractionRecord) => setEditTarget(record), [])
     const closeEditDialog = useCallback(() => setEditTarget(null), [])
-
-    const openCommentDialog = useCallback((id: number, title: string) => setCommentTarget({ id, title }), [])
-    const closeCommentDialog = useCallback(() => setCommentTarget(null), [])
-
-    const executeDelete = useCallback(async () => {
-        if (deleteTargetId === null) return
-        setIsDeleting(true)
-        try {
-            await api.delete(`/contractions/${deleteTargetId}`)
-            onDeleted?.()
-        } catch (err) {
-            console.error("Failed to delete contraction", err)
-        } finally {
-            setIsDeleting(false)
-            setDeleteTargetId(null)
-        }
-    }, [deleteTargetId, onDeleted])
 
     const executeUpdate = useCallback(async (formData: FormData) => {
         if (!editTarget) return
@@ -73,20 +48,12 @@ export function useContractionActions({ onDeleted, onUpdated }: UseContractionAc
 
     return {
         // State
-        deleteTargetId,
         editTarget,
-        commentTarget,
-        isDeleting,
         isUpdating,
 
         // Actions
-        openDeleteDialog,
-        closeDeleteDialog,
-        executeDelete,
         openEditDialog,
         closeEditDialog,
         executeUpdate,
-        openCommentDialog,
-        closeCommentDialog
     }
 }

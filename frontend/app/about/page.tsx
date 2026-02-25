@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Heart, Shield, Zap, Users } from "lucide-react"
+import { Heart, Shield, Zap, Users } from "lucide-react"
 import type { Metadata } from "next"
+import { StaticPageLayout } from "@/components/ui/static-page-layout"
 
 export const metadata: Metadata = {
     title: "Botoro について",
@@ -10,18 +11,8 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-slate-50 py-20 px-4">
-            <div className="max-w-3xl mx-auto space-y-12">
-                <Link href="/">
-                    <Button variant="ghost" className="gap-2 text-slate-600">
-                        <ArrowLeft className="h-4 w-4" />
-                        トップページに戻る
-                    </Button>
-                </Link>
-
-                {/* メインカード */}
-                <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm space-y-10 text-slate-900">
-                    <div className="space-y-2">
+        <StaticPageLayout>
+            <div className="space-y-2">
                         <h1 className="text-3xl font-bold tracking-tight">Botoro について</h1>
                         <p className="text-indigo-600 font-medium">家族の育児を、もっとつながりのある時間に。</p>
                     </div>
@@ -130,18 +121,16 @@ export default function AboutPage() {
                         </div>
                     </section>
 
-                    {/* CTA */}
-                    <div className="bg-indigo-50 rounded-2xl p-6 text-center space-y-4">
-                        <p className="font-bold text-slate-800">Botoroを使ってみませんか？</p>
-                        <p className="text-slate-600 text-sm">今すぐ無料でアカウントを作成できます。</p>
-                        <Link href="/register">
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8">
-                                無料で始める
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
+            {/* CTA */}
+            <div className="bg-indigo-50 rounded-2xl p-6 text-center space-y-4">
+                <p className="font-bold text-slate-800">Botoroを使ってみませんか？</p>
+                <p className="text-slate-600 text-sm">今すぐ無料でアカウントを作成できます。</p>
+                <Link href="/register">
+                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8">
+                        無料で始める
+                    </Button>
+                </Link>
             </div>
-        </div>
+        </StaticPageLayout>
     )
 }
