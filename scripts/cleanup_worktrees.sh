@@ -32,6 +32,13 @@ if [ -z "$WORKTREES" ]; then
 else
     echo "🔍 ワークツリーの確認を開始します..."
     for wt_path in $WORKTREES; do
+        # ワークツリーのディレクトリが存在するか確認
+        if [ ! -d "$wt_path" ]; then
+            echo "⚠️  $wt_path は実在しません。登録を削除します..."
+            git worktree prune
+            continue
+        fi
+
         # ワークツリーに関連付けられているブランチ名を取得
         branch=$(git -C "$wt_path" rev-parse --abbrev-ref HEAD)
         
