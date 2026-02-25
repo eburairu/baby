@@ -24,10 +24,11 @@
 - **種類選択**:
     - 🤱 母乳 (BREAST)
     - 🍼 ミルク (BOTTLE) - 粉ミルク・搾母乳を区別して記録可能
+    - ※ `MIXED` (混合) タイプはデータモデル上に存在するが、現在のUIでは「ミルク (BOTTLE)」タブ内の「混合 (MIXED)」コンテンツタイプとして扱われるため、`FeedingType.MIXED` としては記録されない。
 - **入力項目**:
     - **母乳の場合**:
         - **左右別タイマー**: 左乳・右乳それぞれに独立したタイマーを持つ。片方を起動するともう一方は自動停止。**（※新規作成時のみ利用可能。編集時は非表示）**
-        - **左右別手動入力**: `左: [ X ] 分 / 右: [ Y ] 分` で入力可能。
+        - **左右別手動入力**: `左: [ X ] 分 / 右: [ Y ] 分` で入力可能。**（※編集時も利用可能）**
         - **合計時間の自動計算**: 左右の合計を `duration_minutes` として自動計算して保存（後方互換性維持）。
     - **ミルクの場合**:
         - 量 (ml): 10ml単位などで入力。
@@ -56,6 +57,10 @@
     - 削除確認ダイアログを表示し、誤操作を防ぐ。
 - 記録の編集機能。
     - 編集アイコンからダイアログを開き、既存の内容を変更可能。
+- **コメント機能**:
+    - 各記録に対してコメントを追加可能。
+    - 一覧にはコメントアイコンとコメント数（件数 > 0 の場合）が表示される。
+    - アイコンクリックでコメントダイアログを開き、家族間のコミュニケーションを行える。
 
 ### F3: 統計サマリー (Daily)
 
@@ -78,6 +83,11 @@
 ### Enum 定義
 
 ```python
+class FeedingType(str, Enum):
+    BREAST = "BREAST"
+    BOTTLE = "BOTTLE"
+    MIXED = "MIXED"  # ※現在はUIから使用されていない（非推奨）
+
 class BreastSide(str, Enum):
     LEFT = "LEFT"
     RIGHT = "RIGHT"
@@ -129,7 +139,7 @@ class FeedingCompletion(str, Enum):
 {
   baby_id: number,
   feeding_time: string,                // ISO 8601
-  feeding_type: "BREAST" | "BOTTLE" | "MIXED",
+  feeding_type: "BREAST" | "BOTTLE" | "MIXED", // ※MIXEDは現在UIから送信されない
   amount_ml?: number,                  // ボトル授乳時の量
   duration_minutes?: number,           // 省略可（左右指定時は自動計算）
   left_breast_minutes?: number,        // 左乳の授乳時間
@@ -161,7 +171,7 @@ interface FeedingResponse {
   feeding_completion: "FULL" | "PARTIAL" | null
   notes: string | null
   recorded_by_display_name: string | null
-  comment_count: number
+  comment_count: number // コメント数
 }
 ```
 
