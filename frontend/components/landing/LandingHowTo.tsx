@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { UserPlus, Users, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const HOW_TO_STEPS = [
@@ -9,19 +10,19 @@ const HOW_TO_STEPS = [
         step: "01",
         title: "アカウントを作成",
         description: "メールアドレスだけで簡単登録。クレジットカードは不要、完全無料で始められます。",
-        icon: "📝",
+        icon: UserPlus,
     },
     {
         step: "02",
         title: "家族を招待",
         description: "発行された招待コードをパートナーや祖父母に共有。家族全員でつながりましょう。",
-        icon: "👨‍👩‍👧",
+        icon: Users,
     },
     {
         step: "03",
         title: "一緒に記録・共有",
         description: "授乳、睡眠、おむつをリアルタイムで記録。全員がいつでも最新状態を確認できます。",
-        icon: "📱",
+        icon: Smartphone,
     },
 ]
 
@@ -47,8 +48,8 @@ export function LandingHowTo({ isLoggedIn = false }: LandingHowToProps) {
                             transition={{ delay: i * 0.15 }}
                             className="relative text-center space-y-4"
                         >
-                            <div className="relative mx-auto w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center text-4xl">
-                                {step.icon}
+                            <div className="relative mx-auto w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center">
+                                <step.icon className="h-8 w-8 text-indigo-500" />
                                 <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
                                     {step.step}
                                 </span>
@@ -61,7 +62,7 @@ export function LandingHowTo({ isLoggedIn = false }: LandingHowToProps) {
                 {!isLoggedIn && (
                     <div className="text-center">
                         <Link href="/register">
-                            <Button className="h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:scale-105">
+                            <Button className="h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 transition-all hover:shadow-indigo-200">
                                 今すぐ無料で始める
                             </Button>
                         </Link>
