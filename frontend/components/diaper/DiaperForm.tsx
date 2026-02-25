@@ -1,5 +1,7 @@
 "use client"
 
+import { POOP_COLORS, POOP_AMOUNTS } from "@/constants/diaper"
+
 import { useState } from "react"
 import { Droplets, Wind } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -26,8 +28,6 @@ import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
 
-const POOP_COLORS = ["黄色", "緑", "茶色", "黒", "白", "その他"] as const;
-const POOP_AMOUNTS = ["少量", "普通", "多量", "その他"] as const;
 
 interface Props {
     babyId: string
