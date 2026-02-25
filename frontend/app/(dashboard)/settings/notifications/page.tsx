@@ -23,6 +23,7 @@ export default function NotificationsPage() {
   const { permission, requestPermission, subscribeUser, sendSubscriptionToBackend } = usePushNotification();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dndInputsVisible, setDndInputsVisible] = useState(false);
   const dndEnabled = !!(settings?.dnd_start_time && settings?.dnd_end_time);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function NotificationsPage() {
       if (response.ok) {
         const data = await response.json();
         setSettings(data);
+        setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
       }
     } catch (error) {
       console.error("Failed to fetch settings:", error);
@@ -44,6 +46,7 @@ export default function NotificationsPage() {
   };
 
   const handleDndToggle = async (enabled: boolean) => {
+    setDndInputsVisible(enabled);
     if (!enabled) {
       const newSettings = { ...settings!, dnd_start_time: null, dnd_end_time: null };
       setSettings(newSettings);
@@ -284,7 +287,7 @@ export default function NotificationsPage() {
             </div>
             <CardDescription>指定した時間帯はプッシュ通知を送信しません</CardDescription>
           </CardHeader>
-          {dndEnabled && (
+          {dndInputsVisible && (
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
