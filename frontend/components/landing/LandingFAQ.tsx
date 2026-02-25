@@ -36,7 +36,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         <div className="border border-slate-100 rounded-2xl overflow-hidden">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors cursor-pointer"
             >
                 <span className="font-bold text-slate-800">{question}</span>
                 {open ? (
