@@ -3,8 +3,7 @@ import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User } from "lucide-react"
-import { RECORD_TYPE_ICONS, RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
-import { useUIVersion } from "@/hooks/use-ui-version"
+import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
 
 interface ActivityItemProps {
     record: BabyRecord
@@ -14,8 +13,6 @@ interface ActivityItemProps {
 export const ActivityItem = React.memo(function ActivityItem({ record, onClick }: ActivityItemProps) {
     const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
-    const icon = RECORD_TYPE_ICONS[recordType] || "📝"
-    const { isV2 } = useUIVersion()
     const LucideIcon = RECORD_TYPE_LUCIDE_ICONS[recordType]
 
     return (
@@ -25,9 +22,9 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
                 className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
                 onClick={() => onClick(record)}
             >
-                {isV2 && LucideIcon
+                {LucideIcon
                     ? <LucideIcon className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
-                    : <span className="text-xl" aria-hidden="true">{icon}</span>
+                    : <span className="text-xl" aria-hidden="true">📝</span>
                 }
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">

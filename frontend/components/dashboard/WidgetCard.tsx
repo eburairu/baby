@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { isApiError } from "@/lib/api"
 import { cn } from "@/lib/utils"
-import { useUIVersion } from "@/hooks/use-ui-version"
 
 interface WidgetCardProps {
     title: ReactNode
@@ -29,7 +28,6 @@ export function WidgetCard({
 }: WidgetCardProps) {
     const isAccessDenied = isApiError(isError) && isError.status === 403
     const label = ariaLabel || "詳細を見る"
-    const { isV2 } = useUIVersion()
 
     if (isAccessDenied) {
         return (
@@ -48,12 +46,7 @@ export function WidgetCard({
     }
 
     return (
-        <Card className={cn(
-            "transition-all duration-300",
-            isV2
-                ? "clay-card hover:-translate-y-1"
-                : "dark:bg-zinc-900 rounded-2xl shadow-sm border-0 hover:-translate-y-1 hover:shadow-md"
-        )}>
+        <Card className="clay-card hover:-translate-y-1 transition-all duration-300">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium flex items-center gap-1" data-sentry-unmask>
                     {title}
