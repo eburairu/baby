@@ -3,7 +3,10 @@ import pytest
 from unittest.mock import patch, MagicMock
 from app.utils.notifications import send_push_notification, notify_user, notify_family_members, is_within_dnd
 from app.models.notification import PushSubscription, NotificationSetting
-from datetime import time
+from datetime import time, datetime, timezone, timedelta
+
+
+JST = timezone(timedelta(hours=9))
 
 
 class TestIsWithinDnd:
@@ -18,6 +21,35 @@ class TestIsWithinDnd:
         settings.dnd_start_time = time(22, 0)
         settings.dnd_end_time = None
         assert is_within_dnd(settings) is False
+
+    def test_dnd_uses_jst_not_utc(self):
+        """DND判定はJST時刻で行う（UTC時刻で判定するバグの回帰テスト）"""
+        settings = MagicMock(spec=NotificationSetting)
+        # ユーザーがJSTで「夜21時〜朝8時」をDNDに設定
+        settings.dnd_start_time = time(21, 0)
+        settings.dnd_end_time = time(8, 0)
+
+        # UTC 03:00 = JST 12:00（昼）→ DND外のはず
+        utc_03 = datetime(2026, 1, 1, 3, 0, 0, tzinfo=timezone.utc)
+        jst_time = utc_03.astimezone(JST)
+        with patch("app.utils.notifications.datetime") as mock_dt:
+            mock_dt.now.return_value = jst_time
+            result = is_within_dnd(settings)
+        assert result is False, "JST 12:00（昼）はDND外のはず（UTC 03:00 を誤ってDNDと判定するバグの確認）"
+
+    def test_dnd_active_at_night_jst(self):
+        """JSTの夜22時はDND内と判定される"""
+        settings = MagicMock(spec=NotificationSetting)
+        settings.dnd_start_time = time(21, 0)
+        settings.dnd_end_time = time(8, 0)
+
+        # UTC 13:00 = JST 22:00（夜）→ DND内
+        utc_13 = datetime(2026, 1, 1, 13, 0, 0, tzinfo=timezone.utc)
+        jst_time = utc_13.astimezone(JST)
+        with patch("app.utils.notifications.datetime") as mock_dt:
+            mock_dt.now.return_value = jst_time
+            result = is_within_dnd(settings)
+        assert result is True, "JST 22:00（夜）はDND内のはず"
 
 
 class TestSendPushNotification:
