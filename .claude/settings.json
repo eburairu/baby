@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/ry1e/Documents/work/baby/scripts/check_root_edit.sh"
+            "command": "bash scripts/check_root_edit.sh"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/ry1e/Documents/work/baby/scripts/check_openapi_hook.sh"
+            "command": "bash scripts/check_openapi_hook.sh"
           }
         ]
       }
