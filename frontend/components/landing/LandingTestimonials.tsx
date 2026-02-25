@@ -24,11 +24,11 @@ const TESTIMONIALS = [
 
 export function LandingTestimonials() {
     return (
-        <section className="px-4 py-24 bg-white overflow-hidden">
+        <section className="px-4 py-24 bg-white dark:bg-zinc-950 overflow-hidden transition-colors duration-300">
             <div className="max-w-7xl mx-auto space-y-16">
                 <div className="text-center space-y-4">
                     <h2 className="text-3xl font-bold tracking-tight">ユーザーの声</h2>
-                    <p className="text-slate-500">たくさんのパパ・ママに利用されています。</p>
+                    <p className="text-slate-500 dark:text-slate-400">たくさんのパパ・ママに利用されています。</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
                     {TESTIMONIALS.map((item, i) => (
@@ -39,21 +39,21 @@ export function LandingTestimonials() {
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.2 }}
                         >
-                            <Card className="h-full rounded-2xl border-slate-100 shadow-sm bg-white hover:shadow-md transition-shadow">
+                            <Card className="h-full rounded-2xl border-slate-100 dark:border-zinc-800 shadow-sm dark:shadow-none bg-white dark:bg-zinc-900/50 hover:shadow-md dark:hover:bg-zinc-900 transition-all">
                                 <CardContent className="p-8 space-y-6">
                                     <div className="flex gap-0.5">
                                         {[...Array(5)].map((_, j) => (
                                             <Star
                                                 key={j}
-                                                className={`h-4 w-4 ${j < item.rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`}
+                                                className={`h-4 w-4 ${j < item.rating ? "text-amber-400 fill-amber-400" : "text-slate-200 dark:text-slate-800 fill-slate-200 dark:fill-slate-800"}`}
                                             />
                                         ))}
                                     </div>
-                                    <p className="text-slate-600 leading-relaxed text-sm italic">
+                                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm italic">
                                         &quot;{item.comment}&quot;
                                     </p>
-                                    <div className="pt-4 border-t border-slate-100">
-                                        <p className="font-bold text-sm text-slate-800">{item.name}</p>
+                                    <div className="pt-4 border-t border-slate-100 dark:border-zinc-800">
+                                        <p className="font-bold text-sm text-slate-800 dark:text-slate-200">{item.name}</p>
                                     </div>
                                 </CardContent>
                             </Card>

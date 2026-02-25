@@ -13,3 +13,7 @@
 ## 2026-02-26 - [N+1 Comment Count Optimization]
 **Learning:** Fetching auxiliary data (like comment counts) by scanning the entire table for a parent ID (e.g., `baby_id`) is inefficient when only a subset of records is returned.
 **Action:** Use a "fetch-then-batch" strategy: Retrieve the main records first, collect their IDs, and then execute a single targeted query using `IN` (or `OR` + `AND` for composite keys) to fetch only the necessary auxiliary data.
+
+## 2026-03-01 - [React List Performance: Memoization Chain]
+**Learning:** In lists using `useInfiniteScroll` where items are appended, simply wrapping list items in `React.memo` is insufficient if the event handlers passed to them are re-created on every render (e.g., inline arrow functions). This causes O(n) re-renders for O(1) updates.
+**Action:** Always wrap event handlers passed to memoized list items in `useCallback` to ensure reference stability.

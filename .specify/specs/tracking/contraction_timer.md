@@ -173,6 +173,18 @@ interface ContractionTimerState {
 }
 ```
 
+### アクション管理 (Custom Hook)
+
+- `useContractionActions` カスタムフックで、削除・編集・コメント追加などのアクションを管理する。
+- **コールバック分離**: 以前の単一 `onSuccess` コールバックを廃止し、操作ごとのコールバック (`onDeleted`, `onUpdated`) を採用することで、SWRの再検証やUI更新を適切にトリガーし、イベントの衝突を防ぐ。
+
+```typescript
+interface UseContractionActionsOptions {
+    onDeleted?: () => void // 削除完了時のコールバック
+    onUpdated?: () => void // 更新完了時のコールバック
+}
+```
+
 ### データ取得 (SWR)
 
 - `useContractions(babyId)` カスタムフックで陣痛記録を取得

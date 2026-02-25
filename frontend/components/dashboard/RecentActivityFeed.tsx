@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { useState, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { BabyRecord } from "@/types/record"
@@ -36,10 +36,12 @@ export const RecentActivityFeed = React.memo(function RecentActivityFeed({ babyI
         threshold: 0.1
     })
 
-    const handleRecordClick = (record: BabyRecord) => {
+    // Handle record click to show detail dialog
+    // Optimized: Memoized to prevent re-rendering all ActivityItems when list grows
+    const handleRecordClick = useCallback((record: BabyRecord) => {
         setSelectedRecord(record)
         setDialogOpen(true)
-    }
+    }, [])
 
     return (
         <>

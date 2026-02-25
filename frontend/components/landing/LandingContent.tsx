@@ -13,7 +13,7 @@ import { LandingFooter } from "./LandingFooter"
 
 export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden transition-colors duration-300">
             <LandingHeader isLoggedIn={isLoggedIn} />
 
             <main className="pt-16">

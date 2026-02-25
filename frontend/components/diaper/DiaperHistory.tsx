@@ -132,8 +132,8 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                             ) : null}
                             <button
                                 onClick={() => openComment(diaper)}
-                                aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント`}
-                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5"
+                                aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント${(diaper.comment_count ?? 0) > 0 ? ` (${diaper.comment_count}件)` : ""}`}
+                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
                             >
                                 <MessageCircle className="w-3 h-3" />
                                 {(diaper.comment_count ?? 0) > 0 && <span>{diaper.comment_count}</span>}

@@ -33,12 +33,12 @@ const FAQ_ITEMS = [
 function FaqItem({ question, answer }: { question: string; answer: string }) {
     const [open, setOpen] = useState(false)
     return (
-        <div className="border border-slate-100 rounded-2xl overflow-hidden">
+        <div className="border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/50 transition-colors">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             >
-                <span className="font-bold text-slate-800">{question}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{question}</span>
                 {open ? (
                     <ChevronUp className="h-5 w-5 text-slate-400 shrink-0" />
                 ) : (
@@ -46,7 +46,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
                 )}
             </button>
             {open && (
-                <div className="px-6 pb-6 text-slate-600 leading-relaxed text-sm border-t border-slate-100 pt-4">
+                <div className="px-6 pb-6 text-slate-600 dark:text-slate-400 leading-relaxed text-sm border-t border-slate-100 dark:border-zinc-800 pt-4">
                     {answer}
                 </div>
             )}
@@ -56,11 +56,11 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 export function LandingFAQ() {
     return (
-        <section id="faq" className="px-4 py-24 bg-slate-50">
+        <section id="faq" className="px-4 py-24 bg-slate-50 dark:bg-zinc-900/50 transition-colors duration-300">
             <div className="max-w-3xl mx-auto space-y-12">
                 <div className="text-center space-y-4">
                     <h2 className="text-3xl font-bold tracking-tight">よくある質問</h2>
-                    <p className="text-slate-500">ご不明な点はこちらをご覧ください。</p>
+                    <p className="text-slate-500 dark:text-slate-400">ご不明な点はこちらをご覧ください。</p>
                 </div>
                 <div className="space-y-4">
                     {FAQ_ITEMS.map((item, i) => (

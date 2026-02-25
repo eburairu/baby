@@ -1,19 +1,8 @@
 "use client"
 
-import { useEffect, useRef } from "react"
 import { formatTimeHHMM, formatSecondsToJapanese } from "@/lib/ageUtils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import {
     Dialog,
     DialogContent,
@@ -26,12 +15,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { ContractionRecord } from "@/types/contraction"
-import { Pencil, Trash2, User, MessageCircle, Loader2 } from "lucide-react"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
-import { useUser } from "@/hooks/useAuth"
+import { Pencil, Trash2, User, MessageCircle } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import { useContractionActions } from "@/hooks/useContractionActions"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
+import { useRecordComments } from "@/hooks/useRecordComments"
+import { api } from "@/lib/api"
 
 
 interface ContractionHistoryProps {
@@ -43,31 +33,32 @@ interface ContractionHistoryProps {
 }
 
 export default function ContractionHistory({ contractions, onDeleted, onUpdated, canWrite = true, initialCommentRecordId }: ContractionHistoryProps) {
-    const { user } = useUser()
-    const initializedRef = useRef(false)
-
     // Custom Hook logic
     const {
-        deleteTargetId, editTarget, commentTarget,
-        isDeleting, isUpdating,
-        openDeleteDialog, closeDeleteDialog, executeDelete,
+        editTarget,
+        isUpdating,
         openEditDialog, closeEditDialog, executeUpdate,
-        openCommentDialog, closeCommentDialog
     } = useContractionActions({
-        onDeleted,
         onUpdated
     })
 
-    useEffect(() => {
-        if (initialCommentRecordId && contractions.length > 0 && !initializedRef.current) {
-            const target = contractions.find(c => c.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                openCommentDialog(target.id, `陣痛 ${format(new Date(target.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}`)
-            }
-        }
-    }, [initialCommentRecordId, contractions, openCommentDialog])
+    const handleDelete = async (id: number) => {
+        await api.delete(`/contractions/${id}`)
+        onDeleted?.()
+    }
 
+    const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
+        onDelete: handleDelete,
+        resourceName: "陣痛記録"
+    })
+
+    const { openComment, CommentDialog } = useRecordComments({
+        records: contractions,
+        recordType: "contraction",
+        initialCommentRecordId,
+        getTitle: (record) => `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}`,
+        onCommentChange: onDeleted
+    })
 
     const handleUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -121,7 +112,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                             </span>
                                         )}
                                         <button
-                                            onClick={() => openCommentDialog(record.id, `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}`)}
+                                            onClick={() => openComment(record)}
                                             className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-indigo-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-sm p-0.5"
                                             aria-label={(record.comment_count ?? 0) > 0 ? `${record.comment_count}件のコメントを表示` : "コメントを追加"}
                                         >
@@ -145,7 +136,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                                             variant="ghost"
                                             size="sm"
                                             className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
-                                            onClick={() => openDeleteDialog(record.id)}
+                                            onClick={() => setDeleteTargetId(record.id)}
                                             aria-label="削除"
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -158,18 +149,8 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                 </CardContent>
             </Card>
 
-            {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) closeCommentDialog() }}
-                    recordType="contraction"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onDeleted}
-                />
-            )}
+            <ConfirmDeleteDialog />
+            <CommentDialog />
 
             {/* 編集ダイアログ */}
             <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) closeEditDialog() }}>
@@ -225,25 +206,6 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
                     </form>
                 </DialogContent>
             </Dialog>
-
-            {/* 削除確認ダイアログ */}
-            <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) closeDeleteDialog() }}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>記録の削除</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            この陣痛記録を削除しますか？この操作は取り消せません。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={executeDelete} className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
-                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            削除
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </>
     )
 }
