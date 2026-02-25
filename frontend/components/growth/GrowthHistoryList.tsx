@@ -1,11 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Edit2, Trash2, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,6 +15,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import type { Growth } from "@/types/growth"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 interface GrowthHistoryListProps {
     records: Growth[]
@@ -33,21 +32,16 @@ export function GrowthHistoryList({
     canWrite = true,
     initialCommentRecordId,
 }: GrowthHistoryListProps) {
-    const { user } = useUser()
     const [deleteId, setDeleteId] = useState<number | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
 
-    useEffect(() => {
-        if (initialCommentRecordId && records.length > 0 && !initializedRef.current) {
-            const target = records.find(r => r.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `成長記録 ${target.date}` })
-            }
-        }
-    }, [initialCommentRecordId, records])
+    const { openComment, CommentDialog } = useRecordComments({
+        records: records,
+        recordType: "growth",
+        initialCommentRecordId,
+        getTitle: (record) => `成長記録 ${record.date}`,
+        onCommentChange: onDeleteSuccess
+    });
 
     const handleDelete = async () => {
         if (!deleteId) return
@@ -104,7 +98,7 @@ export function GrowthHistoryList({
                                 </td>
                                 <td className="py-2 px-4">
                                     <button aria-label={`${record.date} の成長記録へのコメント`}
-                                        onClick={() => setCommentTarget({ id: record.id, title: `成長記録 ${record.date}` })}
+                                        onClick={() => openComment(record)}
                                         className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
                                     >
                                         <MessageCircle className="w-3.5 h-3.5" />
@@ -140,17 +134,7 @@ export function GrowthHistoryList({
             </div>
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="growth"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onDeleteSuccess}
-                />
-            )}
+            <CommentDialog />
 
             <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <AlertDialogContent>

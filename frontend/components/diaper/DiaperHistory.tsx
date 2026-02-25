@@ -1,15 +1,14 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
 import { User, MessageCircle } from "lucide-react"
 import { api } from "@/lib/api"
 import { DiaperEditDialog } from "./DiaperEditDialog"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { HistoryCard } from "@/components/records/HistoryCard"
 import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 // Minimal date formatter if date-fns is missing, or use Intl.DateTimeFormat
 const formatDate = (isoString: string) => {
@@ -67,11 +66,8 @@ interface Props {
 }
 
 export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initialCommentRecordId }: Props) {
-    const { user } = useUser()
     const [editingDiaper, setEditingDiaper] = useState<Diaper | null>(null)
     const [editOpen, setEditOpen] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
 
     const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
         onDelete: async (id) => {
@@ -81,19 +77,16 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
         resourceName: "おむつ記録"
     });
 
-    useEffect(() => {
-        if (initialCommentRecordId && diapers.length > 0 && !initializedRef.current) {
-            const target = diapers.find(d => d.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                const style = getStyles(target.diaper_type)
-                // Avoid synchronous state update in effect
-                setTimeout(() => {
-                    setCommentTarget({ id: target.id, title: `${style.label} ${formatDate(target.change_time)}` })
-                }, 0)
-            }
-        }
-    }, [initialCommentRecordId, diapers])
+    const { openComment, CommentDialog } = useRecordComments({
+        records: diapers,
+        recordType: "diaper",
+        initialCommentRecordId,
+        getTitle: (d) => {
+            const style = getStyles(d.diaper_type)
+            return `${style.label} ${formatDate(d.change_time)}`
+        },
+        onCommentChange: onDeleteSuccess
+    });
 
     const handleEdit = (diaper: Diaper) => {
         setEditingDiaper(diaper)
@@ -140,7 +133,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                                 </div>
                             ) : null}
                             <button
-                                onClick={() => setCommentTarget({ id: diaper.id, title: `${style.label} ${formatDate(diaper.change_time)}` })}
+                                onClick={() => openComment(diaper)}
                                 aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント`}
                                 className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5"
                             >
@@ -162,17 +155,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
             />
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="diaper"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onDeleteSuccess}
-                />
-            )}
+            <CommentDialog />
         </>
     )
 }

@@ -1,18 +1,16 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Feeding, FeedingUpdate } from "@/types/feeding"
 import { RECORD_TYPES } from "@/types/enums"
-import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, User, MessageCircle, Baby, Milk } from "lucide-react"
+import { User, MessageCircle, Baby, Milk } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { HistoryCard } from "@/components/records/HistoryCard"
 import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { FeedingEditDialog } from "./FeedingEditDialog"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 interface FeedingHistoryProps {
     feedings: Feeding[];
@@ -54,10 +52,7 @@ function BreastDuration({ feeding }: { feeding: Feeding }) {
 }
 
 export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWrite = true, initialCommentRecordId, babyId }: FeedingHistoryProps) {
-    const { user } = useUser();
     const [editTarget, setEditTarget] = useState<Feeding | null>(null);
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null);
-    const initializedRef = useRef(false);
 
     const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
         onDelete,
@@ -65,17 +60,13 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
         resourceName: "授乳記録"
     });
 
-    useEffect(() => {
-        if (initialCommentRecordId && feedings.length > 0 && !initializedRef.current) {
-            const target = feedings.find(f => f.id === initialCommentRecordId);
-            if (target) {
-                initializedRef.current = true;
-                setTimeout(() => {
-                    setCommentTarget({ id: target.id, title: `授乳 ${format(new Date(target.feeding_time), "HH:mm", { locale: ja })}` });
-                }, 0);
-            }
-        }
-    }, [initialCommentRecordId, feedings]);
+    const { openComment, CommentDialog } = useRecordComments({
+        records: feedings,
+        recordType: RECORD_TYPES.FEEDING,
+        initialCommentRecordId,
+        getTitle: (record) => `授乳 ${format(new Date(record.feeding_time), "HH:mm", { locale: ja })}`,
+        onCommentChange: onRefresh
+    });
 
     const isEmpty = !feedings || feedings.length === 0;
 
@@ -133,7 +124,7 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
                                 </span>
                             )}
                             <button
-                                onClick={() => setCommentTarget({ id: feeding.id, title: `授乳 ${format(new Date(feeding.feeding_time), "HH:mm", { locale: ja })}` })}
+                                onClick={() => openComment(feeding)}
                                 className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
                             >
                                 <MessageCircle className="w-3 h-3" />
@@ -147,17 +138,7 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
             <ConfirmDeleteDialog />
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType={RECORD_TYPES.FEEDING}
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onRefresh}
-                />
-            )}
+            <CommentDialog />
 
             {/* 編集ダイアログ */}
             <FeedingEditDialog

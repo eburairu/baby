@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useMemo } from "react"
 import { useSleeps } from "@/hooks/useData"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import { Moon, User, MessageCircle } from "lucide-react"
 import { api } from "@/lib/api"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
 import { HistoryCard } from "@/components/records/HistoryCard"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { Sleep } from "@/types/sleep"
@@ -15,6 +13,7 @@ import { formatDuration } from "@/lib/ageUtils"
 import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { SleepEditDialog } from "./SleepEditDialog"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 interface Props {
     babyId: number | string
@@ -23,12 +22,9 @@ interface Props {
 }
 
 export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }: Props) {
-    const { user } = useUser()
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
 
     const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
         onDelete: async (id) => {
@@ -42,17 +38,13 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
         return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
     }, [sleeps])
 
-    useEffect(() => {
-        if (initialCommentRecordId && history && history.length > 0 && !initializedRef.current) {
-            const target = history.find(s => s.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                setTimeout(() => {
-                    setCommentTarget({ id: target.id, title: `睡眠 ${format(new Date(target.start_time), "M/d HH:mm", { locale: ja })}` })
-                }, 0)
-            }
-        }
-    }, [initialCommentRecordId, history])
+    const { openComment, CommentDialog } = useRecordComments({
+        records: history,
+        recordType: "sleep",
+        initialCommentRecordId,
+        getTitle: (s) => `睡眠 ${format(new Date(s.start_time), "M/d HH:mm", { locale: ja })}`,
+        onCommentChange: () => mutate()
+    });
 
     const isEmpty = !history || history.length === 0;
 
@@ -101,7 +93,7 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                                     </span>
                                 )}
                                 <button
-                                    onClick={() => setCommentTarget({ id: sleep.id, title: `睡眠 ${format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}` })}
+                                    onClick={() => openComment(sleep)}
                                     className="inline-flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
                                 >
                                     <MessageCircle className="w-3 h-3" />
@@ -120,17 +112,7 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
 
             <ConfirmDeleteDialog />
 
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="sleep"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={() => mutate()}
-                />
-            )}
+            <CommentDialog />
 
             <SleepEditDialog
                 sleep={editingSleep}
