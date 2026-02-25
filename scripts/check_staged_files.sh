@@ -5,13 +5,14 @@
 
 # ============================================================
 # ルートリポジトリの保護ブランチへの直接コミットをブロック
-# ワークツリーでは .git がファイル（"gitdir: ..."）になるため区別できる
+# show-toplevel/.git がディレクトリ → ルートリポジトリ
+# show-toplevel/.git がファイル    → git worktree（ブロックしない）
 # ============================================================
-GIT_DIR_PATH=$(git rev-parse --git-dir 2>/dev/null)
+TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null)
 CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
 PROTECTED_BRANCHES=("develop" "main")
 
-if [ -d "$GIT_DIR_PATH" ]; then
+if [ -d "$TOPLEVEL/.git" ]; then
   for branch in "${PROTECTED_BRANCHES[@]}"; do
     if [ "$CURRENT_BRANCH" = "$branch" ]; then
       echo "❌ エラー: ルートリポジトリの '$branch' ブランチに直接コミットできません。"
