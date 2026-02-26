@@ -80,7 +80,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         <div className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] md:bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none">
             <div className="flex flex-col items-center pointer-events-auto">
                 {/* Honeycomb Row 1 */}
-                <div className="flex justify-center -mb-3">
+                <div className="flex justify-center -mb-4">
                     <HexagonButton
                         icon={<Droplets className="h-6 w-6" />}
                         label="ミルク"
@@ -92,7 +92,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
                         label={activeSleep ? "起きた" : "寝た"}
-                        size={72}
+                        size={76}
                         active={!!activeSleep}
                         onClick={() => handleQuickRecord("sleep")}
                         loading={loadingAction === "sleep"}
