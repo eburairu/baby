@@ -47,7 +47,8 @@ export function HexagonButton({
   return (
     <button
       className={cn(
-        "group relative flex flex-col items-center justify-center transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
+        "group relative flex flex-col items-center justify-center transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-xl",
+        "outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring focus-visible:ring-offset-background",
         className
       )}
       disabled={loading}
@@ -70,13 +71,16 @@ export function HexagonButton({
           borderWidth={active ? 3 : 1}
         >
           <div className={cn(
-            "flex items-center justify-center transition-colors duration-300",
+            "flex items-center justify-center transition-colors duration-300 relative",
             currentTheme.icon
           )}>
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              icon || children
+            <div className={cn("flex items-center justify-center transition-opacity duration-200", loading ? "opacity-0" : "opacity-100")}>
+              {icon || children}
+            </div>
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
             )}
           </div>
         </Hexagon>
