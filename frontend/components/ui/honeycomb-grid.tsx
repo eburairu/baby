@@ -12,45 +12,33 @@ interface HoneycombGridProps {
 }
 
 /**
- * 3-2-3 などのハニカム構造を自動配置するコンポーネント
+ * ハニカム構造を自動配置するコンポーネント
+ * flex justify-center により、奇数個/偶数個の行が自然に互い違い（スタッガード）に配置されます。
  */
 export function HoneycombGrid({
   children,
   size,
   gap = 4,
   className,
-  rows = [[0, 1, 2], [3, 4]] // デフォルトは上段3個、下段2個
+  rows = [[0, 1, 2], [3, 4]]
 }: HoneycombGridProps) {
   const childrenArray = React.Children.toArray(children);
   
   // Pointy-topped 六角形の幾何学定数
+  // 幅 = sqrt(3)/2 * 高さ
   const width = (Math.sqrt(3) / 2) * size;
   const height = size;
   
-  // 水平方向の距離（中心から中心まで）
-  const horizontalSpacing = width + gap;
-
   return (
-    <div 
-      className={cn("relative flex flex-col items-center", className)}
-      style={{
-        // 全体の高さ調整などが必要な場合はここで
-      }}
-    >
+    <div className={cn("relative flex flex-col items-center", className)}>
       {rows.map((rowItems, rowIndex) => {
-        // 行ごとのオフセット（偶数行か奇数行かで横にずらす）
-        // 1行目が3個、2行目が2個の場合、2行目は半分ずらす
-        const isStaggered = rowItems.length < Math.max(...rows.map(r => r.length));
-        const rowOffsetX = isStaggered ? horizontalSpacing / 2 : 0;
-        
         return (
           <div 
             key={rowIndex}
             className="flex justify-center"
             style={{
-              marginTop: rowIndex === 0 ? 0 : -(height / 4) + gap, // 行間の重なりを調整
-              marginLeft: rowOffsetX,
-              marginRight: -rowOffsetX, // センタリングを維持するための負のマージン
+              // 行間の垂直方向の重なりを調整 (高さの1/4が標準的なハニカムの重なり)
+              marginTop: rowIndex === 0 ? 0 : -(height / 4) + gap,
             }}
           >
             {rowItems.map((childIndex) => {
