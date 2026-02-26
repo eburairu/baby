@@ -67,7 +67,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
             const target = notes.find(n => n.id === initialCommentRecordId)
             if (target) {
                 initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `メモ ${format(new Date(target.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
+                setCommentTarget({ id: target.id, title: `メモ ${formatFullDateTime(target.note_time)}` })
             }
         }
     }, [initialCommentRecordId, notes])
