@@ -64,7 +64,6 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     className="relative mx-auto lg:mx-0 flex flex-col items-center gap-4"
                 >
                     {/* 切り替えタブ */}
-<<<<<<< Updated upstream
                     <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-900 rounded-full p-1 border border-slate-200 dark:border-zinc-800">
                         <button
                             onClick={() => setActiveView("desktop")}
@@ -72,15 +71,6 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                                 activeView === "desktop"
                                     ? "bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-100 shadow-sm"
                                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-=======
-                    <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1 border border-slate-200">
-                        <button
-                            onClick={() => setActiveView("desktop")}
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                                activeView === "desktop"
-                                    ? "bg-white text-slate-800 shadow-sm"
-                                    : "text-slate-500 hover:text-slate-700"
->>>>>>> Stashed changes
                             }`}
                         >
                             <Monitor className="w-3.5 h-3.5" />
@@ -88,17 +78,10 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                         </button>
                         <button
                             onClick={() => setActiveView("mobile")}
-<<<<<<< Updated upstream
                             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
                                 activeView === "mobile"
                                     ? "bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-100 shadow-sm"
                                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-=======
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                                activeView === "mobile"
-                                    ? "bg-white text-slate-800 shadow-sm"
-                                    : "text-slate-500 hover:text-slate-700"
->>>>>>> Stashed changes
                             }`}
                         >
                             <Smartphone className="w-3.5 h-3.5" />
@@ -106,11 +89,7 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                         </button>
                     </div>
 
-<<<<<<< Updated upstream
                     <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100 dark:from-indigo-900/20 to-rose-50 dark:to-rose-900/10 rounded-3xl blur-3xl opacity-50 dark:opacity-30 -z-10" />
-=======
-                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100 to-rose-50 rounded-3xl blur-3xl opacity-50 -z-10" />
->>>>>>> Stashed changes
 
                     {/* デスクトップモックアップ */}
                     {activeView === "desktop" && (
@@ -119,7 +98,6 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                             initial={{ opacity: 0, scale: 0.97 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.25 }}
-<<<<<<< Updated upstream
                             className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 w-full"
                         >
                             <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800">
@@ -127,26 +105,13 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                                 <div className="w-3 h-3 rounded-full bg-yellow-400" />
                                 <div className="w-3 h-3 rounded-full bg-green-400" />
                                 <div className="flex-1 mx-3 py-1 px-3 rounded-md bg-white dark:bg-zinc-950 text-xs text-slate-400 dark:text-slate-500 text-center border border-slate-200 dark:border-zinc-800">
-=======
-                            className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 bg-white w-full"
-                        >
-                            <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 border-b border-slate-200">
-                                <div className="w-3 h-3 rounded-full bg-red-400" />
-                                <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                                <div className="w-3 h-3 rounded-full bg-green-400" />
-                                <div className="flex-1 mx-3 py-1 px-3 rounded-md bg-white text-xs text-slate-400 text-center border border-slate-200">
->>>>>>> Stashed changes
                                     baby-app.example.com/dashboard
                                 </div>
                             </div>
                             <img
                                 src="/screenshots/dashboard.png"
                                 alt="ダッシュボードのスクリーンショット（デスクトップ）"
-<<<<<<< Updated upstream
                                 className="w-full opacity-90 dark:opacity-100"
-=======
-                                className="w-full"
->>>>>>> Stashed changes
                             />
                         </motion.div>
                     )}
@@ -161,7 +126,6 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                             className="relative mx-auto"
                             style={{ width: 260 }}
                         >
-<<<<<<< Updated upstream
                             <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-slate-800 dark:border-zinc-800 bg-slate-800 dark:bg-zinc-900">
                                 {/* パンチホール */}
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-5 bg-slate-800 dark:bg-zinc-900 rounded-full z-10" />
@@ -169,15 +133,6 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                                     src="/screenshots/dashboard-mobile.png"
                                     alt="ダッシュボードのスクリーンショット（モバイル）"
                                     className="w-full opacity-90 dark:opacity-100"
-=======
-                            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-slate-800 bg-slate-800">
-                                {/* パンチホール */}
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-5 bg-slate-800 rounded-full z-10" />
-                                <img
-                                    src="/screenshots/dashboard-mobile.png"
-                                    alt="ダッシュボードのスクリーンショット（モバイル）"
-                                    className="w-full"
->>>>>>> Stashed changes
                                 />
                             </div>
                         </motion.div>
