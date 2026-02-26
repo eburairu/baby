@@ -19,7 +19,7 @@ export function WidgetQuickButton({
     loading = false,
     className,
     children,
-    hideContentOnLoading = false,
+    hideContentOnLoading = true,
     size = 48,
     pointy = true,
     ...props
@@ -54,6 +54,8 @@ export function WidgetQuickButton({
             )}
             disabled={loading || props.disabled}
             style={{ width, height }}
+            aria-busy={loading}
+            aria-pressed={isActive}
             {...props}
         >
             <div className="w-full h-full">
@@ -79,7 +81,7 @@ export function WidgetQuickButton({
                 
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader2 className="h-4 w-4 animate-spin text-current" />
+                        <Loader2 className="h-4 w-4 animate-spin text-current" aria-hidden="true" />
                     </div>
                 )}
             </div>
