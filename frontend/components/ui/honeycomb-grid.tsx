@@ -60,7 +60,7 @@ export function HoneycombGrid({
               return (
                 <div 
                   key={childIndex}
-                  className="relative"
+                  className="relative flex items-center justify-center overflow-visible"
                   style={{
                     width: width,
                     height: height,
