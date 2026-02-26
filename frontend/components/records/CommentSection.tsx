@@ -1,16 +1,10 @@
 "use client"
-import { USER_ROLES } from '@/types/enums';
-;
-
 import { useState } from "react";
 import { useComments } from "@/hooks/useComments";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Trash2, Heart, AlertCircle, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { MessageCircle, AlertCircle, Loader2 } from "lucide-react";
+import { CommentItem, CommentData } from "./CommentItem";
+import { CommentForm } from "./CommentForm";
 
 interface CommentSectionProps {
   recordType: string;
@@ -21,26 +15,11 @@ interface CommentSectionProps {
 
 export function CommentSection({ recordType, recordId, currentUserId, onCommentChange }: CommentSectionProps) {
   const { comments, addComment, deleteComment, isLoading, error } = useComments(recordType, recordId);
-  const [content, setContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = content.trim();
-    if (!trimmed || isSubmitting) return;
-
-    setIsSubmitting(true);
-    setContent("");
-    try {
-      await addComment(trimmed);
-      onCommentChange?.();
-    } catch (err) {
-      console.error(err);
-      setContent(trimmed);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSubmit = async (content: string) => {
+    await addComment(content);
+    onCommentChange?.();
   };
 
   const handleDelete = async (commentId: number) => {
@@ -82,92 +61,15 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
           </div>
         )}
 
-        {!isLoading && !error ? comments?.map((comment) => {
-          if (comment.is_ai_generated) {
-            return (
-              <div
-                key={comment.id}
-                className={cn(
-                  "p-3 rounded-lg text-sm transition-colors",
-                  comment.ai_has_concern
-                    ? "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800"
-                    : "bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-800"
-                )}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={cn(
-                    "font-semibold text-sm",
-                    comment.ai_has_concern
-                      ? "text-amber-700 dark:text-amber-400"
-                      : "text-indigo-700 dark:text-indigo-400"
-                  )}>
-                    {comment.ai_has_concern ? "⚠️ AIフィードバック（要確認）" : "🤖 AIフィードバック"}
-                  </span>
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                    {format(new Date(comment.created_at), "M/d HH:mm", { locale: ja })}
-                  </span>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-                  {comment.content}
-                </p>
-              </div>
-            );
-          }
-
-          return (
-            <div
-              key={comment.id}
-              className={cn(
-                "p-3 rounded-lg text-sm relative group transition-colors",
-                comment.user_role === USER_ROLES.VIEWER
-                  ? "bg-orange-50 border border-orange-100 dark:bg-orange-950/20 dark:border-orange-900"
-                  : "bg-gray-50 border border-gray-100 dark:bg-gray-800 dark:border-gray-700"
-              )}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-800 dark:text-gray-200">
-                    {comment.user_display_name}
-                  </span>
-                  {comment.user_role === USER_ROLES.VIEWER && (
-                    <Badge className="bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200 border-none text-[10px] h-4 px-1">
-                      応援
-                    </Badge>
-                  )}
-                  {comment.user_role === USER_ROLES.ADMIN && (
-                    <Badge variant="outline" className="text-[10px] h-4 px-1">
-                      管理者
-                    </Badge>
-                  )}
-                </div>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                  {format(new Date(comment.created_at), "M/d HH:mm", { locale: ja })}
-                </span>
-              </div>
-              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-                {comment.content}
-              </p>
-
-              {(currentUserId === comment.user_id) && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (window.confirm("このコメントを削除しますか？")) {
-                      handleDelete(comment.id);
-                    }
-                  }}
-                  loading={deletingId === comment.id}
-                  hideContentOnLoading
-                  aria-label="コメントを削除"
-                  className="absolute top-2 right-2 h-6 w-6 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-transparent"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              )}
-            </div>
-          );
-        }) : null}
+        {!isLoading && !error ? comments?.map((comment) => (
+          <CommentItem
+            key={comment.id}
+            comment={comment as unknown as CommentData}
+            currentUserId={currentUserId}
+            onDelete={handleDelete}
+            isDeleting={deletingId === comment.id}
+          />
+        )) : null}
 
         {comments?.length === 0 && !isLoading && !error ? (
           <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-2">
@@ -176,36 +78,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onFocus={(e) => e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest' })}
-          placeholder="お疲れ様！応援メッセージを送ろう"
-          aria-label="応援メッセージ"
-          className="text-sm min-h-[60px] resize-none"
-        />
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            size="sm"
-            disabled={!content.trim() || isSubmitting}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                送信中...
-              </>
-            ) : (
-              <>
-                <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
-                応援を送る
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
+      <CommentForm onSubmit={handleSubmit} />
     </div>
   );
 }

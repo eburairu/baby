@@ -1,8 +1,8 @@
 "use client"
 import { useEffect, useCallback } from "react"
-import { useBabies, useRecords } from "@/hooks/useData"
+import { useRecords } from "@/hooks/useData"
+import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { usePermissions } from "@/hooks/usePermissions"
-import { useBabyStore } from "@/stores/babyStore"
 import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
 import { SleepWidget } from "@/components/dashboard/SleepWidget"
@@ -25,16 +25,8 @@ const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentAc
 })
 
 export default function DashboardPage() {
-    const { babies, isLoading, isError: babiesError, mutate: mutateBabies } = useBabies()
-    const { selectedBabyId, setSelectedBabyId } = useBabyStore()
+    const { babies, isLoading, isError: babiesError, mutate: mutateBabies, selectedBabyId } = useSelectedBaby()
     const { canWrite, isAdmin } = usePermissions()
-
-    // Default to first baby if none selected
-    useEffect(() => {
-        if (babies && babies.length > 0 && !selectedBabyId) {
-            setSelectedBabyId(String(babies[0].id))
-        }
-    }, [babies, selectedBabyId, setSelectedBabyId])
 
     const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(selectedBabyId)
 

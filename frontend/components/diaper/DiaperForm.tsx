@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 
 
 interface Props {
@@ -55,31 +56,10 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
     const selectedColor = form.watch("poop_color")
     const selectedAmount = form.watch("poop_amount")
 
-    const onSubmit = async (values: DiaperFormValues) => {
-        setIsSubmitting(true)
-        setError(null)
-        try {
-            let finalNotes = values.notes || ""
-
-            if (values.diaper_type !== DiaperType.WET) {
-                const color = values.poop_color === "その他" ? values.custom_poop_color : values.poop_color
-                const amount = values.poop_amount === "その他" ? values.custom_poop_amount : values.poop_amount
-
-                if (color || amount) {
-                    const prefixParts = []
-                    if (color) prefixParts.push(`色: ${color}`)
-                    if (amount) prefixParts.push(`量: ${amount}`)
-                    const prefix = prefixParts.join("、")
-                    finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
-                }
-            }
-
-            const newRecord = await api.post<{ id: number }>("/diapers/", {
-                baby_id: Number(babyId),
-                diaper_type: values.diaper_type,
-                change_time: new Date(values.change_time).toISOString(),
-                notes: finalNotes || undefined,
-            })
+    const { submitRecord, isSubmitting: isSubmittingHook, error: hookError } = useBaseRecordForm<DiaperFormValues>({
+        endpoint: "/diapers/",
+        babyId,
+        onSuccess: (data) => {
             form.reset({
                 diaper_type: DiaperType.WET,
                 change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -89,10 +69,39 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                 poop_amount: "",
                 custom_poop_amount: "",
             })
-            onSuccess(newRecord?.id)
+            onSuccess((data as { id?: number })?.id)
+        },
+        errorMessage: "エラーが発生しました。もう一度お試しください。",
+        successMessage: undefined // No toast for diaper form in previous code, though we could add one
+    })
+
+    const onSubmit = async (values: DiaperFormValues) => {
+        setIsSubmitting(true)
+        setError(null)
+        try {
+            await submitRecord(values, (vals, base) => {
+                let finalNotes = vals.notes || ""
+                if (vals.diaper_type !== DiaperType.WET) {
+                    const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
+                    const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
+
+                    if (color || amount) {
+                        const prefixParts = []
+                        if (color) prefixParts.push(`色: ${color}`)
+                        if (amount) prefixParts.push(`量: ${amount}`)
+                        const prefix = prefixParts.join("、")
+                        finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                    }
+                }
+                return {
+                    baby_id: Number(base.baby_id),
+                    diaper_type: vals.diaper_type,
+                    change_time: new Date(vals.change_time).toISOString(),
+                    notes: finalNotes || undefined,
+                }
+            })
         } catch (e) {
-            console.error(e)
-            setError("エラーが発生しました。もう一度お試しください。")
+            setError(hookError || "エラーが発生しました。もう一度お試しください。")
         } finally {
             setIsSubmitting(false)
         }
