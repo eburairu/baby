@@ -4,6 +4,8 @@ import type { ContractionRecord } from '@/types/contraction';
 import type { Diaper } from '@/types/diaper';
 import type { Sleep } from '@/types/sleep';
 import type { Growth } from '@/types/growth';
+import type { Vaccination } from '@/types/vaccination';
+import type { Milestone, MilestoneTimelineGroup } from '@/types/milestone';
 import type { Baby } from '@/types/baby';
 import { Family, FamilyMember } from "@/types/family";
 import { BabyRecord } from "@/types/record";
@@ -95,6 +97,40 @@ export function useGrowths(babyId: string | number | null) {
         growths: data,
         isLoading,
         isError,
+        mutate,
+    };
+}
+
+export function useVaccinations(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<Vaccination>('vaccinations', babyId);
+    return {
+        vaccinations: data,
+        isLoading,
+        isError,
+        mutate,
+    };
+}
+
+export function useMilestones(babyId: string | number | null) {
+    const { data, isLoading, isError, mutate } = useBabyResource<Milestone>('milestones', babyId);
+    return {
+        milestones: data,
+        isLoading,
+        isError,
+        mutate,
+    };
+}
+
+export function useMilestoneTimeline(babyId: string | number | null) {
+    const { data, error, isLoading, mutate } = useSWR<MilestoneTimelineGroup[]>(
+        babyId ? `/milestones/timeline?baby_id=${babyId}` : null,
+        fetcher,
+        { keepPreviousData: true }
+    );
+    return {
+        timeline: data,
+        isLoading,
+        isError: error,
         mutate,
     };
 }

@@ -10,6 +10,8 @@ class RecordType(str, Enum):
     GROWTH = "growth"
     NOTE = "note"
     CONTRACTION = "contraction"
+    VACCINATION = "vaccination"
+    MILESTONE = "milestone"
 
 class DiaperStatus(str, Enum):
     WET = "wet"
