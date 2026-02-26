@@ -12,8 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Droplets, Moon, Baby, TrendingUp, StickyNote, BookOpen, Timer } from "lucide-react"
-import { useBabies } from "@/hooks/useData"
-import { useBabyStore } from "@/stores/babyStore"
+import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -69,16 +68,9 @@ export default function DashboardLayout({
 }) {
     const { user, isLoading: authLoading } = useUser()
     const pathname = usePathname()
-    const { babies, isLoading } = useBabies()
-    const { selectedBabyId, setSelectedBabyId } = useBabyStore()
+    const { babies, isLoading, selectedBabyId, setSelectedBabyId, selectedBaby } = useSelectedBaby()
     const { appVersion } = useAppVersion()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-    useEffect(() => {
-        if (babies && babies.length > 0 && !selectedBabyId) {
-            setSelectedBabyId(String(babies[0].id))
-        }
-    }, [babies, selectedBabyId, setSelectedBabyId])
 
     if (authLoading || (isLoading && !babies)) {
         return <DashboardSkeleton />
@@ -88,7 +80,6 @@ export default function DashboardLayout({
         return null // Will redirect to login
     }
 
-    const selectedBaby = babies?.find(b => String(b.id) === selectedBabyId)
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : false
 
     const navItems = ALL_NAV_ITEMS.filter(item => {

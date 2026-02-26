@@ -126,95 +126,38 @@ export const UI_FORMS = {
   },
 } as const;
 
-export const TIPS_CARD_CONFIG = {
-  rose: {
-    border: UI_COLORS.rose.border,
-    bg: UI_COLORS.rose.bg,
-    accent: UI_COLORS.rose.accent,
-    icon: UI_COLORS.rose.icon,
-    title: UI_COLORS.rose.title,
-    item: UI_COLORS.rose.item,
-    trigger: UI_COLORS.rose.trigger,
-  },
-  indigo: {
-    border: UI_COLORS.indigo.border,
-    bg: UI_COLORS.indigo.bg,
-    accent: UI_COLORS.indigo.accent,
-    icon: UI_COLORS.indigo.icon,
-    title: UI_COLORS.indigo.title,
-    item: UI_COLORS.indigo.item,
-    trigger: UI_COLORS.indigo.trigger,
-  },
-  amber: {
-    border: UI_COLORS.amber.border,
-    bg: UI_COLORS.amber.bg,
-    accent: UI_COLORS.amber.accent,
-    icon: UI_COLORS.amber.icon,
-    title: UI_COLORS.amber.title,
-    item: UI_COLORS.amber.item,
-    trigger: UI_COLORS.amber.trigger,
-  },
-  emerald: {
-    border: UI_COLORS.emerald.border,
-    bg: UI_COLORS.emerald.bg,
-    accent: UI_COLORS.emerald.accent,
-    icon: UI_COLORS.emerald.icon,
-    title: UI_COLORS.emerald.title,
-    item: UI_COLORS.emerald.item,
-    trigger: UI_COLORS.emerald.trigger,
-  },
-  red: {
-    border: UI_COLORS.red.border,
-    bg: UI_COLORS.red.bg,
-    accent: UI_COLORS.red.accent,
-    icon: UI_COLORS.red.icon,
-    title: UI_COLORS.red.title,
-    item: UI_COLORS.red.item,
-    trigger: UI_COLORS.red.trigger,
-  },
-  purple: {
-    border: UI_COLORS.purple.border,
-    bg: UI_COLORS.purple.bg,
-    accent: UI_COLORS.purple.accent,
-    icon: UI_COLORS.purple.icon,
-    title: UI_COLORS.purple.title,
-    item: UI_COLORS.purple.item,
-    trigger: UI_COLORS.purple.trigger,
-  },
-  slate: {
-    border: UI_COLORS.slate.border,
-    bg: UI_COLORS.slate.bg,
-    accent: UI_COLORS.slate.accent,
-    icon: UI_COLORS.slate.icon,
-    title: UI_COLORS.slate.title,
-    item: UI_COLORS.slate.item,
-    trigger: UI_COLORS.slate.trigger,
-  },
-} as const;
+export const TIPS_CARD_CONFIG = Object.fromEntries(
+  Object.entries(UI_COLORS).map(([key, value]) => [
+    key,
+    {
+      border: value.border,
+      bg: value.bg,
+      accent: value.accent,
+      icon: value.icon,
+      title: value.title,
+      item: value.item,
+      trigger: value.trigger,
+    }
+  ])
+) as Record<keyof typeof UI_COLORS, {
+  border: string;
+  bg: string;
+  accent: string;
+  icon: string;
+  title: string;
+  item: string;
+  trigger: string;
+}>;
 
-export const STATS_BLOCK_CONFIG = {
-  rose: {
-    bg: UI_COLORS.rose.bg,
-    icon: `${UI_COLORS.rose.icon} ${UI_COLORS.rose.iconDark}`,
-  },
-  indigo: {
-    bg: UI_COLORS.indigo.bg,
-    icon: `${UI_COLORS.indigo.icon} ${UI_COLORS.indigo.iconDark}`,
-  },
-  amber: {
-    bg: UI_COLORS.amber.bg,
-    icon: `${UI_COLORS.amber.icon} ${UI_COLORS.amber.iconDark}`,
-  },
-  emerald: {
-    bg: UI_COLORS.emerald.bg,
-    icon: `${UI_COLORS.emerald.icon} ${UI_COLORS.emerald.iconDark}`,
-  },
-  blue: {
-    bg: UI_COLORS.blue.bg,
-    icon: `${UI_COLORS.blue.icon} ${UI_COLORS.blue.iconDark}`,
-  },
-  zinc: {
-    bg: UI_COLORS.zinc.bg,
-    icon: `${UI_COLORS.zinc.icon} ${UI_COLORS.zinc.iconDark}`,
-  },
-} as const;
+export const STATS_BLOCK_CONFIG = Object.fromEntries(
+  Object.entries(UI_COLORS).map(([key, value]) => [
+    key,
+    {
+      bg: value.bg,
+      icon: `${value.icon} ${value.iconDark}`,
+    }
+  ])
+) as Record<keyof typeof UI_COLORS, {
+  bg: string;
+  icon: string;
+}>;

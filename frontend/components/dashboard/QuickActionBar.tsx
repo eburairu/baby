@@ -4,10 +4,9 @@ import { RECORD_TYPES } from '@/types/enums';
 import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
-import { usePermissions } from "@/hooks/usePermissions"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { BabyRecord } from "@/types/record"
 import { Moon, Bed, Loader2, StickyNote, Droplets, Baby, Zap } from "lucide-react"
-import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
 import { toast } from "sonner"
@@ -19,10 +18,9 @@ interface Props {
 }
 
 export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
-    const { canWrite } = usePermissions()
+    const { canWrite, executeRecord } = useQuickRecord(babyId, { onSuccess: mutateRecords })
     const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const [noteDialogOpen, setNoteDialogOpen] = useState(false)
-    const { triggerFeedback } = useRecordFeedback(babyId)
 
     const activeSleep = useMemo(() => {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
@@ -32,40 +30,51 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
 
     const handleQuickRecord = async (type: "feeding_bottle" | "feeding_breast" | "sleep" | "diaper_wet" | "diaper_dirty") => {
         setLoadingAction(type)
-        try {
-            if (type === "feeding_bottle" || type === "feeding_breast") {
-                const record = await api.post<{ id: number }>("/feedings/", {
-                    baby_id: Number(babyId),
-                    feeding_type: type === "feeding_bottle" ? "BOTTLE" : "BREAST",
-                    feeding_time: new Date().toISOString(),
-                })
-                triggerFeedback(RECORD_TYPES.FEEDING, record.id)
-            } else if (type === "sleep") {
+        
+        const actionMap = {
+            "feeding_bottle": async () => api.post<{ id: number }>("/feedings/", {
+                baby_id: Number(babyId),
+                feeding_type: "BOTTLE",
+                feeding_time: new Date().toISOString(),
+            }),
+            "feeding_breast": async () => api.post<{ id: number }>("/feedings/", {
+                baby_id: Number(babyId),
+                feeding_type: "BREAST",
+                feeding_time: new Date().toISOString(),
+            }),
+            "sleep": async () => {
                 if (activeSleep) {
-                    await api.patch(`/sleeps/${activeSleep.id}`, {
-                        end_time: new Date().toISOString(),
-                    })
+                    await api.patch(`/sleeps/${activeSleep.id}`, { end_time: new Date().toISOString() })
+                    return { id: activeSleep.id }
                 } else {
-                    await api.post("/sleeps/", {
+                    return api.post<{ id: number }>("/sleeps/", {
                         baby_id: Number(babyId),
                         start_time: new Date().toISOString(),
                     })
                 }
-            } else if (type === "diaper_wet" || type === "diaper_dirty") {
-                const record = await api.post<{ id: number }>("/diapers/", {
-                    baby_id: Number(babyId),
-                    diaper_type: type === "diaper_wet" ? "WET" : "DIRTY",
-                    change_time: new Date().toISOString(),
-                })
-                triggerFeedback("diaper", record.id)
-            }
-            if (mutateRecords) mutateRecords()
-        } catch (e) {
-            console.error(e)
-            toast.error("記録に失敗しました")
-        } finally {
-            setLoadingAction(null)
+            },
+            "diaper_wet": async () => api.post<{ id: number }>("/diapers/", {
+                baby_id: Number(babyId),
+                diaper_type: "WET",
+                change_time: new Date().toISOString(),
+            }),
+            "diaper_dirty": async () => api.post<{ id: number }>("/diapers/", {
+                baby_id: Number(babyId),
+                diaper_type: "DIRTY",
+                change_time: new Date().toISOString(),
+            }),
         }
+
+        const configMap = {
+            "feeding_bottle": { feedbackType: RECORD_TYPES.FEEDING, label: "ミルク" },
+            "feeding_breast": { feedbackType: RECORD_TYPES.FEEDING, label: "母乳" },
+            "sleep": { label: activeSleep ? "睡眠終了" : "睡眠開始" },
+            "diaper_wet": { feedbackType: "diaper" as const, label: "おしっこ" },
+            "diaper_dirty": { feedbackType: "diaper" as const, label: "うんち" },
+        }
+
+        await executeRecord(actionMap[type], configMap[type])
+        setLoadingAction(null)
     }
 
     return (
