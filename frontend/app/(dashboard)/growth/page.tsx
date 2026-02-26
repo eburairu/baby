@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useGrowths } from "@/hooks/useData"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
-import { Plus, TrendingUp } from "lucide-react"
+import { Plus, Ruler } from "lucide-react"
 import { GrowthChart } from "@/components/growth/GrowthChart"
 import { GrowthHistoryList } from "@/components/growth/GrowthHistoryList"
 import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
@@ -51,7 +51,7 @@ export default function GrowthPage() {
     return (
         <RecordPageLayout
             title="成長記録"
-            icon={TrendingUp}
+            icon={Ruler}
             iconColorClass="text-emerald-500 dark:text-emerald-400"
             isLoading={babiesLoading}
             isDataLoading={growthsLoading}
