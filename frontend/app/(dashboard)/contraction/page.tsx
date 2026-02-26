@@ -2,10 +2,12 @@
 
 import { useContractions } from "@/hooks/useData"
 import { useRecordPage } from "@/hooks/useRecordPage"
-import ContractionTimer from "@/components/ContractionTimer"
-import ContractionStats from "@/components/ContractionStats"
-import ContractionHistory from "@/components/ContractionHistory"
-import ContractionWaveGraph from "@/components/ContractionWaveGraph"
+import {
+    ContractionTimer,
+    ContractionStats,
+    ContractionHistory,
+    ContractionWaveGraph
+} from "@/components/contraction"
 import type { ContractionRecord } from "@/types/contraction"
 import { TipsCard } from "@/components/ui/tips-card"
 import { contractionTips } from "@/lib/tips-data"

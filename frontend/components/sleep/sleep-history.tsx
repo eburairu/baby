@@ -2,9 +2,11 @@
 
 import { useState, useMemo } from "react"
 import { useSleeps } from "@/hooks/useData"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
-import { Moon, User, MessageCircle } from "lucide-react"
+
+
+import { RecordIcon } from "@/components/records/RecordIcon"
+import { RecordMetaItems } from "@/components/records/RecordMetaItems"
+import { formatDateTime, formatTime } from "@/lib/dateUtils"
 import { api } from "@/lib/api"
 import { HistoryCard } from "@/components/records/HistoryCard"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
@@ -42,7 +44,7 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
         records: history,
         recordType: "sleep",
         initialCommentRecordId,
-        getTitle: (s) => `睡眠 ${format(new Date(s.start_time), "M/d HH:mm", { locale: ja })}`,
+        getTitle: (s) => `睡眠 ${formatDateTime(s.start_time)}`,
         onCommentChange: () => mutate()
     });
 
@@ -59,11 +61,8 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                     return (
                         <RecordListItem
                             key={sleep.id}
-                            icon={
-                                <div className="bg-indigo-100 dark:bg-indigo-950/40 p-2 rounded-full text-indigo-500 dark:text-indigo-400">
-                                    <Moon className="w-5 h-5" />
-                                </div>
-                            }
+                            icon={<RecordIcon type="sleep" />}
+
                             actions={
                                 <RecordActionButtons
                                     canWrite={canWrite}
@@ -77,29 +76,21 @@ export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }
                         >
                             <div className="flex items-center gap-2">
                                 <p className="font-medium text-sm text-gray-900 dark:text-zinc-100">
-                                    {format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}
+                                    {formatDateTime(sleep.start_time)}
                                     <span className="text-gray-400 dark:text-zinc-500 mx-2">-</span>
-                                    {sleep.end_time ? format(new Date(sleep.end_time), "HH:mm", { locale: ja }) : "現在"}
+                                    {sleep.end_time ? formatTime(sleep.end_time) : "現在"}
                                 </p>
                             </div>
                             <div className="flex items-center gap-2 text-[10px] text-gray-500 flex-wrap">
                                 <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium">
                                     {duration}
                                 </span>
-                                {sleep.recorded_by_display_name && (
-                                    <span className="inline-flex items-center gap-0.5 text-gray-400 dark:text-zinc-500">
-                                        <User className="w-3 h-3" />
-                                        {sleep.recorded_by_display_name}
-                                    </span>
-                                )}
-                                <button
-                                    onClick={() => openComment(sleep)}
-                                    aria-label={(sleep.comment_count ?? 0) > 0 ? `${sleep.comment_count}件のコメントを表示` : "コメントを追加"}
-                                    className="inline-flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
-                                >
-                                    <MessageCircle className="w-3 h-3" />
-                                    {(sleep.comment_count ?? 0) > 0 && <span>{sleep.comment_count}</span>}
-                                </button>
+                                <RecordMetaItems
+                                    displayName={sleep.recorded_by_display_name}
+                                    commentCount={sleep.comment_count}
+                                    onCommentClick={() => openComment(sleep)}
+                                    className="mt-0"
+                                />
                             </div>
                             {sleep.notes && (
                                 <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">

@@ -52,7 +52,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                 subContent={`今日: ${todayCount}回`}
             />
             {canWrite ? (
-                <div className="flex gap-4 justify-center">
+                <div className="flex gap-2 justify-center">
                     <WidgetQuickButton
                         color="rose"
                         loading={loading}
@@ -60,6 +60,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         onClick={() => handleQuickRecord("bottle")}
                         size={48}
                         title="ミルクを記録"
+                        aria-label="ミルクを記録"
                     >
                         <Droplets className="w-5 h-5" />
                     </WidgetQuickButton>
@@ -70,6 +71,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         onClick={() => handleQuickRecord("breast")}
                         size={48}
                         title="母乳を記録"
+                        aria-label="母乳を記録"
                     >
                         <Waves className="w-5 h-5" />
                     </WidgetQuickButton>

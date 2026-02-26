@@ -78,8 +78,9 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                         loading={loading}
                         disabled={loading}
                         onClick={isSleeping ? handleEnd : handleStart}
-                        size={52}
+                        size={48}
                         title={isSleeping ? "起きた記録をする" : "寝た記録をする"}
+                        aria-label={isSleeping ? "起きた記録をする" : "寝た記録をする"}
                     >
                         {isSleeping ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                     </WidgetQuickButton>

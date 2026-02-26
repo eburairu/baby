@@ -7,9 +7,11 @@ import * as z from "zod"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Note, deleteNote, updateNote } from "@/hooks/useNotes"
 import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, Calendar, Save, User, MessageCircle, Loader2 } from "lucide-react"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { RecordMetaItems } from "@/components/records/RecordMetaItems"
+import { formatFullDateTime, formatJapaneseDateTime } from "@/lib/dateUtils"
+import { Trash2, Pencil, Calendar, Save, Loader2 } from "lucide-react"
+
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -65,7 +67,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
             const target = notes.find(n => n.id === initialCommentRecordId)
             if (target) {
                 initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `メモ ${format(new Date(target.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
+                setCommentTarget({ id: target.id, title: `メモ ${formatFullDateTime(target.note_time)}` })
             }
         }
     }, [initialCommentRecordId, notes])
@@ -149,21 +151,14 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-400 font-medium">
                                     <span className="flex items-center gap-1.5">
                                         <Calendar className="h-3.5 w-3.5" />
-                                        {format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}
+                                        {formatFullDateTime(note.note_time)}
                                     </span>
-                                    {note.recorded_by_display_name && (
-                                        <span className="flex items-center gap-1 text-gray-400 dark:text-zinc-500">
-                                            <User className="h-3 w-3" />
-                                            {note.recorded_by_display_name}
-                                        </span>
-                                    )}
-                                    <button
-                                        onClick={() => setCommentTarget({ id: note.id, title: `メモ ${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
-                                        className="flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
-                                    >
-                                        <MessageCircle className="h-3 w-3" />
-                                        {(note.comment_count ?? 0) > 0 && <span>{note.comment_count}</span>}
-                                    </button>
+                                    <RecordMetaItems
+                                        displayName={note.recorded_by_display_name}
+                                        commentCount={note.comment_count}
+                                        onCommentClick={() => setCommentTarget({ id: note.id, title: `メモ ${formatFullDateTime(note.note_time)}` })}
+                                        className="contents"
+                                    />
                                 </div>
                                 {canWrite && (
                                     <div className="flex gap-1">
@@ -228,7 +223,7 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                         <FormLabel data-sentry-unmask>日時</FormLabel>
                                         <FormControl>
                                             <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                                                {field.value ? format(new Date(field.value), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
+                                                {field.value ? formatJapaneseDateTime(field.value) : "-"}
                                             </div>
                                         </FormControl>
                                         <FormMessage />
