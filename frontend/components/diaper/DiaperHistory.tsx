@@ -1,7 +1,9 @@
 "use client"
 import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
-import { User, MessageCircle, Droplets, Biohazard } from "lucide-react"
+import { Droplets, Biohazard } from "lucide-react"
+import { RecordMetaItems } from "@/components/records/RecordMetaItems"
+import { formatDateTime } from "@/lib/dateUtils"
 import { api } from "@/lib/api"
 import { DiaperEditDialog } from "./DiaperEditDialog"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
@@ -10,16 +12,7 @@ import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { useRecordComments } from "@/hooks/useRecordComments"
 
-// Minimal date formatter if date-fns is missing, or use Intl.DateTimeFormat
-const formatDate = (isoString: string) => {
-    const date = new Date(isoString)
-    return new Intl.DateTimeFormat('ja-JP', {
-        month: 'numeric',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).format(date)
-}
+
 
 const getStyles = (type: DiaperType) => {
     switch (type) {
@@ -83,7 +76,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
         initialCommentRecordId,
         getTitle: (d) => {
             const style = getStyles(d.diaper_type)
-            return `${style.label} ${formatDate(d.change_time)}`
+            return `${style.label} ${formatDateTime(d.change_time)}`
         },
         onCommentChange: onDeleteSuccess
     });
@@ -110,34 +103,26 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                                     canWrite={canWrite}
                                     onEdit={() => handleEdit(diaper)}
                                     onDelete={() => setDeleteTargetId(diaper.id)}
-                                    editLabel={`${style.label} ${formatDate(diaper.change_time)} を編集`}
-                                    deleteLabel={`${style.label} ${formatDate(diaper.change_time)} を削除`}
+                                    editLabel={`${style.label} ${formatDateTime(diaper.change_time)} を編集`}
+                                    deleteLabel={`${style.label} ${formatDateTime(diaper.change_time)} を削除`}
                                 />
                             }
                         >
                             <div className={`text-sm font-bold ${style.text}`}>
                                 {style.label}
                                 <span className="text-xs font-normal text-gray-500 dark:text-zinc-500 ml-2">
-                                    {formatDate(diaper.change_time)}
+                                    {formatDateTime(diaper.change_time)}
                                 </span>
                             </div>
                             {diaper.notes ? (
                                 <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{diaper.notes}</div>
                             ) : null}
-                            {diaper.recorded_by_display_name ? (
-                                <div className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
-                                    <User className="w-3 h-3" />
-                                    {diaper.recorded_by_display_name}
-                                </div>
-                            ) : null}
-                            <button
-                                onClick={() => openComment(diaper)}
-                                aria-label={`${style.label} ${formatDate(diaper.change_time)} へのコメント${(diaper.comment_count ?? 0) > 0 ? ` (${diaper.comment_count}件)` : ""}`}
-                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mt-0.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
-                            >
-                                <MessageCircle className="w-3 h-3" />
-                                {(diaper.comment_count ?? 0) > 0 && <span>{diaper.comment_count}</span>}
-                            </button>
+                            <RecordMetaItems
+                                displayName={diaper.recorded_by_display_name}
+                                commentCount={diaper.comment_count}
+                                onCommentClick={() => openComment(diaper)}
+                                className="mt-0.5"
+                            />
                         </RecordListItem>
                     )
                 })}
