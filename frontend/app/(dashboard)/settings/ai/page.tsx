@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useAISettings, updateAISettings } from "@/hooks/useAISettings"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useUser } from "@/hooks/useAuth"
+import { useSelectedBaby } from "@/hooks/useSelectedBaby"
+import { isBorn } from "@/lib/babyUtils"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,16 +15,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Save, Sparkles } from "lucide-react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export default function AISettingsPage() {
   const router = useRouter()
   const { user, isLoading: isUserLoading } = useUser()
   const { data, isLoading, isError, mutate } = useAISettings()
   const { isAdmin, isLoading: isPermsLoading } = usePermissions()
+  const { babies, isLoading: isBabiesLoading } = useSelectedBaby()
   
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [isSaving, setIsSaving] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+
+  const selectedBaby = babies?.[0] // Simplified for settings check
+  const born = selectedBaby ? isBorn(selectedBaby.birthday) : false
 
   // 初期データのセット
   useEffect(() => {
@@ -43,7 +50,7 @@ export default function AISettingsPage() {
     }
   }, [isAdmin, isPermsLoading, isUserLoading, user, router])
 
-  if (isLoading || isPermsLoading || isUserLoading) {
+  if (isLoading || isPermsLoading || isUserLoading || isBabiesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
@@ -201,7 +208,10 @@ export default function AISettingsPage() {
         </Card>
 
         {/* 保存ボタン (Floating) */}
-        <div className="fixed bottom-6 left-0 right-0 px-4 max-w-2xl mx-auto flex justify-center pointer-events-none">
+        <div className={cn(
+          "fixed left-0 right-0 px-4 max-w-2xl mx-auto flex justify-center pointer-events-none z-40 transition-all",
+          born ? "bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6" : "bottom-6"
+        )}>
           <Button
             onClick={handleSave}
             disabled={!hasChanges || isSaving}
