@@ -2,19 +2,24 @@ from pydantic import BaseModel, ConfigDict, model_validator, Field
 from typing import Optional
 from datetime import datetime
 from app.models.feeding import FeedingType, BreastSide, BottleContentType, FeedingCompletion
-from app.core.constants import NOTE_MAX_LENGTH
+from app.core.constants import (
+    NOTE_MAX_LENGTH,
+    MAX_FEEDING_ML,
+    MAX_FEEDING_DURATION_MINUTES,
+    MAX_BREAST_FEEDING_MINUTES
+)
 
 
 class FeedingCreate(BaseModel):
     baby_id: int
     feeding_time: datetime
     feeding_type: FeedingType
-    amount_ml: Optional[float] = None
-    duration_minutes: Optional[int] = None
+    amount_ml: Optional[float] = Field(None, ge=0, le=MAX_FEEDING_ML)
+    duration_minutes: Optional[int] = Field(None, ge=0, le=MAX_FEEDING_DURATION_MINUTES)
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
     # Phase 1
-    left_breast_minutes: Optional[int] = None
-    right_breast_minutes: Optional[int] = None
+    left_breast_minutes: Optional[int] = Field(None, ge=0, le=MAX_BREAST_FEEDING_MINUTES)
+    right_breast_minutes: Optional[int] = Field(None, ge=0, le=MAX_BREAST_FEEDING_MINUTES)
     last_breast_side: Optional[BreastSide] = None
     # Phase 2
     bottle_content_type: Optional[BottleContentType] = None
@@ -40,12 +45,12 @@ class FeedingResponse(FeedingCreate):
 class FeedingUpdate(BaseModel):
     feeding_time: Optional[datetime] = None
     feeding_type: Optional[FeedingType] = None
-    amount_ml: Optional[float] = None
-    duration_minutes: Optional[int] = None
+    amount_ml: Optional[float] = Field(None, ge=0, le=MAX_FEEDING_ML)
+    duration_minutes: Optional[int] = Field(None, ge=0, le=MAX_FEEDING_DURATION_MINUTES)
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
     # Phase 1
-    left_breast_minutes: Optional[int] = None
-    right_breast_minutes: Optional[int] = None
+    left_breast_minutes: Optional[int] = Field(None, ge=0, le=MAX_BREAST_FEEDING_MINUTES)
+    right_breast_minutes: Optional[int] = Field(None, ge=0, le=MAX_BREAST_FEEDING_MINUTES)
     last_breast_side: Optional[BreastSide] = None
     # Phase 2
     bottle_content_type: Optional[BottleContentType] = None
