@@ -6,7 +6,7 @@ class Growth(Base):
     __tablename__ = "growths"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     date = Column(Date, nullable=False, index=True)
     weight = Column(Integer, nullable=True)  # in grams
     height = Column(Float, nullable=True)  # in cm
