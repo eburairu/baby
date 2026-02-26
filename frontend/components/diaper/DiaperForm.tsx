@@ -2,7 +2,6 @@
 
 import { POOP_COLORS, POOP_AMOUNTS } from "@/constants/diaper"
 
-import { useState } from "react"
 import { Droplets, Biohazard } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -21,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
@@ -36,9 +34,6 @@ interface Props {
 }
 
 export function DiaperForm({ babyId, onSuccess }: Props) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
         defaultValues: {
@@ -56,7 +51,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
     const selectedColor = form.watch("poop_color")
     const selectedAmount = form.watch("poop_amount")
 
-    const { submitRecord, isSubmitting: isSubmittingHook, error: hookError } = useBaseRecordForm<DiaperFormValues>({
+    const { submitRecord, isSubmitting, error } = useBaseRecordForm<DiaperFormValues>({
         endpoint: "/diapers/",
         babyId,
         onSuccess: (data) => {
@@ -72,12 +67,10 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
             onSuccess((data as { id?: number })?.id)
         },
         errorMessage: "エラーが発生しました。もう一度お試しください。",
-        successMessage: undefined // No toast for diaper form in previous code, though we could add one
+        successMessage: undefined // No toast for diaper form in previous code
     })
 
     const onSubmit = async (values: DiaperFormValues) => {
-        setIsSubmitting(true)
-        setError(null)
         try {
             await submitRecord(values, (vals, base) => {
                 let finalNotes = vals.notes || ""
@@ -101,9 +94,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                 }
             })
         } catch (e) {
-            setError(hookError || "エラーが発生しました。もう一度お試しください。")
-        } finally {
-            setIsSubmitting(false)
+            // Error is handled by the hook
+            console.error(e)
         }
     }
 
