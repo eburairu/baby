@@ -202,7 +202,7 @@ def send_test_notification(
 
     results = []
     for sub in subscriptions:
-        success = send_push_notification(
+        result = send_push_notification(
             sub,
             title="テスト通知 🔔",
             body="プッシュ通知が正常に動作しています！",
@@ -212,7 +212,9 @@ def send_test_notification(
         results.append({
             "subscription_id": sub.id,
             "endpoint_preview": sub.endpoint[:60] + "...",
-            "success": success
+            "success": result["success"],
+            "status_code": result.get("status_code"),
+            "error": result.get("error"),
         })
 
     all_success = all(r["success"] for r in results)

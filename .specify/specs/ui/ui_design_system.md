@@ -284,46 +284,58 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 ### 3.4 ウィジェット内クイックボタン（ダッシュボード）
 
 ダッシュボードの各ウィジェット内で使用するアクションボタン。`WidgetQuickButton` コンポーネントとして実装されている。
+内部で `HexagonButton` コンポーネントを使用し、ダッシュボードのデザインに合わせた六角形の形状を提供する。
 
 ```tsx
 // frontend/components/dashboard/WidgetQuickButton.tsx
-interface WidgetQuickButtonProps extends ButtonProps {
+interface WidgetQuickButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     color: "rose" | "amber" | "indigo";
     isActive?: boolean;
-    hideContentOnLoading?: boolean; // ローディング時のレイアウトシフト防止
+    loading?: boolean;
+    size?: number;   // デフォルト: 48
+    pointy?: boolean; // デフォルト: true
 }
 
 <WidgetQuickButton
   color="rose"
   onClick={handleClick}
   loading={isLoading}
-  hideContentOnLoading={true}
+  size={48}
 >
-  <Icon className="mr-2 h-4 w-4" />
-  アクション
+  <Icon className="w-5 h-5" />
 </WidgetQuickButton>
 ```
 
 **特徴・ルール**:
-1.  **カラーバリアント**: `color` プロップ (`rose`, `amber`, `indigo`) により、背景色とテキスト色が自動的に決定される。
-2.  **アクティブ状態**: `isActive` プロップにより、選択状態（濃い背景色 + 白文字）のスタイルが適用される。
-3.  **ローディング時の挙動 (`hideContentOnLoading`)**:
-    - `true` に設定すると、`loading` 状態のときにボタン内のコンテンツ（テキストやアイコン）を非表示 (`opacity-0`) にし、中央にスピナーを表示する。
-    - これにより、ローディングスピナーが追加されることによるボタン幅の変化（レイアウトシフト）を防ぐことができる。
-    - ダッシュボードのウィジェットなど、スペースが限られている場所で特に有効。
+1.  **カラーバリアント**: `color` プロップ (`rose`, `amber`, `indigo`) により、背景色とテキスト色が自動的に決定される（`HexagonButton` の `variant` に渡される）。
+2.  **アクティブ状態**: `isActive` プロップにより、選択状態（濃い背景色 + 白文字 + グロー効果）のスタイルが適用される。
+3.  **ローディング時の挙動**:
+    - `loading={true}` の場合、ボタン内のコンテンツ（アイコンなど）が自動的にスピナー (`Loader2`) に置き換わる。
+    - ボタンのサイズは `size` プロップによって固定されているため、スピナー表示時もレイアウトシフトは発生しない。
 
 ```tsx
-// スタイル定義 (cva)
-const widgetQuickButtonVariants = cva(
-    "border-0 text-xs h-8 transition-colors",
-    {
-        variants: {
-            color: { rose: "", amber: "", indigo: "" },
-            isActive: { true: "", false: "" },
-        },
-        // ... compoundVariants
-    }
-)
+// 内部実装 (HexagonButton ラッパー)
+export function WidgetQuickButton({
+    color,
+    isActive = false,
+    loading = false,
+    size = 48,
+    pointy = true,
+    ...props
+}: WidgetQuickButtonProps) {
+    return (
+        <HexagonButton
+            variant={color}
+            active={isActive}
+            loading={loading}
+            size={size}
+            pointy={pointy}
+            {...props}
+        >
+            {children}
+        </HexagonButton>
+    )
+}
 ```
 
 ### 3.5 タイマー・トグルボタン（大型フルWidth）

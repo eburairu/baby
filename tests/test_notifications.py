@@ -64,8 +64,8 @@ class TestSendPushNotification:
         
         sub = MagicMock(spec=PushSubscription)
         result = send_push_notification(sub, "Test", "Body")
-        assert result is False
-        
+        assert result == {"success": False, "status_code": None, "error": "VAPID keys not configured"}
+
         notifications.VAPID_PRIVATE_KEY = old_priv
         notifications.VAPID_PUBLIC_KEY = old_pub
 
@@ -85,7 +85,7 @@ class TestSendPushNotification:
         sub.auth = "test_auth"
         
         result = send_push_notification(sub, "Test Title", "Test Body")
-        assert result is True
+        assert result["success"] is True
         mock_webpush.assert_called_once()
         
         notifications.VAPID_PRIVATE_KEY = old_priv
@@ -118,7 +118,8 @@ class TestSendPushNotification:
         db = MagicMock()
         result = send_push_notification(sub, "Test", "Body", db=db)
         
-        assert result is False
+        assert result["success"] is False
+        assert result["status_code"] == 410
         db.delete.assert_called_once_with(sub)
         db.commit.assert_called_once()
         
