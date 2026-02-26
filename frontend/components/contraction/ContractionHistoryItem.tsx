@@ -1,6 +1,7 @@
 "use client"
 
-import { formatTimeHHMM, formatSecondsToJapanese } from "@/lib/ageUtils"
+import { formatSecondsToJapanese } from "@/lib/ageUtils"
+import { formatTime } from "@/lib/dateUtils"
 import { Button } from "@/components/ui/button"
 import { ContractionRecord } from "@/types/contraction"
 import { Pencil, Trash2, User, MessageCircle } from "lucide-react"
@@ -24,7 +25,7 @@ export function ContractionHistoryItem({
         <div className="flex items-center justify-between px-6 py-3 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-4">
                 <span className="text-sm font-medium w-14">
-                    {formatTimeHHMM(record.start_time)}
+                    {formatTime(record.start_time)}
                 </span>
                 <div className="flex flex-col sm:flex-row sm:gap-4 text-sm text-muted-foreground">
                     {record.duration_seconds != null && (

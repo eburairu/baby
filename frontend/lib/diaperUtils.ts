@@ -1,6 +1,7 @@
 import { Diaper, DiaperType } from "@/types/diaper";
 import { BabyRecord } from "@/types/record";
-import { isToday, formatElapsed } from "@/lib/ageUtils";
+import { formatElapsed } from "@/lib/ageUtils";
+import { isToday } from "@/lib/dateUtils";
 
 export interface NormalizedDiaper {
     id: number;

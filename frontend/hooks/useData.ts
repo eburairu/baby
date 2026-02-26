@@ -1,7 +1,6 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/api';
 import type { ContractionRecord } from '@/types/contraction';
-import type { Feeding } from '@/types/feeding';
 import type { Diaper } from '@/types/diaper';
 import type { Sleep } from '@/types/sleep';
 import type { Growth } from '@/types/growth';
@@ -64,16 +63,6 @@ export function useContractions(babyId: string | number | null) {
     const { data, isLoading, isError, mutate } = useBabyResource<ContractionRecord>('contractions', babyId);
     return {
         contractions: data,
-        isLoading,
-        isError,
-        mutate,
-    };
-}
-
-export function useFeedings(babyId: string | number | null) {
-    const { data, isLoading, isError, mutate } = useBabyResource<Feeding>('feedings', babyId);
-    return {
-        feedings: data,
         isLoading,
         isError,
         mutate,

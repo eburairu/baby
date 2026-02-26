@@ -1,7 +1,7 @@
 "use client"
 
 import { useSleeps } from "@/hooks/useData"
-import { isToday } from "@/lib/ageUtils"
+import { isToday } from "@/lib/dateUtils"
 import { Moon, Clock } from "lucide-react"
 import { StatsBlock } from "@/components/ui/stats-block"
 import { StatsCard } from "@/components/ui/stats-card"
