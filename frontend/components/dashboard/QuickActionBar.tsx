@@ -9,6 +9,7 @@ import { Moon, Bed, StickyNote, Droplets, Baby, Biohazard } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
+import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
 
 interface Props {
     babyId: string
@@ -77,50 +78,47 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     }
 
     return (
-        <div className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] md:bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none">
-            <div className="flex flex-col items-center pointer-events-auto">
-                {/* Honeycomb Row 1 */}
-                <div className="flex justify-center -mb-2">
+        <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[320px]">
+            <div className="pointer-events-auto">
+                <HoneycombGrid 
+                  size={64} 
+                  gap={4}
+                  rows={[
+                    [0, 1, 2], // ミルク, 睡眠, メモ
+                    [3, 4]     // おしっこ, うんち
+                  ]}
+                >
                     <HexagonButton
                         icon={<Droplets className="h-6 w-6" />}
-                        size={60}
+                        size={64}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
-                        className="mx-[-1px]"
                     />
                     <HexagonButton
                         icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-                        size={64}
+                        size={68} // 睡眠ボタンを少しだけ大きく
                         active={!!activeSleep}
                         onClick={() => handleQuickRecord("sleep")}
                         loading={loadingAction === "sleep"}
-                        className="mx-[-1px] z-10"
                     />
                     <HexagonButton
                         icon={<StickyNote className="h-6 w-6" />}
-                        size={60}
+                        size={64}
                         onClick={() => setNoteDialogOpen(true)}
-                        className="mx-[-1px]"
                     />
-                </div>
-                
-                {/* Honeycomb Row 2 */}
-                <div className="flex justify-center">
                     <HexagonButton
                         icon={<Baby className="h-6 w-6" />}
-                        size={60}
+                        size={64}
                         onClick={() => handleQuickRecord("diaper_wet")}
                         loading={loadingAction === "diaper_wet"}
-                        className="mx-[-1px]"
                     />
                     <HexagonButton
                         icon={<Biohazard className="h-6 w-6" />}
-                        size={60}
+                        size={64}
                         onClick={() => handleQuickRecord("diaper_dirty")}
                         loading={loadingAction === "diaper_dirty"}
-                        className="mx-[-1px]"
                     />
-                </div>
+                </HoneycombGrid>
             </div>
 
             <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
@@ -136,8 +134,8 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                             babyId={Number(babyId)} 
                             defaultExpanded={true}
                             onAddSuccess={() => {
-                                setNoteDialogOpen(false)
-                                if (mutateRecords) mutateRecords()
+                                    setNoteDialogOpen(false)
+                                    if (mutateRecords) mutateRecords()
                             }}
                         />
                     </div>

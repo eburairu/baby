@@ -2,13 +2,15 @@
 import { ButtonHTMLAttributes } from "react"
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-import { Hexagon } from "@/components/ui/hexagon"
+import { Hexagon, HEX_CONSTANTS } from "@/components/ui/hexagon"
 
 interface WidgetQuickButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     color: "rose" | "amber" | "indigo"
     isActive?: boolean
     loading?: boolean
     hideContentOnLoading?: boolean
+    size?: number
+    pointy?: boolean
 }
 
 export function WidgetQuickButton({
@@ -18,6 +20,8 @@ export function WidgetQuickButton({
     className,
     children,
     hideContentOnLoading = false,
+    size = 48,
+    pointy = true,
     ...props
 }: WidgetQuickButtonProps) {
     
@@ -39,6 +43,9 @@ export function WidgetQuickButton({
         indigo: isActive ? "text-white" : "text-indigo-600 dark:text-indigo-400",
     }
 
+    const width = pointy ? size * HEX_CONSTANTS.POINTY_W_TO_H : size;
+    const height = pointy ? size : size * HEX_CONSTANTS.FLAT_H_TO_W;
+
     return (
         <button
             className={cn(
@@ -46,13 +53,16 @@ export function WidgetQuickButton({
                 className
             )}
             disabled={loading || props.disabled}
+            style={{ width, height }}
             {...props}
         >
-            <div className="w-10 h-10 md:w-12 md:h-12">
+            <div className="w-full h-full">
                 <Hexagon
+                    size={size}
+                    pointy={pointy}
                     color="currentColor"
                     className={cn(
-                        "transition-all duration-300",
+                        "transition-all duration-300 w-full h-full",
                         colorClasses[color]
                     )}
                     borderColor={isActive ? "transparent" : "rgba(0,0,0,0.05)"}
