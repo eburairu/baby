@@ -5,7 +5,7 @@ import { useState, useMemo } from "react"
 import { api } from "@/lib/api"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { BabyRecord } from "@/types/record"
-import { Moon, Bed, StickyNote, Droplets, Baby, Biohazard } from "lucide-react"
+import { Moon, Bed, StickyNote, Milk, Baby, Biohazard } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
@@ -90,7 +90,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 >
                     <HexagonButton
                         variant="rose"
-                        icon={<Droplets className="h-6 w-6" />}
+                        icon={<Milk className="h-6 w-6" />}
                         size={64}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
