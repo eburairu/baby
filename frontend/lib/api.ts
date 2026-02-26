@@ -25,11 +25,17 @@ async function parseErrorBody(res: Response): Promise<unknown> {
     }
 }
 
+interface RequestOptions extends Omit<RequestInit, 'body' | 'method'> {
+    errorMessage?: string;
+}
+
 async function request<T>(
     url: string,
     options: RequestInit & { errorMessage?: string } = {}
 ): Promise<T> {
     const { errorMessage = 'API Error', ...init } = options;
+
+    // ヘッダーの正規化とデフォルト設定
     const headers = new Headers(init.headers);
 
     // ボディが文字列（JSONなど）で、Content-Typeが設定されていない場合、自動的にapplication/jsonを設定する
@@ -38,15 +44,15 @@ async function request<T>(
     }
 
     // テスト環境との互換性を保つため、Headersオブジェクトをプレーンなオブジェクトに変換して渡す
-    const headersObject: Record<string, string> = {};
+    const headersRecord: Record<string, string> = {};
     headers.forEach((value, key) => {
-        headersObject[key] = value;
+        headersRecord[key] = value;
     });
 
     const res = await fetch(`${API_BASE}${url}`, {
         credentials: 'include',
         ...init,
-        headers: headersObject,
+        headers: headersRecord,
     });
 
     if (!res.ok) {
@@ -69,28 +75,37 @@ export const fetcher = async <T = unknown>(url: string): Promise<T> => {
 };
 
 export const api = {
-    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: { signal?: AbortSignal }): Promise<TRes> => {
+    get: async <TRes = unknown>(url: string, options?: RequestOptions): Promise<TRes> => {
+        return request<TRes>(url, {
+            method: 'GET',
+            ...options,
+        });
+    },
+    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: RequestOptions): Promise<TRes> => {
         return request<TRes>(url, {
             method: 'POST',
             body: JSON.stringify(body),
-            signal: options?.signal,
+            ...options,
         });
     },
-    put: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
+    put: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: RequestOptions): Promise<TRes> => {
         return request<TRes>(url, {
             method: 'PUT',
             body: JSON.stringify(body),
+            ...options,
         });
     },
-    patch: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
+    patch: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: RequestOptions): Promise<TRes> => {
         return request<TRes>(url, {
             method: 'PATCH',
             body: JSON.stringify(body),
+            ...options,
         });
     },
-    delete: async <TRes = unknown>(url: string): Promise<TRes | null> => {
+    delete: async <TRes = unknown>(url: string, options?: RequestOptions): Promise<TRes | null> => {
         return request<TRes>(url, {
             method: 'DELETE',
+            ...options,
         });
     },
 };
