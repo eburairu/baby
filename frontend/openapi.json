@@ -1325,6 +1325,8 @@
           "amount_ml": {
             "anyOf": [
               {
+                "maximum": 500.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -1350,6 +1352,8 @@
           "duration_minutes": {
             "anyOf": [
               {
+                "maximum": 300.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1389,6 +1393,8 @@
           "left_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1412,6 +1418,8 @@
           "right_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1434,6 +1442,8 @@
           "amount_ml": {
             "anyOf": [
               {
+                "maximum": 500.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -1464,6 +1474,8 @@
           "duration_minutes": {
             "anyOf": [
               {
+                "maximum": 300.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1507,6 +1519,8 @@
           "left_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1541,6 +1555,8 @@
           "right_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1578,6 +1594,8 @@
           "amount_ml": {
             "anyOf": [
               {
+                "maximum": 500.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -1599,6 +1617,8 @@
           "duration_minutes": {
             "anyOf": [
               {
+                "maximum": 300.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1652,6 +1672,8 @@
           "left_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1675,6 +1697,8 @@
           "right_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
