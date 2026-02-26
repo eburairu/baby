@@ -10,7 +10,7 @@ import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
-import { Milk } from "lucide-react"
+import { Milk, Droplets, Waves } from "lucide-react"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
@@ -59,8 +59,9 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         disabled={loading}
                         onClick={() => handleQuickRecord("bottle")}
                         className="flex-1"
+                        title="ミルクを記録"
                     >
-                        ミルク
+                        <Droplets className="w-5 h-5" />
                     </WidgetQuickButton>
                     <WidgetQuickButton
                         color="rose"
@@ -68,8 +69,9 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                         disabled={loading}
                         onClick={() => handleQuickRecord("breast")}
                         className="flex-1"
+                        title="母乳を記録"
                     >
-                        母乳
+                        <Waves className="w-5 h-5" />
                     </WidgetQuickButton>
                 </div>
             ) : null}

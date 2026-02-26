@@ -8,7 +8,7 @@ import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
 import { WidgetQuickButton } from "./WidgetQuickButton"
 import { calculateSleepStats } from "@/lib/sleepUtils"
-import { Moon } from "lucide-react"
+import { Moon, Sun } from "lucide-react"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
     const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
@@ -78,8 +78,9 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                     disabled={loading}
                     onClick={isSleeping ? handleEnd : handleStart}
                     className="w-full"
+                    title={isSleeping ? "起きた記録をする" : "寝た記録をする"}
                 >
-                    {isSleeping ? "睡眠終了" : "睡眠開始"}
+                    {isSleeping ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </WidgetQuickButton>
             ) : null}
         </WidgetCard>
