@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Milk, Moon, Baby, TrendingUp, StickyNote, BookOpen, Timer } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Milk, Moon, Baby, Ruler, StickyNote, BookOpen, Timer } from "lucide-react"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
@@ -42,7 +42,7 @@ const ALL_NAV_ITEMS: {
     { label: "授乳",         href: "/feeding",     Icon: Milk,       color: "text-pink-500",    prenatal: false, postnatal: true  },
     { label: "睡眠",         href: "/sleep",       Icon: Moon,       color: "text-violet-500",  prenatal: false, postnatal: true  },
     { label: "おむつ",       href: "/diaper",      Icon: Baby,       color: "text-amber-500",   prenatal: false, postnatal: true  },
-    { label: "成長",         href: "/growth",      Icon: TrendingUp, color: "text-emerald-500", prenatal: false, postnatal: true  },
+    { label: "成長",         href: "/growth",      Icon: Ruler,      color: "text-emerald-500", prenatal: false, postnatal: true  },
     { label: "メモ",         href: "/note",        Icon: StickyNote, color: "text-orange-400",  prenatal: false, postnatal: true  },
     { label: "日誌",         href: "/diary",       Icon: BookOpen,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
     { label: "陣痛タイマー", href: "/contraction", Icon: Timer,      color: "text-red-500",     prenatal: true,  postnatal: false },
@@ -58,7 +58,7 @@ const BOTTOM_NAV_ITEMS: {
     { label: "授乳",     href: "/feeding",   Icon: Milk,       color: "text-pink-500" },
     { label: "睡眠",     href: "/sleep",     Icon: Moon,       color: "text-violet-500" },
     { label: "おむつ",   href: "/diaper",    Icon: Baby,       color: "text-amber-500" },
-    { label: "成長",     href: "/growth",    Icon: TrendingUp, color: "text-emerald-500" },
+    { label: "成長",     href: "/growth",    Icon: Ruler,      color: "text-emerald-500" },
 ]
 
 export default function DashboardLayout({

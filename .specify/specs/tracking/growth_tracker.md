@@ -44,10 +44,12 @@
     - **期間選択スライダー (Brush)**: グラフ下部に `Recharts` の `Brush` コンポーネントを配置。
         - 配色: `ui_design_system.md` に従い、`emerald` 系（`stroke="#10b981"` 等）を使用する。
     - **デフォルト表示範囲**: 記録が多数ある場合、初期状態では「直近6ヶ月」を表示する。
-    - **クイック期間選択ボタン**: グラフ上部または下部に、以下の期間を即座に選択できるボタンを配置する。
-        - 1ヶ月 / 6ヶ月 / 1年 / 全期間
+    - **クイック期間選択ボタン**: グラフ上部に、以下の期間を即座に選択できるボタンを配置する。
+        - 7日 / 1ヶ月 / 6ヶ月 / 1年 / 全期間
     - **状態の維持**: 「身長」「体重」「頭囲」のタブを切り替えても、現在選択されている表示期間（ズーム範囲）が維持されるようにする。
-- (将来的な拡張: WHOなどの標準成長曲線を背景に表示する機能も考慮するが、初期リリースでは必須としない)
+- **WHO基準線の表示 (実装済み)**:
+    - 赤ちゃんの性別と誕生日が登録されている場合、WHOの成長曲線（P3, P50, P97）を背景参照線として表示する。
+    - グラフ上部にチェックボックスを配置し、表示/非表示を切り替え可能とする。デフォルトは表示 (Checked)。
 
 ## 画面構成
 
@@ -133,14 +135,19 @@ interface GrowthResponse {
 
 ### バリデーション (Zod Schema)
 
+`frontend/schemas/growth.ts` で定義。
+
 ```typescript
-const growthRecordSchema = z.object({
-  date: z.date(),
-  height: z.number().min(0).max(100).optional(), // 妥当な範囲
-  weight: z.number().min(0).max(20000).optional(), // g単位, 20kgまでなど
-  head_circumference: z.number().min(0).max(60).optional(),
-  notes: z.string().optional(),
+export const growthSchema = z.object({
+    date: z.string().min(1, "日付を選択してください"),
+    height: z.string().optional(),
+    weight: z.string().optional(),
+    head_circumference: z.string().optional(),
+    notes: z.string().optional(),
 }).refine(data => data.height || data.weight || data.head_circumference, {
-  message: "少なくとも1つの値を入力してください",
-});
+    message: "身長、体重、頭囲の少なくとも1つを入力してください",
+    path: ["height"],
+})
 ```
+
+※ 入力フォーム (`GrowthRecordForm`) 上ではHTML5の `type="number"` 属性により数値入力が強制され、送信時に `parseFloat/parseInt` による数値変換が行われる。

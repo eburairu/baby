@@ -2,7 +2,7 @@
 import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
-import { MessageCircle, User } from "lucide-react"
+import { MessageCircle, User, StickyNote } from "lucide-react"
 import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
 
 interface ActivityItemProps {
@@ -24,7 +24,7 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
             >
                 {LucideIcon
                     ? <LucideIcon className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
-                    : <span className="text-xl" aria-hidden="true">📝</span>
+                    : <StickyNote className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
                 }
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">

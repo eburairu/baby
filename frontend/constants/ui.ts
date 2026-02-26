@@ -3,7 +3,7 @@
  */
 
 import { RECORD_TYPES } from '@/types/enums';
-import { Milk, Moon, Baby, TrendingUp, FileText, Zap, type LucideIcon } from 'lucide-react';
+import { Milk, Moon, Baby, Ruler, FileText, Zap, type LucideIcon } from 'lucide-react';
 
 export const TOAST_DURATION_MS = 3000;
 export const MOBILE_BREAKPOINT_PX = 768;
@@ -21,7 +21,7 @@ export const RECORD_TYPE_LUCIDE_ICONS: Record<keyof typeof RECORD_TYPE_LABELS, L
   [RECORD_TYPES.FEEDING]: Milk,
   [RECORD_TYPES.SLEEP]: Moon,
   [RECORD_TYPES.DIAPER]: Baby,
-  [RECORD_TYPES.GROWTH]: TrendingUp,
+  [RECORD_TYPES.GROWTH]: Ruler,
   [RECORD_TYPES.NOTE]: FileText,
   [RECORD_TYPES.CONTRACTION]: Zap,
 } as const;
