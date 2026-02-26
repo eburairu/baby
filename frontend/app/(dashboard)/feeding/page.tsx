@@ -9,7 +9,7 @@ import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
 import { TipsCard } from "@/components/ui/tips-card"
 import { feedingTips } from "@/lib/tips-data"
-import { FeedingCreate } from "@/types/feeding"
+import { Feeding, FeedingCreate } from "@/types/feeding"
 import { RECORD_TYPES } from "@/types/enums"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
@@ -38,11 +38,12 @@ export default function FeedingPage() {
         refresh: refreshFeedings,
     } = useFeeding(numericBabyId ?? null)
 
-    const handleAddFeeding = async (data: FeedingCreate): Promise<void> => {
+    const handleAddFeeding = async (data: FeedingCreate): Promise<Feeding | undefined> => {
         const newRecord = await addFeeding(data)
         if (newRecord && numericBabyId) {
             triggerFeedback(RECORD_TYPES.FEEDING, newRecord.id)
         }
+        return newRecord
     }
 
     return (
