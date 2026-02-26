@@ -6,6 +6,16 @@ import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
 import { HEXAGON_BUTTON_THEMES } from "@/constants/ui-colors"
 
+/**
+ * Calculates the width and height of the hexagon container based on size and orientation.
+ */
+function getHexagonDimensions(size: number, pointy: boolean) {
+  // Pointy-topped: width = size * 0.866
+  const width = pointy ? size * HEX_CONSTANTS.POINTY_W_TO_H : size;
+  const height = pointy ? size : size * HEX_CONSTANTS.FLAT_H_TO_W;
+  return { width, height };
+}
+
 interface HexagonButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode
   label?: string
@@ -32,9 +42,7 @@ export function HexagonButton({
   const theme = HEXAGON_BUTTON_THEMES[variant]
   const currentTheme = active ? theme.active : theme.inactive
 
-  // Pointy-topped 六角形の場合、横幅は size * 0.866
-  const width = pointy ? size * HEX_CONSTANTS.POINTY_W_TO_H : size;
-  const height = pointy ? size : size * HEX_CONSTANTS.FLAT_H_TO_W;
+  const { width, height } = getHexagonDimensions(size, pointy);
 
   return (
     <button

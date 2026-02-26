@@ -1,6 +1,7 @@
 import { BabyRecord } from "@/types/record"
 import { Feeding, FeedingType, BreastSide, FeedingCreate, BottleContentType, FeedingCompletion } from "@/types/feeding"
-import { isToday, formatElapsed } from "@/lib/ageUtils"
+import { formatElapsed } from "@/lib/ageUtils"
+import { isToday } from "@/lib/dateUtils"
 import { FeedingFormValues } from "@/schemas/feeding"
 
 export interface NormalizedFeeding {
