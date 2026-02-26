@@ -1,115 +1,78 @@
 "use client"
-import { Button, ButtonProps } from "@/components/ui/button"
+import { ButtonHTMLAttributes } from "react"
 import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
-import { cva, type VariantProps } from "class-variance-authority"
+import { Hexagon } from "@/components/ui/hexagon"
 
-const widgetQuickButtonVariants = cva(
-    "border-0 text-xs h-8 transition-colors",
-    {
-        variants: {
-            color: {
-                rose: "",
-                amber: "",
-                indigo: "",
-            },
-            isActive: {
-                true: "",
-                false: "",
-            },
-        },
-        compoundVariants: [
-            {
-                color: "rose",
-                isActive: false,
-                class: "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50",
-            },
-            {
-                color: "rose",
-                isActive: true,
-                class: "bg-rose-500 dark:bg-rose-600 text-white hover:bg-rose-600 dark:hover:bg-rose-700",
-            },
-            {
-                color: "amber",
-                isActive: false,
-                class: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50",
-            },
-            {
-                color: "amber",
-                isActive: true,
-                class: "bg-amber-500 dark:bg-amber-600 text-white hover:bg-amber-600 dark:hover:bg-amber-700",
-            },
-            {
-                color: "indigo",
-                isActive: false,
-                class: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50",
-            },
-            {
-                color: "indigo",
-                isActive: true,
-                class: "bg-indigo-500 dark:bg-indigo-600 text-white hover:bg-indigo-600 dark:hover:bg-indigo-700",
-            },
-        ],
-        defaultVariants: {
-            isActive: false,
-        },
-    }
-)
-
-interface WidgetQuickButtonProps extends ButtonProps, VariantProps<typeof widgetQuickButtonVariants> {
+interface WidgetQuickButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     color: "rose" | "amber" | "indigo"
+    isActive?: boolean
+    loading?: boolean
     hideContentOnLoading?: boolean
 }
 
 export function WidgetQuickButton({
     color,
     isActive = false,
+    loading = false,
     className,
     children,
-    variant = "outline",
-    size = "sm",
     hideContentOnLoading = false,
     ...props
 }: WidgetQuickButtonProps) {
-    const loading = props.loading
+    
+    const colorClasses = {
+        rose: isActive 
+            ? "text-rose-500" 
+            : "text-rose-100 dark:text-rose-900/50",
+        amber: isActive 
+            ? "text-amber-500" 
+            : "text-amber-100 dark:text-amber-900/50",
+        indigo: isActive 
+            ? "text-indigo-500" 
+            : "text-indigo-100 dark:text-indigo-900/50",
+    }
 
-    if (loading && hideContentOnLoading) {
-        return (
-            <Button
-                variant={variant}
-                size={size}
-                className={cn(
-                    widgetQuickButtonVariants({ color, isActive, className }),
-                    "relative"
-                )}
-                aria-busy={true}
-                data-sentry-unmask
-                {...props}
-                disabled={true}
-                loading={false}
-            >
-                <span className="opacity-0 flex items-center justify-center gap-2 w-full h-full pointer-events-none select-none">
-                    {children}
-                </span>
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-            </Button>
-        )
+    const iconColorClasses = {
+        rose: isActive ? "text-white" : "text-rose-600 dark:text-rose-400",
+        amber: isActive ? "text-white" : "text-amber-600 dark:text-amber-400",
+        indigo: isActive ? "text-white" : "text-indigo-600 dark:text-indigo-400",
     }
 
     return (
-        <Button
-            variant={variant}
-            size={size}
+        <button
             className={cn(
-                widgetQuickButtonVariants({ color, isActive, className })
+                "group relative flex items-center justify-center transition-transform active:scale-95 disabled:opacity-80",
+                className
             )}
-            aria-busy={loading}
-            data-sentry-unmask
+            disabled={loading || props.disabled}
             {...props}
         >
-            {children}
-        </Button>
+            <div className="w-10 h-10 md:w-12 md:h-12">
+                <Hexagon
+                    color="currentColor"
+                    className={cn(
+                        "transition-all duration-300",
+                        colorClasses[color]
+                    )}
+                    borderColor={isActive ? "transparent" : "rgba(0,0,0,0.05)"}
+                    borderWidth={isActive ? 0 : 1}
+                >
+                    <div className={cn(
+                        "flex items-center justify-center transition-colors duration-300",
+                        iconColorClasses[color],
+                        loading && hideContentOnLoading && "opacity-0"
+                    )}>
+                        {children}
+                    </div>
+                </Hexagon>
+                
+                {loading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <Loader2 className="h-4 w-4 animate-spin text-current" />
+                    </div>
+                )}
+            </div>
+        </button>
     )
 }
