@@ -4,6 +4,7 @@ import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { WidgetCard } from "./WidgetCard"
 import { WidgetLoading } from "./WidgetLoading"
 import { BaseWidgetProps } from "@/types/widget"
+import { TrendingUp } from "lucide-react"
 
 export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError }: BaseWidgetProps) {
     const growthRecords = records?.filter(r => r.type === 'growth') ?? []
@@ -18,7 +19,7 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
 
     return (
         <WidgetCard
-            title={<span className="text-emerald-500 dark:text-emerald-400">📏 成長</span>}
+            title={<span className="text-emerald-500 dark:text-emerald-400 flex items-center gap-1"><TrendingUp className="w-4 h-4" /> 成長</span>}
             href={`/growth?baby_id=${babyId}`}
             isError={isError}
             actionHoverColor="hover:text-emerald-500 dark:hover:text-emerald-400"
