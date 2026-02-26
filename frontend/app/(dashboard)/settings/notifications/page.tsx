@@ -190,10 +190,23 @@ export default function NotificationsPage() {
                     try {
                       const res = await fetch("/api/notifications/test", { method: "POST" });
                       const data = await res.json();
-                      if (data.success) {
-                        toast.success("テスト通知を送信しました");
+                      if (data.subscription_count === 0) {
+                        toast.error(data.message);
                       } else {
-                        toast.error(data.message || "テスト通知の送信に失敗しました");
+                        const failures = data.results?.filter((r: { success: boolean }) => !r.success) || [];
+                        if (failures.length > 0) {
+                          const groups: Record<string, string[]> = {};
+                          (failures as { subscription_id: number; error: string | null }[]).forEach((f) => {
+                            const msg = f.error || "不明なエラー";
+                            groups[msg] = [...(groups[msg] || []), `sub#${f.subscription_id}`];
+                          });
+                          const errorDetails = Object.entries(groups)
+                            .map(([msg, subs]) => `${msg} (${subs.join(", ")})`)
+                            .join(", ");
+                          toast.error(`送信失敗: ${errorDetails}`);
+                        } else {
+                          toast.success("テスト通知を送信しました");
+                        }
                       }
                     } catch {
                       toast.error("テスト通知の送信に失敗しました");
