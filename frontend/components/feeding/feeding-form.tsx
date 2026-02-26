@@ -103,7 +103,6 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         onSuccess: (data) => {
             // Reset for new entry only
             if (!isEditing) {
-                // @ts-ignore - amount_ml is possibly missing in data but safe here
                 const nextAmount = (data as Feeding)?.amount_ml ?? lastMilkAmount ?? 120
                 
                 form.reset({
