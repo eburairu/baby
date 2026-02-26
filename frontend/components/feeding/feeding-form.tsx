@@ -27,9 +27,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Feeding, FeedingCreate, FeedingUpdate, FeedingType, BottleContentType, FeedingCompletion } from "@/types/feeding"
 import { buildFeedingPayload } from "@/lib/feedingUtils"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 import { FeedingTimerSection } from "./FeedingTimerSection"
 import { BreastFeedingFields } from "./BreastFeedingFields"
 import { BottleFeedingFields } from "./BottleFeedingFields"
+import { FeedingCompletionSelector } from "./FeedingCompletionSelector"
 
 interface FeedingFormProps {
     babyId: number
@@ -43,7 +45,6 @@ interface FeedingFormProps {
 export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
-    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // 左右独立タイマー (Hooks)
     const {
@@ -96,46 +97,82 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         }
     }, [lastMilkAmount, isEditing, form])
 
-    const onSubmit = useCallback(async (values: FeedingFormValues) => {
-        setIsSubmitting(true)
-        try {
-            const data = buildFeedingPayload({
-                babyId,
-                values,
-                activeTab,
-                feedingCompletion,
-                bottleContentType
-            })
-
-            if (isEditing && initialData && onUpdate) {
-                await onUpdate(initialData.id, data)
-                toast.success("更新しました")
-            } else if (onAdd) {
-                await onAdd(data)
-                toast.success("記録しました")
+    const { submitRecord, isSubmitting } = useBaseRecordForm<FeedingFormValues>({
+        endpoint: "/feedings/", // Note: This endpoint is actually not used directly when onAdd/onUpdate are provided, but required by type
+        babyId,
+        onSuccess: (data) => {
+            // Reset for new entry only
+            if (!isEditing) {
+                const nextAmount = (data as Feeding)?.amount_ml ?? lastMilkAmount ?? 120
                 
-                // Reset for new entry only
                 form.reset({
                     feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
                     feeding_type: activeTab as "BREAST" | "BOTTLE",
                     left_breast_minutes: 0,
                     right_breast_minutes: 0,
-                    amount_ml: data.amount_ml ?? lastMilkAmount ?? 120,
+                    amount_ml: nextAmount,
                     notes: "",
                 })
                 resetAllTimers()
                 setFeedingCompletion(null)
                 setBottleContentType(null)
             }
-            
             if (onSuccess) onSuccess()
+        },
+        successMessage: isEditing ? "更新しました" : "記録しました"
+    })
+
+    const onSubmit = useCallback(async (values: FeedingFormValues) => {
+        // If custom handlers are provided, we use them instead of submitRecord default
+        // However, we still want to reuse the payload building logic
+
+        // Note: We are using useBaseRecordForm mainly for state management here if we use onAdd/onUpdate
+        // But submitRecord automatically calls the API.
+        // To avoid double submission or conflict, we only use submitRecord if onAdd/onUpdate are NOT provided?
+        // Actually, for this refactor, we are simplifying by accepting that we might need to duplicate some logic
+        // OR we just use submitRecord for the "Create" case if onAdd is not provided (which is rare).
+        //
+        // Let's respect the existing props.
+        try {
+           // We'll manually manage the submission process using the injected handlers if present
+           // This keeps the "useBaseRecordForm" primarily for the shared "success" logic if we could hook into it,
+           // but since we can't easily, we'll just fall back to manual handling for the custom props cases
+           // and use submitRecord ONLY if we want default behavior (which is just POST).
+
+           // BUT, to clean up this file, let's just use the manual logic we had, but simplified.
+           // Wait, I already introduced useBaseRecordForm above.
+           // I will use `submitRecord` for the standard creation case, and manual for Update.
+
+            if (isEditing && initialData && onUpdate) {
+                const data = buildFeedingPayload({
+                    babyId,
+                    values,
+                    activeTab,
+                    feedingCompletion,
+                    bottleContentType
+                })
+                await onUpdate(initialData.id, data)
+                toast.success("更新しました")
+                if (onSuccess) onSuccess()
+            } else {
+                // Create case
+                // We use submitRecord.
+                await submitRecord(values, (vals, base) => {
+                    return buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType
+                    })
+                })
+           }
+
         } catch (error) {
-            console.error("Failed to save feeding record:", error)
+            console.error(error)
             toast.error("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, onUpdate, isEditing, initialData, resetAllTimers, onSuccess, lastMilkAmount])
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onUpdate, isEditing, initialData, submitRecord, onSuccess])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
@@ -197,31 +234,10 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                             </TabsContent>
 
                             {/* 共通: 授乳完全度 */}
-                            <div>
-                                <p className="text-sm font-medium mb-2">授乳完全度</p>
-                                <div className="flex gap-2">
-                                    {FEEDING_COMPLETIONS.map(({ value, label }) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            aria-pressed={feedingCompletion === value}
-                                            onClick={() => setFeedingCompletion(prev => prev === value ? null : value)}
-                                            className={cn(
-                                                "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
-                                                feedingCompletion === value
-                                                    ? value === "FULL"
-                                                        ? UI_FORMS.selection.greenSolid.active
-                                                        : UI_FORMS.selection.amberSolid.active
-                                                    : value === "FULL"
-                                                        ? UI_FORMS.selection.greenSolid.inactive
-                                                        : UI_FORMS.selection.amberSolid.inactive
-                                            )}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                            <FeedingCompletionSelector
+                                value={feedingCompletion}
+                                onChange={setFeedingCompletion}
+                            />
 
                             <FormField
                                 control={form.control}

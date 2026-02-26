@@ -36,3 +36,4 @@
 ### アクション:
 - リスト表示など、繰り返し現れるUIパターンは即座に共通コンポーネント化を検討する。
 - 日付や通貨などのフォーマット処理は、直接ライブラリを呼ばず、プロジェクト固有のユーティリティを通すようにする。
+2024-05-22 - [Hooks & Components De-cluttering] 学び: Fat Hook（useData.ts）やFat Component（FeedingForm.tsx）は、責務の分離原則に基づいて分割することで、見通しが劇的に良くなる。特にReact Hook FormとSWRの組み合わせでは、API呼び出しと状態管理が密結合になりがちだが、UIコンポーネント（Selectionなど）を切り出すだけでも可読性は向上する。 アクション: 次回はAPI呼び出しロジック自体もカスタムフック（useFeedingFormLogicなど）に完全に分離し、ViewとLogicを完全に分けたい。

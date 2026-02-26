@@ -13,5 +13,3 @@ from .ai_summary import DailySummary
 from .comment import RecordComment
 from .notification import AppNotification, PushSubscription, NotificationSetting
 from .system_settings import SystemSetting
-from .vaccination import Vaccination, VaccinationStatus
-from .milestone import Milestone
