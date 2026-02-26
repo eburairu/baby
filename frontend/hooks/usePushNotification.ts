@@ -59,6 +59,7 @@ export function usePushNotification() {
       const existingSubscription = await registration.pushManager.getSubscription();
 
       if (existingSubscription) {
+        await sendSubscriptionToBackend(existingSubscription);
         return existingSubscription;
       }
 

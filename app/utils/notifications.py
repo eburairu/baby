@@ -30,11 +30,11 @@ def is_within_dnd(settings: NotificationSetting) -> bool:
     else: # 日を跨ぐ場合 (例: 22:00 - 07:00)
         return now >= start or now <= end
 
-def send_push_notification(subscription: PushSubscription, title: str, body: str, url: str = "/", db: Session | None = None):
+def send_push_notification(subscription: PushSubscription, title: str, body: str, url: str = "/", db: Session | None = None) -> dict:
     """特定の購読に対してプッシュ通知を送信する"""
     if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
         logger.warning("VAPID keys not configured. Skipping push notification.")
-        return False
+        return {"success": False, "status_code": None, "error": "VAPID keys not configured"}
 
     try:
         payload = {
@@ -60,7 +60,7 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             }
         )
         logger.info(f"Push notification sent successfully to subscription id={subscription.id}")
-        return True
+        return {"success": True, "status_code": None, "error": None}
     except WebPushException as ex:
         status_code = None
         response_body = None
@@ -83,10 +83,11 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             except Exception as delete_ex:
                 logger.error(f"Failed to delete invalid subscription: {delete_ex}")
                 db.rollback()
-        return False
+        return {"success": False, "status_code": status_code, "error": str(ex)}
     except Exception as ex:
-        logger.error(f"Unexpected error sending push to subscription id={subscription.id}: {type(ex).__name__}: {ex}")
-        return False
+        error_msg = f"{type(ex).__name__}: {ex}"
+        logger.error(f"Unexpected error sending push to subscription id={subscription.id}: {error_msg}")
+        return {"success": False, "status_code": None, "error": error_msg}
 
 
 # category → notification_settings カラムのマッピング
@@ -153,6 +154,7 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
     subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
     logger.info(f"Sending {category} push to user {user_id}: {len(subscriptions)} subscription(s)")
     for sub in subscriptions:
+        # 戻り値を無視して続行（副作用のみのため）
         send_push_notification(sub, title, body, url, db=db)
 
 
