@@ -141,6 +141,23 @@
   min-height: calc(100vh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
 }
 
+/* ============================================================
+   Hexagonal UI ユーティリティ
+   ============================================================ */
+@utility rounded-hexagon {
+  aspect-ratio: 1/1.1547;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  /* 注: clip-path だけでは角を丸めるのが難しいため、実際のコンポーネントでは SVG を推奨 */
+}
+
+@utility honeycomb-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
