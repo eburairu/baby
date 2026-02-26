@@ -29,7 +29,13 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
         <div className="rounded-2xl p-4 transition-colors bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 shadow-sm border border-pink-100/50 dark:border-pink-900/20">
             <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-4">
-                    <Hexagon size={60} color="var(--primary)" className="text-white">
+                    <Hexagon 
+                        size={60} 
+                        color="var(--primary)" 
+                        className="text-white"
+                        borderColor="var(--primary)"
+                        borderWidth={2}
+                    >
                         <span className="text-2xl font-bold">{initial}</span>
                     </Hexagon>
                     <div>

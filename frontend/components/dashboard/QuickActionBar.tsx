@@ -89,12 +89,14 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                   ]}
                 >
                     <HexagonButton
+                        variant="rose"
                         icon={<Droplets className="h-6 w-6" />}
                         size={64}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
                     />
                     <HexagonButton
+                        variant="indigo"
                         icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
                         size={68} // 睡眠ボタンを少しだけ大きく
                         active={!!activeSleep}
@@ -102,17 +104,20 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         loading={loadingAction === "sleep"}
                     />
                     <HexagonButton
+                        variant="amber"
                         icon={<StickyNote className="h-6 w-6" />}
                         size={64}
                         onClick={() => setNoteDialogOpen(true)}
                     />
                     <HexagonButton
+                        variant="amber"
                         icon={<Baby className="h-6 w-6" />}
                         size={64}
                         onClick={() => handleQuickRecord("diaper_wet")}
                         loading={loadingAction === "diaper_wet"}
                     />
                     <HexagonButton
+                        variant="amber"
                         icon={<Biohazard className="h-6 w-6" />}
                         size={64}
                         onClick={() => handleQuickRecord("diaper_dirty")}
