@@ -3,16 +3,9 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+import { DialogTrigger, DialogTitle, DialogDescription, DialogFooter, DialogHeader, DialogContent, Dialog } from "@/components/ui/dialog"
 import { api, isApiError } from "@/lib/api"
+import { PartyPopper } from "lucide-react"
 
 interface Props {
     babyId: string
@@ -54,12 +47,14 @@ export function BirthRegistrationDialog({ babyId, babyName, onSuccess }: Props) 
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <button className="w-full h-14 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 dark:from-pink-600 dark:to-rose-500 dark:hover:from-pink-700 dark:hover:to-rose-600 text-white font-bold text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                    🎉 生まれた！
+                    <PartyPopper className="w-6 h-6" /> 生まれた！
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800">
                 <DialogHeader>
-                    <DialogTitle className="dark:text-zinc-100">🎉 おめでとうございます！</DialogTitle>
+                    <DialogTitle className="dark:text-zinc-100 flex items-center gap-2">
+                        <PartyPopper className="w-6 h-6 text-pink-500" /> おめでとうございます！
+                    </DialogTitle>
                     <DialogDescription className="dark:text-zinc-400">
                         {babyName}の誕生日を登録しましょう。
                     </DialogDescription>
