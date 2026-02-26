@@ -17,7 +17,7 @@ export const Hexagon = ({
   children,
   size = 100,
   cornerRadius = 8,
-  pointy = false,
+  pointy = true,
   color = "currentColor",
   borderColor = "transparent",
   borderWidth = 0,
