@@ -51,13 +51,13 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                 subContent={<span className="flex items-center gap-1">今日: <Droplets className="w-3 h-3 inline-block" />{wetCount} / <Biohazard className="w-3 h-3 inline-block" />{dirtyCount}</span>}
             />
             {canWrite ? (
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center">
                     <WidgetQuickButton
                         color="amber"
                         loading={loading}
                         disabled={loading}
                         onClick={() => handleQuickRecord(DiaperType.WET)}
-                        className="flex-1"
+                        size={48}
                         aria-label="おしっこ"
                     >
                         <Droplets className="w-5 h-5" />
@@ -67,7 +67,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                         loading={loading}
                         disabled={loading}
                         onClick={() => handleQuickRecord(DiaperType.DIRTY)}
-                        className="flex-1"
+                        size={48}
                         aria-label="うんち"
                     >
                         <Biohazard className="w-5 h-5" />
