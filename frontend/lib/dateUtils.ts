@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isToday as isTodayFns } from "date-fns";
 import { ja } from "date-fns/locale";
 
 /**
@@ -39,4 +39,12 @@ export function formatDate(date: Date | string): string {
 export function formatJapaneseDateTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return format(d, "yyyy年MM月dd日 HH:mm", { locale: ja });
+}
+
+/**
+ * Checks if the given date is today.
+ */
+export function isToday(date: Date | string): boolean {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return isTodayFns(d);
 }

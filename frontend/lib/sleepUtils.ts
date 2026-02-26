@@ -1,5 +1,6 @@
 import { BabyRecord } from "@/types/record"
-import { formatElapsed, isToday } from "@/lib/ageUtils"
+import { formatElapsed } from "@/lib/ageUtils"
+import { isToday } from "@/lib/dateUtils"
 
 export interface SleepStats {
     activeSleep: BabyRecord | null

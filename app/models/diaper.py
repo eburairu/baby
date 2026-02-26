@@ -13,7 +13,7 @@ class Diaper(Base):
     __tablename__ = "diapers"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     change_time = Column(DateTime, nullable=False, index=True)
     diaper_type = Column(Enum(DiaperType, name="diapertype"), nullable=False)
     notes = Column(String, nullable=True)

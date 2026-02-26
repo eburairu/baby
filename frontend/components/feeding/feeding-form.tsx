@@ -1,6 +1,5 @@
 "use client"
 
-import { FEEDING_COMPLETIONS } from "@/constants/feeding"
 import { useState, useEffect, useCallback } from "react"
 import { useFeedingTimer } from "@/hooks/useFeedingTimer"
 import { useForm } from "react-hook-form"
@@ -8,10 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
 import { format } from "date-fns"
 import { Save, Heart, Milk } from "lucide-react"
-import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
-import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { UI_BUTTONS } from "@/constants/ui-colors"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -27,13 +25,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Feeding, FeedingCreate, FeedingUpdate, FeedingType, BottleContentType, FeedingCompletion } from "@/types/feeding"
 import { buildFeedingPayload } from "@/lib/feedingUtils"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 import { FeedingTimerSection } from "./FeedingTimerSection"
 import { BreastFeedingFields } from "./BreastFeedingFields"
 import { BottleFeedingFields } from "./BottleFeedingFields"
+import { FeedingCompletionSelector } from "./FeedingCompletionSelector"
 
 interface FeedingFormProps {
     babyId: number
-    onAdd?: (data: FeedingCreate) => Promise<void>
+    onAdd?: (data: FeedingCreate) => Promise<Feeding | undefined>
     onUpdate?: (id: number, data: FeedingUpdate) => Promise<Feeding | undefined>
     initialData?: Feeding
     onSuccess?: () => void
@@ -43,7 +43,6 @@ interface FeedingFormProps {
 export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
-    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // 左右独立タイマー (Hooks)
     const {
@@ -96,46 +95,76 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         }
     }, [lastMilkAmount, isEditing, form])
 
-    const onSubmit = useCallback(async (values: FeedingFormValues) => {
-        setIsSubmitting(true)
-        try {
-            const data = buildFeedingPayload({
-                babyId,
-                values,
-                activeTab,
-                feedingCompletion,
-                bottleContentType
-            })
-
-            if (isEditing && initialData && onUpdate) {
-                await onUpdate(initialData.id, data)
-                toast.success("更新しました")
-            } else if (onAdd) {
-                await onAdd(data)
-                toast.success("記録しました")
+    const { submitRecord, isSubmitting } = useBaseRecordForm<FeedingFormValues>({
+        endpoint: "/feedings/", // Note: This endpoint is actually not used directly when onAdd/onUpdate are provided, but required by type
+        babyId,
+        onSuccess: (data) => {
+            // Reset for new entry only
+            if (!isEditing) {
+                const nextAmount = (data as Feeding)?.amount_ml ?? lastMilkAmount ?? 120
                 
-                // Reset for new entry only
                 form.reset({
                     feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
                     feeding_type: activeTab as "BREAST" | "BOTTLE",
                     left_breast_minutes: 0,
                     right_breast_minutes: 0,
-                    amount_ml: data.amount_ml ?? lastMilkAmount ?? 120,
+                    amount_ml: nextAmount,
                     notes: "",
                 })
                 resetAllTimers()
                 setFeedingCompletion(null)
                 setBottleContentType(null)
             }
-            
             if (onSuccess) onSuccess()
+        },
+        successMessage: isEditing ? "更新しました" : "記録しました"
+    })
+
+    const onSubmit = useCallback(async (values: FeedingFormValues) => {
+        try {
+            if (isEditing && initialData && onUpdate) {
+                // Update case
+                await submitRecord(
+                    values,
+                    (vals) => buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType
+                    }),
+                    (payload) => onUpdate(initialData.id, payload)
+                )
+            } else if (onAdd) {
+                // Create case with custom onAdd (needed for triggerFeedback etc)
+                await submitRecord(
+                    values,
+                    (vals) => buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType
+                    }),
+                    onAdd
+                )
+            } else {
+                // Default create case (standard POST)
+                await submitRecord(values, (vals) => {
+                    return buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType
+                    })
+                })
+            }
         } catch (error) {
-            console.error("Failed to save feeding record:", error)
-            toast.error("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
+            console.error(error)
+            // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, onUpdate, isEditing, initialData, resetAllTimers, onSuccess, lastMilkAmount])
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
@@ -197,31 +226,10 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                             </TabsContent>
 
                             {/* 共通: 授乳完全度 */}
-                            <div>
-                                <p className="text-sm font-medium mb-2">授乳完全度</p>
-                                <div className="flex gap-2">
-                                    {FEEDING_COMPLETIONS.map(({ value, label }) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            aria-pressed={feedingCompletion === value}
-                                            onClick={() => setFeedingCompletion(prev => prev === value ? null : value)}
-                                            className={cn(
-                                                "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
-                                                feedingCompletion === value
-                                                    ? value === "FULL"
-                                                        ? UI_FORMS.selection.greenSolid.active
-                                                        : UI_FORMS.selection.amberSolid.active
-                                                    : value === "FULL"
-                                                        ? UI_FORMS.selection.greenSolid.inactive
-                                                        : UI_FORMS.selection.amberSolid.inactive
-                                            )}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                            <FeedingCompletionSelector
+                                value={feedingCompletion}
+                                onChange={setFeedingCompletion}
+                            />
 
                             <FormField
                                 control={form.control}

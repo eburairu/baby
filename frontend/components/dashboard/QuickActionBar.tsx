@@ -78,7 +78,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     }
 
     return (
-        <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[320px]">
+        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[320px]">
             <div className="pointer-events-auto">
                 <HoneycombGrid 
                   size={64} 

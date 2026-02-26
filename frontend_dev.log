@@ -1,9 +1,9 @@
 
-> frontend@0.1.0 dev /app/frontend
+> frontend@0.1.0 dev
 > next dev
 
 ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /app/package-lock.json as the root directory.
+ We detected multiple lockfiles and selected the directory of /app/pnpm-lock.yaml as the root directory.
  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
  Detected additional lockfiles:
@@ -17,26 +17,19 @@
   · optimizePackageImports
 
 ✓ Starting...
-✓ Ready in 6.1s
-○ Compiling /privacy ...
- GET /privacy 200 in 13.7s (compile: 11.9s, render: 1815ms)
-○ Compiling /feeding ...
- GET /feeding 200 in 7.9s (compile: 7.4s, render: 484ms)
- GET /api/notifications 404 in 1214ms (compile: 976ms, render: 238ms)
- GET /api/notifications/unread-count 404 in 1227ms (compile: 1033ms, render: 194ms)
- GET /api/version 404 in 1577ms (compile: 1409ms, render: 167ms)
-○ Compiling /contraction ...
- GET /api/notifications/unread-count 404 in 93ms (compile: 13ms, render: 80ms)
- GET /contraction 200 in 5.1s (compile: 4.7s, render: 412ms)
- GET /api/version 404 in 82ms (compile: 14ms, render: 67ms)
- GET /api/notifications/unread-count 404 in 225ms (compile: 55ms, render: 171ms)
- GET /api/notifications 404 in 225ms (compile: 99ms, render: 126ms)
- GET /privacy 200 in 322ms (compile: 14ms, render: 308ms)
- GET /feeding 200 in 121ms (compile: 13ms, render: 108ms)
- GET /api/version 404 in 163ms (compile: 24ms, render: 139ms)
- GET /api/notifications 404 in 310ms (compile: 105ms, render: 206ms)
- GET /api/notifications/unread-count 404 in 333ms (compile: 55ms, render: 278ms)
- GET /contraction 200 in 81ms (compile: 7ms, render: 73ms)
- GET /api/version 404 in 81ms (compile: 9ms, render: 72ms)
- GET /api/notifications/unread-count 404 in 233ms (compile: 28ms, render: 205ms)
- GET /api/notifications 404 in 227ms (compile: 86ms, render: 142ms)
+✓ Ready in 6.6s
+○ Compiling /test-loading ...
+⨯ TypeError: Cannot read properties of undefined (reading 'inactive')
+    at HexagonButton (components/ui/hexagon-button.tsx:43:54)
+  41 |
+  42 |   const theme = HEXAGON_BUTTON_THEMES[variant]
+> 43 |   const currentTheme = active ? theme.active : theme.inactive
+     |                                                      ^
+  44 |
+  45 |   const { width, height } = getHexagonDimensions(size, pointy);
+  46 | {
+  digest: '224848142'
+}
+ GET /test-loading 500 in 16.1s (compile: 11.8s, render: 4.4s)
+✓ Compiled in 222ms
+ GET /test-loading 200 in 639ms (compile: 190ms, render: 449ms)
