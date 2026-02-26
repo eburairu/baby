@@ -80,6 +80,8 @@ export function HexagonButton({
         className
       )}
       disabled={loading}
+      aria-busy={loading}
+      aria-pressed={active}
       {...props}
       style={{ width, height, ...props.style }}
     >

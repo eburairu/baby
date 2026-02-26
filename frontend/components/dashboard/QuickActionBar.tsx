@@ -94,6 +94,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         size={64}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
+                        aria-label="ミルクを記録"
                     />
                     <HexagonButton
                         variant="indigo"
@@ -102,12 +103,14 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         active={!!activeSleep}
                         onClick={() => handleQuickRecord("sleep")}
                         loading={loadingAction === "sleep"}
+                        aria-label={activeSleep ? "睡眠終了を記録" : "睡眠開始を記録"}
                     />
                     <HexagonButton
                         variant="amber"
                         icon={<StickyNote className="h-6 w-6" />}
                         size={64}
                         onClick={() => setNoteDialogOpen(true)}
+                        aria-label="メモを追加"
                     />
                     <HexagonButton
                         variant="amber"
@@ -115,6 +118,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         size={64}
                         onClick={() => handleQuickRecord("diaper_wet")}
                         loading={loadingAction === "diaper_wet"}
+                        aria-label="おしっこを記録"
                     />
                     <HexagonButton
                         variant="amber"
@@ -122,6 +126,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         size={64}
                         onClick={() => handleQuickRecord("diaper_dirty")}
                         loading={loadingAction === "diaper_dirty"}
+                        aria-label="うんちを記録"
                     />
                 </HoneycombGrid>
             </div>
