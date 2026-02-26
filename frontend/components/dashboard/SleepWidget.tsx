@@ -71,17 +71,19 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                 )}
             </WidgetContent>
             {canWrite ? (
-                <WidgetQuickButton
-                    color="indigo"
-                    isActive={isSleeping}
-                    loading={loading}
-                    disabled={loading}
-                    onClick={isSleeping ? handleEnd : handleStart}
-                    className="w-full"
-                    title={isSleeping ? "起きた記録をする" : "寝た記録をする"}
-                >
-                    {isSleeping ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </WidgetQuickButton>
+                <div className="flex justify-center">
+                    <WidgetQuickButton
+                        color="indigo"
+                        isActive={isSleeping}
+                        loading={loading}
+                        disabled={loading}
+                        onClick={isSleeping ? handleEnd : handleStart}
+                        size={52}
+                        title={isSleeping ? "起きた記録をする" : "寝た記録をする"}
+                    >
+                        {isSleeping ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                    </WidgetQuickButton>
+                </div>
             ) : null}
         </WidgetCard>
     )
