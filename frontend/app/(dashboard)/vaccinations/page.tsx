@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
+import { api, isApiError } from "@/lib/api"
 
 export default function VaccinationsPage() {
     const {
@@ -24,17 +25,14 @@ export default function VaccinationsPage() {
         if (!babyId) return
         setIsGenerating(true)
         try {
-            const res = await fetch(`/api/vaccinations/generate?baby_id=${babyId}`, {
-                method: 'POST'
-            })
-            if (res.ok) {
-                await mutate()
+            await api.post(`/vaccinations/generate?baby_id=${babyId}`, {})
+            await mutate()
+        } catch (e) {
+            if (isApiError(e)) {
+                alert((e.info as { detail?: string })?.detail || "スケジュールの生成に失敗しました")
             } else {
-                const err = await res.json()
-                alert(err.detail || "スケジュールの生成に失敗しました")
+                alert("エラーが発生しました")
             }
-        } catch {
-            alert("エラーが発生しました")
         } finally {
             setIsGenerating(false)
         }
