@@ -3,25 +3,18 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { api } from "@/lib/api"
 import { useSleeps } from "@/hooks/useData"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
-import { toast } from "sonner"
 import { SleepCreate } from "@/types/sleep"
 import { UI_BUTTONS } from "@/constants/ui-colors"
-
-const formSchema = z.object({
-    start_time: z.string().min(1, "開始日時は必須です"),
-    end_time: z.string().optional(),
-    notes: z.string().optional(),
-})
+import { sleepSchema, SleepFormValues } from "@/schemas/sleep"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 
 interface Props {
     babyId: string
@@ -31,8 +24,8 @@ export function SleepForm({ babyId }: Props) {
     const { mutate } = useSleeps(babyId)
     const [isOpen, setIsOpen] = useState(false)
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<SleepFormValues>({
+        resolver: zodResolver(sleepSchema),
         defaultValues: {
             start_time: "",
             end_time: "",
@@ -40,26 +33,28 @@ export function SleepForm({ babyId }: Props) {
         },
     })
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        try {
-            const payload: SleepCreate = {
-                baby_id: Number(babyId),
-                start_time: new Date(values.start_time).toISOString(),
-                notes: values.notes,
-            }
-            if (values.end_time) {
-                payload.end_time = new Date(values.end_time).toISOString()
-            }
-
-            await api.post("/sleeps/", payload)
+    const { submitRecord, isSubmitting } = useBaseRecordForm<SleepFormValues>({
+        endpoint: "/sleeps/",
+        babyId,
+        onSuccess: () => {
             mutate()
-            toast.success("記録しました")
             form.reset()
             setIsOpen(false)
-        } catch (e) {
-            console.error(e)
-            toast.error("保存に失敗しました")
-        }
+        },
+    })
+
+    const onSubmit = async (values: SleepFormValues) => {
+        await submitRecord(values, (vals, base) => {
+            const payload: SleepCreate = {
+                baby_id: Number(base.baby_id),
+                start_time: new Date(vals.start_time).toISOString(),
+                notes: vals.notes,
+            }
+            if (vals.end_time) {
+                payload.end_time = new Date(vals.end_time).toISOString()
+            }
+            return payload
+        })
     }
 
     return (

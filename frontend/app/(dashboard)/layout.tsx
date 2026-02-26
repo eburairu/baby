@@ -12,8 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Droplets, Moon, Baby, TrendingUp, StickyNote, BookOpen, Timer } from "lucide-react"
-import { useBabies } from "@/hooks/useData"
-import { useBabyStore } from "@/stores/babyStore"
+import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -29,40 +28,37 @@ import {
     SheetDescription,
 } from "@/components/ui/sheet"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
-import { useUIVersion } from "@/hooks/use-ui-version"
 import type { LucideIcon } from "lucide-react"
 
 const ALL_NAV_ITEMS: {
     label: string
     href: string
-    emoji: string
     Icon: LucideIcon
     color: string
     prenatal: boolean
     postnatal: boolean
 }[] = [
-    { label: "ホーム",       href: "/dashboard",   emoji: "🏠", Icon: Home,       color: "text-pink-500",    prenatal: true,  postnatal: true  },
-    { label: "授乳",         href: "/feeding",     emoji: "🍼", Icon: Droplets,   color: "text-pink-500",    prenatal: false, postnatal: true  },
-    { label: "睡眠",         href: "/sleep",       emoji: "💤", Icon: Moon,       color: "text-violet-500",  prenatal: false, postnatal: true  },
-    { label: "おむつ",       href: "/diaper",      emoji: "👶", Icon: Baby,       color: "text-amber-500",   prenatal: false, postnatal: true  },
-    { label: "成長",         href: "/growth",      emoji: "📈", Icon: TrendingUp, color: "text-emerald-500", prenatal: false, postnatal: true  },
-    { label: "メモ",         href: "/note",        emoji: "📝", Icon: StickyNote, color: "text-orange-400",  prenatal: false, postnatal: true  },
-    { label: "日誌",         href: "/diary",       emoji: "📔", Icon: BookOpen,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
-    { label: "陣痛タイマー", href: "/contraction", emoji: "⏱", Icon: Timer,      color: "text-red-500",     prenatal: true,  postnatal: false },
+    { label: "ホーム",       href: "/dashboard",   Icon: Home,       color: "text-pink-500",    prenatal: true,  postnatal: true  },
+    { label: "授乳",         href: "/feeding",     Icon: Droplets,   color: "text-pink-500",    prenatal: false, postnatal: true  },
+    { label: "睡眠",         href: "/sleep",       Icon: Moon,       color: "text-violet-500",  prenatal: false, postnatal: true  },
+    { label: "おむつ",       href: "/diaper",      Icon: Baby,       color: "text-amber-500",   prenatal: false, postnatal: true  },
+    { label: "成長",         href: "/growth",      Icon: TrendingUp, color: "text-emerald-500", prenatal: false, postnatal: true  },
+    { label: "メモ",         href: "/note",        Icon: StickyNote, color: "text-orange-400",  prenatal: false, postnatal: true  },
+    { label: "日誌",         href: "/diary",       Icon: BookOpen,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
+    { label: "陣痛タイマー", href: "/contraction", Icon: Timer,      color: "text-red-500",     prenatal: true,  postnatal: false },
 ]
 
 const BOTTOM_NAV_ITEMS: {
     label: string
     href: string
-    emoji: string
     Icon: LucideIcon
     color: string
 }[] = [
-    { label: "ホーム",   href: "/dashboard", emoji: "🏠", Icon: Home,       color: "text-pink-500" },
-    { label: "授乳",     href: "/feeding",   emoji: "🍼", Icon: Droplets,   color: "text-pink-500" },
-    { label: "睡眠",     href: "/sleep",     emoji: "💤", Icon: Moon,       color: "text-violet-500" },
-    { label: "おむつ",   href: "/diaper",    emoji: "👶", Icon: Baby,       color: "text-amber-500" },
-    { label: "成長",     href: "/growth",    emoji: "📈", Icon: TrendingUp, color: "text-emerald-500" },
+    { label: "ホーム",   href: "/dashboard", Icon: Home,       color: "text-pink-500" },
+    { label: "授乳",     href: "/feeding",   Icon: Droplets,   color: "text-pink-500" },
+    { label: "睡眠",     href: "/sleep",     Icon: Moon,       color: "text-violet-500" },
+    { label: "おむつ",   href: "/diaper",    Icon: Baby,       color: "text-amber-500" },
+    { label: "成長",     href: "/growth",    Icon: TrendingUp, color: "text-emerald-500" },
 ]
 
 export default function DashboardLayout({
@@ -72,17 +68,9 @@ export default function DashboardLayout({
 }) {
     const { user, isLoading: authLoading } = useUser()
     const pathname = usePathname()
-    const { babies, isLoading } = useBabies()
-    const { selectedBabyId, setSelectedBabyId } = useBabyStore()
+    const { babies, isLoading, selectedBabyId, setSelectedBabyId, selectedBaby } = useSelectedBaby()
     const { appVersion } = useAppVersion()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-    const { isV2, toggle } = useUIVersion()
-
-    useEffect(() => {
-        if (babies && babies.length > 0 && !selectedBabyId) {
-            setSelectedBabyId(String(babies[0].id))
-        }
-    }, [babies, selectedBabyId, setSelectedBabyId])
 
     if (authLoading || (isLoading && !babies)) {
         return <DashboardSkeleton />
@@ -92,7 +80,6 @@ export default function DashboardLayout({
         return null // Will redirect to login
     }
 
-    const selectedBaby = babies?.find(b => String(b.id) === selectedBabyId)
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : false
 
     const navItems = ALL_NAV_ITEMS.filter(item => {
@@ -138,22 +125,6 @@ export default function DashboardLayout({
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col transition-colors">
-            {/* v1→v2 移行バナー（v1ユーザのみ表示） */}
-            {!isV2 && (
-                <div className="bg-indigo-50 dark:bg-indigo-950/30 border-b border-indigo-100 dark:border-indigo-900/30 px-4 py-2 text-sm text-center">
-                    新しいデザインを試せます —{" "}
-                    <button
-                        onClick={toggle}
-                        className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
-                    >
-                        今すぐ切り替える
-                    </button>
-                    <span className="mx-2 text-muted-foreground">|</span>
-                    <Link href="/settings" className="text-muted-foreground hover:underline">
-                        設定で管理
-                    </Link>
-                </div>
-            )}
             {/* Desktop Navbar */}
             <header className="hidden md:block sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm transition-colors">
                 <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -256,10 +227,7 @@ export default function DashboardLayout({
                                                     : "text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50"
                                             )}
                                         >
-                                            {isV2
-                                                ? <item.Icon className={cn("h-5 w-5", pathname === item.href && item.color)} />
-                                                : <span className="text-lg" role="img" aria-hidden="true">{item.emoji}</span>
-                                            }
+                                            <item.Icon className={cn("h-5 w-5", pathname === item.href && item.color)} />
                                             {item.label}
                                         </Link>
                                     ))}
@@ -299,10 +267,7 @@ export default function DashboardLayout({
                                     : "text-gray-400 dark:text-zinc-500"
                             )}
                         >
-                            {isV2
-                                ? <item.Icon className={cn("h-6 w-6", pathname === item.href && item.color)} />
-                                : <span className="text-xl" role="img" aria-hidden="true">{item.emoji}</span>
-                            }
+                            <item.Icon className={cn("h-6 w-6", pathname === item.href && item.color)} />
                             <span className="text-[10px] font-medium">{item.label}</span>
                         </Link>
                     ))}

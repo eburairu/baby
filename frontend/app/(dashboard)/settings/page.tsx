@@ -1,14 +1,12 @@
 "use client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck, Sparkles, Heart, Palette } from "lucide-react"
+import { ChevronRight, Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck, Sparkles, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Switch } from "@/components/ui/switch"
 import { useUser } from "@/hooks/useAuth"
 import { useFamilyMembers } from "@/hooks/useData"
 import { usePermissions } from "@/hooks/usePermissions"
-import { useUIVersion } from "@/hooks/use-ui-version"
 import { api } from "@/lib/api"
 import { useState } from "react"
 import { AppInfoDialog } from "@/components/settings/AppInfoDialog"
@@ -82,26 +80,6 @@ const menuItems = [
     },
 ]
 
-function UIVersionToggle() {
-    const { version, setVersion } = useUIVersion()
-    return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 transition-colors">
-            <div className="p-2 rounded-xl bg-pink-50 dark:bg-pink-950/30">
-                <Palette className="h-5 w-5 text-pink-500" />
-            </div>
-            <div className="flex-1">
-                <p className="font-semibold text-gray-900 dark:text-zinc-100 text-sm">新しいデザイン (β)</p>
-                <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
-                    温かみのある新デザインを試す。いつでも元に戻せます。
-                </p>
-            </div>
-            <Switch
-                checked={version === "v2"}
-                onCheckedChange={(checked) => setVersion(checked ? "v2" : "v1")}
-            />
-        </div>
-    )
-}
 
 export default function SettingsPage() {
     const { user, mutate } = useUser()
@@ -169,7 +147,6 @@ export default function SettingsPage() {
                         </div>
                         <ThemeToggle />
                     </div>
-                    <UIVersionToggle />
                 </section>
 
                 <section className="space-y-3 pt-4">

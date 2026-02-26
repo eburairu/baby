@@ -2,8 +2,7 @@
 
 import { POOP_COLORS, POOP_AMOUNTS } from "@/constants/diaper"
 
-import { useState } from "react"
-import { Droplets, Wind } from "lucide-react"
+import { Droplets, Biohazard } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -21,12 +20,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { api } from "@/lib/api"
 import { DiaperType } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 
 
 interface Props {
@@ -35,9 +34,6 @@ interface Props {
 }
 
 export function DiaperForm({ babyId, onSuccess }: Props) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
         defaultValues: {
@@ -55,31 +51,10 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
     const selectedColor = form.watch("poop_color")
     const selectedAmount = form.watch("poop_amount")
 
-    const onSubmit = async (values: DiaperFormValues) => {
-        setIsSubmitting(true)
-        setError(null)
-        try {
-            let finalNotes = values.notes || ""
-
-            if (values.diaper_type !== DiaperType.WET) {
-                const color = values.poop_color === "その他" ? values.custom_poop_color : values.poop_color
-                const amount = values.poop_amount === "その他" ? values.custom_poop_amount : values.poop_amount
-
-                if (color || amount) {
-                    const prefixParts = []
-                    if (color) prefixParts.push(`色: ${color}`)
-                    if (amount) prefixParts.push(`量: ${amount}`)
-                    const prefix = prefixParts.join("、")
-                    finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
-                }
-            }
-
-            const newRecord = await api.post<{ id: number }>("/diapers/", {
-                baby_id: Number(babyId),
-                diaper_type: values.diaper_type,
-                change_time: new Date(values.change_time).toISOString(),
-                notes: finalNotes || undefined,
-            })
+    const { submitRecord, isSubmitting, error } = useBaseRecordForm<DiaperFormValues>({
+        endpoint: "/diapers/",
+        babyId,
+        onSuccess: (data) => {
             form.reset({
                 diaper_type: DiaperType.WET,
                 change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -89,12 +64,38 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                 poop_amount: "",
                 custom_poop_amount: "",
             })
-            onSuccess(newRecord?.id)
+            onSuccess((data as { id?: number })?.id)
+        },
+        errorMessage: "エラーが発生しました。もう一度お試しください。",
+        successMessage: undefined // No toast for diaper form in previous code
+    })
+
+    const onSubmit = async (values: DiaperFormValues) => {
+        try {
+            await submitRecord(values, (vals, base) => {
+                let finalNotes = vals.notes || ""
+                if (vals.diaper_type !== DiaperType.WET) {
+                    const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
+                    const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
+
+                    if (color || amount) {
+                        const prefixParts = []
+                        if (color) prefixParts.push(`色: ${color}`)
+                        if (amount) prefixParts.push(`量: ${amount}`)
+                        const prefix = prefixParts.join("、")
+                        finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                    }
+                }
+                return {
+                    baby_id: Number(base.baby_id),
+                    diaper_type: vals.diaper_type,
+                    change_time: new Date(vals.change_time).toISOString(),
+                    notes: finalNotes || undefined,
+                }
+            })
         } catch (e) {
+            // Error is handled by the hook
             console.error(e)
-            setError("エラーが発生しました。もう一度お試しください。")
-        } finally {
-            setIsSubmitting(false)
         }
     }
 
@@ -127,7 +128,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
-                                <Wind className="w-6 h-6" />
+                                <Biohazard className="w-6 h-6" />
                                 <span className="text-xs font-medium">うんち</span>
                             </button>
                             <button
@@ -140,7 +141,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                                         : UI_FORMS.selection.amberBordered.inactive
                                 )}
                             >
-                                <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Wind className="w-6 h-6" /></span>
+                                <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>
                                 <span className="text-xs font-medium">両方</span>
                             </button>
                         </div>

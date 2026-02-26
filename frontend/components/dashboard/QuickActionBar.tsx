@@ -2,16 +2,13 @@
 import { RECORD_TYPES } from '@/types/enums';
 
 import { useState, useMemo } from "react"
-import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
-import { usePermissions } from "@/hooks/usePermissions"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { BabyRecord } from "@/types/record"
-import { Moon, Bed, Loader2, StickyNote, Droplets, Baby, Zap } from "lucide-react"
-import { useRecordFeedback } from "@/hooks/useRecordFeedback"
-import { useUIVersion } from "@/hooks/use-ui-version"
+import { Moon, Bed, StickyNote, Droplets, Baby, Biohazard } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
-import { toast } from "sonner"
+import { HexagonButton } from "@/components/ui/hexagon-button"
 
 interface Props {
     babyId: string
@@ -20,11 +17,9 @@ interface Props {
 }
 
 export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
-    const { canWrite } = usePermissions()
+    const { canWrite, executeRecord } = useQuickRecord(babyId, { onSuccess: mutateRecords })
     const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const [noteDialogOpen, setNoteDialogOpen] = useState(false)
-    const { triggerFeedback } = useRecordFeedback(babyId)
-    const { isV2 } = useUIVersion()
 
     const activeSleep = useMemo(() => {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
@@ -34,150 +29,125 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
 
     const handleQuickRecord = async (type: "feeding_bottle" | "feeding_breast" | "sleep" | "diaper_wet" | "diaper_dirty") => {
         setLoadingAction(type)
-        try {
-            if (type === "feeding_bottle" || type === "feeding_breast") {
-                const record = await api.post<{ id: number }>("/feedings/", {
-                    baby_id: Number(babyId),
-                    feeding_type: type === "feeding_bottle" ? "BOTTLE" : "BREAST",
-                    feeding_time: new Date().toISOString(),
-                })
-                triggerFeedback(RECORD_TYPES.FEEDING, record.id)
-            } else if (type === "sleep") {
+        
+        const actionMap = {
+            "feeding_bottle": async () => api.post<{ id: number }>("/feedings/", {
+                baby_id: Number(babyId),
+                feeding_type: "BOTTLE",
+                feeding_time: new Date().toISOString(),
+            }),
+            "feeding_breast": async () => api.post<{ id: number }>("/feedings/", {
+                baby_id: Number(babyId),
+                feeding_type: "BREAST",
+                feeding_time: new Date().toISOString(),
+            }),
+            "sleep": async () => {
                 if (activeSleep) {
-                    await api.patch(`/sleeps/${activeSleep.id}`, {
-                        end_time: new Date().toISOString(),
-                    })
+                    await api.patch(`/sleeps/${activeSleep.id}`, { end_time: new Date().toISOString() })
+                    return { id: activeSleep.id }
                 } else {
-                    await api.post("/sleeps/", {
+                    return api.post<{ id: number }>("/sleeps/", {
                         baby_id: Number(babyId),
                         start_time: new Date().toISOString(),
                     })
                 }
-            } else if (type === "diaper_wet" || type === "diaper_dirty") {
-                const record = await api.post<{ id: number }>("/diapers/", {
-                    baby_id: Number(babyId),
-                    diaper_type: type === "diaper_wet" ? "WET" : "DIRTY",
-                    change_time: new Date().toISOString(),
-                })
-                triggerFeedback("diaper", record.id)
-            }
-            if (mutateRecords) mutateRecords()
-        } catch (e) {
-            console.error(e)
-            toast.error("記録に失敗しました")
-        } finally {
-            setLoadingAction(null)
+            },
+            "diaper_wet": async () => api.post<{ id: number }>("/diapers/", {
+                baby_id: Number(babyId),
+                diaper_type: "WET",
+                change_time: new Date().toISOString(),
+            }),
+            "diaper_dirty": async () => api.post<{ id: number }>("/diapers/", {
+                baby_id: Number(babyId),
+                diaper_type: "DIRTY",
+                change_time: new Date().toISOString(),
+            }),
         }
+
+        const configMap = {
+            "feeding_bottle": { feedbackType: RECORD_TYPES.FEEDING, label: "ミルク" },
+            "feeding_breast": { feedbackType: RECORD_TYPES.FEEDING, label: "母乳" },
+            "sleep": { label: activeSleep ? "睡眠終了" : "睡眠開始" },
+            "diaper_wet": { feedbackType: "diaper" as const, label: "おしっこ" },
+            "diaper_dirty": { feedbackType: "diaper" as const, label: "うんち" },
+        }
+
+        await executeRecord(actionMap[type], configMap[type])
+        setLoadingAction(null)
     }
 
     return (
-        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-sm:max-w-[320px] max-w-sm">
-            <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 dark:border-zinc-800 p-2 flex justify-around items-center transition-all duration-300">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-12 w-12 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex flex-col items-center justify-center gap-1"
-                    onClick={() => handleQuickRecord("feeding_bottle")}
-                    disabled={loadingAction !== null}
-                    title="ミルク記録"
-                    aria-label="ミルクを記録"
-                >
-                    {loadingAction === "feeding_bottle" ? (
-                        <Loader2 className="animate-spin" />
-                    ) : isV2 ? (
-                        <Droplets className="h-6 w-6" />
-                    ) : (
-                        <span className="text-xl" role="img" aria-hidden="true">🍼</span>
-                    )}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`h-12 w-12 rounded-xl text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 flex flex-col items-center justify-center gap-1 ${activeSleep ? "animate-pulse" : ""}`}
-                    onClick={() => handleQuickRecord("sleep")}
-                    disabled={loadingAction !== null}
-                    title={activeSleep ? '睡眠終了' : '睡眠開始'}
-                    aria-label={activeSleep ? '睡眠終了' : '睡眠開始'}
-                >
-                    {loadingAction === "sleep" ? (
-                        <Loader2 className="animate-spin" />
-                    ) : activeSleep ? (
-                        <Bed className="h-6 w-6" />
-                    ) : (
-                        <Moon className="h-6 w-6" />
-                    )}
-                </Button>
-                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-700 mx-1" />
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-12 w-12 rounded-xl text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex flex-col items-center justify-center gap-1"
-                    onClick={() => handleQuickRecord("diaper_wet")}
-                    disabled={loadingAction !== null}
-                    title="おしっこ記録"
-                    aria-label="おしっこを記録"
-                >
-                    {loadingAction === "diaper_wet" ? (
-                        <Loader2 className="animate-spin" />
-                    ) : isV2 ? (
-                        <Baby className="h-6 w-6" />
-                    ) : (
-                        <span className="text-xl" role="img" aria-hidden="true">💧</span>
-                    )}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-12 w-12 rounded-xl text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex flex-col items-center justify-center gap-1"
-                    onClick={() => handleQuickRecord("diaper_dirty")}
-                    disabled={loadingAction !== null}
-                    title="うんち記録"
-                    aria-label="うんちを記録"
-                >
-                    {loadingAction === "diaper_dirty" ? (
-                        <Loader2 className="animate-spin" />
-                    ) : isV2 ? (
-                        <Zap className="h-6 w-6" />
-                    ) : (
-                        <span className="text-xl" role="img" aria-hidden="true">💩</span>
-                    )}
-                </Button>
-                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-700 mx-1" />
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-12 w-12 rounded-xl text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex flex-col items-center justify-center gap-1"
-                    onClick={() => setNoteDialogOpen(true)}
-                    disabled={loadingAction !== null}
-                    title="メモ記録"
-                    aria-label="メモを記録"
-                    aria-haspopup="dialog"
-                    aria-expanded={noteDialogOpen}
-                >
-                    <StickyNote className="h-6 w-6" />
-                </Button>
-
-                <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
-                    <DialogContent className="max-w-md w-[90%] rounded-2xl p-0 overflow-hidden border-0 dark:bg-zinc-950">
-                        <DialogHeader className="p-4 pb-0">
-                            <DialogTitle className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-2">
-                                <StickyNote className="h-4 w-4 text-amber-500" />
-                                メモを追加
-                            </DialogTitle>
-                        </DialogHeader>
-                        <div className="p-4">
-                            <NoteForm 
-                                babyId={Number(babyId)} 
-                                defaultExpanded={true}
-                                onAddSuccess={() => {
-                                    setNoteDialogOpen(false)
-                                    if (mutateRecords) mutateRecords()
-                                }}
-                            />
-                        </div>
-                    </DialogContent>
-                </Dialog>
+        <div className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] md:bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none">
+            <div className="flex flex-col items-center pointer-events-auto">
+                {/* Honeycomb Row 1 */}
+                <div className="flex justify-center -mb-4">
+                    <HexagonButton
+                        icon={<Droplets className="h-6 w-6" />}
+                        label="ミルク"
+                        size={72}
+                        onClick={() => handleQuickRecord("feeding_bottle")}
+                        loading={loadingAction === "feeding_bottle"}
+                        className="mx-[-6px]"
+                    />
+                    <HexagonButton
+                        icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+                        label={activeSleep ? "起きた" : "寝た"}
+                        size={76}
+                        active={!!activeSleep}
+                        onClick={() => handleQuickRecord("sleep")}
+                        loading={loadingAction === "sleep"}
+                        className="mx-[-6px] z-10"
+                    />
+                    <HexagonButton
+                        icon={<StickyNote className="h-6 w-6" />}
+                        label="メモ"
+                        size={72}
+                        onClick={() => setNoteDialogOpen(true)}
+                        className="mx-[-6px]"
+                    />
+                </div>
+                
+                {/* Honeycomb Row 2 */}
+                <div className="flex justify-center">
+                    <HexagonButton
+                        icon={<Baby className="h-6 w-6" />}
+                        label="おしっこ"
+                        size={72}
+                        onClick={() => handleQuickRecord("diaper_wet")}
+                        loading={loadingAction === "diaper_wet"}
+                        className="mx-[-6px]"
+                    />
+                    <HexagonButton
+                        icon={<Biohazard className="h-6 w-6" />}
+                        label="うんち"
+                        size={72}
+                        onClick={() => handleQuickRecord("diaper_dirty")}
+                        loading={loadingAction === "diaper_dirty"}
+                        className="mx-[-6px]"
+                    />
+                </div>
             </div>
+
+            <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+                <DialogContent className="max-w-md w-[90%] rounded-2xl p-0 overflow-hidden border-0 dark:bg-zinc-950">
+                    <DialogHeader className="p-4 pb-0">
+                        <DialogTitle className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-2">
+                            <StickyNote className="h-4 w-4 text-amber-500" />
+                            メモを追加
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="p-4">
+                        <NoteForm 
+                            babyId={Number(babyId)} 
+                            defaultExpanded={true}
+                            onAddSuccess={() => {
+                                setNoteDialogOpen(false)
+                                if (mutateRecords) mutateRecords()
+                            }}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
