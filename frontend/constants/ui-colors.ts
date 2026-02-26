@@ -161,3 +161,90 @@ export const STATS_BLOCK_CONFIG = Object.fromEntries(
   bg: string;
   icon: string;
 }>;
+
+export const HEXAGON_BUTTON_THEMES = {
+  primary: {
+    active: {
+      bg: "text-primary",
+      icon: "text-white",
+      border: "var(--color-primary)",
+      glow: "bg-primary/20",
+    },
+    inactive: {
+      bg: "text-white dark:text-zinc-800",
+      icon: "text-primary group-hover:text-primary/80",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-primary/20",
+    },
+  },
+  rose: {
+    active: {
+      bg: "text-rose-500",
+      icon: "text-white",
+      border: "var(--color-rose-500)",
+      glow: "bg-rose-500/20",
+    },
+    inactive: {
+      bg: "text-rose-100 dark:text-rose-950/40",
+      icon: "text-rose-600 dark:text-rose-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-rose-500/20",
+    },
+  },
+  amber: {
+    active: {
+      bg: "text-amber-500",
+      icon: "text-white",
+      border: "var(--color-amber-500)",
+      glow: "bg-amber-500/20",
+    },
+    inactive: {
+      bg: "text-amber-100 dark:text-amber-950/40",
+      icon: "text-amber-600 dark:text-amber-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-amber-500/20",
+    },
+  },
+  indigo: {
+    active: {
+      bg: "text-indigo-500",
+      icon: "text-white",
+      border: "var(--color-indigo-500)",
+      glow: "bg-indigo-500/20",
+    },
+    inactive: {
+      bg: "text-indigo-100 dark:text-indigo-950/40",
+      icon: "text-indigo-600 dark:text-indigo-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-indigo-500/20",
+    },
+  },
+  emerald: {
+    active: {
+      bg: "text-emerald-500",
+      icon: "text-white",
+      border: "var(--color-emerald-500)",
+      glow: "bg-emerald-500/20",
+    },
+    inactive: {
+      bg: "text-emerald-100 dark:text-emerald-950/40",
+      icon: "text-emerald-600 dark:text-emerald-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-emerald-500/20",
+    },
+  },
+  zinc: {
+    active: {
+      bg: "text-zinc-500",
+      icon: "text-white",
+      border: "var(--color-zinc-500)",
+      glow: "bg-zinc-500/20",
+    },
+    inactive: {
+      bg: "text-zinc-100 dark:text-zinc-900/50",
+      icon: "text-zinc-600 dark:text-zinc-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-zinc-500/20",
+    },
+  },
+} as const;
