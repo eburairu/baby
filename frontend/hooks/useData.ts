@@ -9,6 +9,8 @@ export { useContractions } from '@/hooks/useContraction';
 export { useSleeps } from '@/hooks/useSleep';
 export { useDiapers } from '@/hooks/useDiaper';
 export { useGrowths } from '@/hooks/useGrowth';
+export { useMilestoneTimeline } from '@/hooks/useMilestone';
+export { useVaccinations } from '@/hooks/useVaccination';
 
 export function useFamilySettings() {
     const { data, error, isLoading, mutate } = useSWR<Family>('/family/', fetcher);

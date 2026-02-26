@@ -66,7 +66,6 @@ export function LandingHowTo({ isLoggedIn = false }: LandingHowToProps) {
                                 今すぐ無料で始める
                             </Button>
                         </Link>
-                        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">※ クレジットカード登録は不要です</p>
                     </div>
                 )}
             </div>
