@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Droplets, Moon, Baby, TrendingUp, StickyNote, BookOpen, Timer } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Milk, Moon, Baby, TrendingUp, StickyNote, BookOpen, Timer } from "lucide-react"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
@@ -39,7 +39,7 @@ const ALL_NAV_ITEMS: {
     postnatal: boolean
 }[] = [
     { label: "ホーム",       href: "/dashboard",   Icon: Home,       color: "text-pink-500",    prenatal: true,  postnatal: true  },
-    { label: "授乳",         href: "/feeding",     Icon: Droplets,   color: "text-pink-500",    prenatal: false, postnatal: true  },
+    { label: "授乳",         href: "/feeding",     Icon: Milk,       color: "text-pink-500",    prenatal: false, postnatal: true  },
     { label: "睡眠",         href: "/sleep",       Icon: Moon,       color: "text-violet-500",  prenatal: false, postnatal: true  },
     { label: "おむつ",       href: "/diaper",      Icon: Baby,       color: "text-amber-500",   prenatal: false, postnatal: true  },
     { label: "成長",         href: "/growth",      Icon: TrendingUp, color: "text-emerald-500", prenatal: false, postnatal: true  },
@@ -55,7 +55,7 @@ const BOTTOM_NAV_ITEMS: {
     color: string
 }[] = [
     { label: "ホーム",   href: "/dashboard", Icon: Home,       color: "text-pink-500" },
-    { label: "授乳",     href: "/feeding",   Icon: Droplets,   color: "text-pink-500" },
+    { label: "授乳",     href: "/feeding",   Icon: Milk,       color: "text-pink-500" },
     { label: "睡眠",     href: "/sleep",     Icon: Moon,       color: "text-violet-500" },
     { label: "おむつ",   href: "/diaper",    Icon: Baby,       color: "text-amber-500" },
     { label: "成長",     href: "/growth",    Icon: TrendingUp, color: "text-emerald-500" },
