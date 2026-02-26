@@ -283,15 +283,47 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 
 ### 3.4 ウィジェット内クイックボタン（ダッシュボード）
 
+ダッシュボードの各ウィジェット内で使用するアクションボタン。`WidgetQuickButton` コンポーネントとして実装されている。
+
 ```tsx
-// 現状の実装（すでに統一されているため基本的に変更なし）
-<Button
-  variant="outline"
-  size="sm"
-  className="flex-1 bg-{category}-50 text-{category}-600 hover:bg-{category}-100 border-0 text-xs h-8 rounded-lg"
+// frontend/components/dashboard/WidgetQuickButton.tsx
+interface WidgetQuickButtonProps extends ButtonProps {
+    color: "rose" | "amber" | "indigo";
+    isActive?: boolean;
+    hideContentOnLoading?: boolean; // ローディング時のレイアウトシフト防止
+}
+
+<WidgetQuickButton
+  color="rose"
+  onClick={handleClick}
+  loading={isLoading}
+  hideContentOnLoading={true}
 >
-  ボタンラベル
-</Button>
+  <Icon className="mr-2 h-4 w-4" />
+  アクション
+</WidgetQuickButton>
+```
+
+**特徴・ルール**:
+1.  **カラーバリアント**: `color` プロップ (`rose`, `amber`, `indigo`) により、背景色とテキスト色が自動的に決定される。
+2.  **アクティブ状態**: `isActive` プロップにより、選択状態（濃い背景色 + 白文字）のスタイルが適用される。
+3.  **ローディング時の挙動 (`hideContentOnLoading`)**:
+    - `true` に設定すると、`loading` 状態のときにボタン内のコンテンツ（テキストやアイコン）を非表示 (`opacity-0`) にし、中央にスピナーを表示する。
+    - これにより、ローディングスピナーが追加されることによるボタン幅の変化（レイアウトシフト）を防ぐことができる。
+    - ダッシュボードのウィジェットなど、スペースが限られている場所で特に有効。
+
+```tsx
+// スタイル定義 (cva)
+const widgetQuickButtonVariants = cva(
+    "border-0 text-xs h-8 transition-colors",
+    {
+        variants: {
+            color: { rose: "", amber: "", indigo: "" },
+            isActive: { true: "", false: "" },
+        },
+        // ... compoundVariants
+    }
+)
 ```
 
 ### 3.5 タイマー・トグルボタン（大型フルWidth）
