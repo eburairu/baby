@@ -1,13 +1,14 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/api';
-import type { ContractionRecord } from '@/types/contraction';
-import type { Diaper } from '@/types/diaper';
-import type { Sleep } from '@/types/sleep';
-import type { Growth } from '@/types/growth';
 import type { Baby } from '@/types/baby';
 import { Family, FamilyMember } from "@/types/family";
 import { BabyRecord } from "@/types/record";
-import { useBabyResource } from "@/hooks/useBabyResource";
+
+// Re-export hooks from their new locations for backward compatibility
+export { useContractions } from '@/hooks/useContraction';
+export { useSleeps } from '@/hooks/useSleep';
+export { useDiapers } from '@/hooks/useDiaper';
+export { useGrowths } from '@/hooks/useGrowth';
 
 export function useFamilySettings() {
     const { data, error, isLoading, mutate } = useSWR<Family>('/family/', fetcher);
@@ -55,46 +56,6 @@ export function useRecords(babyId: string | null) {
         records: data,
         isLoading,
         isError: error,
-        mutate,
-    };
-}
-
-export function useContractions(babyId: string | number | null) {
-    const { data, isLoading, isError, mutate } = useBabyResource<ContractionRecord>('contractions', babyId);
-    return {
-        contractions: data,
-        isLoading,
-        isError,
-        mutate,
-    };
-}
-
-export function useSleeps(babyId: string | number | null) {
-    const { data, isLoading, isError, mutate } = useBabyResource<Sleep>('sleeps', babyId);
-    return {
-        sleeps: data,
-        isLoading,
-        isError,
-        mutate,
-    };
-}
-
-export function useDiapers(babyId: string | number | null) {
-    const { data, isLoading, isError, mutate } = useBabyResource<Diaper>('diapers', babyId);
-    return {
-        diapers: data,
-        isLoading,
-        isError,
-        mutate,
-    };
-}
-
-export function useGrowths(babyId: string | number | null) {
-    const { data, isLoading, isError, mutate } = useBabyResource<Growth>('growths', babyId);
-    return {
-        growths: data,
-        isLoading,
-        isError,
         mutate,
     };
 }
