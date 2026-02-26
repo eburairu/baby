@@ -2,7 +2,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
 
-interface UseBaseRecordFormOptions<T> {
+interface UseBaseRecordFormOptions<_T> {
     endpoint: string
     babyId: string | number
     onSuccess?: (data?: unknown) => void
@@ -20,9 +20,10 @@ export function useBaseRecordForm<T>({
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const submitRecord = async (
+    const submitRecord = async <TPayload = unknown, TResult = unknown>(
         values: T,
-        payloadFormatter?: (values: T, basePayload: Record<string, unknown>) => unknown
+        payloadFormatter?: (values: T, basePayload: Record<string, unknown>) => TPayload,
+        customSubmitter?: (payload: TPayload) => Promise<TResult>
     ) => {
         setIsSubmitting(true)
         setError(null)
@@ -32,9 +33,16 @@ export function useBaseRecordForm<T>({
                 baby_id: Number(babyId),
             }
 
-            const payload = payloadFormatter ? payloadFormatter(values, basePayload) : basePayload
+            const payload = payloadFormatter 
+                ? payloadFormatter(values, basePayload) 
+                : (basePayload as unknown as TPayload)
 
-            const data = await api.post(endpoint, payload)
+            let data: TResult;
+            if (customSubmitter) {
+                data = await customSubmitter(payload)
+            } else {
+                data = await api.post(endpoint, payload) as unknown as TResult
+            }
 
             if (successMessage) {
                 toast.success(successMessage)

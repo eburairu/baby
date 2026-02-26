@@ -1,6 +1,5 @@
 "use client"
 
-import { FEEDING_COMPLETIONS } from "@/constants/feeding"
 import { useState, useEffect, useCallback } from "react"
 import { useFeedingTimer } from "@/hooks/useFeedingTimer"
 import { useForm } from "react-hook-form"
@@ -8,10 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
 import { format } from "date-fns"
 import { Save, Heart, Milk } from "lucide-react"
-import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
-import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { UI_BUTTONS } from "@/constants/ui-colors"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -35,7 +33,7 @@ import { FeedingCompletionSelector } from "./FeedingCompletionSelector"
 
 interface FeedingFormProps {
     babyId: number
-    onAdd?: (data: FeedingCreate) => Promise<void>
+    onAdd?: (data: FeedingCreate) => Promise<Feeding | undefined>
     onUpdate?: (id: number, data: FeedingUpdate) => Promise<Feeding | undefined>
     initialData?: Feeding
     onSuccess?: () => void
@@ -123,41 +121,36 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     })
 
     const onSubmit = useCallback(async (values: FeedingFormValues) => {
-        // If custom handlers are provided, we use them instead of submitRecord default
-        // However, we still want to reuse the payload building logic
-
-        // Note: We are using useBaseRecordForm mainly for state management here if we use onAdd/onUpdate
-        // But submitRecord automatically calls the API.
-        // To avoid double submission or conflict, we only use submitRecord if onAdd/onUpdate are NOT provided?
-        // Actually, for this refactor, we are simplifying by accepting that we might need to duplicate some logic
-        // OR we just use submitRecord for the "Create" case if onAdd is not provided (which is rare).
-        //
-        // Let's respect the existing props.
         try {
-           // We'll manually manage the submission process using the injected handlers if present
-           // This keeps the "useBaseRecordForm" primarily for the shared "success" logic if we could hook into it,
-           // but since we can't easily, we'll just fall back to manual handling for the custom props cases
-           // and use submitRecord ONLY if we want default behavior (which is just POST).
-
-           // BUT, to clean up this file, let's just use the manual logic we had, but simplified.
-           // Wait, I already introduced useBaseRecordForm above.
-           // I will use `submitRecord` for the standard creation case, and manual for Update.
-
             if (isEditing && initialData && onUpdate) {
-                const data = buildFeedingPayload({
-                    babyId,
+                // Update case
+                await submitRecord(
                     values,
-                    activeTab,
-                    feedingCompletion,
-                    bottleContentType
-                })
-                await onUpdate(initialData.id, data)
-                toast.success("更新しました")
-                if (onSuccess) onSuccess()
+                    (vals) => buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType
+                    }),
+                    (payload) => onUpdate(initialData.id, payload)
+                )
+            } else if (onAdd) {
+                // Create case with custom onAdd (needed for triggerFeedback etc)
+                await submitRecord(
+                    values,
+                    (vals) => buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType
+                    }),
+                    onAdd
+                )
             } else {
-                // Create case
-                // We use submitRecord.
-                await submitRecord(values, (vals, base) => {
+                // Default create case (standard POST)
+                await submitRecord(values, (vals) => {
                     return buildFeedingPayload({
                         babyId,
                         values: vals,
@@ -166,13 +159,12 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         bottleContentType
                     })
                 })
-           }
-
+            }
         } catch (error) {
             console.error(error)
-            toast.error("保存に失敗しました")
+            // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onUpdate, isEditing, initialData, submitRecord, onSuccess])
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
