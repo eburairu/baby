@@ -30,7 +30,7 @@ class Feeding(Base):
     __tablename__ = "feedings"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     feeding_time = Column(DateTime, nullable=False, index=True)
     feeding_type = Column(Enum(FeedingType, name="feedingtype"), nullable=False)
     amount_ml = Column(Float, nullable=True)
