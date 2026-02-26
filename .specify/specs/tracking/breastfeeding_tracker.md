@@ -125,7 +125,9 @@ class FeedingCompletion(str, Enum):
 
 ### エンドポイント
 
-- `GET /api/feedings/?baby_id={id}`: 授乳記録一覧取得
+- `GET /api/feedings/`: 授乳記録一覧取得
+    - **クエリパラメータ**: `baby_id` (必須)
+    - **レスポンス**: `FeedingResponse` のリスト。各レコードには記録者の表示名 (`recorded_by_display_name`) とコメント数 (`comment_count`) が含まれる。
 - `POST /api/feedings/`: 新規作成
     - **通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Push/In-App）が送信される。
 - `PATCH /api/feedings/{id}`: 更新
@@ -170,14 +172,14 @@ interface FeedingResponse {
   bottle_content_type: "FORMULA" | "EXPRESSED_MILK" | "MIXED" | null
   feeding_completion: "FULL" | "PARTIAL" | null
   notes: string | null
-  recorded_by_display_name: string | null
+  recorded_by_display_name: string | null // 記録者の表示名
   comment_count: number // コメント数
 }
 ```
 
 ## UI コンポーネント構成
 
-- `FeedingPage` (`app/(dashboard)/feeding/page.tsx`): ページラッパー
+- `FeedingPage` (`frontend/app/(dashboard)/feeding/page.tsx`): ページラッパー
 - `FeedingWidget` (`frontend/components/dashboard/FeedingWidget.tsx`): ダッシュボード用ウィジェット
 - `FeedingForm` (`frontend/components/feeding/feeding-form.tsx`): 入力フォーム（作成・編集兼用）
     - 左右独立タイマー制御ロジックを内包

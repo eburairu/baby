@@ -30,8 +30,8 @@ export function LandingFeatures() {
         <section id="features" className="px-4 py-24 bg-white dark:bg-zinc-950 transition-colors duration-300">
             <div className="max-w-7xl mx-auto space-y-16">
                 <div className="text-center space-y-4">
-                    <h2 className="text-3xl font-bold tracking-tight">3つの特徴</h2>
-                    <p className="text-slate-500 dark:text-slate-400">毎日の育児をもっと楽しく、もっと楽に。</p>
+                    <h2 className="text-3xl font-bold tracking-tight">Botoroが選ばれる<span className="text-indigo-600">3つの理由</span></h2>
+                    <p className="text-slate-500 dark:text-slate-400">ただの記録アプリではありません。家族の連携を深め、毎日の育児をサポートします。</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
                     {FEATURES.map((feature, i) => (
