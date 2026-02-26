@@ -22,13 +22,12 @@ export default function AISettingsPage() {
   const { user, isLoading: isUserLoading } = useUser()
   const { data, isLoading, isError, mutate } = useAISettings()
   const { isAdmin, isLoading: isPermsLoading } = usePermissions()
-  const { babies, isLoading: isBabiesLoading } = useSelectedBaby()
+  const { selectedBaby, isLoading: isBabiesLoading } = useSelectedBaby()
   
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [isSaving, setIsSaving] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
 
-  const selectedBaby = babies?.[0] // Simplified for settings check
   const born = selectedBaby ? isBorn(selectedBaby.birthday) : false
 
   // 初期データのセット
