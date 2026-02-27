@@ -1,4 +1,5 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '') + '/api';
+import * as Sentry from "@sentry/nextjs";
 
 export class ApiError extends Error {
     info: unknown;
@@ -56,9 +57,11 @@ async function request<T>(
     });
 
     if (!res.ok) {
+        const errorBody = await parseErrorBody(res);
+        Sentry.logger.error("API request failed", { url, status: res.status, body: errorBody });
         throw new ApiError(
             errorMessage,
-            await parseErrorBody(res),
+            errorBody,
             res.status
         );
     }
