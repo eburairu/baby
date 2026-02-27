@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { cn } from "@/lib/utils"
-import { Sleep, SleepCreate } from "@/types/sleep"
+import { Sleep, SleepCreate, SleepUpdate } from "@/types/sleep"
 import { UI_BUTTONS } from "@/constants/ui-colors"
 import { sleepSchema, SleepFormValues } from "@/schemas/sleep"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
@@ -60,8 +60,13 @@ export function SleepForm({ babyId, initialData, onSuccess }: SleepFormProps) {
             }
             return payload
         },
-        isEditing && initialData ? async (payload) => {
-            return await api.patch(`/sleeps/${initialData.id}`, payload)
+        initialData ? async (payload) => {
+            // payload is TPayload (inferred as SleepCreate).
+            // SleepCreate has start_time, notes, end_time (optional), baby_id.
+            // SleepUpdate has start_time (optional), notes (optional), end_time (optional).
+            // We can safely cast payload to SleepUpdate for the API call, ignoring baby_id.
+            const updatePayload = payload as unknown as SleepUpdate;
+            return await api.patch<Sleep>(`/sleeps/${initialData.id}`, updatePayload)
         } : undefined)
     }
 
