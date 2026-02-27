@@ -16,6 +16,7 @@ from app.models.family import Family, FamilyUser, UserRole
 from app.services.auth import verify_password, get_password_hash
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
+from app.utils.audit import log_event
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -46,7 +47,7 @@ def _create_session(db: Session, user_id: int) -> str:
         expires_at=datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS),
     )
     db.add(session)
-    db.commit()
+    db.flush()  # Use flush instead of commit to join caller's transaction
     return token
 
 
@@ -65,6 +66,15 @@ def change_password(
         UserSession.user_id == current_user.id,
         UserSession.token != current_token,
     ).delete()
+    
+    log_event(
+        db, 
+        "PASSWORD_CHANGE", 
+        user_id=current_user.id, 
+        ip_address=request.client.host if request.client else None,
+        commit=False
+    )
+    
     db.commit()
 
 
@@ -91,7 +101,12 @@ def update_profile(
     response_model=FamilyResponse,
     dependencies=[Depends(register_limiter)],
 )
-def register_family(family_in: FamilyCreate, response: Response, db: Session = Depends(get_db)):
+def register_family(
+    family_in: FamilyCreate,
+    response: Response,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -117,8 +132,7 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
 
     family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
     db.add(family_user)
-    db.commit()
-    db.refresh(new_family)
+    db.flush() # Ensure ids are assigned but not committed yet
 
     token = _create_session(db, new_user.id)
     response.set_cookie(
@@ -130,6 +144,18 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
         path="/",
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
+    
+    log_event(
+        db,
+        "REGISTER_FAMILY",
+        user_id=new_user.id,
+        details={"family_id": new_family.id, "family_name": new_family.name},
+        ip_address=request.client.host if request.client else None,
+        commit=False # Part of the same transaction
+    )
+    
+    db.commit() # FINAL ATOMIC COMMIT
+    db.refresh(new_family)
     return new_family
 
 
@@ -138,7 +164,13 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     response_model=UserResponse,
     dependencies=[Depends(register_limiter)],
 )
-def join_family(user_in: UserCreate, invite_code: str, response: Response, db: Session = Depends(get_db)):
+def join_family(
+    user_in: UserCreate, 
+    invite_code: str, 
+    response: Response, 
+    request: Request,
+    db: Session = Depends(get_db)
+):
     existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -162,8 +194,7 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
 
     family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
     db.add(family_user)
-    db.commit()
-    db.refresh(new_user)
+    db.flush()
 
     token = _create_session(db, new_user.id)
     response.set_cookie(
@@ -175,6 +206,18 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
         path="/",
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
+
+    log_event(
+        db,
+        "JOIN_FAMILY",
+        user_id=new_user.id,
+        details={"family_id": family.id, "family_name": family.name},
+        ip_address=request.client.host if request.client else None,
+        commit=False # Part of the same transaction
+    )
+    
+    db.commit() # FINAL ATOMIC COMMIT
+    db.refresh(new_user)
     
     return UserResponse(
         id=new_user.id,
@@ -187,7 +230,12 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
 
 
 @router.post("/login", response_model=UserResponse, dependencies=[Depends(login_limiter)])
-def login(login_request: LoginRequest, response: Response, db: Session = Depends(get_db)):
+def login(
+    login_request: LoginRequest,
+    response: Response,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     user = db.query(User).filter(func.lower(User.username) == login_request.username.lower()).first()
 
     # Timing Attack Mitigation:
@@ -213,6 +261,16 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
     
+    log_event(
+        db,
+        "LOGIN",
+        user_id=user.id,
+        ip_address=request.client.host if request.client else None,
+        commit=False # Part of the same transaction
+    )
+    
+    db.commit() # FINAL ATOMIC COMMIT
+    
     return UserResponse(
         id=user.id,
         username=user.username,
@@ -227,8 +285,19 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
 def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     token = request.cookies.get("access_token")
     if token:
-        db.query(UserSession).filter(UserSession.token == token).delete()
-        db.commit()
+        session = db.query(UserSession).filter(UserSession.token == token).first()
+        if session:
+            # Note: log_event with commit=False ensures this and the deletion 
+            # are committed in the same transaction.
+            log_event(
+                db, 
+                "LOGOUT", 
+                user_id=session.user_id, 
+                ip_address=request.client.host if request.client else None,
+                commit=False
+            )
+            db.delete(session)
+            db.commit()
     response.delete_cookie("access_token")
     return {"message": "Logged out"}
 

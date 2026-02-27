@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Audit Logs */
+        get: operations["get_audit_logs_api_admin_audit_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/families": {
         parameters: {
             query?: never;
@@ -1174,6 +1191,26 @@ export interface components {
             /** Url */
             url?: string | null;
         };
+        /** AuditLogResponse */
+        AuditLogResponse: {
+            /** Action */
+            action: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Details */
+            details: string | null;
+            /** Id */
+            id: number;
+            /** Ip Address */
+            ip_address: string | null;
+            /** User Id */
+            user_id: number | null;
+            /** Username */
+            username: string | null;
+        };
         /** BabyAdminResponse */
         BabyAdminResponse: {
             /** Birthday */
@@ -2251,6 +2288,38 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_audit_logs_api_admin_audit_logs_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_admin_families_api_admin_families_get: {
         parameters: {
             query?: {
