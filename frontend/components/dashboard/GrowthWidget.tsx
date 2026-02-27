@@ -11,11 +11,6 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
     const growthRecords = records?.filter(r => r.type === 'growth') ?? []
     const latest = growthRecords[0] ?? null
 
-    const measureDate = latest?.timestamp
-        ? new Date(latest.timestamp).toLocaleDateString("ja-JP", { month: "n", day: "j" }).replace('n', (new Date(latest.timestamp).getMonth() + 1).toString()).replace('j', new Date(latest.timestamp).getDate().toString())
-        : null
-    
-    // JSのtoLocaleDateStringは環境に依存するため、シンプルに構成
     const dateStr = latest?.timestamp 
         ? `${new Date(latest.timestamp).getMonth() + 1}/${new Date(latest.timestamp).getDate()}`
         : null
