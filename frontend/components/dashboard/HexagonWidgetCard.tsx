@@ -5,11 +5,15 @@ import { Hexagon } from "@/components/ui/hexagon"
 import { cn } from "@/lib/utils"
 import { ShieldOff, Loader2 } from "lucide-react"
 
+interface ErrorWithStatus {
+    status?: number;
+}
+
 interface HexagonWidgetCardProps {
     title: string
     icon?: React.ReactNode
     children?: React.ReactNode
-    isError?: any
+    isError?: boolean | ErrorWithStatus | null
     isLoading?: boolean
     className?: string
     size?: number
@@ -28,7 +32,7 @@ export const HexagonWidgetCard = ({
     size = 160
 }: HexagonWidgetCardProps) => {
     // 403 (Forbidden) のチェック
-    const isForbidden = isError && typeof isError === 'object' && 'status' in isError && isError.status === 403;
+    const isForbidden = isError && typeof isError === 'object' && 'status' in isError && (isError as ErrorWithStatus).status === 403;
 
     return (
         <div className={cn("relative transition-all duration-300 hover:-translate-y-1", className)}>
