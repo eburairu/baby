@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Hexagon, HEX_CONSTANTS } from "./hexagon"
 import { cn } from "@/lib/utils"
-import { Loader2 } from "lucide-react"
+import { BabyBottleLoading } from "./baby-bottle-loading"
 import { HEXAGON_BUTTON_THEMES } from "@/constants/ui-colors"
 
 /**
@@ -79,7 +79,7 @@ export function HexagonButton({
             </div>
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <BabyBottleLoading className="h-6 w-6" />
               </div>
             )}
           </div>
