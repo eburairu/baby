@@ -11,44 +11,27 @@ import { HistoryCard } from "@/components/records/HistoryCard"
 import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { useRecordComments } from "@/hooks/useRecordComments"
-
-
+import { DIAPER_STYLES, DIAPER_UNKNOWN_STYLE } from "@/constants/diaper"
 
 const getStyles = (type: DiaperType) => {
+    const style = DIAPER_STYLES[type] || DIAPER_UNKNOWN_STYLE;
+
+    let icon;
     switch (type) {
         case DiaperType.WET:
-            return {
-                bg: "bg-blue-50 dark:bg-blue-950/30",
-                border: "border-blue-100 dark:border-blue-900/50",
-                text: "text-blue-700 dark:text-blue-400",
-                icon: <Droplets className="w-6 h-6" />,
-                label: "おしっこ"
-            }
+            icon = <Droplets className="w-6 h-6" />;
+            break;
         case DiaperType.DIRTY:
-            return {
-                bg: "bg-amber-50 dark:bg-amber-950/30",
-                border: "border-amber-100 dark:border-amber-900/50",
-                text: "text-amber-700 dark:text-amber-400",
-                icon: <Biohazard className="w-6 h-6" />,
-                label: "うんち"
-            }
+            icon = <Biohazard className="w-6 h-6" />;
+            break;
         case DiaperType.BOTH:
-            return {
-                bg: "bg-purple-50 dark:bg-purple-950/30",
-                border: "border-purple-100 dark:border-purple-900/50",
-                text: "text-purple-700 dark:text-purple-400",
-                icon: <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>,
-                label: "両方"
-            }
+            icon = <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>;
+            break;
         default:
-            return {
-                bg: "bg-gray-50 dark:bg-zinc-800/50",
-                border: "border-gray-100 dark:border-zinc-700",
-                text: "text-gray-700 dark:text-zinc-400",
-                icon: "?",
-                label: "不明"
-            }
+            icon = "?";
     }
+
+    return { ...style, icon };
 }
 
 interface Props {
