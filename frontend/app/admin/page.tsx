@@ -8,9 +8,20 @@ import {
   Activity, 
   Database,
   TrendingUp,
-  FileText
+  FileText,
+  ShieldAlert,
+  Clock
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 interface AdminStats {
   total_users: number;
@@ -19,8 +30,21 @@ interface AdminStats {
   active_users_last_24h: number;
 }
 
+interface AuditLog {
+  id: number;
+  user_id: number | null;
+  username: string | null;
+  action: string;
+  details: string | null;
+  ip_address: string | null;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
-  const { data: stats, isLoading } = useSWR<AdminStats>("/admin/stats", fetcher);
+  const { data: stats, isLoading: isStatsLoading } = useSWR<AdminStats>("/admin/stats", fetcher);
+  const { data: logs, isLoading: isLogsLoading } = useSWR<AuditLog[]>("/admin/audit-logs", fetcher);
+
+  const isLoading = isStatsLoading || isLogsLoading;
 
   if (isLoading) {
     return (
@@ -150,8 +174,88 @@ export default function AdminDashboard() {
                </span>
              </div>
           </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
+                </Card>
+              </div>
+        
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                        <ShieldAlert className="h-5 w-5 text-rose-500" />
+                        システム監査ログ
+                      </CardTitle>
+                      <CardDescription>
+                        ユーザーの認証状況や管理操作の履歴を確認できます。
+                      </CardDescription>
+                    </div>
+                    <Badge variant="outline" className="text-xs">最新 100 件</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-md border overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead className="w-[180px]">日時</TableHead>
+                          <TableHead className="w-[120px]">ユーザー</TableHead>
+                          <TableHead className="w-[150px]">アクション</TableHead>
+                          <TableHead>詳細</TableHead>
+                          <TableHead className="w-[120px] text-right">IP アドレス</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {logs && logs.length > 0 ? (
+                          logs.map((log) => (
+                            <TableRow key={log.id} className="hover:bg-muted/50 transition-colors">
+                              <TableCell className="font-medium text-xs md:text-sm text-muted-foreground whitespace-nowrap">
+                                <div className="flex items-center gap-1.5">
+                                  <Clock className="h-3 w-3" />
+                                  {new Date(log.created_at).toLocaleString("ja-JP", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit"
+                                  })}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-xs md:text-sm font-semibold">
+                                {log.username || <span className="text-muted-foreground italic">System</span>}
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant={
+                                    log.action === "LOGIN" ? "secondary" : 
+                                    log.action === "SUPERADMIN_STATUS_CHANGE" ? "destructive" : 
+                                    "outline"
+                                  }
+                                  className="text-[10px] md:text-xs font-bold"
+                                >
+                                  {log.action}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-xs md:text-sm max-w-[300px] truncate" title={log.details || ""}>
+                                {log.details || "-"}
+                              </TableCell>
+                              <TableCell className="text-right text-[10px] md:text-xs text-muted-foreground font-mono">
+                                {log.ip_address || "unknown"}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                              ログがありません
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        }
+        
