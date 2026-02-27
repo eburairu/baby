@@ -8,7 +8,7 @@ interface HoneycombGridProps {
   size: number        // 1つの六角形の基準サイズ (高さ = cellRadius * 2)
   gap?: number        // 六角形同士の隙間 (cellSpacing)
   className?: string
-  rows?: number[][]   // 各行に何個のアイテムを配置するか [[0,1,2], [3,4], [5,6,7]] のようにインデックスで指定
+  rows?: (number | null)[][]   // 各行のアイテム配置。null は空セル（スペーサー）
 }
 
 /**
@@ -65,7 +65,22 @@ export function HoneycombGrid({
               marginTop: rowIndex === 0 ? 0 : -(hexHeight / 4) + verticalSpacing,
             }}
           >
-            {rowItems.map((childIndex) => {
+            {rowItems.map((childIndex, itemIndex) => {
+              // null は空セル（スペーサー）として幅を確保する
+              if (childIndex === null) {
+                return (
+                  <div
+                    key={`spacer-${rowIndex}-${itemIndex}`}
+                    style={{
+                      width: hexWidth,
+                      height: hexHeight,
+                      marginLeft: gap / 2,
+                      marginRight: gap / 2,
+                    }}
+                  />
+                );
+              }
+
               const child = childrenArray[childIndex];
               if (!child) return null;
 
