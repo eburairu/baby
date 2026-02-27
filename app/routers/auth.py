@@ -47,7 +47,7 @@ def _create_session(db: Session, user_id: int) -> str:
         expires_at=datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS),
     )
     db.add(session)
-    db.commit()
+    db.flush()  # Use flush instead of commit to join caller's transaction
     return token
 
 
@@ -132,8 +132,7 @@ def register_family(
 
     family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
     db.add(family_user)
-    db.commit()
-    db.refresh(new_family)
+    db.flush() # Ensure ids are assigned but not committed yet
 
     token = _create_session(db, new_user.id)
     response.set_cookie(
@@ -145,13 +144,18 @@ def register_family(
         path="/",
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
+    
     log_event(
         db,
         "REGISTER_FAMILY",
         user_id=new_user.id,
         details={"family_id": new_family.id, "family_name": new_family.name},
-        ip_address=request.client.host if request.client else None
+        ip_address=request.client.host if request.client else None,
+        commit=False # Part of the same transaction
     )
+    
+    db.commit() # FINAL ATOMIC COMMIT
+    db.refresh(new_family)
     return new_family
 
 
@@ -190,8 +194,7 @@ def join_family(
 
     family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
     db.add(family_user)
-    db.commit()
-    db.refresh(new_user)
+    db.flush()
 
     token = _create_session(db, new_user.id)
     response.set_cookie(
@@ -209,8 +212,12 @@ def join_family(
         "JOIN_FAMILY",
         user_id=new_user.id,
         details={"family_id": family.id, "family_name": family.name},
-        ip_address=request.client.host if request.client else None
+        ip_address=request.client.host if request.client else None,
+        commit=False # Part of the same transaction
     )
+    
+    db.commit() # FINAL ATOMIC COMMIT
+    db.refresh(new_user)
     
     return UserResponse(
         id=new_user.id,
@@ -258,8 +265,11 @@ def login(
         db,
         "LOGIN",
         user_id=user.id,
-        ip_address=request.client.host if request.client else None
+        ip_address=request.client.host if request.client else None,
+        commit=False # Part of the same transaction
     )
+    
+    db.commit() # FINAL ATOMIC COMMIT
     
     return UserResponse(
         id=user.id,
