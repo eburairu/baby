@@ -87,16 +87,16 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
                     const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
                     const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
 
-                    if (color || amount) {
+                    // 編集モードでない場合のみ、色と量の情報をメモの先頭に自動付与する
+                    // 編集時はユーザーの手動編集を優先し、自動追記による重複や混乱を防ぐ
+                    if (!initialData && (color || amount)) {
                         const prefixParts = []
                         if (color) prefixParts.push(`色: ${color}`)
                         if (amount) prefixParts.push(`量: ${amount}`)
                         const prefix = prefixParts.join("、")
-                        // 既存のメモに重複して追加しないようにする（編集時の簡易対策）
-                        if (!initialData || !initialData.notes?.includes(prefix)) {
-                             // Note: This logic is slightly simplistic for editing, but acceptable for now.
-                             // Ideally we should parse existing notes or store structured data.
-                             finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+
+                        if (prefix) {
+                            finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
                         }
                     }
                 }
