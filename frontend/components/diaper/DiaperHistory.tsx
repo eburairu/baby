@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react"
 import { Diaper, DiaperType } from "@/types/diaper"
-import { Droplets, Biohazard } from "lucide-react"
 import { RecordMetaItems } from "@/components/records/RecordMetaItems"
 import { formatDateTime } from "@/lib/dateUtils"
 import { api } from "@/lib/api"
@@ -12,26 +11,10 @@ import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { useRecordComments } from "@/hooks/useRecordComments"
 import { DIAPER_STYLES, DIAPER_UNKNOWN_STYLE } from "@/constants/diaper"
+import { DiaperIcon } from "./DiaperIcon"
 
 const getStyles = (type: DiaperType) => {
-    const style = DIAPER_STYLES[type] || DIAPER_UNKNOWN_STYLE;
-
-    let icon;
-    switch (type) {
-        case DiaperType.WET:
-            icon = <Droplets className="w-6 h-6" />;
-            break;
-        case DiaperType.DIRTY:
-            icon = <Biohazard className="w-6 h-6" />;
-            break;
-        case DiaperType.BOTH:
-            icon = <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>;
-            break;
-        default:
-            icon = "?";
-    }
-
-    return { ...style, icon };
+    return DIAPER_STYLES[type] || DIAPER_UNKNOWN_STYLE;
 }
 
 interface Props {
@@ -80,7 +63,7 @@ export function DiaperHistory({ diapers, onDeleteSuccess, canWrite = true, initi
                         <RecordListItem
                             key={diaper.id}
                             className={`${style.bg} ${style.border}`}
-                            icon={style.icon}
+                            icon={<DiaperIcon type={diaper.diaper_type} />}
                             actions={
                                 <RecordActionButtons
                                     canWrite={canWrite}
