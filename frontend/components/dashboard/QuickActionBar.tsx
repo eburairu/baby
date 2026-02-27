@@ -2,10 +2,11 @@
 import { RECORD_TYPES } from '@/types/enums';
 
 import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { api } from "@/lib/api"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { BabyRecord } from "@/types/record"
-import { Moon, Bed, StickyNote, Milk, Baby, Biohazard } from "lucide-react"
+import { Moon, Bed, StickyNote, Milk, Baby, Biohazard, HandHeart, Ruler, BookOpen } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
+    const router = useRouter()
     const { canWrite, executeRecord } = useQuickRecord(babyId, { onSuccess: mutateRecords })
     const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const [noteDialogOpen, setNoteDialogOpen] = useState(false)
@@ -30,7 +32,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
 
     const handleQuickRecord = async (type: "feeding_bottle" | "feeding_breast" | "sleep" | "diaper_wet" | "diaper_dirty") => {
         setLoadingAction(type)
-        
+
         const actionMap = {
             "feeding_bottle": async () => api.post<{ id: number }>("/feedings/", {
                 baby_id: Number(babyId),
@@ -77,56 +79,98 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         setLoadingAction(null)
     }
 
+    const isLoading = loadingAction !== null
+
     return (
-        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[320px]">
+        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[340px]">
             <div className="pointer-events-auto">
-                <HoneycombGrid 
-                  size={64} 
-                  gap={4}
-                  rows={[
-                    [0, 1, 2], // ミルク, 睡眠, メモ
-                    [3, 4]     // おしっこ, うんち
-                  ]}
+                {/* 3-2-3 ハニカム配置 */}
+                <HoneycombGrid
+                    size={58}
+                    gap={4}
+                    rows={[
+                        [0, 1, 2], // 上段: ミルク, 睡眠, 母乳
+                        [3, 4],    // 中段: おしっこ, うんち
+                        [5, 6, 7]  // 下段: メモ, 成長, 日誌
+                    ]}
                 >
+                    {/* 上段: ミルク */}
                     <HexagonButton
                         variant="rose"
-                        icon={<Milk className="h-6 w-6" />}
-                        size={64}
+                        icon={<Milk className="h-5 w-5" />}
+                        size={58}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
+                        disabled={isLoading}
                         aria-label="ミルクを記録"
                     />
+                    {/* 上段: 睡眠（中央・メイン） */}
                     <HexagonButton
                         variant="indigo"
                         icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-                        size={68} // 睡眠ボタンを少しだけ大きく
+                        size={62}
                         active={!!activeSleep}
                         onClick={() => handleQuickRecord("sleep")}
                         loading={loadingAction === "sleep"}
+                        disabled={isLoading}
                         aria-label={activeSleep ? "睡眠終了を記録" : "睡眠開始を記録"}
                     />
+                    {/* 上段: 母乳 */}
                     <HexagonButton
-                        variant="amber"
-                        icon={<StickyNote className="h-6 w-6" />}
-                        size={64}
-                        onClick={() => setNoteDialogOpen(true)}
-                        aria-label="メモを追加"
+                        variant="rose"
+                        icon={<HandHeart className="h-5 w-5" />}
+                        size={58}
+                        onClick={() => handleQuickRecord("feeding_breast")}
+                        loading={loadingAction === "feeding_breast"}
+                        disabled={isLoading}
+                        aria-label="母乳を記録"
                     />
+                    {/* 中段: おしっこ */}
                     <HexagonButton
                         variant="amber"
-                        icon={<Baby className="h-6 w-6" />}
-                        size={64}
+                        icon={<Baby className="h-5 w-5" />}
+                        size={58}
                         onClick={() => handleQuickRecord("diaper_wet")}
                         loading={loadingAction === "diaper_wet"}
+                        disabled={isLoading}
                         aria-label="おしっこを記録"
                     />
+                    {/* 中段: うんち */}
                     <HexagonButton
                         variant="amber"
-                        icon={<Biohazard className="h-6 w-6" />}
-                        size={64}
+                        icon={<Biohazard className="h-5 w-5" />}
+                        size={58}
                         onClick={() => handleQuickRecord("diaper_dirty")}
                         loading={loadingAction === "diaper_dirty"}
+                        disabled={isLoading}
                         aria-label="うんちを記録"
+                    />
+                    {/* 下段: メモ */}
+                    <HexagonButton
+                        variant="amber"
+                        icon={<StickyNote className="h-5 w-5" />}
+                        size={58}
+                        onClick={() => setNoteDialogOpen(true)}
+                        disabled={isLoading}
+                        aria-label="メモを追加"
+                    />
+                    {/* 下段: 成長 */}
+                    <HexagonButton
+                        variant="emerald"
+                        icon={<Ruler className="h-5 w-5" />}
+                        size={58}
+                        onClick={() => router.push(`/growth`)}
+                        disabled={isLoading}
+                        aria-label="成長記録ページへ"
+                    />
+                    {/* 下段: 日誌 */}
+                    <HexagonButton
+                        variant="zinc"
+                        icon={<BookOpen className="h-5 w-5" />}
+                        size={58}
+                        onClick={() => router.push(`/diary`)}
+                        disabled={isLoading}
+                        aria-label="日誌ページへ"
                     />
                 </HoneycombGrid>
             </div>
@@ -140,12 +184,12 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         </DialogTitle>
                     </DialogHeader>
                     <div className="p-4">
-                        <NoteForm 
-                            babyId={Number(babyId)} 
+                        <NoteForm
+                            babyId={Number(babyId)}
                             defaultExpanded={true}
                             onAddSuccess={() => {
-                                    setNoteDialogOpen(false)
-                                    if (mutateRecords) mutateRecords()
+                                setNoteDialogOpen(false)
+                                if (mutateRecords) mutateRecords()
                             }}
                         />
                     </div>
