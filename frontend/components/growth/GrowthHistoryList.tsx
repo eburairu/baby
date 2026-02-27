@@ -1,21 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { Edit2, Trash2, MessageCircle, Loader2 } from "lucide-react"
+import { Edit2, Trash2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import type { Growth } from "@/types/growth"
 import { useRecordComments } from "@/hooks/useRecordComments"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
 
 interface GrowthHistoryListProps {
     records: Growth[]
@@ -32,8 +22,13 @@ export function GrowthHistoryList({
     canWrite = true,
     initialCommentRecordId,
 }: GrowthHistoryListProps) {
-    const [deleteId, setDeleteId] = useState<number | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
+    const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
+        onDelete: async (id) => {
+            await api.delete(`/growths/${id}`)
+        },
+        onSuccess: onDeleteSuccess,
+        resourceName: "成長記録"
+    });
 
     const { openComment, CommentDialog } = useRecordComments({
         records: records,
@@ -42,20 +37,6 @@ export function GrowthHistoryList({
         getTitle: (record) => `成長記録 ${record.date}`,
         onCommentChange: onDeleteSuccess
     });
-
-    const handleDelete = async () => {
-        if (!deleteId) return
-        setIsDeleting(true)
-        try {
-            await api.delete(`/growths/${deleteId}`)
-            onDeleteSuccess()
-        } catch (error) {
-            console.error("Failed to delete growth record:", error)
-        } finally {
-            setIsDeleting(false)
-            setDeleteId(null)
-        }
-    }
 
     if (records.length === 0) {
         return (
@@ -121,7 +102,7 @@ export function GrowthHistoryList({
                                                 variant="ghost"
                                                 size="icon-xs"
                                                 className="text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteId(record.id)} aria-label={`${record.date} の成長記録を削除`}
+                                                onClick={() => setDeleteTargetId(record.id)} aria-label={`${record.date} の成長記録を削除`}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -137,27 +118,8 @@ export function GrowthHistoryList({
             {/* コメントダイアログ */}
             <CommentDialog />
 
-            <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle data-sentry-unmask>記録を削除しますか？</AlertDialogTitle>
-                        <AlertDialogDescription data-sentry-unmask>
-                            この操作は取り消せません。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction
-                            data-sentry-unmask className="bg-destructive text-white hover:bg-destructive/90"
-                            onClick={handleDelete}
-                            disabled={isDeleting}
-                        >
-                            {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            削除する
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {/* 削除確認ダイアログ */}
+            <ConfirmDeleteDialog />
         </>
     )
 }
