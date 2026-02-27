@@ -1,7 +1,6 @@
-import { BabyRecord } from "./record";
+import { components } from "./generated/api"
 
-export interface Milestone extends BabyRecord {
-    type: 'note'; // Milestones are stored as notes with specific metadata in this app
-    milestone_id: string;
-    achieved_at: string;
-}
+export type Milestone = components["schemas"]["MilestoneResponse"]
+export type MilestoneCreate = components["schemas"]["MilestoneCreate"]
+export type MilestoneUpdate = components["schemas"]["MilestoneUpdate"]
+export type MilestoneTimelineGroup = components["schemas"]["MilestoneTimelineGroup"]
