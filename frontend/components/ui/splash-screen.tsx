@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BabyBottleLoading } from "./baby-bottle-loading"
 import { useUser } from "@/hooks/useAuth"
-import { cn } from "@/lib/utils"
 
 export function SplashScreen() {
     const { isLoading } = useUser()

@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import useSWR from "swr"
-import { fetcher, api, ApiError } from "@/lib/api"
+import { fetcher, api } from "@/lib/api"
 import { SWR_REFRESH_INTERVAL_MS } from "@/constants"
 
 export type AppNotification = {
@@ -13,7 +13,6 @@ export type AppNotification = {
     created_at: string
 }
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "") + "/api"
 
 export function useUnreadCount() {
     const { data, mutate } = useSWR<{ count: number }>(

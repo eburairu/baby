@@ -17,7 +17,6 @@ import { RecordPageLayout } from "@/components/ui/record-page-layout"
 export default function SleepPage() {
     const {
         babyId,
-        babies,
         isLoading: babiesLoading,
         canWrite,
         commentRecordId,

@@ -74,7 +74,7 @@ export function MilestoneForm({
             notes: "",
             image_urls: [],
         }
-    }, [record, isOpen])
+    }, [record])
 
     const form = useForm<MilestoneFormValues>({
         resolver: zodResolver(milestoneSchema),

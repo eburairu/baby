@@ -169,7 +169,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
             console.error(error)
             // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
+    }, [activeTab, babyId, bottleContentType, burped, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
