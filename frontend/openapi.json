@@ -1421,6 +1421,17 @@
               }
             ]
           },
+          "burped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burped"
+          },
           "duration_minutes": {
             "anyOf": [
               {
@@ -1537,6 +1548,17 @@
                 "type": "null"
               }
             ]
+          },
+          "burped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burped"
           },
           "comment_count": {
             "default": 0,
@@ -1685,6 +1707,17 @@
                 "type": "null"
               }
             ]
+          },
+          "burped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burped"
           },
           "duration_minutes": {
             "anyOf": [

@@ -24,6 +24,8 @@ class FeedingCreate(BaseModel):
     # Phase 2
     bottle_content_type: Optional[BottleContentType] = None
     feeding_completion: Optional[FeedingCompletion] = None
+    # Phase 3: ゲップの有無
+    burped: Optional[bool] = None
 
     @model_validator(mode="after")
     def auto_calc_duration(self) -> "FeedingCreate":
@@ -55,6 +57,8 @@ class FeedingUpdate(BaseModel):
     # Phase 2
     bottle_content_type: Optional[BottleContentType] = None
     feeding_completion: Optional[FeedingCompletion] = None
+    # Phase 3: ゲップの有無
+    burped: Optional[bool] = None
 
     @model_validator(mode="after")
     def auto_calc_duration(self) -> "FeedingUpdate":

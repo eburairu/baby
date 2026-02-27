@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
 from .base import Base
 
 
@@ -46,6 +46,9 @@ class Feeding(Base):
     # Phase 2: ボトルコンテンツタイプ・授乳完全度
     bottle_content_type = Column(Enum(BottleContentType, name="bottlecontenttype"), nullable=True)
     feeding_completion = Column(Enum(FeedingCompletion, name="feedingcompletion"), nullable=True)
+
+    # Phase 3: ゲップの有無
+    burped = Column(Boolean, nullable=True)
 
     __table_args__ = (
         Index("idx_feeding_baby_time", "baby_id", "feeding_time"),
