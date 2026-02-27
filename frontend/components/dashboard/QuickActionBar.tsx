@@ -31,6 +31,18 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
     }, [records])
 
+    // 前回のミルク量を取得（デフォルト値として使用）
+    const lastMilkAmount = useMemo(() => {
+        const milkRecord = records?.find(r => {
+            if (r.type !== 'feeding') return false
+            const ft = r.details?.feeding_type
+            if (ft !== 'BOTTLE' && ft !== 'MIXED') return false
+            const amount = Number(r.details?.amount_ml)
+            return amount > 0
+        })
+        return milkRecord ? Number(milkRecord.details?.amount_ml) : null
+    }, [records])
+
     if (!canWrite) return null
 
     const handleQuickRecord = async (type: "feeding_bottle" | "feeding_breast" | "sleep" | "diaper_wet" | "diaper_dirty") => {
@@ -41,6 +53,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 baby_id: Number(babyId),
                 feeding_type: "BOTTLE",
                 feeding_time: new Date().toISOString(),
+                ...(lastMilkAmount ? { amount_ml: lastMilkAmount } : {}),
             }),
             "feeding_breast": async () => api.post<{ id: number }>("/feedings/", {
                 baby_id: Number(babyId),
