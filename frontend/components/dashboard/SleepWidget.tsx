@@ -1,44 +1,48 @@
 "use client"
+
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { WidgetCard } from "./WidgetCard"
+import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { WidgetContent } from "./WidgetContent"
 import { calculateSleepStats } from "@/lib/sleepUtils"
 import { Moon } from "lucide-react"
+import Link from "next/link"
 
-export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
+export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
     const { isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         return calculateSleepStats(records)
     }, [records])
 
     return (
-        <WidgetCard
-            title={
-                <span className="text-indigo-500 dark:text-indigo-400 flex items-center">
-                    <Moon className="w-4 h-4 mr-1" /> 睡眠
-                    {isSleeping ? (
-                        <span className="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-                    ) : null}
-                </span>
-            }
-            href={`/sleep?baby_id=${babyId}`}
-            isError={isError}
-            actionHoverColor="hover:text-indigo-500 dark:hover:text-indigo-400"
-            ariaLabel="睡眠の詳細を見る"
-        >
-            <WidgetContent
+        <Link href={`/sleep?baby_id=${babyId}`} className="block">
+            <HexagonWidgetCard
+                title="睡眠"
+                icon={
+                    <div className="relative">
+                        <Moon className="w-5 h-5 text-indigo-500" />
+                        {isSleeping && (
+                            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-indigo-400 animate-pulse border-2 border-white dark:border-zinc-900" />
+                        )}
+                    </div>
+                }
+                isError={isError}
                 isLoading={isLoading}
-                loadingColorClass="text-indigo-400"
-                elapsed={elapsed}
-                emptyContent={lastElapsed ? `${lastElapsed}に起床` : "記録なし"}
-                emptyContentClassName="text-gray-500 dark:text-zinc-400"
-                subContent={`今日の合計: ${todayTotal}`}
+                size={size}
+                className="hover:shadow-indigo-100 dark:hover:shadow-indigo-900/20"
             >
-                {isSleeping && (
-                    <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
-                )}
-            </WidgetContent>
-        </WidgetCard>
+                <div className="flex flex-col items-center">
+                    {isSleeping ? (
+                        <span className="font-bold text-indigo-600 dark:text-indigo-400">{elapsed}経過</span>
+                    ) : (
+                        <span className="font-bold text-gray-800 dark:text-zinc-200">
+                            {lastElapsed ? `${lastElapsed}〜` : "記録なし"}
+                        </span>
+                    )}
+                    <span className="text-[10px] text-gray-500 dark:text-zinc-500 mt-0.5">
+                        {isSleeping ? "睡眠中" : `今日 ${todayTotal}`}
+                    </span>
+                </div>
+            </HexagonWidgetCard>
+        </Link>
     )
 }, createWidgetMemoComparison('sleep'))

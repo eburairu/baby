@@ -6,4 +6,5 @@ export interface BaseWidgetProps {
     isError?: unknown
     mutate?: () => void
     isLoading?: boolean
+    size?: number
 }
