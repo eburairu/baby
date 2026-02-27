@@ -21,7 +21,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
             <HexagonWidgetCard
                 title="おむつ"
                 icon={<Baby className="w-5 h-5 text-amber-500" />}
-                isError={!!isError}
+                isError={isError}
                 isLoading={isLoading}
                 className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
             >

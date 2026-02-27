@@ -23,7 +23,7 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
             <HexagonWidgetCard
                 title="成長"
                 icon={<Ruler className="w-5 h-5 text-emerald-500" />}
-                isError={!!isError}
+                isError={isError}
                 isLoading={isLoading}
                 className="hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20"
             >

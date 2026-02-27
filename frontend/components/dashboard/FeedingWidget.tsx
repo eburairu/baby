@@ -21,7 +21,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             <HexagonWidgetCard
                 title="授乳"
                 icon={<Milk className="w-5 h-5 text-rose-500" />}
-                isError={!!isError}
+                isError={isError}
                 isLoading={isLoading}
                 className="hover:shadow-rose-100 dark:hover:shadow-rose-900/20"
             >

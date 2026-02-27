@@ -9,7 +9,7 @@ interface HexagonWidgetCardProps {
     title: string
     icon?: React.ReactNode
     children?: React.ReactNode
-    isError?: boolean
+    isError?: any
     isLoading?: boolean
     className?: string
     size?: number
@@ -27,9 +27,9 @@ export const HexagonWidgetCard = ({
     className,
     size = 160
 }: HexagonWidgetCardProps) => {
-    // 403 (Forbidden) は WidgetCard の実装を参考に上位で判定されるが、
-    // ここでも isError の一つとして扱うか、将来的に拡張可能にする。
-    
+    // 403 (Forbidden) のチェック
+    const isForbidden = isError && typeof isError === 'object' && 'status' in isError && isError.status === 403;
+
     return (
         <div className={cn("relative transition-all duration-300 hover:-translate-y-1", className)}>
             <Hexagon 
@@ -49,7 +49,9 @@ export const HexagonWidgetCard = ({
                     ) : isError ? (
                         <div className="flex flex-col items-center gap-1">
                             <ShieldOff className="h-5 w-5 text-rose-400 mb-1" />
-                            <span className="text-[10px] text-rose-500 leading-tight">エラーが発生しました</span>
+                            <span className="text-[10px] text-rose-500 leading-tight">
+                                {isForbidden ? "閲覧制限中" : "エラーが発生しました"}
+                            </span>
                         </div>
                     ) : (
                         <div className="flex flex-col items-center w-full space-y-1.5">

@@ -25,7 +25,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                         )}
                     </div>
                 }
-                isError={!!isError}
+                isError={isError}
                 isLoading={isLoading}
                 className="hover:shadow-indigo-100 dark:hover:shadow-indigo-900/20"
             >
