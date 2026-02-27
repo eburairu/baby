@@ -1,47 +1,16 @@
 "use client"
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { useQuickRecord } from "@/hooks/useQuickRecord"
-import { api } from "@/lib/api"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
-import { WidgetQuickButton } from "./WidgetQuickButton"
 import { calculateSleepStats } from "@/lib/sleepUtils"
-import { Moon, Sun } from "lucide-react"
+import { Moon } from "lucide-react"
 
-export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
-    const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
-
-    const { activeSleep, isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
+export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
+    const { isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         return calculateSleepStats(records)
     }, [records])
-
-    const handleStart = async () => {
-        await executeRecord(async () => {
-            return api.post<{ id: number }>("/sleeps/", {
-                baby_id: Number(babyId),
-                start_time: new Date().toISOString(),
-            })
-        }, {
-            successMessage: "睡眠を開始しました",
-            errorMessage: "睡眠の開始に失敗しました"
-        })
-    }
-
-    const handleEnd = async () => {
-        if (!activeSleep) return
-
-        const sleepId = activeSleep.id
-        await executeRecord(async () => {
-            return api.patch<{ id: number }>(`/sleeps/${sleepId}`, {
-                end_time: new Date().toISOString(),
-            })
-        }, {
-            successMessage: "睡眠を終了しました",
-            errorMessage: "睡眠の終了に失敗しました"
-        })
-    }
 
     return (
         <WidgetCard
@@ -70,22 +39,6 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                     <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400" data-sentry-unmask>睡眠中</p>
                 )}
             </WidgetContent>
-            {canWrite ? (
-                <div className="flex justify-center">
-                    <WidgetQuickButton
-                        color="indigo"
-                        isActive={isSleeping}
-                        loading={loading}
-                        disabled={loading}
-                        onClick={isSleeping ? handleEnd : handleStart}
-                        size={48}
-                        title={isSleeping ? "起きた記録をする" : "寝た記録をする"}
-                        aria-label={isSleeping ? "起きた記録をする" : "寝た記録をする"}
-                    >
-                        {isSleeping ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                    </WidgetQuickButton>
-                </div>
-            ) : null}
         </WidgetCard>
     )
 }, createWidgetMemoComparison('sleep'))

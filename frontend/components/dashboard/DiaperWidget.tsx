@@ -2,39 +2,18 @@
 import { useMemo, memo } from "react"
 import { Baby, Droplets, Biohazard } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { api } from "@/lib/api"
-import { DiaperType } from "@/types/diaper"
 import { WidgetCard } from "./WidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { WidgetContent } from "./WidgetContent"
-import { WidgetQuickButton } from "./WidgetQuickButton"
-import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
 
-export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, mutate, isLoading }: BaseWidgetProps) {
-    const { canWrite, loading, executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
-
+export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
     const { wetCount, dirtyCount, lastElapsed } = useMemo(() => {
         const diaperRecords = records
             ?.map(normalizeDiaperFromRecord)
             .filter((d): d is NormalizedDiaper => d !== null) ?? []
         return calculateDiaperStats(diaperRecords)
     }, [records])
-
-    const handleQuickRecord = async (diaperType: DiaperType) => {
-        const typeLabel = diaperType === DiaperType.WET ? "おしっこ" : "うんち"
-
-        await executeRecord(async () => {
-            return api.post<{ id: number }>("/diapers/", {
-                baby_id: Number(babyId),
-                diaper_type: diaperType,
-                change_time: new Date().toISOString(),
-            })
-        }, {
-            label: typeLabel,
-            feedbackType: "diaper"
-        })
-    }
 
     return (
         <WidgetCard
@@ -50,30 +29,6 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                 elapsed={lastElapsed}
                 subContent={<span className="flex items-center gap-1">今日: <Droplets className="w-3 h-3 inline-block" />{wetCount} / <Biohazard className="w-3 h-3 inline-block" />{dirtyCount}</span>}
             />
-            {canWrite ? (
-                <div className="flex gap-2 justify-center">
-                    <WidgetQuickButton
-                        color="amber"
-                        loading={loading}
-                        disabled={loading}
-                        onClick={() => handleQuickRecord(DiaperType.WET)}
-                        size={48}
-                        aria-label="おしっこ"
-                    >
-                        <Droplets className="w-5 h-5" />
-                    </WidgetQuickButton>
-                    <WidgetQuickButton
-                        color="amber"
-                        loading={loading}
-                        disabled={loading}
-                        onClick={() => handleQuickRecord(DiaperType.DIRTY)}
-                        size={48}
-                        aria-label="うんち"
-                    >
-                        <Biohazard className="w-5 h-5" />
-                    </WidgetQuickButton>
-                </div>
-            ) : null}
         </WidgetCard>
     )
 }, createWidgetMemoComparison('diaper'))

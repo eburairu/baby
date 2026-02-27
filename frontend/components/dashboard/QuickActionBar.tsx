@@ -12,6 +12,9 @@ import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
 
+/** クイックアクションボタンの統一サイズ（六角形の高さ） */
+const BUTTON_SIZE = 58
+
 interface Props {
     babyId: string
     mutateRecords?: () => void
@@ -86,7 +89,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
             <div className="pointer-events-auto">
                 {/* 3-2-3 ハニカム配置 */}
                 <HoneycombGrid
-                    size={58}
+                    size={BUTTON_SIZE}
                     gap={4}
                     rows={[
                         [0, 1, 2], // 上段: ミルク, 睡眠, 母乳
@@ -98,7 +101,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="rose"
                         icon={<Milk className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
                         disabled={isLoading}
@@ -108,7 +111,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="indigo"
                         icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-                        size={62}
+                        size={BUTTON_SIZE}
                         active={!!activeSleep}
                         onClick={() => handleQuickRecord("sleep")}
                         loading={loadingAction === "sleep"}
@@ -119,7 +122,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="rose"
                         icon={<HandHeart className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("feeding_breast")}
                         loading={loadingAction === "feeding_breast"}
                         disabled={isLoading}
@@ -129,7 +132,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="amber"
                         icon={<Baby className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("diaper_wet")}
                         loading={loadingAction === "diaper_wet"}
                         disabled={isLoading}
@@ -139,7 +142,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="amber"
                         icon={<Biohazard className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("diaper_dirty")}
                         loading={loadingAction === "diaper_dirty"}
                         disabled={isLoading}
@@ -149,7 +152,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="amber"
                         icon={<StickyNote className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => setNoteDialogOpen(true)}
                         disabled={isLoading}
                         aria-label="メモを追加"
@@ -158,7 +161,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="emerald"
                         icon={<Ruler className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => router.push(`/growth`)}
                         disabled={isLoading}
                         aria-label="成長記録ページへ"
@@ -167,7 +170,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     <HexagonButton
                         variant="zinc"
                         icon={<BookOpen className="h-5 w-5" />}
-                        size={58}
+                        size={BUTTON_SIZE}
                         onClick={() => router.push(`/diary`)}
                         disabled={isLoading}
                         aria-label="日誌ページへ"
