@@ -5,7 +5,7 @@ import { useRecordPage } from "@/hooks/useRecordPage"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
 import { SleepStats } from "@/components/sleep/sleep-stats"
 import { SleepHistory } from "@/components/sleep/sleep-history"
-import { SleepForm } from "@/components/sleep/sleep-form"
+import { SleepCreateDialog } from "@/components/sleep/sleep-form"
 import { TipsCard } from "@/components/ui/tips-card"
 import { sleepTips } from "@/lib/tips-data"
 import { Moon as MoonIcon } from "lucide-react"
@@ -48,7 +48,7 @@ export default function SleepPage() {
                 {canWrite && (
                     <>
                         <SleepTimer babyId={babyId!} />
-                        <SleepForm babyId={babyId!} />
+                        <SleepCreateDialog babyId={babyId!} />
                     </>
                 )}
                 <SleepHistory

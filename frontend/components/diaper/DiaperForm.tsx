@@ -2,7 +2,7 @@
 
 import { POOP_COLORS, POOP_AMOUNTS } from "@/constants/diaper"
 
-import { Droplets, Biohazard } from "lucide-react"
+import { Droplets, Biohazard, Save } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -20,27 +20,33 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { DiaperType } from "@/types/diaper"
+import { DiaperType, Diaper } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
+import { api } from "@/lib/api"
 
 
 interface Props {
     babyId: string
     onSuccess: (recordId?: number) => void
+    initialData?: Diaper
 }
 
-export function DiaperForm({ babyId, onSuccess }: Props) {
+export function DiaperForm({ babyId, onSuccess, initialData }: Props) {
+    const isEditing = !!initialData
+
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
         defaultValues: {
-            diaper_type: DiaperType.WET,
-            change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            notes: "",
-            poop_color: "",
+            diaper_type: initialData?.diaper_type ?? DiaperType.WET,
+            change_time: initialData
+                ? format(new Date(initialData.change_time), "yyyy-MM-dd'T'HH:mm")
+                : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+            notes: initialData?.notes ?? "",
+            poop_color: "", // TODO: Parse from notes if needed, but keeping simple for now
             custom_poop_color: "",
             poop_amount: "",
             custom_poop_amount: "",
@@ -55,19 +61,21 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
         endpoint: "/diapers/",
         babyId,
         onSuccess: (data) => {
-            form.reset({
-                diaper_type: DiaperType.WET,
-                change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-                notes: "",
-                poop_color: "",
-                custom_poop_color: "",
-                poop_amount: "",
-                custom_poop_amount: "",
-            })
+            if (!isEditing) {
+                form.reset({
+                    diaper_type: DiaperType.WET,
+                    change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                    notes: "",
+                    poop_color: "",
+                    custom_poop_color: "",
+                    poop_amount: "",
+                    custom_poop_amount: "",
+                })
+            }
             onSuccess((data as { id?: number })?.id)
         },
         errorMessage: "エラーが発生しました。もう一度お試しください。",
-        successMessage: undefined // No toast for diaper form in previous code
+        successMessage: isEditing ? "更新しました" : undefined
     })
 
     const onSubmit = async (values: DiaperFormValues) => {
@@ -83,7 +91,18 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                         if (color) prefixParts.push(`色: ${color}`)
                         if (amount) prefixParts.push(`量: ${amount}`)
                         const prefix = prefixParts.join("、")
-                        finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                        // If editing, be careful not to double append if parsing isn't implemented.
+                        // For now, simple append logic as per original implementation.
+                        if (!initialData) {
+                             finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                        } else {
+                            // On edit, we only append if it's new info or simple overwrite.
+                            // Since parsing back is complex without structured data, we just use notes as is for edits unless color/amount changed.
+                            // Ideally backend should support structured poop data.
+                            if (color || amount) {
+                                 finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                            }
+                        }
                     }
                 }
                 return {
@@ -92,16 +111,21 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                     change_time: new Date(vals.change_time).toISOString(),
                     notes: finalNotes || undefined,
                 }
+            }, async (payload) => {
+                if (isEditing && initialData) {
+                    return await api.put(`/diapers/${initialData.id}`, payload)
+                } else {
+                    return await api.post("/diapers/", payload)
+                }
             })
         } catch (e) {
-            // Error is handled by the hook
             console.error(e)
         }
     }
 
     return (
-        <Card className="rounded-2xl shadow-sm border-0 mb-6 transition-colors">
-            <CardContent className="pt-6">
+        <Card className={cn("rounded-2xl transition-colors", isEditing ? "border-0 shadow-none" : "shadow-sm border-0 mb-6")}>
+            <CardContent className={isEditing ? "p-0" : "pt-6"}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-3 gap-3">
@@ -146,7 +170,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                             </button>
                         </div>
 
-                        {selectedType !== DiaperType.WET && (
+                        {selectedType !== DiaperType.WET && !isEditing && (
                             <div className="space-y-4 pt-2 border-t border-muted/20 mt-2">
                                 <FormField
                                     control={form.control}
@@ -284,7 +308,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                             loading={isSubmitting}
                             data-sentry-unmask
                         >
-                            {isSubmitting ? "保存中..." : "保存する"}
+                            {isSubmitting ? "保存中..." : isEditing ? "更新する" : "保存する"}
                         </Button>
                     </form>
                 </Form>
