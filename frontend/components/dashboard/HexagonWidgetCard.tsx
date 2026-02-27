@@ -38,22 +38,21 @@ export const HexagonWidgetCard = ({
         <div className={cn("relative transition-all duration-300 hover:-translate-y-1", className)}>
             <Hexagon 
                 size={size} 
-                className="bg-white dark:bg-zinc-900 shadow-sm border-0 transition-colors"
+                className="text-white dark:text-zinc-900 shadow-sm border-0 transition-colors"
                 cornerRadius={12}
-                color="white"
                 borderColor="transparent"
                 borderWidth={0}
             >
                 <div className="flex flex-col items-center justify-center text-center p-3 h-full w-full overflow-hidden">
                     {isLoading ? (
                         <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
-                            <span className="text-[10px] text-gray-400">読み込み中...</span>
+                            <Loader2 className="h-6 w-6 animate-spin text-indigo-500 dark:text-indigo-400" />
+                            <span className="text-[10px] text-gray-400 dark:text-zinc-500">読み込み中...</span>
                         </div>
                     ) : isError ? (
                         <div className="flex flex-col items-center gap-1">
-                            <ShieldOff className="h-5 w-5 text-rose-400 mb-1" />
-                            <span className="text-[10px] text-rose-500 leading-tight">
+                            <ShieldOff className="h-5 w-5 text-rose-400 dark:text-rose-500 mb-1" />
+                            <span className="text-[10px] text-rose-500 dark:text-rose-400 leading-tight">
                                 {isForbidden ? "閲覧制限中" : "エラーが発生しました"}
                             </span>
                         </div>
