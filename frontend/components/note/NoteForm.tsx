@@ -92,7 +92,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
                             name="note_time"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask>日時</FormLabel>
+                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask required>日時</FormLabel>
                                     <FormControl>
                                         <Input 
                                             type="datetime-local" 
@@ -110,7 +110,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
                             name="content"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask>内容</FormLabel>
+                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask required>内容</FormLabel>
                                     <FormControl>
                                         <Textarea 
                                             placeholder="今日の出来事や赤ちゃんの様子など..." 
