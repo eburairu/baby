@@ -134,7 +134,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         values: vals,
                         activeTab,
                         feedingCompletion,
-                        bottleContentType
+                        bottleContentType,
+                        burped
                     }),
                     (payload) => onUpdate(initialData.id, payload)
                 )
