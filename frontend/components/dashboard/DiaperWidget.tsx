@@ -1,11 +1,12 @@
 "use client"
+
 import { useMemo, memo } from "react"
 import { Baby, Droplets, Biohazard } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { WidgetCard } from "./WidgetCard"
+import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { WidgetContent } from "./WidgetContent"
 import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
+import Link from "next/link"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
     const { wetCount, dirtyCount, lastElapsed } = useMemo(() => {
@@ -16,19 +17,22 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
     }, [records])
 
     return (
-        <WidgetCard
-            title={<span className="text-amber-500 dark:text-amber-400 flex items-center gap-1"><Baby className="w-4 h-4" /> おむつ</span>}
-            href={`/diaper?baby_id=${babyId}`}
-            isError={isError}
-            actionHoverColor="hover:text-amber-500 dark:hover:text-amber-400"
-            ariaLabel="排泄の詳細を見る"
-        >
-            <WidgetContent
+        <Link href={`/diaper?baby_id=${babyId}`} className="block">
+            <HexagonWidgetCard
+                title="おむつ"
+                icon={<Baby className="w-5 h-5 text-amber-500" />}
+                isError={!!isError}
                 isLoading={isLoading}
-                loadingColorClass="text-amber-400"
-                elapsed={lastElapsed}
-                subContent={<span className="flex items-center gap-1">今日: <Droplets className="w-3 h-3 inline-block" />{wetCount} / <Biohazard className="w-3 h-3 inline-block" />{dirtyCount}</span>}
-            />
-        </WidgetCard>
+                className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
+            >
+                <div className="flex flex-col items-center">
+                    <span className="font-bold text-gray-800 dark:text-zinc-200">{lastElapsed}</span>
+                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-gray-500 dark:text-zinc-500">
+                        <span className="flex items-center gap-0.5"><Droplets className="w-2.5 h-2.5" />{wetCount}</span>
+                        <span className="flex items-center gap-0.5"><Biohazard className="w-2.5 h-2.5" />{dirtyCount}</span>
+                    </div>
+                </div>
+            </HexagonWidgetCard>
+        </Link>
     )
 }, createWidgetMemoComparison('diaper'))
