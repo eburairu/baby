@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
                     <HoneycombGrid
                         size={honeycombSize}
-                        gap={8}
+                        gap={16}
                         rows={[[0, 1], [2], [3, 4], [5]]}
                     >
                         <FeedingWidget

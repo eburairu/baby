@@ -33,6 +33,12 @@ export function useBaseRecordForm<T>({
                 baby_id: Number(babyId),
             }
 
+            // Remove any accidental baby_id from values to prevent mismatch
+            if (typeof values === 'object' && values !== null && 'baby_id' in values) {
+                delete (basePayload as Record<string, unknown>).baby_id;
+                (basePayload as Record<string, unknown>).baby_id = Number(babyId);
+            }
+
             const payload = payloadFormatter 
                 ? payloadFormatter(values, basePayload) 
                 : (basePayload as unknown as TPayload)
