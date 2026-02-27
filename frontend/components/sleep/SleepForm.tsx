@@ -12,7 +12,7 @@ import { UI_BUTTONS } from "@/constants/ui-colors"
 import { sleepSchema, SleepFormValues } from "@/schemas/sleep"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 import { format } from "date-fns"
-import { api } from "@/lib/api"
+import { useSleeps } from "@/hooks/useSleep"
 
 interface SleepFormProps {
     babyId: string | number
@@ -22,6 +22,7 @@ interface SleepFormProps {
 
 export function SleepForm({ babyId, initialData, onSuccess }: SleepFormProps) {
     const isEditing = !!initialData
+    const { addSleep, updateSleep } = useSleeps(babyId)
 
     const form = useForm<SleepFormValues>({
         resolver: zodResolver(sleepSchema),
@@ -37,7 +38,6 @@ export function SleepForm({ babyId, initialData, onSuccess }: SleepFormProps) {
     })
 
     const { submitRecord, isSubmitting } = useBaseRecordForm<SleepFormValues>({
-        endpoint: "/sleeps/",
         babyId,
         onSuccess: (data) => {
             if (!isEditing) {
@@ -66,8 +66,8 @@ export function SleepForm({ babyId, initialData, onSuccess }: SleepFormProps) {
             // SleepUpdate has start_time (optional), notes (optional), end_time (optional).
             // We can safely cast payload to SleepUpdate for the API call, ignoring baby_id.
             const updatePayload = payload as unknown as SleepUpdate;
-            return await api.patch<Sleep>(`/sleeps/${initialData.id}`, updatePayload)
-        } : undefined)
+            return await updateSleep(initialData.id, updatePayload)
+        } : addSleep)
     }
 
     return (

@@ -30,6 +30,7 @@ import { FeedingTimerSection } from "./FeedingTimerSection"
 import { BreastFeedingFields } from "./BreastFeedingFields"
 import { BottleFeedingFields } from "./BottleFeedingFields"
 import { FeedingCompletionSelector } from "./FeedingCompletionSelector"
+import { useFeeding } from "@/hooks/useFeeding"
 
 interface FeedingFormProps {
     babyId: number
@@ -43,6 +44,7 @@ interface FeedingFormProps {
 export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
+    const { addFeeding } = useFeeding(babyId)
 
     // 左右独立タイマー (Hooks)
     const {
@@ -96,7 +98,6 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     }, [lastMilkAmount, isEditing, form])
 
     const { submitRecord, isSubmitting } = useBaseRecordForm<FeedingFormValues>({
-        endpoint: "/feedings/", // Note: This endpoint is actually not used directly when onAdd/onUpdate are provided, but required by type
         babyId,
         onSuccess: (data) => {
             // Reset for new entry only
@@ -149,22 +150,26 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                     onAdd
                 )
             } else {
-                // Default create case (standard POST)
-                await submitRecord(values, (vals) => {
-                    return buildFeedingPayload({
-                        babyId,
-                        values: vals,
-                        activeTab,
-                        feedingCompletion,
-                        bottleContentType
-                    })
-                })
+                // Default create case
+                await submitRecord(
+                    values,
+                    (vals) => {
+                        return buildFeedingPayload({
+                            babyId,
+                            values: vals,
+                            activeTab,
+                            feedingCompletion,
+                            bottleContentType
+                        })
+                    },
+                    addFeeding
+                )
             }
         } catch (error) {
             console.error(error)
             // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
+    }, [activeTab, babyId, bottleContentType, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord, addFeeding])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 

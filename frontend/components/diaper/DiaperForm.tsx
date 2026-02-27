@@ -26,7 +26,7 @@ import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
-import { api } from "@/lib/api"
+import { useDiapers } from "@/hooks/useDiaper"
 
 
 interface Props {
@@ -38,6 +38,7 @@ interface Props {
 
 export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) {
     const isEditing = !!initialData
+    const { addDiaper, updateDiaper } = useDiapers(babyId)
 
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
@@ -59,7 +60,6 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
     const selectedAmount = form.watch("poop_amount")
 
     const { submitRecord, isSubmitting, error } = useBaseRecordForm<DiaperFormValues>({
-        endpoint: "/diapers/",
         babyId,
         onSuccess: (data) => {
             if (!isEditing) {
@@ -114,10 +114,9 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
 
                  if (onUpdate) {
                      return await onUpdate(initialData.id, updatePayload)
-                 } else {
-                     return await api.patch<Diaper>(`/diapers/${initialData.id}`, updatePayload)
                  }
-            } : undefined)
+                 return await updateDiaper(initialData.id, updatePayload)
+            } : addDiaper)
         } catch (e) {
             // Error is handled by the hook
             console.error(e)

@@ -3,8 +3,8 @@ import { toast } from "sonner"
 import { api } from "@/lib/api"
 
 interface UseBaseRecordFormOptions<_T> {
-    endpoint: string
-    babyId: string | number
+    endpoint?: string
+    babyId?: string | number
     onSuccess?: (data?: unknown) => void
     successMessage?: string
     errorMessage?: string
@@ -28,13 +28,13 @@ export function useBaseRecordForm<T>({
         setIsSubmitting(true)
         setError(null)
         try {
-            const basePayload = {
+            const basePayload = babyId ? {
                 ...values,
                 baby_id: Number(babyId),
-            }
+            } : { ...values } as unknown as Record<string, unknown>
 
-            // Remove any accidental baby_id from values to prevent mismatch
-            if (typeof values === 'object' && values !== null && 'baby_id' in values) {
+            // Remove any accidental baby_id from values to prevent mismatch if babyId is provided
+            if (babyId && typeof values === 'object' && values !== null && 'baby_id' in values) {
                 delete (basePayload as Record<string, unknown>).baby_id;
                 (basePayload as Record<string, unknown>).baby_id = Number(babyId);
             }
@@ -47,6 +47,9 @@ export function useBaseRecordForm<T>({
             if (customSubmitter) {
                 data = await customSubmitter(payload)
             } else {
+                if (!endpoint) {
+                    throw new Error("Endpoint is required if customSubmitter is not provided")
+                }
                 data = await api.post(endpoint, payload) as unknown as TResult
             }
 
