@@ -25,7 +25,7 @@ export const DiaryWidget = memo(function DiaryWidget({ babyId }: Props) {
             <HexagonWidgetCard
                 title="育児日誌"
                 icon={<BookOpen className="w-5 h-5 text-amber-600" />}
-                isError={!!error}
+                isError={error}
                 isLoading={isLoading}
                 className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
             >
