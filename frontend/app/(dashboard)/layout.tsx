@@ -44,7 +44,7 @@ const ALL_NAV_ITEMS: {
     { label: "おむつ",       href: "/diaper",      Icon: Baby,       color: "text-amber-500",   prenatal: false, postnatal: true  },
     { label: "成長",         href: "/growth",      Icon: Ruler,      color: "text-emerald-500", prenatal: false, postnatal: true  },
     { label: "予防接種",     href: "/vaccinations",Icon: Syringe,    color: "text-sky-500",     prenatal: false, postnatal: true  },
-    { label: "マイルストーン",href: "/milestones",  Icon: Trophy,     color: "text-yellow-500",  prenatal: false, postnatal: true  },
+    { label: "発育発達マイルストーン",href: "/milestones",  Icon: Trophy,     color: "text-yellow-500",  prenatal: false, postnatal: true  },
     { label: "メモ",         href: "/note",        Icon: StickyNote, color: "text-orange-400",  prenatal: false, postnatal: true  },
     { label: "日誌",         href: "/diary",       Icon: BookOpen,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
     { label: "陣痛タイマー", href: "/contraction", Icon: Timer,      color: "text-red-500",     prenatal: true,  postnatal: false },

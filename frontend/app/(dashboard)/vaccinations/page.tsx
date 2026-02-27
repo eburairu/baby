@@ -10,6 +10,8 @@ import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import { api, isApiError } from "@/lib/api"
+import { VaccinationForm } from "@/components/vaccination/VaccinationForm"
+import { Vaccination } from "@/types/vaccination"
 
 export default function VaccinationsPage() {
     const {
@@ -20,6 +22,18 @@ export default function VaccinationsPage() {
 
     const { vaccinations, isLoading: vaxLoading, isError, mutate } = useVaccinations(babyId ?? null)
     const [isGenerating, setIsGenerating] = useState(false)
+    const [isFormOpen, setIsFormOpen] = useState(false)
+    const [selectedRecord, setSelectedRecord] = useState<Vaccination | null>(null)
+
+    const handleAddClick = () => {
+        setSelectedRecord(null)
+        setIsFormOpen(true)
+    }
+
+    const handleEditClick = (vax: Vaccination) => {
+        setSelectedRecord(vax)
+        setIsFormOpen(true)
+    }
 
     const handleGenerate = async () => {
         if (!babyId) return
@@ -79,7 +93,10 @@ export default function VaccinationsPage() {
                         </Button>
                     )}
                     {canWrite && (
-                        <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                        <Button 
+                            onClick={handleAddClick}
+                            className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+                        >
                             <Plus className="h-4 w-4" />
                             記録を追加
                         </Button>
@@ -122,7 +139,12 @@ export default function VaccinationsPage() {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4 text-right">
-                                                <Button variant="ghost" size="sm" className="h-8 text-xs rounded-lg">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    onClick={() => handleEditClick(v)}
+                                                    className="h-8 text-xs rounded-lg"
+                                                >
                                                     詳細
                                                 </Button>
                                             </td>
@@ -134,6 +156,16 @@ export default function VaccinationsPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            {babyId && (
+                <VaccinationForm
+                    babyId={Number(babyId)}
+                    record={selectedRecord}
+                    isOpen={isFormOpen}
+                    onClose={() => setIsFormOpen(false)}
+                    onSuccess={() => mutate()}
+                />
+            )}
         </RecordPageLayout>
     )
 }
