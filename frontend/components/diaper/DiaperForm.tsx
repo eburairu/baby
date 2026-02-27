@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Diaper, DiaperType, DiaperUpdate } from "@/types/diaper"
+import { Diaper, DiaperType, DiaperUpdate, DiaperCreate } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
@@ -81,14 +81,12 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
 
     const onSubmit = async (values: DiaperFormValues) => {
         try {
-            await submitRecord(values, (vals, base) => {
+            await submitRecord<DiaperCreate, Diaper | undefined>(values, (vals) => {
                 let finalNotes = vals.notes || ""
                 if (vals.diaper_type !== DiaperType.WET) {
                     const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
                     const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
 
-                    // 編集モードでない場合のみ、色と量の情報をメモの先頭に自動付与する
-                    // 編集時はユーザーの手動編集を優先し、自動追記による重複や混乱を防ぐ
                     if (!initialData && (color || amount)) {
                         const prefixParts = []
                         if (color) prefixParts.push(`色: ${color}`)
@@ -101,18 +99,13 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
                     }
                 }
                 return {
-                    baby_id: Number(base.baby_id),
+                    baby_id: Number(babyId),
                     diaper_type: vals.diaper_type,
                     change_time: new Date(vals.change_time).toISOString(),
-                    notes: finalNotes || undefined,
+                    notes: finalNotes.trim() || null,
                 }
             },
-            isEditing && initialData ? async (payload) => {
-                 // payload is TPayload which is inferred as ReturnType of payloadFormatter.
-                 // payloadFormatter returns an object with baby_id, diaper_type, change_time, notes.
-                 // This matches DiaperUpdate closely enough (although DiaperUpdate has optional fields and doesn't require baby_id).
-                 // We'll cast it to DiaperUpdate to satisfy TypeScript and strict typing.
-
+            isEditing && initialData ? async (payload: DiaperCreate) => {
                  const updatePayload: DiaperUpdate = {
                      diaper_type: payload.diaper_type,
                      change_time: payload.change_time,
@@ -122,7 +115,7 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
                  if (onUpdate) {
                      return await onUpdate(initialData.id, updatePayload)
                  } else {
-                     return await api.patch(`/diapers/${initialData.id}`, updatePayload)
+                     return await api.patch<Diaper>(`/diapers/${initialData.id}`, updatePayload)
                  }
             } : undefined)
         } catch (e) {
