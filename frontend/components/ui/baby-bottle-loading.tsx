@@ -9,7 +9,7 @@ interface BabyBottleLoadingProps {
     color?: string
 }
 
-export function BabyBottleLoading({ className, color = "currentColor" }: BabyBottleLoadingProps) {
+export function BabyBottleLoading({ className }: BabyBottleLoadingProps) {
     const id = useId()
     const clipId = `bottle-liquid-clip-${id.replace(/:/g, "")}`
 

@@ -702,6 +702,6 @@ export function SettingsHeader({
 
 ### 設定画面
 
-- [ ] `SettingsHeader` コンポーネント新規作成
-- [ ] Profile, Notification, Family, Babies, Permissions 各ページで `SettingsHeader` を適用
-- [ ] 各ページの個別実装ヘッダーを削除
+- [x] `SettingsHeader` コンポーネント新規作成
+- [x] Profile, Notification, Family, Babies, Permissions 各ページで `SettingsHeader` を適用
+- [x] 各ページの個別実装ヘッダーを削除

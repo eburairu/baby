@@ -3,10 +3,8 @@
 import useSWR from "swr";
 import { fetcher, patch } from "@/lib/api";
 import { 
-  Users, 
   Search,
   ShieldCheck,
-  ShieldAlert,
   Calendar,
   User as UserIcon
 } from "lucide-react";

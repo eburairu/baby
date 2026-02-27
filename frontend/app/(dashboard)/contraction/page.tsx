@@ -20,7 +20,6 @@ import { RecordPageLayout } from "@/components/ui/record-page-layout"
 export default function ContractionPage() {
     const {
         babyId,
-        babies,
         isLoading: babiesLoading,
         canWrite,
         commentRecordId,

@@ -16,7 +16,7 @@ interface ContractionTimerProps {
     lastContraction?: ContractionRecord
 }
 
-export default function ContractionTimer({ babyId, onRecorded, lastContraction }: ContractionTimerProps) {
+export default function ContractionTimer({ babyId, onRecorded }: ContractionTimerProps) {
     const { status, elapsedSeconds, start, stop, tick } = useContractionTimer()
     const [isSubmitting, setIsSubmitting] = useState(false)
 

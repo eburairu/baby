@@ -2,7 +2,7 @@
 import { useUser } from "@/hooks/useAuth"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAppVersion } from "@/hooks/useAppVersion"
 import {
