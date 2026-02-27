@@ -61,6 +61,7 @@ def create_feeding(
         last_breast_side=feeding_in.last_breast_side,
         bottle_content_type=feeding_in.bottle_content_type,
         feeding_completion=feeding_in.feeding_completion,
+        burped=feeding_in.burped,
     )
     db.add(new_feeding)
     db.commit()

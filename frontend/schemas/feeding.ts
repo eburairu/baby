@@ -18,6 +18,7 @@ export const feedingSchema = z.object({
     notes: z.string()
         .max(2000, "メモは2000文字以内で入力してください")
         .optional(),
+    burped: z.boolean().optional().nullable(),
 })
 
 export type FeedingFormValues = z.infer<typeof feedingSchema>

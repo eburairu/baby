@@ -2,6 +2,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface UseBaseRecordFormOptions<_T> {
     endpoint: string
     babyId: string | number

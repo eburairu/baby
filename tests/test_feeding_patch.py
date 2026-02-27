@@ -93,3 +93,71 @@ def test_update_feeding_duration_auto_calc(auth_client, db):
     # DB確認
     db.refresh(feeding)
     assert feeding.duration_minutes == 15
+
+def test_update_feeding_burped(auth_client, db):
+    """ゲップ（burped）フィールドの更新テスト"""
+    client = auth_client(username="feeder_burp", password="password123")
+    user_id = client.get("/api/auth/me").json()["id"]
+    from app.models.family import FamilyUser
+    family_id = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first().family_id
+
+    baby = Baby(family_id=family_id, name="Burp Test Baby", birthday=datetime.now().date())
+    db.add(baby)
+    db.commit()
+    db.refresh(baby)
+
+    feeding = Feeding(
+        user_id=user_id,
+        baby_id=baby.id,
+        feeding_time=datetime.now(),
+        feeding_type=FeedingType.BOTTLE,
+        burped=None,
+    )
+    db.add(feeding)
+    db.commit()
+    db.refresh(feeding)
+
+    # None → True に更新
+    response = client.patch(
+        f"/api/feedings/{feeding.id}",
+        json={"burped": True}
+    )
+    assert response.status_code == 200
+    assert response.json()["burped"] is True
+    db.refresh(feeding)
+    assert feeding.burped is True
+
+    # True → False に更新
+    response = client.patch(
+        f"/api/feedings/{feeding.id}",
+        json={"burped": False}
+    )
+    assert response.status_code == 200
+    assert response.json()["burped"] is False
+    db.refresh(feeding)
+    assert feeding.burped is False
+
+
+def test_create_feeding_with_burped(auth_client, db):
+    """ゲップ（burped）フィールドを含む授乳記録の作成テスト"""
+    client = auth_client(username="feeder_burp2", password="password123")
+    user_id = client.get("/api/auth/me").json()["id"]
+    from app.models.family import FamilyUser
+    family_id = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first().family_id
+
+    baby = Baby(family_id=family_id, name="Burp Test Baby 2", birthday=datetime.now().date())
+    db.add(baby)
+    db.commit()
+    db.refresh(baby)
+
+    response = client.post(
+        "/api/feedings/",
+        json={
+            "baby_id": baby.id,
+            "feeding_time": datetime.now().isoformat(),
+            "feeding_type": "BOTTLE",
+            "burped": True,
+        }
+    )
+    assert response.status_code == 200
+    assert response.json()["burped"] is True

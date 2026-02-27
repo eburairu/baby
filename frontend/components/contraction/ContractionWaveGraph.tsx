@@ -8,10 +8,8 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  ReferenceArea,
 } from 'recharts';
 import { format } from 'date-fns';
-import { ja } from 'date-fns/locale';
 import type { ContractionRecord } from '@/types/contraction';
 import { useContractionTimer } from '@/stores/contractionStore';
 

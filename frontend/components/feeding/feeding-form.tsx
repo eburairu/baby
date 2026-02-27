@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Feeding, FeedingCreate, FeedingUpdate, FeedingType, BottleContentType, FeedingCompletion } from "@/types/feeding"
 import { buildFeedingPayload } from "@/lib/feedingUtils"
@@ -63,6 +64,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     // Phase 2: ボトルコンテンツタイプ・授乳完全度
     const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(initialData?.bottle_content_type ?? null)
     const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(initialData?.feeding_completion ?? null)
+    const [burped, setBurped] = useState<boolean | null>(initialData?.burped ?? null)
 
     const form = useForm<FeedingFormValues>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,6 +116,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                 resetAllTimers()
                 setFeedingCompletion(null)
                 setBottleContentType(null)
+                setBurped(null)
             }
             if (onSuccess) onSuccess()
         },
@@ -144,7 +147,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         values: vals,
                         activeTab,
                         feedingCompletion,
-                        bottleContentType
+                        bottleContentType,
+                        burped
                     }),
                     onAdd
                 )
@@ -156,7 +160,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         values: vals,
                         activeTab,
                         feedingCompletion,
-                        bottleContentType
+                        bottleContentType,
+                        burped
                     })
                 })
             }
@@ -164,7 +169,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
             console.error(error)
             // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
+    }, [activeTab, babyId, bottleContentType, burped, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
@@ -230,6 +235,21 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                 value={feedingCompletion}
                                 onChange={setFeedingCompletion}
                             />
+
+                            {/* 共通: ゲップ */}
+                            <div className="flex items-center gap-3 py-1">
+                                <Checkbox
+                                    id="burped"
+                                    checked={burped === true}
+                                    onCheckedChange={(checked) => setBurped(checked === true ? true : checked === false ? false : null)}
+                                />
+                                <label
+                                    htmlFor="burped"
+                                    className="text-sm font-medium leading-none cursor-pointer select-none"
+                                >
+                                    ゲップできた
+                                </label>
+                            </div>
 
                             <FormField
                                 control={form.control}

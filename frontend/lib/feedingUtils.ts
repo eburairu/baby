@@ -119,6 +119,7 @@ interface BuildFeedingPayloadOptions {
     activeTab: FeedingType
     feedingCompletion: FeedingCompletion | null
     bottleContentType: BottleContentType | null
+    burped?: boolean | null
 }
 
 export function buildFeedingPayload({
@@ -126,7 +127,8 @@ export function buildFeedingPayload({
     values,
     activeTab,
     feedingCompletion,
-    bottleContentType
+    bottleContentType,
+    burped
 }: BuildFeedingPayloadOptions): FeedingCreate {
     const leftMin = values.left_breast_minutes || 0
     const rightMin = values.right_breast_minutes || 0
@@ -144,6 +146,7 @@ export function buildFeedingPayload({
         feeding_type: activeTab,
         notes: values.notes || "",
         feeding_completion: feedingCompletion,
+        burped: burped ?? null,
     }
 
     if (activeTab === "BREAST") {

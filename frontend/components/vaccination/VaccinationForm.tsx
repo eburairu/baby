@@ -70,7 +70,7 @@ export function VaccinationForm({
             has_side_effect: false,
             notes: "",
         }
-    }, [record, isOpen])
+    }, [record])
 
     const form = useForm<VaccinationFormValues>({
         resolver: zodResolver(vaccinationSchema),
