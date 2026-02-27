@@ -31,7 +31,7 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 from app.routers import auth, family, baby, notifications, admin
 from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments, ai_feedback, ai_settings
-from app.routers import version
+from app.routers import version, vaccinations, milestones
 
 app.include_router(version.router)
 app.include_router(auth.router)
@@ -46,6 +46,8 @@ app.include_router(growth.router)
 app.include_router(contraction.router)
 app.include_router(schedule.router)
 app.include_router(note.router)
+app.include_router(vaccinations.router)
+app.include_router(milestones.router)
 app.include_router(baby_permissions.router)
 app.include_router(ai_summary.router)
 app.include_router(ai_feedback.router)

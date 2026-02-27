@@ -1973,6 +1973,200 @@
         "title": "MemberRoleUpdate",
         "type": "object"
       },
+      "MilestoneCreate": {
+        "properties": {
+          "achieved_date": {
+            "format": "date",
+            "title": "Achieved Date",
+            "type": "string"
+          },
+          "image_urls": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Urls",
+            "type": "array"
+          },
+          "milestone_type": {
+            "title": "Milestone Type",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "milestone_type",
+          "title",
+          "achieved_date"
+        ],
+        "title": "MilestoneCreate",
+        "type": "object"
+      },
+      "MilestoneResponse": {
+        "properties": {
+          "achieved_date": {
+            "format": "date",
+            "title": "Achieved Date",
+            "type": "string"
+          },
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "image_urls": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Urls",
+            "type": "array"
+          },
+          "milestone_type": {
+            "title": "Milestone Type",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          }
+        },
+        "required": [
+          "milestone_type",
+          "title",
+          "achieved_date",
+          "id",
+          "baby_id",
+          "user_id"
+        ],
+        "title": "MilestoneResponse",
+        "type": "object"
+      },
+      "MilestoneTimelineGroup": {
+        "properties": {
+          "milestones": {
+            "items": {
+              "$ref": "#/components/schemas/MilestoneResponse"
+            },
+            "title": "Milestones",
+            "type": "array"
+          },
+          "month_age": {
+            "title": "Month Age",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "month_age",
+          "milestones"
+        ],
+        "title": "MilestoneTimelineGroup",
+        "type": "object"
+      },
+      "MilestoneUpdate": {
+        "properties": {
+          "achieved_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Achieved Date"
+          },
+          "image_urls": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Urls"
+          },
+          "milestone_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Milestone Type"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "MilestoneUpdate",
+        "type": "object"
+      },
       "NoteCreate": {
         "properties": {
           "content": {
@@ -2918,6 +3112,277 @@
         ],
         "title": "UserRole",
         "type": "string"
+      },
+      "VaccinationCreate": {
+        "properties": {
+          "completed_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Date"
+          },
+          "dose_number": {
+            "title": "Dose Number",
+            "type": "integer"
+          },
+          "has_side_effect": {
+            "default": false,
+            "title": "Has Side Effect",
+            "type": "boolean"
+          },
+          "hospital_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Name"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Number"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "scheduled_date": {
+            "format": "date",
+            "title": "Scheduled Date",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VaccinationStatus",
+            "default": "scheduled"
+          },
+          "vaccine_name": {
+            "title": "Vaccine Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "vaccine_name",
+          "dose_number",
+          "scheduled_date"
+        ],
+        "title": "VaccinationCreate",
+        "type": "object"
+      },
+      "VaccinationResponse": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "completed_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Date"
+          },
+          "dose_number": {
+            "title": "Dose Number",
+            "type": "integer"
+          },
+          "has_side_effect": {
+            "default": false,
+            "title": "Has Side Effect",
+            "type": "boolean"
+          },
+          "hospital_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Name"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Number"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "scheduled_date": {
+            "format": "date",
+            "title": "Scheduled Date",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VaccinationStatus",
+            "default": "scheduled"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "vaccine_name": {
+            "title": "Vaccine Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "vaccine_name",
+          "dose_number",
+          "scheduled_date",
+          "id",
+          "baby_id",
+          "user_id"
+        ],
+        "title": "VaccinationResponse",
+        "type": "object"
+      },
+      "VaccinationStatus": {
+        "enum": [
+          "scheduled",
+          "completed",
+          "postponed"
+        ],
+        "title": "VaccinationStatus",
+        "type": "string"
+      },
+      "VaccinationUpdate": {
+        "properties": {
+          "completed_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Date"
+          },
+          "has_side_effect": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Side Effect"
+          },
+          "hospital_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Name"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Number"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "scheduled_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled Date"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VaccinationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "VaccinationUpdate",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {
@@ -5360,6 +5825,233 @@
         "summary": "Health Check"
       }
     },
+    "/api/milestones/": {
+      "get": {
+        "operationId": "get_milestones_api_milestones__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MilestoneResponse"
+                  },
+                  "title": "Response Get Milestones Api Milestones  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Milestones",
+        "tags": [
+          "milestones"
+        ]
+      },
+      "post": {
+        "operationId": "create_milestone_api_milestones__post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilestoneResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Milestone",
+        "tags": [
+          "milestones"
+        ]
+      }
+    },
+    "/api/milestones/timeline": {
+      "get": {
+        "operationId": "get_milestone_timeline_api_milestones_timeline_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MilestoneTimelineGroup"
+                  },
+                  "title": "Response Get Milestone Timeline Api Milestones Timeline Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Milestone Timeline",
+        "tags": [
+          "milestones"
+        ]
+      }
+    },
+    "/api/milestones/{milestone_id}": {
+      "delete": {
+        "operationId": "delete_milestone_api_milestones__milestone_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "milestone_id",
+            "required": true,
+            "schema": {
+              "title": "Milestone Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Milestone",
+        "tags": [
+          "milestones"
+        ]
+      },
+      "patch": {
+        "operationId": "update_milestone_api_milestones__milestone_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "milestone_id",
+            "required": true,
+            "schema": {
+              "title": "Milestone Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilestoneResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Milestone",
+        "tags": [
+          "milestones"
+        ]
+      }
+    },
     "/api/notes/{note_id}": {
       "delete": {
         "description": "メモの削除",
@@ -6172,6 +6864,233 @@
         "summary": "Upload Image",
         "tags": [
           "upload"
+        ]
+      }
+    },
+    "/api/vaccinations/": {
+      "get": {
+        "operationId": "get_vaccinations_api_vaccinations__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VaccinationResponse"
+                  },
+                  "title": "Response Get Vaccinations Api Vaccinations  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Vaccinations",
+        "tags": [
+          "vaccinations"
+        ]
+      },
+      "post": {
+        "operationId": "create_vaccination_api_vaccinations__post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VaccinationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VaccinationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Vaccination",
+        "tags": [
+          "vaccinations"
+        ]
+      }
+    },
+    "/api/vaccinations/generate": {
+      "post": {
+        "operationId": "generate_vaccinations_api_vaccinations_generate_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VaccinationResponse"
+                  },
+                  "title": "Response Generate Vaccinations Api Vaccinations Generate Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate Vaccinations",
+        "tags": [
+          "vaccinations"
+        ]
+      }
+    },
+    "/api/vaccinations/{vaccination_id}": {
+      "delete": {
+        "operationId": "delete_vaccination_api_vaccinations__vaccination_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vaccination_id",
+            "required": true,
+            "schema": {
+              "title": "Vaccination Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Vaccination",
+        "tags": [
+          "vaccinations"
+        ]
+      },
+      "patch": {
+        "operationId": "update_vaccination_api_vaccinations__vaccination_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vaccination_id",
+            "required": true,
+            "schema": {
+              "title": "Vaccination Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VaccinationUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VaccinationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Vaccination",
+        "tags": [
+          "vaccinations"
         ]
       }
     },

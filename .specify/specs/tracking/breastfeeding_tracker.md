@@ -70,11 +70,14 @@
     - ミルク合計量 (ml)
     - **左右別今日の合計**: `今日の母乳内訳: 左 45分 / 右 45分`
 - **前回からの経過時間**:
-    - 最後の授乳記録からの経過時間を表示（「前回から 2時間 30分」など）。
+    - 最後の授乳記録からの経過時間を「2時間前」「たった今」などの相対時間で表示。
 - **最終授乳情報の表示**:
     - 前回の記録から `last_breast_side` を取得し「前回: 右から授乳」を表示。
     - 前回のミルク記録から `amount_ml` を取得し、次回入力時のデフォルト値として利用する。
-- **次回ガイドメッセージ**: 最後の授乳側に基づき「次回は左から始めましょう」を表示。
+- **次回ガイドメッセージ**: 最後の授乳側に基づき以下のメッセージを表示。
+    - 左終了時: 「次回は右から始めましょう」
+    - 右終了時: 「次回は左から始めましょう」
+    - 両方終了時: 「次回はどちらからでも大丈夫です」
 
 ## データモデル (Feeding)
 
@@ -180,7 +183,10 @@ interface FeedingResponse {
 - `FeedingPage` (`app/(dashboard)/feeding/page.tsx`): ページラッパー
 - `FeedingWidget` (`frontend/components/dashboard/FeedingWidget.tsx`): ダッシュボード用ウィジェット
 - `FeedingForm` (`frontend/components/feeding/feeding-form.tsx`): 入力フォーム（作成・編集兼用）
-    - 左右独立タイマー制御ロジックを内包
-    - タブ切り替え（母乳/ミルク）
+    - `FeedingTimerSection`: 左右独立タイマーUI
+    - `BreastFeedingFields`: 母乳手動入力フィールド
+    - `BottleFeedingFields`: ミルク入力フィールド（種類選択含む）
+    - `FeedingCompletionSelector`: 授乳完全度選択
+- `FeedingEditDialog` (`frontend/components/feeding/FeedingEditDialog.tsx`): 編集ダイアログ
 - `FeedingStats` (`frontend/components/feeding/feeding-stats.tsx`): 日次サマリー
 - `FeedingHistory` (`frontend/components/feeding/feeding-history.tsx`): 履歴リスト

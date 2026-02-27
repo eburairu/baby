@@ -12,6 +12,7 @@ import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { FeedingEditDialog } from "./FeedingEditDialog"
 import { useRecordComments } from "@/hooks/useRecordComments"
+import { BOTTLE_CONTENT_LABEL, COMPLETION_STYLE } from "@/constants/feeding"
 
 interface FeedingHistoryProps {
     feedings: Feeding[];
@@ -22,17 +23,6 @@ interface FeedingHistoryProps {
     initialCommentRecordId?: number | null;
     babyId?: number;
 }
-
-const BOTTLE_CONTENT_LABEL: Record<string, string> = {
-    FORMULA: "粉ミルク",
-    EXPRESSED_MILK: "搾母乳",
-    MIXED: "混合",
-};
-
-const COMPLETION_STYLE: Record<string, { label: string; className: string }> = {
-    FULL: { label: "しっかり飲んだ", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-    PARTIAL: { label: "途中でやめた", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
-};
 
 function BreastDuration({ feeding }: { feeding: Feeding }) {
     const { left_breast_minutes, right_breast_minutes, duration_minutes } = feeding;
