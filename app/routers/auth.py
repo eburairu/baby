@@ -16,6 +16,7 @@ from app.models.family import Family, FamilyUser, UserRole
 from app.services.auth import verify_password, get_password_hash
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
+from app.utils.audit import log_event
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -66,6 +67,7 @@ def change_password(
         UserSession.token != current_token,
     ).delete()
     db.commit()
+    log_event(db, "PASSWORD_CHANGE", user_id=current_user.id, ip_address=request.client.host if request.client else None)
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -91,7 +93,12 @@ def update_profile(
     response_model=FamilyResponse,
     dependencies=[Depends(register_limiter)],
 )
-def register_family(family_in: FamilyCreate, response: Response, db: Session = Depends(get_db)):
+def register_family(
+    family_in: FamilyCreate,
+    response: Response,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -130,6 +137,13 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
         path="/",
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
+    log_event(
+        db,
+        "REGISTER_FAMILY",
+        user_id=new_user.id,
+        details={"family_id": new_family.id, "family_name": new_family.name},
+        ip_address=request.client.host if request.client else None
+    )
     return new_family
 
 
@@ -138,7 +152,13 @@ def register_family(family_in: FamilyCreate, response: Response, db: Session = D
     response_model=UserResponse,
     dependencies=[Depends(register_limiter)],
 )
-def join_family(user_in: UserCreate, invite_code: str, response: Response, db: Session = Depends(get_db)):
+def join_family(
+    user_in: UserCreate, 
+    invite_code: str, 
+    response: Response, 
+    request: Request,
+    db: Session = Depends(get_db)
+):
     existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -175,6 +195,14 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
         path="/",
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
+
+    log_event(
+        db,
+        "JOIN_FAMILY",
+        user_id=new_user.id,
+        details={"family_id": family.id, "family_name": family.name},
+        ip_address=request.client.host if request.client else None
+    )
     
     return UserResponse(
         id=new_user.id,
@@ -187,7 +215,12 @@ def join_family(user_in: UserCreate, invite_code: str, response: Response, db: S
 
 
 @router.post("/login", response_model=UserResponse, dependencies=[Depends(login_limiter)])
-def login(login_request: LoginRequest, response: Response, db: Session = Depends(get_db)):
+def login(
+    login_request: LoginRequest,
+    response: Response,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     user = db.query(User).filter(func.lower(User.username) == login_request.username.lower()).first()
 
     # Timing Attack Mitigation:
@@ -213,6 +246,13 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
     
+    log_event(
+        db,
+        "LOGIN",
+        user_id=user.id,
+        ip_address=request.client.host if request.client else None
+    )
+    
     return UserResponse(
         id=user.id,
         username=user.username,
@@ -227,8 +267,16 @@ def login(login_request: LoginRequest, response: Response, db: Session = Depends
 def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     token = request.cookies.get("access_token")
     if token:
-        db.query(UserSession).filter(UserSession.token == token).delete()
-        db.commit()
+        session = db.query(UserSession).filter(UserSession.token == token).first()
+        if session:
+            log_event(
+                db, 
+                "LOGOUT", 
+                user_id=session.user_id, 
+                ip_address=request.client.host if request.client else None
+            )
+            db.delete(session)
+            db.commit()
     response.delete_cookie("access_token")
     return {"message": "Logged out"}
 

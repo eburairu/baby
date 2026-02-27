@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import List, Optional
@@ -19,48 +19,21 @@ from app.models.growth import Growth
 from app.models.contraction import Contraction
 from app.models.schedule import Schedule
 from app.models.note import Note
+from app.models.audit_log import AuditLog
 from app.schemas.user import UserResponse, SuperAdminToggleRequest
+from app.schemas.admin import (
+    AdminStats, 
+    FamilyAdminResponse, 
+    FamilyDetailResponse, 
+    AdminFamilyMemberResponse, 
+    BabyAdminResponse, 
+    AuditLogResponse
+)
+from app.utils.audit import log_event
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 logger = logging.getLogger(__name__)
-
-class AdminStats(BaseModel):
-    total_users: int
-    total_families: int
-    total_records: int
-    active_users_last_24h: int
-
-class FamilyAdminResponse(BaseModel):
-    id: int
-    name: str
-    member_count: int
-    created_at: datetime
-
-class AdminFamilyMemberResponse(BaseModel):
-    user_id: int
-    username: str
-    display_name: Optional[str] = None
-    role: str
-    joined_at: datetime
-
-class BabyAdminResponse(BaseModel):
-    id: int
-    name: str
-    birthday: Optional[str] = None
-    gender: Optional[str] = None
-    created_at: datetime
-
-class FamilyDetailResponse(BaseModel):
-    id: int
-    name: str
-    member_count: int
-    created_at: datetime
-    members: List[AdminFamilyMemberResponse]
-    babies: List[BabyAdminResponse]
-
-class UserAdminResponse(UserResponse):
-    is_superadmin: bool
 
 @router.get("/stats", response_model=AdminStats)
 def get_admin_stats(
@@ -186,7 +159,8 @@ def get_admin_users(
 @router.patch("/users/{user_id}/superadmin", response_model=UserResponse)
 def toggle_superadmin(
     user_id: int,
-    request: SuperAdminToggleRequest,
+    request_data: SuperAdminToggleRequest,
+    request: Request,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
 ):
@@ -195,11 +169,53 @@ def toggle_superadmin(
         raise HTTPException(status_code=404, detail="User not found")
 
     # 自分自身の権限は剥奪できないようにする（安全のため）
-    if user.id == admin.id and not request.is_superadmin:
+    if user.id == admin.id and not request_data.is_superadmin:
         raise HTTPException(status_code=400, detail="Cannot demote yourself from SuperAdmin")
 
-    user.is_superadmin = request.is_superadmin
+    user.is_superadmin = request_data.is_superadmin
     db.commit()
     db.refresh(user)
-    logger.info("SuperAdmin status updated: target_user_id=%s, new_status=%s, by admin_id=%s", user.id, request.is_superadmin, admin.id)
+    
+    log_event(
+        db,
+        "SUPERADMIN_STATUS_CHANGE",
+        user_id=admin.id,
+        details={
+            "target_user_id": user.id,
+            "target_username": user.username,
+            "new_status": request_data.is_superadmin
+        },
+        ip_address=request.client.host if request.client else None
+    )
+    
+    logger.info("SuperAdmin status updated: target_user_id=%s, new_status=%s, by admin_id=%s", user.id, request_data.is_superadmin, admin.id)
     return user
+
+@router.get("/audit-logs", response_model=List[AuditLogResponse])
+def get_audit_logs(
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_superadmin),
+    skip: int = 0,
+    limit: int = 100
+):
+    logs = (
+        db.query(AuditLog)
+        .options(joinedload(AuditLog.user))
+        .order_by(AuditLog.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    
+    result = []
+    for log in logs:
+        result.append(AuditLogResponse(
+            id=log.id,
+            user_id=log.user_id,
+            username=log.user.username if log.user else None,
+            action=log.action,
+            details=log.details,
+            ip_address=log.ip_address,
+            created_at=log.created_at
+        ))
+    return result
