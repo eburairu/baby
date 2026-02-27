@@ -18,7 +18,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
-import { useWindowSize } from "@/hooks/useWindowSize"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
@@ -29,7 +28,6 @@ const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentAc
 export default function DashboardPage() {
     const { babies, isLoading, isError: babiesError, mutate: mutateBabies, selectedBabyId } = useSelectedBaby()
     const { canWrite, isAdmin } = usePermissions()
-    const { width } = useWindowSize()
 
     const { records, isLoading: recordsLoading, isError: recordsError, mutate: mutateRecords } = useRecords(selectedBabyId)
 
@@ -61,8 +59,7 @@ export default function DashboardPage() {
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
     const babiesWithStrId = babies.map(b => ({ ...b, id: String(b.id) }))
 
-    // レスポンシブサイズの計算
-    const honeycombSize = (width && width < 640) ? 150 : 170
+    const honeycombSize = 160
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
