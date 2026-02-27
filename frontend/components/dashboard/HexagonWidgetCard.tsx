@@ -13,7 +13,7 @@ interface HexagonWidgetCardProps {
     title: string
     icon?: React.ReactNode
     children?: React.ReactNode
-    isError?: boolean | ErrorWithStatus | null
+    isError?: boolean | ErrorWithStatus | null | unknown
     isLoading?: boolean
     className?: string
     size?: number
