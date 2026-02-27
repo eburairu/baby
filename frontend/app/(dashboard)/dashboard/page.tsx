@@ -3,6 +3,7 @@ import { useCallback } from "react"
 import { useRecords } from "@/hooks/useData"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { usePermissions } from "@/hooks/usePermissions"
+import { useWindowSize } from "@/hooks/useWindowSize"
 import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
 import { SleepWidget } from "@/components/dashboard/SleepWidget"
@@ -18,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
+import { DASHBOARD_UI } from "@/constants/dashboard"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
@@ -26,6 +28,7 @@ const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentAc
 })
 
 export default function DashboardPage() {
+    const { width } = useWindowSize()
     const { babies, isLoading, isError: babiesError, mutate: mutateBabies, selectedBabyId } = useSelectedBaby()
     const { canWrite, isAdmin } = usePermissions()
 
@@ -59,7 +62,9 @@ export default function DashboardPage() {
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
     const babiesWithStrId = babies.map(b => ({ ...b, id: String(b.id) }))
 
-    const honeycombSize = 160
+    const honeycombSize = (width && width < 640) 
+        ? DASHBOARD_UI.WIDGET_SIZE.MOBILE 
+        : DASHBOARD_UI.WIDGET_SIZE.DESKTOP
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
@@ -81,8 +86,8 @@ export default function DashboardPage() {
 
                     <HoneycombGrid
                         size={honeycombSize}
-                        gap={16}
-                        rows={[[0, 2], [1, null, 3], [4, 5]]}
+                        gap={DASHBOARD_UI.WIDGET_GAP}
+                        rows={DASHBOARD_UI.WIDGET_ROWS}
                     >
                         <FeedingWidget
                             babyId={effectiveBabyId}
