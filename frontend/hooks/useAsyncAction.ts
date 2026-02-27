@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { toast } from "sonner"
+import * as Sentry from "@sentry/nextjs"
 
 interface UseAsyncActionOptions<T> {
     onSuccess?: (data: T) => void
@@ -18,6 +19,7 @@ export function useAsyncAction() {
     ) => {
         if (loading) return
         setLoading(true)
+        Sentry.logger.trace("Entering async action", { hasSuccessMsg: !!options.successMessage })
         try {
             const result = await action()
             if (options.successMessage) {
@@ -29,6 +31,7 @@ export function useAsyncAction() {
             return result
         } catch (error) {
             console.error(error)
+            Sentry.logger.error("Async action failed", { error })
             if (options.errorMessage) {
                 toast.error(options.errorMessage)
             }
