@@ -22,12 +22,14 @@ export const HEX_CONSTANTS = {
   POINTY_W_TO_H: Math.sqrt(3) / 2, // 0.866
   // Flat-topped の場合の幅と高さの比率 (height/width)
   FLAT_H_TO_W: Math.sqrt(3) / 2,
+  // プロジェクト標準の角丸値
+  DEFAULT_CORNER_RADIUS: 12,
 };
 
 export const Hexagon = ({
   children,
   size = 100,
-  cornerRadius = 8,
+  cornerRadius = HEX_CONSTANTS.DEFAULT_CORNER_RADIUS,
   pointy = true,
   color = "currentColor",
   borderColor = "transparent",

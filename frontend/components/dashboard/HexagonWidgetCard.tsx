@@ -39,7 +39,6 @@ export const HexagonWidgetCard = ({
             <Hexagon 
                 size={size} 
                 className="text-white dark:text-zinc-900 shadow-sm border-0 transition-colors"
-                cornerRadius={12}
                 borderColor="transparent"
                 borderWidth={0}
             >
