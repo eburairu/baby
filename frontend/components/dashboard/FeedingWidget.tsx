@@ -8,7 +8,7 @@ import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } 
 import { Milk } from "lucide-react"
 import Link from "next/link"
 
-export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
+export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
     const { todayCount, lastElapsed } = useMemo(() => {
         const feedingRecords = records
             ?.map(normalizeFeedingFromRecord)
@@ -23,6 +23,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                 icon={<Milk className="w-5 h-5 text-rose-500" />}
                 isError={isError}
                 isLoading={isLoading}
+                size={size}
                 className="hover:shadow-rose-100 dark:hover:shadow-rose-900/20"
             >
                 <div className="flex flex-col items-center">

@@ -8,7 +8,7 @@ import { calculateSleepStats } from "@/lib/sleepUtils"
 import { Moon } from "lucide-react"
 import Link from "next/link"
 
-export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
+export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
     const { isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         return calculateSleepStats(records)
     }, [records])
@@ -27,6 +27,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                 }
                 isError={isError}
                 isLoading={isLoading}
+                size={size}
                 className="hover:shadow-indigo-100 dark:hover:shadow-indigo-900/20"
             >
                 <div className="flex flex-col items-center">

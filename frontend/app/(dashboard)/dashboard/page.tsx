@@ -93,6 +93,7 @@ export default function DashboardPage() {
                             isLoading={recordsLoading}
                             isError={recordsError}
                             mutate={handleMutateRecords}
+                            size={honeycombSize}
                         />
                         <SleepWidget
                             babyId={effectiveBabyId}
@@ -100,6 +101,7 @@ export default function DashboardPage() {
                             isLoading={recordsLoading}
                             isError={recordsError}
                             mutate={handleMutateRecords}
+                            size={honeycombSize}
                         />
                         <DiaperWidget
                             babyId={effectiveBabyId}
@@ -107,21 +109,25 @@ export default function DashboardPage() {
                             isLoading={recordsLoading}
                             isError={recordsError}
                             mutate={handleMutateRecords}
+                            size={honeycombSize}
                         />
                         <GrowthWidget
                             babyId={effectiveBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
+                            size={honeycombSize}
                         />
                         <NoteWidget
                             babyId={effectiveBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
+                            size={honeycombSize}
                         />
                         <DiaryWidget
                             babyId={effectiveBabyId}
+                            size={honeycombSize}
                         />
                     </HoneycombGrid>
 

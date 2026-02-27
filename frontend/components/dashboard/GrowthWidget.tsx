@@ -7,7 +7,7 @@ import { BaseWidgetProps } from "@/types/widget"
 import { Ruler } from "lucide-react"
 import Link from "next/link"
 
-export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError }: BaseWidgetProps) {
+export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError, size }: BaseWidgetProps) {
     const growthRecords = records?.filter(r => r.type === 'growth') ?? []
     const latest = growthRecords[0] ?? null
 
@@ -24,7 +24,8 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
                 title="成長"
                 icon={<Ruler className="w-5 h-5 text-emerald-500" />}
                 isError={isError}
-                isLoading={isLoading}
+                isLoading={isLoading} 
+                size={size}
                 className="hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20"
             >
                 <div className="flex flex-col items-center">

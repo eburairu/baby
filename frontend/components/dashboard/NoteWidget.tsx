@@ -8,7 +8,7 @@ import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import Link from "next/link"
 
-export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading, isError }: BaseWidgetProps) {
+export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading, isError, size }: BaseWidgetProps) {
   const noteRecords = records?.filter(r => r.type === 'note') ?? []
   const lastNote = noteRecords[0]
   const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
@@ -19,7 +19,8 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading,
         title="メモ"
         icon={<StickyNote className="w-5 h-5 text-amber-500" />}
         isError={isError}
-        isLoading={isLoading}
+        isLoading={isLoading} 
+        size={size}
         className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
       >
         <div className="flex flex-col items-center">

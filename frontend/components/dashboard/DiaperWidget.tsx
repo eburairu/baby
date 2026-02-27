@@ -8,7 +8,7 @@ import { BaseWidgetProps } from "@/types/widget"
 import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
 import Link from "next/link"
 
-export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
+export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
     const { wetCount, dirtyCount, lastElapsed } = useMemo(() => {
         const diaperRecords = records
             ?.map(normalizeDiaperFromRecord)
@@ -23,6 +23,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                 icon={<Baby className="w-5 h-5 text-amber-500" />}
                 isError={isError}
                 isLoading={isLoading}
+                size={size}
                 className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
             >
                 <div className="flex flex-col items-center">

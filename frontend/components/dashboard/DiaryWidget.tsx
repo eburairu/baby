@@ -4,13 +4,10 @@ import { memo } from "react"
 import { BookOpen } from "lucide-react"
 import { useDailySummaries } from "@/hooks/useDailySummary"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
+import { BaseWidgetProps } from "@/types/widget"
 import Link from "next/link"
 
-interface Props {
-    babyId: string
-}
-
-export const DiaryWidget = memo(function DiaryWidget({ babyId }: Props) {
+export const DiaryWidget = memo(function DiaryWidget({ babyId, size }: BaseWidgetProps) {
     const { summaries, isLoading, error } = useDailySummaries(parseInt(babyId, 10))
 
     const latestSummary = summaries?.[0]
@@ -26,7 +23,8 @@ export const DiaryWidget = memo(function DiaryWidget({ babyId }: Props) {
                 title="育児日誌"
                 icon={<BookOpen className="w-5 h-5 text-amber-600" />}
                 isError={error}
-                isLoading={isLoading}
+                isLoading={isLoading} 
+                size={size}
                 className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
             >
                 <div className="flex flex-col items-center">
