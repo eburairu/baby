@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { useState, useId } from "react"
 import { Sparkles, ChevronDown } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
@@ -24,6 +24,8 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
     const prenatalLabel = !selected?.birthday ? getPrenatalLabel(selected?.due_date) : null
     const [isCharacteristicsExpanded, setIsCharacteristicsExpanded] = useState(false)
     const initial = selected?.name?.charAt(0) || "?"
+    const uniqueId = useId()
+    const characteristicsId = `characteristics-${uniqueId}`
 
     return (
         <div className="rounded-2xl p-4 transition-colors bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 shadow-sm border border-pink-100/50 dark:border-pink-900/20">
@@ -52,6 +54,8 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
                     <div className="mt-1 pt-3 border-t border-gray-50 dark:border-zinc-800">
                         <button
                             onClick={() => setIsCharacteristicsExpanded(!isCharacteristicsExpanded)}
+                            aria-expanded={isCharacteristicsExpanded}
+                            aria-controls={characteristicsId}
                             className="flex items-center justify-between w-full mb-2 px-1 py-1 -mx-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/50"
                         >
                             <div className="flex items-center gap-1.5">
@@ -67,6 +71,7 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
                             />
                         </button>
                         <div
+                            id={characteristicsId}
                             className={`grid transition-all duration-300 ease-in-out ${
                                 isCharacteristicsExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                             }`}

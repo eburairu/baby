@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useId } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
 
 const FAQ_ITEMS = [
@@ -32,10 +32,15 @@ const FAQ_ITEMS = [
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
     const [open, setOpen] = useState(false)
+    const uniqueId = useId()
+    const id = `faq-${uniqueId}`
+
     return (
         <div className="border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/50 transition-colors">
             <button
                 onClick={() => setOpen(!open)}
+                aria-expanded={open}
+                aria-controls={id}
                 className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             >
                 <span className="font-bold text-slate-800 dark:text-slate-200">{question}</span>
@@ -46,7 +51,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
                 )}
             </button>
             {open && (
-                <div className="px-6 pb-6 text-slate-600 dark:text-slate-400 leading-relaxed text-sm border-t border-slate-100 dark:border-zinc-800 pt-4">
+                <div id={id} className="px-6 pb-6 text-slate-600 dark:text-slate-400 leading-relaxed text-sm border-t border-slate-100 dark:border-zinc-800 pt-4">
                     {answer}
                 </div>
             )}
