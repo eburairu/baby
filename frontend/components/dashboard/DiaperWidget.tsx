@@ -6,9 +6,13 @@ import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
-import Link from "next/link"
+import { useQuickRecord } from "@/hooks/useQuickRecord"
+import { api } from "@/lib/api"
+import { RECORD_TYPES } from "@/types/enums"
 
-export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
+export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading, size, mutate }: BaseWidgetProps) {
+    const { executeRecord } = useQuickRecord(babyId, { onSuccess: mutate })
+
     const { wetCount, dirtyCount, lastElapsed } = useMemo(() => {
         const diaperRecords = records
             ?.map(normalizeDiaperFromRecord)
@@ -16,8 +20,25 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         return calculateDiaperStats(diaperRecords)
     }, [records])
 
+    const handleQuickWet = async (e: React.MouseEvent) => {
+        // タイル全体のクリックで「おしっこ」を記録
+        e.preventDefault()
+        e.stopPropagation()
+        
+        const action = async () => api.post<{ id: number }>("/diapers/", {
+            baby_id: Number(babyId),
+            diaper_type: "WET",
+            change_time: new Date().toISOString(),
+        })
+
+        await executeRecord(action, { 
+            feedbackType: RECORD_TYPES.DIAPER, 
+            label: "おしっこ" 
+        })
+    }
+
     return (
-        <Link href={`/diaper?baby_id=${babyId}`} className="block">
+        <div onClick={handleQuickWet} className="cursor-pointer">
             <HexagonWidgetCard
                 title="おむつ"
                 icon={<Baby className="w-5 h-5 text-amber-500" />}
@@ -34,6 +55,6 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
                     </div>
                 </div>
             </HexagonWidgetCard>
-        </Link>
+        </div>
     )
 }, createWidgetMemoComparison('diaper'))
