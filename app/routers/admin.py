@@ -173,8 +173,6 @@ def toggle_superadmin(
         raise HTTPException(status_code=400, detail="Cannot demote yourself from SuperAdmin")
 
     user.is_superadmin = request_data.is_superadmin
-    db.commit()
-    db.refresh(user)
     
     log_event(
         db,
@@ -185,8 +183,12 @@ def toggle_superadmin(
             "target_username": user.username,
             "new_status": request_data.is_superadmin
         },
-        ip_address=request.client.host if request.client else None
+        ip_address=request.client.host if request.client else None,
+        commit=False
     )
+    
+    db.commit()
+    db.refresh(user)
     
     logger.info("SuperAdmin status updated: target_user_id=%s, new_status=%s, by admin_id=%s", user.id, request_data.is_superadmin, admin.id)
     return user

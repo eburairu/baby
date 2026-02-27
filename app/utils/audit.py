@@ -11,7 +11,8 @@ def log_event(
     action: str,
     user_id: Optional[int] = None,
     details: Optional[Any] = None,
-    ip_address: Optional[str] = None
+    ip_address: Optional[str] = None,
+    commit: bool = True
 ):
     """
     Record an event in the audit_logs table.
@@ -30,8 +31,12 @@ def log_event(
             ip_address=ip_address
         )
         db.add(audit_entry)
-        db.commit()
+        if commit:
+            db.commit()
+        else:
+            db.flush()
     except Exception as e:
         # Don't fail the main request if audit logging fails, just log it
         logger.error(f"Failed to record audit log: {e}")
-        db.rollback()
+        if commit:
+            db.rollback()

@@ -66,8 +66,16 @@ def change_password(
         UserSession.user_id == current_user.id,
         UserSession.token != current_token,
     ).delete()
+    
+    log_event(
+        db, 
+        "PASSWORD_CHANGE", 
+        user_id=current_user.id, 
+        ip_address=request.client.host if request.client else None,
+        commit=False
+    )
+    
     db.commit()
-    log_event(db, "PASSWORD_CHANGE", user_id=current_user.id, ip_address=request.client.host if request.client else None)
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -269,11 +277,14 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     if token:
         session = db.query(UserSession).filter(UserSession.token == token).first()
         if session:
+            # Note: log_event with commit=False ensures this and the deletion 
+            # are committed in the same transaction.
             log_event(
                 db, 
                 "LOGOUT", 
                 user_id=session.user_id, 
-                ip_address=request.client.host if request.client else None
+                ip_address=request.client.host if request.client else None,
+                commit=False
             )
             db.delete(session)
             db.commit()
