@@ -1,13 +1,14 @@
 import os
 from dotenv import load_dotenv
+
+load_dotenv()
+
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine
 from app.models.user import User
 from app.models.family import Family, FamilyUser
 from app.services.auth import get_password_hash
 from app.models.base import Base
-
-load_dotenv()
 
 def seed_test_user():
     # Ensure tables exist (they should, but just in case)
