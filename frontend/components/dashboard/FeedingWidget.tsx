@@ -2,13 +2,13 @@
 
 import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
-import { WidgetCard } from "./WidgetCard"
+import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { WidgetContent } from "./WidgetContent"
 import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
 import { Milk } from "lucide-react"
+import Link from "next/link"
 
-export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading }: BaseWidgetProps) {
+export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
     const { todayCount, lastElapsed } = useMemo(() => {
         const feedingRecords = records
             ?.map(normalizeFeedingFromRecord)
@@ -17,19 +17,20 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
     }, [records])
 
     return (
-        <WidgetCard
-            title={<span className="text-rose-500 dark:text-rose-400 flex items-center gap-1"><Milk className="w-4 h-4" /> 授乳</span>}
-            href={`/feeding?baby_id=${babyId}`}
-            isError={isError}
-            actionHoverColor="hover:text-rose-500 dark:hover:text-rose-400"
-            ariaLabel="授乳の詳細を見る"
-        >
-            <WidgetContent
+        <Link href={`/feeding?baby_id=${babyId}`} className="block">
+            <HexagonWidgetCard
+                title="授乳"
+                icon={<Milk className="w-5 h-5 text-rose-500" />}
+                isError={isError}
                 isLoading={isLoading}
-                loadingColorClass="text-rose-400"
-                elapsed={lastElapsed}
-                subContent={`今日: ${todayCount}回`}
-            />
-        </WidgetCard>
+                size={size}
+                className="hover:shadow-rose-100 dark:hover:shadow-rose-900/20"
+            >
+                <div className="flex flex-col items-center">
+                    <span className="font-bold text-gray-800 dark:text-zinc-200">{lastElapsed}</span>
+                    <span className="text-[10px] text-gray-500 dark:text-zinc-500 mt-0.5">今日 {todayCount}回</span>
+                </div>
+            </HexagonWidgetCard>
+        </Link>
     )
 }, createWidgetMemoComparison('feeding'))

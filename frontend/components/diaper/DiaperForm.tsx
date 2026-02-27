@@ -20,26 +20,33 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { DiaperType } from "@/types/diaper"
+import { Diaper, DiaperType, DiaperUpdate } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
 import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
+import { api } from "@/lib/api"
 
 
 interface Props {
-    babyId: string
+    babyId: string | number
+    initialData?: Diaper
     onSuccess: (recordId?: number) => void
+    onUpdate?: (id: number, data: DiaperUpdate) => Promise<Diaper | undefined>
 }
 
-export function DiaperForm({ babyId, onSuccess }: Props) {
+export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) {
+    const isEditing = !!initialData
+
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
         defaultValues: {
-            diaper_type: DiaperType.WET,
-            change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            notes: "",
+            diaper_type: initialData?.diaper_type ?? DiaperType.WET,
+            change_time: initialData?.change_time
+                ? format(new Date(initialData.change_time), "yyyy-MM-dd'T'HH:mm")
+                : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+            notes: initialData?.notes ?? "",
             poop_color: "",
             custom_poop_color: "",
             poop_amount: "",
@@ -55,19 +62,21 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
         endpoint: "/diapers/",
         babyId,
         onSuccess: (data) => {
-            form.reset({
-                diaper_type: DiaperType.WET,
-                change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-                notes: "",
-                poop_color: "",
-                custom_poop_color: "",
-                poop_amount: "",
-                custom_poop_amount: "",
-            })
+            if (!isEditing) {
+                form.reset({
+                    diaper_type: DiaperType.WET,
+                    change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                    notes: "",
+                    poop_color: "",
+                    custom_poop_color: "",
+                    poop_amount: "",
+                    custom_poop_amount: "",
+                })
+            }
             onSuccess((data as { id?: number })?.id)
         },
         errorMessage: "エラーが発生しました。もう一度お試しください。",
-        successMessage: undefined // No toast for diaper form in previous code
+        successMessage: isEditing ? "更新しました" : undefined
     })
 
     const onSubmit = async (values: DiaperFormValues) => {
@@ -78,12 +87,17 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                     const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
                     const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
 
-                    if (color || amount) {
+                    // 編集モードでない場合のみ、色と量の情報をメモの先頭に自動付与する
+                    // 編集時はユーザーの手動編集を優先し、自動追記による重複や混乱を防ぐ
+                    if (!initialData && (color || amount)) {
                         const prefixParts = []
                         if (color) prefixParts.push(`色: ${color}`)
                         if (amount) prefixParts.push(`量: ${amount}`)
                         const prefix = prefixParts.join("、")
-                        finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+
+                        if (prefix) {
+                            finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+                        }
                     }
                 }
                 return {
@@ -92,7 +106,25 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                     change_time: new Date(vals.change_time).toISOString(),
                     notes: finalNotes || undefined,
                 }
-            })
+            },
+            isEditing && initialData ? async (payload) => {
+                 // payload is TPayload which is inferred as ReturnType of payloadFormatter.
+                 // payloadFormatter returns an object with baby_id, diaper_type, change_time, notes.
+                 // This matches DiaperUpdate closely enough (although DiaperUpdate has optional fields and doesn't require baby_id).
+                 // We'll cast it to DiaperUpdate to satisfy TypeScript and strict typing.
+
+                 const updatePayload: DiaperUpdate = {
+                     diaper_type: payload.diaper_type,
+                     change_time: payload.change_time,
+                     notes: payload.notes
+                 };
+
+                 if (onUpdate) {
+                     return await onUpdate(initialData.id, updatePayload)
+                 } else {
+                     return await api.patch(`/diapers/${initialData.id}`, updatePayload)
+                 }
+            } : undefined)
         } catch (e) {
             // Error is handled by the hook
             console.error(e)
@@ -100,8 +132,8 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
     }
 
     return (
-        <Card className="rounded-2xl shadow-sm border-0 mb-6 transition-colors">
-            <CardContent className="pt-6">
+        <Card className={cn("rounded-2xl shadow-sm border-0 mb-6 transition-colors", isEditing && "mb-0 shadow-none")}>
+            <CardContent className={cn("pt-6", isEditing && "p-0")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-3 gap-3">
@@ -284,7 +316,7 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
                             loading={isSubmitting}
                             data-sentry-unmask
                         >
-                            {isSubmitting ? "保存中..." : "保存する"}
+                            {isSubmitting ? "保存中..." : isEditing ? "更新する" : "保存する"}
                         </Button>
                     </form>
                 </Form>

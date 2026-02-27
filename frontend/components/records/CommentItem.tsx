@@ -5,6 +5,17 @@ import { Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import { cn } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 // NOTE: import the type from where you define it, or declare it inline if you prefer.
 // Assuming Comment type looks somewhat like this based on usage:
@@ -91,20 +102,36 @@ export function CommentItem({ comment, currentUserId, onDelete, isDeleting }: Co
       </p>
 
       {currentUserId === comment.user_id && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            if (window.confirm("このコメントを削除しますか？")) {
-              onDelete(comment.id)
-            }
-          }}
-          disabled={isDeleting}
-          aria-label="コメントを削除"
-          className="absolute top-2 right-2 h-6 w-6 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-transparent"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              disabled={isDeleting}
+              aria-label="コメントを削除"
+              className="absolute top-2 right-2 h-6 w-6 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-transparent"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>コメントを削除しますか？</AlertDialogTitle>
+              <AlertDialogDescription>
+                この操作は取り消せません。本当に削除してよろしいですか？
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>キャンセル</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => onDelete(comment.id)}
+                className="bg-red-500 hover:bg-red-600 focus-visible:ring-red-600"
+              >
+                削除する
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   )

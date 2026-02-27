@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
+import * as Sentry from "@sentry/nextjs"
 
 /** クイックアクションボタンの統一サイズ（六角形の高さ） */
 const BUTTON_SIZE = 58
@@ -46,6 +47,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     if (!canWrite) return null
 
     const handleQuickRecord = async (type: "feeding_bottle" | "feeding_breast" | "sleep" | "diaper_wet" | "diaper_dirty") => {
+        Sentry.logger.info("Quick action started", { type })
         setLoadingAction(type)
 
         const actionMap = {
@@ -92,6 +94,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         }
 
         await executeRecord(actionMap[type], configMap[type])
+        Sentry.logger.info("Quick action completed", { type })
         setLoadingAction(null)
     }
 
