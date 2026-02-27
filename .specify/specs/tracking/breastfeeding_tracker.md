@@ -16,6 +16,7 @@
 - ボトル授乳の際、粉ミルクか搾母乳かを区別して記録したい。
 - 赤ちゃんがしっかり飲んだか途中でやめたかを記録したい。
 - 記録済みの内容に誤りがあった場合、後から修正したい。
+- 忙しい時にダッシュボードから1タップで記録を開始したい。
 
 ## 機能要件
 
@@ -29,7 +30,7 @@
     - **母乳の場合**:
         - **左右別タイマー**: 左乳・右乳それぞれに独立したタイマーを持つ。片方を起動するともう一方は自動停止。**（※新規作成時のみ利用可能。編集時は非表示）**
         - **左右別手動入力**: `左: [ X ] 分 / 右: [ Y ] 分` で入力可能。**（※編集時も利用可能）**
-        - **合計時間の自動計算**: 左右の合計を `duration_minutes` として自動計算して保存（後方互換性維持）。
+        - **合計時間の自動計算**: フロントエンド (`feedingUtils.ts`) およびバックエンド (`FeedingCreate` validator) の両方で、`left_breast_minutes` + `right_breast_minutes` の合計を `duration_minutes` として自動計算する。
     - **ミルクの場合**:
         - 量 (ml): 10ml単位などで入力。
         - **デフォルト値の保持**: ミルク記録時、前回の記録がある場合はその量をデフォルト値として入力欄にセットする。
@@ -40,6 +41,8 @@
         - メモ: 自由記述。
 - **保存**: API に POST して保存する。
     - **処理中フィードバック**: 保存ボタンが押された後、API レスポンスが返るまでの間、ボタンを無効化（Disabled）し、「保存中...」およびスピナーを表示して処理中であることを示す。
+- **クイック記録**:
+    - ダッシュボードの `FeedingWidget` から、タイマーなしで即座に記録を作成可能（詳細はUIコンポーネント構成参照）。
 
 ### F2: 授乳記録一覧 (タイムライン)
 
@@ -130,27 +133,28 @@ class FeedingCompletion(str, Enum):
 
 - `GET /api/feedings/?baby_id={id}`: 授乳記録一覧取得
 - `POST /api/feedings/`: 新規作成
-    - **通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Push/In-App）が送信される。
+    - **通知**: 記録作成成功時、サーバー側 (`app/routers/feeding.py`) で `notify_family_members_bg` を呼び出し、対象の赤ちゃんの家族メンバー全員（記録者本人を除く）にプッシュ通知およびアプリ内通知を送信する。
 - `PATCH /api/feedings/{id}`: 更新
+    - 授乳タイプの変更（母乳⇔ミルク）時には、不要となるフィールド（例：ミルクへ変更時の母乳時間など）がサーバー側で自動的にクリアされる。
 - `DELETE /api/feedings/{id}`: 削除
 
 ### リクエストスキーマ (`FeedingCreate`, `FeedingUpdate`)
 
-`app/schemas/feeding.py` 参照。
+`app/schemas/feeding.py` 参照。バリデーションルールは `app/core/constants.py` に準拠。
 
 ```typescript
 {
   baby_id: number,
   feeding_time: string,                // ISO 8601
   feeding_type: "BREAST" | "BOTTLE" | "MIXED", // ※MIXEDは現在UIから送信されない
-  amount_ml?: number,                  // ボトル授乳時の量
-  duration_minutes?: number,           // 省略可（左右指定時は自動計算）
-  left_breast_minutes?: number,        // 左乳の授乳時間
-  right_breast_minutes?: number,       // 右乳の授乳時間
+  amount_ml?: number,                  // 0 <= x <= 500 (MAX_FEEDING_ML)
+  duration_minutes?: number,           // 0 <= x <= 300 (MAX_FEEDING_DURATION_MINUTES)。左右指定時は自動計算
+  left_breast_minutes?: number,        // 0 <= x <= 120 (MAX_BREAST_FEEDING_MINUTES)
+  right_breast_minutes?: number,       // 0 <= x <= 120 (MAX_BREAST_FEEDING_MINUTES)
   last_breast_side?: "LEFT" | "RIGHT" | "BOTH",
   bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED",
   feeding_completion?: "FULL" | "PARTIAL",
-  notes?: string // 最大2000文字
+  notes?: string // 最大2000文字 (NOTE_MAX_LENGTH)
 }
 ```
 
@@ -173,8 +177,9 @@ interface FeedingResponse {
   bottle_content_type: "FORMULA" | "EXPRESSED_MILK" | "MIXED" | null
   feeding_completion: "FULL" | "PARTIAL" | null
   notes: string | null
-  recorded_by_display_name: string | null
-  comment_count: number // コメント数
+  // 以下はRouterで付与される計算フィールド
+  recorded_by_display_name: string | null // 記録者の表示名
+  comment_count: number // コメント数（デフォルト: 0）
 }
 ```
 
@@ -182,11 +187,12 @@ interface FeedingResponse {
 
 - `FeedingPage` (`app/(dashboard)/feeding/page.tsx`): ページラッパー
 - `FeedingWidget` (`frontend/components/dashboard/FeedingWidget.tsx`): ダッシュボード用ウィジェット
+    - **Quick Record機能**: ワンタップで記録を開始できる `WidgetQuickButton` を提供（`useQuickRecord` hook使用）。
 - `FeedingForm` (`frontend/components/feeding/feeding-form.tsx`): 入力フォーム（作成・編集兼用）
-    - `FeedingTimerSection`: 左右独立タイマーUI
-    - `BreastFeedingFields`: 母乳手動入力フィールド
-    - `BottleFeedingFields`: ミルク入力フィールド（種類選択含む）
-    - `FeedingCompletionSelector`: 授乳完全度選択
+    - `FeedingTimerSection`: 左右独立タイマーUI。**新規作成時のみ表示**され、編集モードでは非表示。
+    - `BreastFeedingFields`: 母乳手動入力フィールド。
+    - `BottleFeedingFields`: ミルク入力フィールド（種類選択含む）。
+    - `FeedingCompletionSelector`: 授乳完全度選択。
 - `FeedingEditDialog` (`frontend/components/feeding/FeedingEditDialog.tsx`): 編集ダイアログ
 - `FeedingStats` (`frontend/components/feeding/feeding-stats.tsx`): 日次サマリー
 - `FeedingHistory` (`frontend/components/feeding/feeding-history.tsx`): 履歴リスト
