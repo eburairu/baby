@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Diaper, DiaperType } from "@/types/diaper"
+import { Diaper, DiaperType, DiaperUpdate } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
@@ -33,7 +33,7 @@ interface Props {
     babyId: string | number
     initialData?: Diaper
     onSuccess: (recordId?: number) => void
-    onUpdate?: (id: number, data: unknown) => Promise<unknown>
+    onUpdate?: (id: number, data: DiaperUpdate) => Promise<Diaper | undefined>
 }
 
 export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) {
@@ -108,10 +108,21 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
                 }
             },
             isEditing && initialData ? async (payload) => {
+                 // payload is TPayload which is inferred as ReturnType of payloadFormatter.
+                 // payloadFormatter returns an object with baby_id, diaper_type, change_time, notes.
+                 // This matches DiaperUpdate closely enough (although DiaperUpdate has optional fields and doesn't require baby_id).
+                 // We'll cast it to DiaperUpdate to satisfy TypeScript and strict typing.
+
+                 const updatePayload: DiaperUpdate = {
+                     diaper_type: payload.diaper_type,
+                     change_time: payload.change_time,
+                     notes: payload.notes
+                 };
+
                  if (onUpdate) {
-                     return await onUpdate(initialData.id, payload)
+                     return await onUpdate(initialData.id, updatePayload)
                  } else {
-                     return await api.patch(`/diapers/${initialData.id}`, payload)
+                     return await api.patch(`/diapers/${initialData.id}`, updatePayload)
                  }
             } : undefined)
         } catch (e) {
