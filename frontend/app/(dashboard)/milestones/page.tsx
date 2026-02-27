@@ -8,6 +8,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { format } from "date-fns"
 import Image from "next/image"
+import { useState } from "react"
+import { MilestoneForm } from "@/components/milestone/MilestoneForm"
+import { Milestone } from "@/types/milestone"
 
 export default function MilestonesPage() {
     const {
@@ -17,10 +20,22 @@ export default function MilestonesPage() {
     } = useRecordPage()
 
     const { timeline, isLoading: milestonesLoading, isError, mutate } = useMilestoneTimeline(babyId ?? null)
+    const [isFormOpen, setIsFormOpen] = useState(false)
+    const [selectedRecord, setSelectedRecord] = useState<Milestone | null>(null)
+
+    const handleAddClick = () => {
+        setSelectedRecord(null)
+        setIsFormOpen(true)
+    }
+
+    const handleEditClick = (milestone: Milestone) => {
+        setSelectedRecord(milestone)
+        setIsFormOpen(true)
+    }
 
     return (
         <RecordPageLayout
-            title="できたね記録"
+            title="発育発達マイルストーン"
             icon={Trophy}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
@@ -30,9 +45,12 @@ export default function MilestonesPage() {
             onRefresh={() => mutate()}
         >
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-100">発達タイムライン</h2>
+                <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-100">発育発達タイムライン</h2>
                 {canWrite && (
-                    <Button className="gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-md">
+                    <Button 
+                        onClick={handleAddClick}
+                        className="gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-md"
+                    >
                         <Plus className="h-4 w-4" />
                         新しい「できたね！」
                     </Button>
@@ -93,7 +111,12 @@ export default function MilestonesPage() {
                                                     </div>
                                                     
                                                     <div className="flex justify-end mt-2">
-                                                        <Button variant="ghost" size="sm" className="h-6 text-[10px] px-2 rounded-lg gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="sm" 
+                                                            onClick={() => handleEditClick(m)}
+                                                            className="h-6 text-[10px] px-2 rounded-lg gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
                                                             詳細 <ChevronRight className="h-2.5 w-2.5" />
                                                         </Button>
                                                     </div>
@@ -107,6 +130,16 @@ export default function MilestonesPage() {
                     ))
                 )}
             </div>
+
+            {babyId && (
+                <MilestoneForm
+                    babyId={Number(babyId)}
+                    record={selectedRecord}
+                    isOpen={isFormOpen}
+                    onClose={() => setIsFormOpen(false)}
+                    onSuccess={() => mutate()}
+                />
+            )}
         </RecordPageLayout>
     )
 }
