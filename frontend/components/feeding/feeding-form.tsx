@@ -186,7 +186,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                 name="feeding_time"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel> 日時</FormLabel>
+                                        <FormLabel required> 日時</FormLabel>
                                         <FormControl>
                                             <Input type="datetime-local" {...field} />
                                         </FormControl>
