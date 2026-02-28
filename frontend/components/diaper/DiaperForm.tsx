@@ -36,6 +36,52 @@ interface Props {
     onUpdate?: (id: number, data: DiaperUpdate) => Promise<Diaper | undefined>
 }
 
+function generateDiaperNotes(vals: DiaperFormValues, isEditing: boolean): string | null {
+    let finalNotes = vals.notes || ""
+    if (vals.diaper_type !== DiaperType.WET) {
+        const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
+        const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
+
+        if (!isEditing && (color || amount)) {
+            const prefixParts = []
+            if (color) prefixParts.push(`色: ${color}`)
+            if (amount) prefixParts.push(`量: ${amount}`)
+            const prefix = prefixParts.join("、")
+
+            if (prefix) {
+                finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+            }
+        }
+    }
+    return finalNotes.trim() || null
+}
+
+interface DiaperTypeButtonProps {
+    type: DiaperType;
+    selectedType: DiaperType;
+    onClick: () => void;
+    icon: React.ReactNode;
+    label: string;
+}
+
+function DiaperTypeButton({ type, selectedType, onClick, icon, label }: DiaperTypeButtonProps) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={cn(
+                "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
+                selectedType === type
+                    ? UI_FORMS.selection.amberBordered.active
+                    : UI_FORMS.selection.amberBordered.inactive
+            )}
+        >
+            {icon}
+            <span className="text-xs font-medium">{label}</span>
+        </button>
+    )
+}
+
 export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) {
     const isEditing = !!initialData
 
@@ -81,30 +127,12 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
 
     const onSubmit = async (values: DiaperFormValues) => {
         try {
-            await submitRecord<DiaperCreate, Diaper | undefined>(values, (vals) => {
-                let finalNotes = vals.notes || ""
-                if (vals.diaper_type !== DiaperType.WET) {
-                    const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
-                    const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
-
-                    if (!initialData && (color || amount)) {
-                        const prefixParts = []
-                        if (color) prefixParts.push(`色: ${color}`)
-                        if (amount) prefixParts.push(`量: ${amount}`)
-                        const prefix = prefixParts.join("、")
-
-                        if (prefix) {
-                            finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
-                        }
-                    }
-                }
-                return {
-                    baby_id: Number(babyId),
-                    diaper_type: vals.diaper_type,
-                    change_time: new Date(vals.change_time).toISOString(),
-                    notes: finalNotes.trim() || null,
-                }
-            },
+            await submitRecord<DiaperCreate, Diaper | undefined>(values, (vals) => ({
+                baby_id: Number(babyId),
+                diaper_type: vals.diaper_type,
+                change_time: new Date(vals.change_time).toISOString(),
+                notes: generateDiaperNotes(vals, isEditing),
+            }),
             isEditing && initialData ? async (payload: DiaperCreate) => {
                  const updatePayload: DiaperUpdate = {
                      diaper_type: payload.diaper_type,
@@ -130,45 +158,27 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-3 gap-3">
-                            <button
-                                type="button"
+                            <DiaperTypeButton
+                                type={DiaperType.WET}
+                                selectedType={selectedType}
                                 onClick={() => form.setValue("diaper_type", DiaperType.WET)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.WET
-                                        ? UI_FORMS.selection.amberBordered.active
-                                        : UI_FORMS.selection.amberBordered.inactive
-                                )}
-                            >
-                                <Droplets className="w-6 h-6" />
-                                <span className="text-xs font-medium">おしっこ</span>
-                            </button>
-                            <button
-                                type="button"
+                                icon={<Droplets className="w-6 h-6" />}
+                                label="おしっこ"
+                            />
+                            <DiaperTypeButton
+                                type={DiaperType.DIRTY}
+                                selectedType={selectedType}
                                 onClick={() => form.setValue("diaper_type", DiaperType.DIRTY)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.DIRTY
-                                        ? UI_FORMS.selection.amberBordered.active
-                                        : UI_FORMS.selection.amberBordered.inactive
-                                )}
-                            >
-                                <Biohazard className="w-6 h-6" />
-                                <span className="text-xs font-medium">うんち</span>
-                            </button>
-                            <button
-                                type="button"
+                                icon={<Biohazard className="w-6 h-6" />}
+                                label="うんち"
+                            />
+                            <DiaperTypeButton
+                                type={DiaperType.BOTH}
+                                selectedType={selectedType}
                                 onClick={() => form.setValue("diaper_type", DiaperType.BOTH)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.BOTH
-                                        ? UI_FORMS.selection.amberBordered.active
-                                        : UI_FORMS.selection.amberBordered.inactive
-                                )}
-                            >
-                                <span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>
-                                <span className="text-xs font-medium">両方</span>
-                            </button>
+                                icon={<span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>}
+                                label="両方"
+                            />
                         </div>
 
                         {selectedType !== DiaperType.WET && (

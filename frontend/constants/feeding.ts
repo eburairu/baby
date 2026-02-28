@@ -20,3 +20,21 @@ export const COMPLETION_STYLE: Record<string, { label: string; className: string
     FULL: { label: "しっかり飲んだ", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
     PARTIAL: { label: "途中でやめた", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
 };
+
+export const BREAST_SIDE_LABEL: Record<string, string> = {
+    LEFT: "左",
+    RIGHT: "右",
+    BOTH: "両方",
+};
+
+export const NEXT_SIDE_GUIDE: Record<string, string> = {
+    LEFT: "次回は右から始めましょう",
+    RIGHT: "次回は左から始めましょう",
+    BOTH: "次回はどちらからでも大丈夫です",
+};
+
+export const FEEDING_TYPE_LABELS: Record<string, string> = {
+    BREAST: "母乳",
+    BOTTLE: "ミルク",
+    MIXED: "混合",
+};

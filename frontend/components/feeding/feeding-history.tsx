@@ -11,7 +11,7 @@ import { RecordListItem } from "@/components/records/RecordListItem"
 import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { FeedingEditDialog } from "./FeedingEditDialog"
 import { useRecordComments } from "@/hooks/useRecordComments"
-import { COMPLETION_STYLE } from "@/constants/feeding"
+import { COMPLETION_STYLE, FEEDING_TYPE_LABELS } from "@/constants/feeding"
 import { FeedingIcon } from "./FeedingIcon"
 import { FeedingDetails } from "./FeedingDetails"
 
@@ -62,7 +62,7 @@ export function FeedingHistory({ feedings, onDelete, onUpdate, onRefresh, canWri
                         <div className="font-medium">
                             {formatTime(feeding.feeding_time)}
                             <span className="ml-2 text-sm text-muted-foreground">
-                                {feeding.feeding_type === 'BREAST' ? '母乳' : feeding.feeding_type === 'BOTTLE' ? 'ミルク' : '混合'}
+                                {FEEDING_TYPE_LABELS[feeding.feeding_type] || feeding.feeding_type}
                             </span>
                         </div>
                         <FeedingDetails feeding={feeding} />
