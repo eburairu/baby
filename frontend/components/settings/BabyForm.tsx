@@ -1,5 +1,5 @@
 "use client"
-import { useForm } from "react-hook-form"
+import { useForm, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/ui/form"
 
 const babySchema = z.object({
@@ -21,6 +22,8 @@ const babySchema = z.object({
     birthday: z.string().optional(),
     due_date: z.string().optional(),
     characteristics: z.string().optional(),
+    feeding_threshold_minutes: z.preprocess((val) => (val === "" ? null : val), z.coerce.number().min(0).nullable()).optional() as z.ZodType<number | null | undefined>,
+    diaper_threshold_minutes: z.preprocess((val) => (val === "" ? null : val), z.coerce.number().min(0).nullable()).optional() as z.ZodType<number | null | undefined>,
 })
 
 export type BabyFormData = z.infer<typeof babySchema>
@@ -43,13 +46,15 @@ export function BabyForm({
     error,
 }: Props) {
     const form = useForm<BabyFormData>({
-        resolver: zodResolver(babySchema),
+        resolver: zodResolver(babySchema) as unknown as Resolver<BabyFormData>,
         defaultValues: {
             name: "",
             gender: "unknown",
             birthday: "",
             due_date: "",
             characteristics: "",
+            feeding_threshold_minutes: null,
+            diaper_threshold_minutes: null,
             ...defaultValues,
         },
         values: defaultValues ? {
@@ -58,6 +63,8 @@ export function BabyForm({
             birthday: defaultValues.birthday || "",
             due_date: defaultValues.due_date || "",
             characteristics: defaultValues.characteristics || "",
+            feeding_threshold_minutes: defaultValues.feeding_threshold_minutes ?? null,
+            diaper_threshold_minutes: defaultValues.diaper_threshold_minutes ?? null,
         } : undefined,
     })
 
@@ -166,6 +173,52 @@ export function BabyForm({
                         </FormItem>
                     )}
                 />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="feeding_threshold_minutes"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>授乳の警告閾値（分）</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        placeholder="空欄で自動設定" 
+                                        {...field} 
+                                        value={field.value ?? ""}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    前回記録からの経過時間がこの分を超えると警告が表示されます。
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="diaper_threshold_minutes"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>おむつの警告閾値（分）</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        placeholder="空欄で自動設定" 
+                                        {...field} 
+                                        value={field.value ?? ""}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    前回記録からの経過時間がこの分を超えると警告が表示されます。
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
 

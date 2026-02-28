@@ -34,6 +34,8 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                 due_date: data.due_date || null,
                 gender: data.gender || "unknown",
                 characteristics: data.characteristics || null,
+                feeding_threshold_minutes: data.feeding_threshold_minutes,
+                diaper_threshold_minutes: data.diaper_threshold_minutes,
             })
             onAdded()
             handleClose()
