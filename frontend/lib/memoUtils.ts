@@ -38,7 +38,7 @@ export function areRecordsEqual(prevRecords: BabyRecord[] | undefined, nextRecor
 
 /**
  * Creates a comparison function for React.memo optimized for Dashboard Widgets.
- * Checks common props (isLoading, isError, babyId, mutate) and uses areRecordsEqual for records.
+ * Checks common props (isLoading, isError, babyId, mutate, size) and uses areRecordsEqual for records.
  */
 export function createWidgetMemoComparison(recordType: string) {
     return (prev: BaseWidgetProps, next: BaseWidgetProps) => {
@@ -46,6 +46,7 @@ export function createWidgetMemoComparison(recordType: string) {
         if (prev.isError !== next.isError) return false
         if (prev.babyId !== next.babyId) return false
         if (prev.mutate !== next.mutate) return false
+        if (prev.size !== next.size) return false
         return areRecordsEqual(prev.records, next.records, recordType)
     }
 }
