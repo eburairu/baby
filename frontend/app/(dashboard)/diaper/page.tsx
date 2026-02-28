@@ -1,13 +1,13 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
-import { useDiapers } from "@/hooks/useData"
+import { useDiapers } from "@/hooks/useDiaper"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
 import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaperTips } from "@/lib/tips-data"
-import { Smile } from "lucide-react"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
 /**
@@ -31,7 +31,7 @@ export default function DiaperPage() {
     return (
         <RecordPageLayout
             title="おむつ記録"
-            icon={Smile}
+            icon={AppIcons.diaper}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
             isDataLoading={diapersLoading}

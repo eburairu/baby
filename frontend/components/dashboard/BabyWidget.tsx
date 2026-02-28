@@ -34,7 +34,7 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
       <button
         onClick={() => setOpen(true)}
         aria-label={`${baby.name}の情報を見る`}
-        className="cursor-pointer focus:outline-none"
+        className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400 rounded-xl"
       >
         <HexagonWidgetCard
           title={baby.name}

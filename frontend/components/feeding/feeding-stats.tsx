@@ -4,22 +4,11 @@ import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { StatsBlock } from "@/components/ui/stats-block";
 import { StatsCard } from "@/components/ui/stats-card";
+import { BREAST_SIDE_LABEL, NEXT_SIDE_GUIDE, FEEDING_TYPE_LABELS } from "@/constants/feeding";
 
 interface FeedingStatsProps {
     summary: FeedingStatsResult;
 }
-
-const BREAST_SIDE_LABEL: Record<string, string> = {
-    LEFT: "左",
-    RIGHT: "右",
-    BOTH: "両方",
-};
-
-const NEXT_SIDE_GUIDE: Record<string, string> = {
-    LEFT: "次回は右から始めましょう",
-    RIGHT: "次回は左から始めましょう",
-    BOTH: "次回はどちらからでも大丈夫です",
-};
 
 export function FeedingStats({ summary }: FeedingStatsProps) {
     const timeSinceLast = summary.lastFeedingTime
@@ -65,9 +54,7 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
                 >
                     <div className="text-[10px] text-gray-500 dark:text-zinc-500 space-y-0.5 mt-0.5">
                         <p>
-                            {summary.lastFeedingType === "BREAST" ? "母乳" : null}
-                            {summary.lastFeedingType === "BOTTLE" ? "ミルク" : null}
-                            {summary.lastFeedingType === "MIXED" ? "混合" : null}
+                            {summary.lastFeedingType ? FEEDING_TYPE_LABELS[summary.lastFeedingType] : null}
                             {summary.lastBreastSide && summary.lastFeedingType !== "BOTTLE" ? (
                                 <span className="ml-1">({BREAST_SIDE_LABEL[summary.lastBreastSide]}から)</span>
                             ) : null}

@@ -87,6 +87,8 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         due_date=baby_in.due_date,
         gender=baby_in.gender,
         characteristics=baby_in.characteristics,
+        feeding_threshold_minutes=baby_in.feeding_threshold_minutes,
+        diaper_threshold_minutes=baby_in.diaper_threshold_minutes,
     )
     db.add(new_baby)
     db.commit()

@@ -21,3 +21,7 @@
 ## 2026-03-05 - [SQLAlchemy N+1 Loop Prevention]
 **Learning:** Querying related entities (like `FamilyUser` roles) inside a loop across multiple records (`RecordComment`) is a hidden N+1 bottleneck. SQLAlchemy's `first()` inside a loop does not batch queries by default.
 **Action:** Extract all required IDs from the list into a set, and perform a single `.in_()` query to fetch related records in batch. Combine this with `joinedload` for eager loading of direct relationships (like `.user`) to keep database queries constant regardless of list size.
+
+## 2026-03-05 - [SQLAlchemy N+1 Loop Prevention in Family Retrieval]
+**Learning:** Querying related entity aggregations (like member count per family) inside a loop (`db.query(func.count(FamilyUser.user_id)).filter(FamilyUser.family_id == f.id).scalar()`) creates a significant N+1 bottleneck when paginating families in the admin dashboard.
+**Action:** Extract family IDs into a list (`[f.id for f in families]`) and execute a single grouped query (`.in_(family_ids)` combined with `.group_by(FamilyUser.family_id)`) to map counts into a dictionary before the loop. This reduces queries from O(N) to O(1).

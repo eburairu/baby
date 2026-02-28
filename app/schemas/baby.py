@@ -9,6 +9,8 @@ class BabyBase(BaseModel):
     due_date: Optional[date] = None
     gender: Optional[Literal["boy", "girl", "unknown"]] = None
     characteristics: Optional[str] = Field(None, max_length=1000)
+    feeding_threshold_minutes: Optional[int] = None
+    diaper_threshold_minutes: Optional[int] = None
 
 
 class BabyCreate(BabyBase):
@@ -21,6 +23,8 @@ class BabyUpdate(BaseModel):
     due_date: Optional[date] = None
     gender: Optional[Literal["boy", "girl", "unknown"]] = None
     characteristics: Optional[str] = Field(None, max_length=1000)
+    feeding_threshold_minutes: Optional[int] = None
+    diaper_threshold_minutes: Optional[int] = None
 
     @field_validator('name')
     @classmethod

@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation"
 import { api } from "@/lib/api"
 import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { BabyRecord } from "@/types/record"
-import { Moon, Bed, StickyNote, Milk, Baby, Biohazard, HandHeart, Ruler, BookOpen } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
+import { StickyNote } from "lucide-react" // keep StickyNote for dialog title
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
@@ -116,7 +117,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 上段: ミルク */}
                     <HexagonButton
                         variant="rose"
-                        icon={<Milk className="h-5 w-5" />}
+                        icon={<AppIcons.feedingBottle className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("feeding_bottle")}
                         loading={loadingAction === "feeding_bottle"}
@@ -126,7 +127,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 上段: 睡眠（中央・メイン） */}
                     <HexagonButton
                         variant="indigo"
-                        icon={activeSleep ? <Bed className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+                        icon={activeSleep ? <AppIcons.sleepActive className="h-6 w-6" /> : <AppIcons.sleep className="h-6 w-6" />}
                         size={BUTTON_SIZE}
                         active={!!activeSleep}
                         onClick={() => handleQuickRecord("sleep")}
@@ -137,7 +138,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 上段: 母乳 */}
                     <HexagonButton
                         variant="rose"
-                        icon={<HandHeart className="h-5 w-5" />}
+                        icon={<AppIcons.feedingBreast className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("feeding_breast")}
                         loading={loadingAction === "feeding_breast"}
@@ -147,7 +148,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 中段: おしっこ */}
                     <HexagonButton
                         variant="amber"
-                        icon={<Baby className="h-5 w-5" />}
+                        icon={<AppIcons.diaperWet className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("diaper_wet")}
                         loading={loadingAction === "diaper_wet"}
@@ -157,7 +158,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 中段: うんち */}
                     <HexagonButton
                         variant="amber"
-                        icon={<Biohazard className="h-5 w-5" />}
+                        icon={<AppIcons.diaperDirty className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => handleQuickRecord("diaper_dirty")}
                         loading={loadingAction === "diaper_dirty"}
@@ -167,7 +168,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 下段: メモ */}
                     <HexagonButton
                         variant="amber"
-                        icon={<StickyNote className="h-5 w-5" />}
+                        icon={<AppIcons.note className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => setNoteDialogOpen(true)}
                         disabled={isLoading}
@@ -176,7 +177,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 下段: 成長 */}
                     <HexagonButton
                         variant="emerald"
-                        icon={<Ruler className="h-5 w-5" />}
+                        icon={<AppIcons.growth className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => router.push(`/growth`)}
                         disabled={isLoading}
@@ -185,7 +186,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     {/* 下段: 日誌 */}
                     <HexagonButton
                         variant="zinc"
-                        icon={<BookOpen className="h-5 w-5" />}
+                        icon={<AppIcons.diary className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => router.push(`/diary`)}
                         disabled={isLoading}

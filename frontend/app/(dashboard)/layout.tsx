@@ -11,7 +11,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Milk, Moon, Baby, Ruler, StickyNote, BookOpen, Timer, Syringe, Trophy } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Baby } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { cn, getDisplayName } from "@/lib/utils"
 import { isBorn } from "@/lib/babyUtils"
@@ -39,15 +40,15 @@ const ALL_NAV_ITEMS: {
     postnatal: boolean
 }[] = [
     { label: "ホーム",       href: "/dashboard",   Icon: Home,       color: "text-pink-500",    prenatal: true,  postnatal: true  },
-    { label: "授乳",         href: "/feeding",     Icon: Milk,       color: "text-pink-500",    prenatal: false, postnatal: true  },
-    { label: "睡眠",         href: "/sleep",       Icon: Moon,       color: "text-violet-500",  prenatal: false, postnatal: true  },
-    { label: "おむつ",       href: "/diaper",      Icon: Baby,       color: "text-amber-500",   prenatal: false, postnatal: true  },
-    { label: "成長",         href: "/growth",      Icon: Ruler,      color: "text-emerald-500", prenatal: false, postnatal: true  },
-    { label: "予防接種",     href: "/vaccinations",Icon: Syringe,    color: "text-sky-500",     prenatal: false, postnatal: true  },
-    { label: "発育発達マイルストーン",href: "/milestones",  Icon: Trophy,     color: "text-yellow-500",  prenatal: false, postnatal: true  },
-    { label: "メモ",         href: "/note",        Icon: StickyNote, color: "text-orange-400",  prenatal: false, postnatal: true  },
-    { label: "日誌",         href: "/diary",       Icon: BookOpen,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
-    { label: "陣痛タイマー", href: "/contraction", Icon: Timer,      color: "text-red-500",     prenatal: true,  postnatal: false },
+    { label: "授乳",         href: "/feeding",     Icon: AppIcons.feeding,       color: "text-pink-500",    prenatal: false, postnatal: true  },
+    { label: "睡眠",         href: "/sleep",       Icon: AppIcons.sleep,       color: "text-violet-500",  prenatal: false, postnatal: true  },
+    { label: "おむつ",       href: "/diaper",      Icon: AppIcons.diaper,       color: "text-amber-500",   prenatal: false, postnatal: true  },
+    { label: "成長",         href: "/growth",      Icon: AppIcons.growth,      color: "text-emerald-500", prenatal: false, postnatal: true  },
+    { label: "予防接種",     href: "/vaccinations",Icon: AppIcons.vaccination,    color: "text-sky-500",     prenatal: false, postnatal: true  },
+    { label: "発育発達マイルストーン",href: "/milestones",  Icon: AppIcons.milestone,     color: "text-yellow-500",  prenatal: false, postnatal: true  },
+    { label: "メモ",         href: "/note",        Icon: AppIcons.note, color: "text-orange-400",  prenatal: false, postnatal: true  },
+    { label: "日誌",         href: "/diary",       Icon: AppIcons.diary,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
+    { label: "陣痛タイマー", href: "/contraction", Icon: AppIcons.contraction,      color: "text-red-500",     prenatal: true,  postnatal: false },
 ]
 
 const BOTTOM_NAV_ITEMS: {
@@ -57,10 +58,10 @@ const BOTTOM_NAV_ITEMS: {
     color: string
 }[] = [
     { label: "ホーム",   href: "/dashboard", Icon: Home,       color: "text-pink-500" },
-    { label: "授乳",     href: "/feeding",   Icon: Milk,       color: "text-pink-500" },
-    { label: "睡眠",     href: "/sleep",     Icon: Moon,       color: "text-violet-500" },
-    { label: "おむつ",   href: "/diaper",    Icon: Baby,       color: "text-amber-500" },
-    { label: "成長",     href: "/growth",    Icon: Ruler,      color: "text-emerald-500" },
+    { label: "授乳",     href: "/feeding",   Icon: AppIcons.feeding,       color: "text-pink-500" },
+    { label: "睡眠",     href: "/sleep",     Icon: AppIcons.sleep,       color: "text-violet-500" },
+    { label: "おむつ",   href: "/diaper",    Icon: AppIcons.diaper,       color: "text-amber-500" },
+    { label: "成長",     href: "/growth",    Icon: AppIcons.growth,      color: "text-emerald-500" },
 ]
 
 export default function DashboardLayout({

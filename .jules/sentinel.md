@@ -82,3 +82,8 @@
 **脆弱性:** `Milestone` および `Vaccination` 記録作成/更新のスキーマ（`MilestoneBase`, `VaccinationBase` など）において、Pydanticの入力長制限（`max_length`）がテキストフィールド（`notes`, `title`, `vaccine_name`, `lot_number`, `hospital_name`など）に設定されていなかった。これにより、巨大な文字列データを送信することでメモリ枯渇やデータベースストレージ圧迫を引き起こすDoS攻撃が可能だった。
 **学び:** `Baby` や `Comment` などの他のスキーマでの過去の修正と同様に、Pydanticのデフォルトの `str` は上限を持たないため、新しいモデルやスキーマを追加する際に入力長制限が忘れられがちである。
 **予防:** 文字列入力を受け付けるPydanticのスキーマフィールドには例外なく `Field(..., max_length=N)` を設定する。特に自由記述フィールド (`notes`等) には全機能共通の上限（例: `NOTE_MAX_LENGTH`）をインポートして適用する。
+
+## 2026-05-22 - Admin Endpoint Pagination Missing Limits (DoS Risk)
+**脆弱性:** 管理画面向けのエンドポイント (`get_admin_families`, `get_admin_users`, `get_audit_logs`) において、ページネーションパラメータ (`skip`, `limit`) にPydanticの入力値検証 (`Query` による `ge`, `le` 制限) が設定されておらず、単なるデフォルト値の設定に留まっていた。これにより、攻撃者が非現実的に巨大な `limit` (例: 10000000) や負の値を指定することで、データベースに多大な負荷をかけたり意図しない動作を引き起こすDoSのリスクがあった。
+**学び:** パラメータの型ヒント (`int = MAX_PAGINATION_LIMIT`) はデフォルト値を提供するだけで、受け入れる最大値や最小値の制限（バリデーション）は行わない。FastAPIでは明示的に `Query(..., ge=1, le=100)` などの指定を行わない限り、クライアントは任意の数値を送信できてしまう。
+**予防:** リストや一覧を返すAPIエンドポイントで `skip` や `limit` を実装する際は、常に `skip: int = Query(0, ge=0)` や `limit: int = Query(DEFAULT_LIMIT, ge=1, le=MAX_LIMIT)` を用いて、許容範囲の制限を明示的に強制する。

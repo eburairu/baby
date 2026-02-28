@@ -7,4 +7,5 @@ export interface BaseWidgetProps {
     mutate?: () => void
     isLoading?: boolean
     size?: number
+    thresholdMinutes?: number
 }

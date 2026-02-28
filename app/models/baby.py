@@ -14,6 +14,8 @@ class Baby(Base):
     due_date = Column(Date, nullable=True)
     gender = Column(String, nullable=True)  # 'boy', 'girl', 'unknown'
     characteristics = Column(String, nullable=True)  # AIが生成・更新する「赤ちゃんの特徴・傾向」
+    feeding_threshold_minutes = Column(Integer, nullable=True)
+    diaper_threshold_minutes = Column(Integer, nullable=True)
 
     family = relationship("Family", backref="babies")
 

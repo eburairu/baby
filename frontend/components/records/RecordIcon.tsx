@@ -1,4 +1,4 @@
-import { Milk, Moon, Baby, StickyNote, Ruler } from "lucide-react";
+import { AppIcons } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 
 export type RecordType = 'feeding' | 'sleep' | 'diaper' | 'note' | 'growth';
@@ -16,16 +16,8 @@ const styles: Record<RecordType, string> = {
   growth: "bg-green-100 dark:bg-green-950/40 text-green-500 dark:text-green-400",
 };
 
-const icons = {
-  feeding: Milk,
-  sleep: Moon,
-  diaper: Baby,
-  note: StickyNote,
-  growth: Ruler,
-};
-
 export function RecordIcon({ type, className }: RecordIconProps) {
-  const Icon = icons[type];
+  const Icon = AppIcons[type];
   const style = styles[type];
 
   if (!Icon) return null;

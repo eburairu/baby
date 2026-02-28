@@ -1,6 +1,7 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
-import { useSleeps } from "@/hooks/useData"
+import { useSleeps } from "@/hooks/useSleep"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
 import { SleepStats } from "@/components/sleep/sleep-stats"
@@ -8,7 +9,6 @@ import { SleepHistory } from "@/components/sleep/sleep-history"
 import { SleepCreateDialog } from "@/components/sleep/SleepCreateDialog"
 import { TipsCard } from "@/components/ui/tips-card"
 import { sleepTips } from "@/lib/tips-data"
-import { Moon as MoonIcon } from "lucide-react"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
 /**
@@ -31,7 +31,7 @@ export default function SleepPage() {
     return (
         <RecordPageLayout
             title="睡眠記録"
-            icon={MoonIcon}
+            icon={AppIcons.sleep}
             iconColorClass="text-indigo-500 dark:text-indigo-400"
             isLoading={babiesLoading}
             isDataLoading={sleepsLoading}

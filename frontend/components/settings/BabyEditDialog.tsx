@@ -37,6 +37,8 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
                 due_date: data.due_date || null,
                 gender: data.gender || "unknown",
                 characteristics: data.characteristics || null,
+                feeding_threshold_minutes: data.feeding_threshold_minutes,
+                diaper_threshold_minutes: data.diaper_threshold_minutes,
             })
             onUpdated()
             handleClose()
@@ -53,6 +55,8 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
         birthday: baby.birthday ?? "",
         due_date: baby.due_date ?? "",
         characteristics: baby.characteristics ?? "",
+        feeding_threshold_minutes: baby.feeding_threshold_minutes ?? null,
+        diaper_threshold_minutes: baby.diaper_threshold_minutes ?? null,
     } : undefined
 
     return (

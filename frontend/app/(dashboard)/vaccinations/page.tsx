@@ -1,10 +1,11 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
 import { useState } from "react"
-import { useVaccinations } from "@/hooks/useData"
+import { useVaccinations } from "@/hooks/useVaccination"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
-import { Plus, Syringe, RefreshCcw, CheckCircle2, Clock, AlertCircle } from "lucide-react"
+import { Plus, RefreshCcw, CheckCircle2, Clock, AlertCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { format } from "date-fns"
@@ -71,7 +72,7 @@ export default function VaccinationsPage() {
     return (
         <RecordPageLayout
             title="予防接種"
-            icon={Syringe}
+            icon={AppIcons.vaccination}
             iconColorClass="text-blue-500 dark:text-blue-400"
             isLoading={babiesLoading}
             isDataLoading={vaxLoading}

@@ -1,7 +1,8 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
 import { useState } from "react"
-import { BookOpen, Loader2, CalendarDays } from "lucide-react"
+import { Loader2, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -14,7 +15,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useBabies } from "@/hooks/useData"
+import { useBabies } from "@/hooks/useBabies"
 import { useBabyStore } from "@/stores/babyStore"
 import { useDailySummaries, generateDailySummary, editDailySummary, deleteDailySummary } from "@/hooks/useDailySummary"
 import { usePermissions } from "@/hooks/usePermissions"
@@ -121,7 +122,7 @@ export default function DiaryPage() {
     return (
         <RecordPageLayout
             title="育児日誌"
-            icon={BookOpen}
+            icon={AppIcons.diary}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
             isDataLoading={summariesLoading}
@@ -172,7 +173,7 @@ export default function DiaryPage() {
             {/* 日誌一覧 */}
             {!summaries || summaries.length === 0 ? (
                 <div className="text-center text-gray-400 dark:text-zinc-500 py-12">
-                    <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                    <AppIcons.diary className="h-10 w-10 mx-auto mb-3 opacity-40" />
                     <p className="text-sm">まだ育児日誌がありません。</p>
                     <p className="text-xs mt-1">育児記録がある日の日付を選んで「生成」を押してください。</p>
                 </div>

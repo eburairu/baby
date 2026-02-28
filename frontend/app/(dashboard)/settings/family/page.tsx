@@ -1,6 +1,6 @@
 "use client"
 import { useUser } from "@/hooks/useAuth"
-import { useFamilySettings, useFamilyMembers } from "@/hooks/useData"
+import { useFamilySettings, useFamilyMembers } from "@/hooks/useFamily"
 import { usePermissions } from "@/hooks/usePermissions"
 import { FamilyNameForm } from "@/components/settings/FamilyNameForm"
 import { InviteCodeCard } from "@/components/settings/InviteCodeCard"

@@ -1,20 +1,40 @@
 "use client"
 
-import { useMemo, memo } from "react"
+import { useMemo, memo, useState, useEffect } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
+import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
 import { Milk } from "lucide-react"
 import Link from "next/link"
 
-export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
-    const { todayCount, lastElapsed } = useMemo(() => {
+export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
+    const [tick, setTick] = useState(0)
+
+    useEffect(() => {
+        const id = setInterval(() => setTick(t => t + 1), 60000)
+        return () => clearInterval(id)
+    }, [])
+
+    // tick は再レンダリングを促すために state として持つが、計算自体には含める必要がない
+    // (再レンダリング時に calcProgress が新しい時刻で再計算されるため)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _tick = tick;
+
+    const { todayCount, lastElapsed, lastFeedingTime } = useMemo(() => {
         const feedingRecords = records
             ?.map(normalizeFeedingFromRecord)
             .filter((f): f is NormalizedFeeding => f !== null) ?? []
         return calculateFeedingStats(feedingRecords)
     }, [records])
+
+    // tick は再レンダリングを促すために state として持つが、計算自体には含める必要がない
+    // (再レンダリング時に calcProgress が新しい時刻で再計算されるため)
+    const progress = thresholdMinutes != null
+        ? calcProgress(lastFeedingTime, thresholdMinutes)
+        : 0
+    const isOver = isOverThreshold(progress)
 
     return (
         <Link href={`/feeding?baby_id=${babyId}`} className="block">
@@ -25,6 +45,8 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
                 isLoading={isLoading}
                 size={size}
                 className="hover:shadow-rose-100 dark:hover:shadow-rose-900/20"
+                indicatorProgress={thresholdMinutes != null ? progress : undefined}
+                isOverThreshold={isOver}
             >
                 <div className="flex flex-col items-center">
                     <span className="font-bold text-gray-800 dark:text-zinc-200">{lastElapsed}</span>
