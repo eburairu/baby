@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
+import { usePermissions } from "@/hooks/usePermissions"
 
 interface BabyForWidget {
   id: number
@@ -42,6 +43,7 @@ const formatBirthday = (birthday: string): string => {
 }
 
 export function BabyInfoPopup({ baby, open, onOpenChange }: BabyInfoPopupProps) {
+  const { isAdmin } = usePermissions()
   const ageLabel = baby.birthday
     ? calcAge(baby.birthday).label
     : getPrenatalLabel(baby.due_date)
@@ -84,22 +86,24 @@ export function BabyInfoPopup({ baby, open, onOpenChange }: BabyInfoPopupProps) 
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span className="text-sm text-muted-foreground">特徴</span>
               </div>
-              <p className="text-sm font-medium">{baby.characteristics}</p>
+              <p className="text-sm font-medium whitespace-pre-wrap">{baby.characteristics}</p>
             </div>
           )}
         </div>
 
-        <div className="pt-4">
-          <SheetClose asChild>
-            <Link
-              href={`/babies/${baby.id}/edit`}
-              className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-medium text-sm"
-            >
-              <Edit className="w-4 h-4" />
-              プロフィールを編集
-            </Link>
-          </SheetClose>
-        </div>
+        {isAdmin && (
+          <div className="pt-4">
+            <SheetClose asChild>
+              <Link
+                href="/settings/babies"
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-medium text-sm"
+              >
+                <Edit className="w-4 h-4" />
+                赤ちゃん情報を編集
+              </Link>
+            </SheetClose>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   )
