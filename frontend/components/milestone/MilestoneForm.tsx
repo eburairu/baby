@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
@@ -70,7 +70,7 @@ export function MilestoneForm({
         values: defaultValues,
     })
 
-    const milestoneType = form.watch("milestone_type")
+    const milestoneType = useWatch({ control: form.control, name: "milestone_type" })
 
     const { submitRecord, isSubmitting } = useBaseRecordForm<MilestoneFormValues>({
         endpoint: `/milestones/`,
