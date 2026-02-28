@@ -5,17 +5,19 @@ import { Hexagon } from "@/components/ui/hexagon"
 import { cn } from "@/lib/utils"
 import { ShieldOff } from "lucide-react"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { DASHBOARD_UI } from "@/constants/dashboard"
 
 interface ErrorWithStatus {
     status?: number;
 }
 
 interface HexagonWidgetCardProps {
-    title: string
+    title?: string
     icon?: React.ReactNode
     children?: React.ReactNode
     isError?: boolean | ErrorWithStatus | null | unknown
     isLoading?: boolean
+    isSkeleton?: boolean
     className?: string
     size?: number
 }
@@ -24,27 +26,35 @@ interface HexagonWidgetCardProps {
  * ハニカム構造（六角形）の中に情報を表示するウィジェットカード
  */
 export const HexagonWidgetCard = ({
-    title,
+    title = "",
     icon,
     children,
     isError,
     isLoading,
+    isSkeleton,
     className,
-    size = 160
+    size = DASHBOARD_UI.WIDGET_SIZE.DESKTOP
 }: HexagonWidgetCardProps) => {
     // 403 (Forbidden) のチェック
     const isForbidden = isError && typeof isError === 'object' && 'status' in isError && (isError as ErrorWithStatus).status === 403;
 
     return (
-        <div className={cn("relative transition-all duration-300 hover:-translate-y-1", className)}>
+        <div className={cn(
+            "relative transition-all duration-300",
+            !isSkeleton && "hover:-translate-y-1",
+            className
+        )}>
             <Hexagon 
                 size={size} 
-                className="text-white dark:text-zinc-900 shadow-sm border-0 transition-colors"
+                className={cn(
+                    "text-white dark:text-zinc-900 shadow-sm border-0 transition-colors",
+                    isSkeleton && "text-muted/50 animate-pulse shadow-none"
+                )}
                 borderColor="transparent"
                 borderWidth={0}
             >
                 <div className="flex flex-col items-center justify-center text-center p-3 h-full w-full overflow-hidden">
-                    {isLoading ? (
+                    {isSkeleton ? null : isLoading ? (
                         <div className="flex flex-col items-center gap-2">
                             <BabyBottleLoading className="w-8 h-8 text-indigo-500 dark:text-indigo-400" />
                             <span className="text-[10px] text-gray-400 dark:text-zinc-500">読み込み中...</span>
