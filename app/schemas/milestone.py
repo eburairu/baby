@@ -1,23 +1,24 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import date
 from typing import Optional, List
+from app.core.constants import NOTE_MAX_LENGTH
 
 class MilestoneBase(BaseModel):
-    milestone_type: str
-    title: str
+    milestone_type: str = Field(..., max_length=50)
+    title: str = Field(..., max_length=100)
     achieved_date: date
     image_urls: List[str] = []
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
 class MilestoneCreate(MilestoneBase):
     pass
 
 class MilestoneUpdate(BaseModel):
-    milestone_type: Optional[str] = None
-    title: Optional[str] = None
+    milestone_type: Optional[str] = Field(None, max_length=50)
+    title: Optional[str] = Field(None, max_length=100)
     achieved_date: Optional[date] = None
     image_urls: Optional[List[str]] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
 class MilestoneResponse(MilestoneBase):
     id: int

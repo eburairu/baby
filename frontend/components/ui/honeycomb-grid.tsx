@@ -8,7 +8,7 @@ interface HoneycombGridProps {
   size: number        // 1つの六角形の基準サイズ (高さ = cellRadius * 2)
   gap?: number        // 六角形同士の隙間 (cellSpacing)
   className?: string
-  rows?: (number | null)[][]   // 各行のアイテム配置。null は空セル（スペーサー）
+  rows?: ReadonlyArray<ReadonlyArray<number | null>>   // 各行のアイテム配置。null は空セル（スペーサー）
 }
 
 /**
@@ -37,7 +37,7 @@ export function HoneycombGrid({
   size,
   gap = 4,
   className,
-  rows = [[0, 1, 2], [3, 4]]
+  rows = [[0, 1, 2], [3, 4]] as ReadonlyArray<ReadonlyArray<number | null>>
 }: HoneycombGridProps) {
   const childrenArray = React.Children.toArray(children);
 

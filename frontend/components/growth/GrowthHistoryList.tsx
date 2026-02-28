@@ -1,11 +1,11 @@
 "use client"
 
-import { Edit2, Trash2, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { MessageCircle } from "lucide-react"
 import { api } from "@/lib/api"
 import type { Growth } from "@/types/growth"
 import { useRecordComments } from "@/hooks/useRecordComments"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 
 interface GrowthHistoryListProps {
     records: Growth[]
@@ -89,24 +89,13 @@ export function GrowthHistoryList({
                                 </td>
                                 {canWrite && (
                                     <td className="py-2 px-4">
-                                        <div className="flex gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-xs"
-                                                onClick={() => onEdit(record)}
-                                                aria-label={`${record.date} の成長記録を編集`}
-                                            >
-                                                <Edit2 className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-xs"
-                                                className="text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteTargetId(record.id)} aria-label={`${record.date} の成長記録を削除`}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
+                                        <RecordActionButtons
+                                            canWrite={canWrite}
+                                            onEdit={() => onEdit(record)}
+                                            onDelete={() => setDeleteTargetId(record.id)}
+                                            editLabel={`${record.date} の成長記録を編集`}
+                                            deleteLabel={`${record.date} の成長記録を削除`}
+                                        />
                                     </td>
                                 )}
                             </tr>

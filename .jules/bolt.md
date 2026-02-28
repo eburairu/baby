@@ -17,3 +17,7 @@
 ## 2026-03-01 - [React List Performance: Memoization Chain]
 **Learning:** In lists using `useInfiniteScroll` where items are appended, simply wrapping list items in `React.memo` is insufficient if the event handlers passed to them are re-created on every render (e.g., inline arrow functions). This causes O(n) re-renders for O(1) updates.
 **Action:** Always wrap event handlers passed to memoized list items in `useCallback` to ensure reference stability.
+
+## 2026-03-05 - [SQLAlchemy N+1 Loop Prevention]
+**Learning:** Querying related entities (like `FamilyUser` roles) inside a loop across multiple records (`RecordComment`) is a hidden N+1 bottleneck. SQLAlchemy's `first()` inside a loop does not batch queries by default.
+**Action:** Extract all required IDs from the list into a set, and perform a single `.in_()` query to fetch related records in batch. Combine this with `joinedload` for eager loading of direct relationships (like `.user`) to keep database queries constant regardless of list size.

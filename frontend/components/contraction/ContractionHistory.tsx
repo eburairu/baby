@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { HistoryCard } from "@/components/records/HistoryCard"
 import type { ContractionRecord } from "@/types/contraction"
 import { format } from "date-fns"
 import { ja } from "date-fns/locale"
@@ -48,42 +48,24 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
         onCommentChange: onDeleted
     })
 
-    if (contractions.length === 0) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">陣痛記録</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground text-center py-6">
-                        まだ記録がありません。上のボタンで計測を開始してください。
-                    </p>
-                </CardContent>
-            </Card>
-        )
-    }
-
     return (
         <>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">陣痛記録</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <div className="divide-y">
-                        {contractions.map((record) => (
-                            <ContractionHistoryItem
-                                key={record.id}
-                                record={record}
-                                canWrite={canWrite}
-                                onEdit={openEditDialog}
-                                onDelete={setDeleteTargetId}
-                                onComment={openComment}
-                            />
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+            <HistoryCard
+                title="陣痛記録"
+                isEmpty={contractions.length === 0}
+                emptyMessage="まだ記録がありません。上のボタンで計測を開始してください。"
+            >
+                {contractions.map((record) => (
+                    <ContractionHistoryItem
+                        key={record.id}
+                        record={record}
+                        canWrite={canWrite}
+                        onEdit={openEditDialog}
+                        onDelete={setDeleteTargetId}
+                        onComment={openComment}
+                    />
+                ))}
+            </HistoryCard>
 
             <ConfirmDeleteDialog />
             <CommentDialog />

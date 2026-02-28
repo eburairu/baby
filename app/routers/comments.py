@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -60,10 +60,20 @@ def get_record_comments(
     baby_id = get_record_baby_id(db, record_type, record_id)
     verify_baby_access(db, baby_id, current_user.id, record_type=record_type)
 
-    comments = db.query(RecordComment).filter(
+    # ⚡ Bolt: Fetch comments with eager loading for user to avoid N+1 queries.
+    comments = db.query(RecordComment).options(
+        joinedload(RecordComment.user)
+    ).filter(
         RecordComment.record_type == record_type,
         RecordComment.record_id == record_id
     ).order_by(RecordComment.created_at.asc()).all()
+
+    # ⚡ Bolt: Fetch-then-batch strategy for FamilyUser roles to eliminate N+1 queries.
+    user_ids = list({c.user_id for c in comments if not c.is_ai_generated and c.user_id is not None})
+    user_roles = {}
+    if user_ids:
+        family_users = db.query(FamilyUser.user_id, FamilyUser.role).filter(FamilyUser.user_id.in_(user_ids)).all()
+        user_roles = {fu.user_id: fu.role for fu in family_users}
 
     # Get roles for each commenter
     results = []
@@ -80,12 +90,12 @@ def get_record_comments(
                 ai_has_concern=c.ai_has_concern,
             ))
         else:
-            family_user = db.query(FamilyUser).filter(FamilyUser.user_id == c.user_id).first()
+            role = user_roles.get(c.user_id, "unknown")
             results.append(CommentResponse(
                 id=c.id,
                 user_id=c.user_id,
                 user_display_name=c.user.display_name or c.user.username if c.user else None,
-                user_role=family_user.role if family_user else "unknown",
+                user_role=role,
                 content=c.content,
                 created_at=c.created_at,
                 is_ai_generated=False,

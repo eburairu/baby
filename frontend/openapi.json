@@ -2094,12 +2094,14 @@
             "type": "array"
           },
           "milestone_type": {
+            "maxLength": 50,
             "title": "Milestone Type",
             "type": "string"
           },
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2109,6 +2111,7 @@
             "title": "Notes"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           }
@@ -2145,12 +2148,14 @@
             "type": "array"
           },
           "milestone_type": {
+            "maxLength": 50,
             "title": "Milestone Type",
             "type": "string"
           },
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2160,6 +2165,7 @@
             "title": "Notes"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           },
@@ -2238,6 +2244,7 @@
           "milestone_type": {
             "anyOf": [
               {
+                "maxLength": 50,
                 "type": "string"
               },
               {
@@ -2249,6 +2256,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2260,6 +2268,7 @@
           "title": {
             "anyOf": [
               {
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -3244,6 +3253,7 @@
           "hospital_name": {
             "anyOf": [
               {
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -3255,6 +3265,7 @@
           "lot_number": {
             "anyOf": [
               {
+                "maxLength": 50,
                 "type": "string"
               },
               {
@@ -3266,6 +3277,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -3284,6 +3296,7 @@
             "default": "scheduled"
           },
           "vaccine_name": {
+            "maxLength": 100,
             "title": "Vaccine Name",
             "type": "string"
           }
@@ -3326,6 +3339,7 @@
           "hospital_name": {
             "anyOf": [
               {
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -3341,6 +3355,7 @@
           "lot_number": {
             "anyOf": [
               {
+                "maxLength": 50,
                 "type": "string"
               },
               {
@@ -3352,6 +3367,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -3381,6 +3397,7 @@
             "title": "User Id"
           },
           "vaccine_name": {
+            "maxLength": 100,
             "title": "Vaccine Name",
             "type": "string"
           }
@@ -3433,6 +3450,7 @@
           "hospital_name": {
             "anyOf": [
               {
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -3444,6 +3462,7 @@
           "lot_number": {
             "anyOf": [
               {
+                "maxLength": 50,
                 "type": "string"
               },
               {
@@ -3455,6 +3474,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
