@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useBabies } from "@/hooks/useData"
+import { useBabies } from "@/hooks/useBabies"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"

@@ -14,7 +14,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useBabies } from "@/hooks/useData"
+import { useBabies } from "@/hooks/useBabies"
 import { useBabyStore } from "@/stores/babyStore"
 import { useDailySummaries, generateDailySummary, editDailySummary, deleteDailySummary } from "@/hooks/useDailySummary"
 import { usePermissions } from "@/hooks/usePermissions"

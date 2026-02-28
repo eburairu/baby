@@ -1,6 +1,6 @@
 "use client"
 
-import { useContractions } from "@/hooks/useData"
+import { useContractions } from "@/hooks/useContraction"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import {
     ContractionTimer,

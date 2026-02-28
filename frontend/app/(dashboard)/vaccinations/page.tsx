@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useVaccinations } from "@/hooks/useData"
+import { useVaccinations } from "@/hooks/useVaccination"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
 import { Plus, Syringe, RefreshCcw, CheckCircle2, Clock, AlertCircle } from "lucide-react"

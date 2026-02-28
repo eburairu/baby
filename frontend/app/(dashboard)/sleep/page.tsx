@@ -1,6 +1,6 @@
 "use client"
 
-import { useSleeps } from "@/hooks/useData"
+import { useSleeps } from "@/hooks/useSleep"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
 import { SleepStats } from "@/components/sleep/sleep-stats"

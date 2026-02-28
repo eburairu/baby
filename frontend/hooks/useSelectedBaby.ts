@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useBabies } from '@/hooks/useData'
+import { useBabies } from '@/hooks/useBabies'
 import { useBabyStore } from '@/stores/babyStore'
 
 export function useSelectedBaby() {

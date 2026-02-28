@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useSleeps } from "@/hooks/useData"
+import { useSleeps } from "@/hooks/useSleep"
 
 
 import { RecordIcon } from "@/components/records/RecordIcon"
