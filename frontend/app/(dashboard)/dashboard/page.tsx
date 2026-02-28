@@ -23,7 +23,7 @@ import { DASHBOARD_UI } from "@/constants/dashboard"
 import dynamic from "next/dynamic"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
-    loading: () => <Skeleton className="h-32 w-full rounded-2xl" />,
+    loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
     ssr: false
 })
 
@@ -57,9 +57,15 @@ export default function DashboardPage() {
         return <OnboardingForm isAdmin={!!isAdmin} onSuccess={mutateBabies} />
     }
 
-    const effectiveBabyId = selectedBabyId || String(babies[0].id)
-    const selectedBaby = babies.find(b => String(b.id) === effectiveBabyId)
-    const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
+    const effectiveBabyId = selectedBabyId || (babies.length > 0 ? String(babies[0].id) : null)
+    const selectedBaby = babies.find(b => String(b.id) === effectiveBabyId) || babies[0]
+    const actualBabyId = selectedBaby ? String(selectedBaby.id) : null
+
+    if (!selectedBaby || !actualBabyId) {
+        return <OnboardingForm isAdmin={!!isAdmin} onSuccess={mutateBabies} />
+    }
+
+    const born = isBorn(selectedBaby.birthday)
     const honeycombSize = (width && width < 640) 
         ? DASHBOARD_UI.WIDGET_SIZE.MOBILE 
         : DASHBOARD_UI.WIDGET_SIZE.DESKTOP
@@ -70,7 +76,7 @@ export default function DashboardPage() {
                 <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
                     {!born && canWrite && selectedBaby && (
                         <BirthRegistrationDialog
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             babyName={selectedBaby.name}
                             onSuccess={mutateBabies}
                         />
@@ -82,7 +88,7 @@ export default function DashboardPage() {
                         rows={DASHBOARD_UI.WIDGET_ROWS}
                     >
                         <FeedingWidget
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
@@ -90,7 +96,7 @@ export default function DashboardPage() {
                             size={honeycombSize}
                         />
                         <SleepWidget
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
@@ -98,7 +104,7 @@ export default function DashboardPage() {
                             size={honeycombSize}
                         />
                         <DiaperWidget
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
@@ -106,33 +112,31 @@ export default function DashboardPage() {
                             size={honeycombSize}
                         />
                         <GrowthWidget
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
                             size={honeycombSize}
                         />
                         <NoteWidget
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             records={records}
                             isLoading={recordsLoading}
                             isError={recordsError}
                             size={honeycombSize}
                         />
                         <DiaryWidget
-                            babyId={effectiveBabyId}
+                            babyId={actualBabyId}
                             size={honeycombSize}
                         />
-                        {selectedBaby && (
-                            <BabyWidget
-                                baby={selectedBaby}
-                                size={honeycombSize}
-                            />
-                        )}
+                        <BabyWidget
+                            baby={selectedBaby}
+                            size={honeycombSize}
+                        />
                     </HoneycombGrid>
 
                     <RecentActivityFeed
-                        babyId={effectiveBabyId}
+                        babyId={actualBabyId}
                         records={records}
                         isLoading={recordsLoading}
                         mutate={handleMutateRecords}
@@ -142,7 +146,7 @@ export default function DashboardPage() {
 
             {born && (
                 <QuickActionBar
-                    babyId={effectiveBabyId}
+                    babyId={actualBabyId}
                     mutateRecords={handleMutateRecords}
                     records={records}
                 />

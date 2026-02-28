@@ -2,7 +2,7 @@
 import { useUser } from "@/hooks/useAuth"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAppVersion } from "@/hooks/useAppVersion"
 import {
@@ -27,7 +27,7 @@ import {
     SheetTitle,
     SheetDescription,
 } from "@/components/ui/sheet"
-import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { LucideIcon } from "lucide-react"
 
 const ALL_NAV_ITEMS: {
@@ -74,12 +74,9 @@ export default function DashboardLayout({
     const { appVersion } = useAppVersion()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-    if (authLoading || (isLoading && !babies)) {
-        return <DashboardSkeleton />
-    }
-
-    if (!user) {
-        return null // Will redirect to login
+    // 認証が完了し、ユーザーが存在しない場合のみリダイレクト
+    if (!authLoading && !user) {
+        return null
     }
 
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : false
@@ -92,7 +89,9 @@ export default function DashboardLayout({
     const isTopLevelPage = pathname === "/dashboard"
     const currentPageLabel = navItems.find(item => item.href === pathname)?.label || "育児記録"
 
-    const babySelector = selectedBaby ? (
+    const babySelector = authLoading || (isLoading && !babies) ? (
+        <Skeleton className="h-6 w-24 rounded-full" />
+    ) : selectedBaby ? (
         babies && babies.length > 1 ? (
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -160,7 +159,11 @@ export default function DashboardLayout({
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm" className="gap-2 px-2 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
-                                    <span className="font-medium text-gray-700 dark:text-zinc-200">{getDisplayName(user)}</span>
+                                    {authLoading ? (
+                                        <Skeleton className="h-4 w-20" />
+                                    ) : (
+                                        <span className="font-medium text-gray-700 dark:text-zinc-200">{getDisplayName(user)}</span>
+                                    )}
                                     <ChevronDown className="h-4 w-4 text-gray-400" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -213,7 +216,11 @@ export default function DashboardLayout({
                                 <SheetHeader className="text-left border-b border-gray-100 dark:border-zinc-800 pb-4 mb-4">
                                     <SheetTitle className="text-gray-800 dark:text-zinc-100">メニュー</SheetTitle>
                                     <SheetDescription className="text-gray-500 dark:text-zinc-400">
-                                        {getDisplayName(user)} さん
+                                        {authLoading ? (
+                                            <Skeleton className="h-4 w-24 inline-block" />
+                                        ) : (
+                                            <>{getDisplayName(user)} さん</>
+                                        )}
                                     </SheetDescription>
                                 </SheetHeader>
                                 <div className="space-y-1">
@@ -277,7 +284,9 @@ export default function DashboardLayout({
             )}
 
             <div className="flex-1 overflow-auto relative">
-                {children}
+                <Suspense fallback={null}>
+                    {children}
+                </Suspense>
             </div>
 
             <ScrollToTopButton hasBottomBar={born} />

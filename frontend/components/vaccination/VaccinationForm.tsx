@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -27,6 +26,7 @@ import { Switch } from "@/components/ui/switch"
 import { api } from "@/lib/api"
 import { Vaccination } from "@/types/vaccination"
 import { vaccinationSchema, VaccinationFormValues } from "@/schemas/vaccination"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 
 interface VaccinationFormProps {
     babyId: number
@@ -43,7 +43,7 @@ export function VaccinationForm({
     onClose,
     onSuccess,
 }: VaccinationFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const isEditing = !!record
 
     const defaultValues: VaccinationFormValues = useMemo(() => {
         if (record) {
@@ -80,29 +80,32 @@ export function VaccinationForm({
 
     const status = form.watch("status")
 
-    const onSubmit = async (values: VaccinationFormValues) => {
-        setIsSubmitting(true)
-        try {
-            const payload = {
-                ...values,
-                baby_id: babyId,
-            }
-
-            if (record) {
-                await api.patch(`/vaccinations/${record.id}`, payload)
-                onSuccess()
+    const { submitRecord, isSubmitting } = useBaseRecordForm<VaccinationFormValues>({
+        endpoint: `/vaccinations/`,
+        babyId,
+        onSuccess: (data: unknown) => {
+            if (!isEditing) {
+                onSuccess((data as { id: number })?.id)
             } else {
-                const newRecord = await api.post<{ id: number }>(`/vaccinations/?baby_id=${babyId}`, payload)
-                onSuccess(newRecord?.id)
+                onSuccess()
             }
-            toast.success("記録しました")
             onClose()
-        } catch (error) {
-            console.error("Failed to save vaccination record:", error)
-            toast.error("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
-        }
+        },
+        successMessage: isEditing ? "更新しました" : "記録しました",
+    })
+
+    const onSubmit = async (values: VaccinationFormValues) => {
+        await submitRecord(
+            values,
+            (vals, base) => ({ ...vals, baby_id: base.baby_id }),
+            async (payload) => {
+                if (isEditing) {
+                    return await api.patch(`/vaccinations/${record!.id}`, payload)
+                } else {
+                    return await api.post<{ id: number }>(`/vaccinations/?baby_id=${babyId}`, payload)
+                }
+            }
+        )
     }
 
     return (
