@@ -1,7 +1,7 @@
 "use client"
 import { AppIcons } from "@/constants/icons"
 
-import { useDiapers } from "@/hooks/useData"
+import { useDiapers } from "@/hooks/useDiaper"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
 import { DiaperForm } from "@/components/diaper/DiaperForm"

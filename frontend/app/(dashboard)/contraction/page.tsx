@@ -1,7 +1,7 @@
 "use client"
 import { AppIcons } from "@/constants/icons"
 
-import { useContractions } from "@/hooks/useData"
+import { useContractions } from "@/hooks/useContraction"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import {
     ContractionStats,

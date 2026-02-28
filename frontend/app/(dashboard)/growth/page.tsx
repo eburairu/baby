@@ -2,7 +2,7 @@
 import { AppIcons } from "@/constants/icons"
 
 import { useState } from "react"
-import { useGrowths } from "@/hooks/useData"
+import { useGrowths } from "@/hooks/useGrowth"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"

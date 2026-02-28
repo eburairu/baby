@@ -1,7 +1,7 @@
 "use client"
 import { AppIcons } from "@/constants/icons"
 
-import { useMilestoneTimeline } from "@/hooks/useData"
+import { useMilestoneTimeline } from "@/hooks/useMilestone"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
 import { Plus, Image as ImageIcon, Calendar, ChevronRight } from "lucide-react"

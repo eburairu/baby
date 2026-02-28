@@ -1,5 +1,5 @@
 import { useUser } from "./useAuth";
-import { useFamilyMembers } from "./useData";
+import { useFamilyMembers } from "./useFamily";
 import { UserRole } from "@/lib/constants";
 
 export function usePermissions() {

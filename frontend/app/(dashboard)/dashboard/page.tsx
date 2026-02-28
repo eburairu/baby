@@ -1,6 +1,6 @@
 "use client"
 import { useCallback } from "react"
-import { useRecords } from "@/hooks/useData"
+import { useRecords } from "@/hooks/useRecords"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useWindowSize } from "@/hooks/useWindowSize"
