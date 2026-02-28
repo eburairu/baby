@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Note, deleteNote, updateNote } from "@/hooks/useNotes"
 import { Button } from "@/components/ui/button"
 import { RecordMetaItems } from "@/components/records/RecordMetaItems"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 import { formatFullDateTime, formatJapaneseDateTime } from "@/lib/dateUtils"
-import { Trash2, Pencil, Calendar, Save, Loader2 } from "lucide-react"
+import { Calendar, Save, Loader2 } from "lucide-react"
 
 
 import {
@@ -160,26 +161,13 @@ export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentR
                                     />
                                 </div>
                                 {canWrite && (
-                                    <div className="flex gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
-                                            onClick={() => handleEditStart(note)}
-                                            aria-label="メモを編集"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                                            onClick={() => setDeleteTargetId(note.id)}
-                                            aria-label="メモを削除"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                                    <RecordActionButtons
+                                        canWrite={canWrite}
+                                        onEdit={() => handleEditStart(note)}
+                                        onDelete={() => setDeleteTargetId(note.id)}
+                                        editLabel="メモを編集"
+                                        deleteLabel="メモを削除"
+                                    />
                                 )}
                             </div>
                             <p className="text-sm text-gray-700 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed">

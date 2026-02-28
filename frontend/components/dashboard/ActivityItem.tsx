@@ -2,8 +2,9 @@
 import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
-import { MessageCircle, User, StickyNote } from "lucide-react"
+import { StickyNote } from "lucide-react"
 import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
+import { RecordMetaItems } from "@/components/records/RecordMetaItems"
 
 interface ActivityItemProps {
     record: BabyRecord
@@ -34,22 +35,11 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
                     {record.details.notes ? (
                         <p className="text-xs text-gray-400 dark:text-zinc-500 line-clamp-2">{record.details.notes}</p>
                     ) : null}
-                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                        {record.recorded_by_display_name ? (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-400 dark:text-zinc-500">
-                                <User className="w-3 h-3" />
-                                {record.recorded_by_display_name}
-                            </span>
-                        ) : null}
-                        {record.comment_count > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                                <MessageCircle className="w-3 h-3 text-orange-400" />
-                                <span className="text-[10px] font-medium text-orange-500">
-                                    {record.comment_count}件のメッセージ
-                                </span>
-                            </span>
-                        ) : null}
-                    </div>
+                    <RecordMetaItems
+                        displayName={record.recorded_by_display_name}
+                        commentCount={record.comment_count}
+                        className="mt-0.5"
+                    />
                 </div>
                 <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
                     {formatElapsed(record.timestamp)}
