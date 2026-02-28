@@ -1,17 +1,17 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
 import { useContractions } from "@/hooks/useData"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import {
-    ContractionTimer,
     ContractionStats,
+    ContractionTimer,
     ContractionHistory,
     ContractionWaveGraph
 } from "@/components/contraction"
 import type { ContractionRecord } from "@/types/contraction"
 import { TipsCard } from "@/components/ui/tips-card"
 import { contractionTips } from "@/lib/tips-data"
-import { Timer } from "lucide-react"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
 /**
@@ -41,7 +41,7 @@ export default function ContractionPage() {
         return (
             <RecordPageLayout
                 title="陣痛タイマー"
-                icon={Timer}
+                icon={AppIcons.contraction}
                 iconColorClass="text-red-500 dark:text-red-400"
                 isLoading={babiesLoading}
                 isDataLoading={contractionsLoading}

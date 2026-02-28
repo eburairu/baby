@@ -1,6 +1,6 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
-import { StickyNote } from "lucide-react"
 
 import { useNotes } from "@/hooks/useNotes"
 import { useRecordPage } from "@/hooks/useRecordPage"
@@ -38,7 +38,7 @@ export default function NotePage() {
     return (
         <RecordPageLayout
             title="メモ一覧"
-            icon={StickyNote}
+            icon={AppIcons.note}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
             isDataLoading={notesLoading}
