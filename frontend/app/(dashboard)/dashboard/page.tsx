@@ -21,6 +21,8 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
 import { DASHBOARD_UI } from "@/constants/dashboard"
 import dynamic from "next/dynamic"
+import { resolveThreshold } from '@/lib/thresholdUtils'
+import { calcAge } from '@/lib/ageUtils'
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
     loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
@@ -70,6 +72,21 @@ export default function DashboardPage() {
         ? DASHBOARD_UI.WIDGET_SIZE.MOBILE 
         : DASHBOARD_UI.WIDGET_SIZE.DESKTOP
 
+    const ageMonths = selectedBaby?.birthday
+        ? calcAge(selectedBaby.birthday).months
+        : 0
+
+    const feedingThreshold = resolveThreshold(
+        ageMonths,
+        selectedBaby?.feeding_threshold_minutes,
+        'feeding'
+    )
+    const diaperThreshold = resolveThreshold(
+        ageMonths,
+        selectedBaby?.diaper_threshold_minutes,
+        'diaper'
+    )
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
             <PullToRefresh onRefresh={handleRefresh}>
@@ -94,6 +111,7 @@ export default function DashboardPage() {
                             isError={recordsError}
                             mutate={handleMutateRecords}
                             size={honeycombSize}
+                            thresholdMinutes={feedingThreshold}
                         />
                         <SleepWidget
                             babyId={actualBabyId}
@@ -110,6 +128,7 @@ export default function DashboardPage() {
                             isError={recordsError}
                             mutate={handleMutateRecords}
                             size={honeycombSize}
+                            thresholdMinutes={diaperThreshold}
                         />
                         <GrowthWidget
                             babyId={actualBabyId}

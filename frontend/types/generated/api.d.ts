@@ -1233,8 +1233,12 @@ export interface components {
             birthday?: string | null;
             /** Characteristics */
             characteristics?: string | null;
+            /** Diaper Threshold Minutes */
+            diaper_threshold_minutes?: number | null;
             /** Due Date */
             due_date?: string | null;
+            /** Feeding Threshold Minutes */
+            feeding_threshold_minutes?: number | null;
             /** Gender */
             gender?: ("boy" | "girl" | "unknown") | null;
             /** Name */
@@ -1281,10 +1285,14 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Diaper Threshold Minutes */
+            diaper_threshold_minutes?: number | null;
             /** Due Date */
             due_date?: string | null;
             /** Family Id */
             family_id: number;
+            /** Feeding Threshold Minutes */
+            feeding_threshold_minutes?: number | null;
             /** Gender */
             gender?: ("boy" | "girl" | "unknown") | null;
             /** Id */
@@ -1298,8 +1306,12 @@ export interface components {
             birthday?: string | null;
             /** Characteristics */
             characteristics?: string | null;
+            /** Diaper Threshold Minutes */
+            diaper_threshold_minutes?: number | null;
             /** Due Date */
             due_date?: string | null;
+            /** Feeding Threshold Minutes */
+            feeding_threshold_minutes?: number | null;
             /** Gender */
             gender?: ("boy" | "girl" | "unknown") | null;
             /** Name */
