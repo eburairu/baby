@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.1
+milestone_name: 赤ちゃん情報ウィジェット
+status: unknown
+last_updated: "2026-02-28T14:15:47.442Z"
+progress:
+  total_phases: 2
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
+---
+
 # プロジェクト・ステータス: Milestone v1.2
 
 ## Project Reference
@@ -10,24 +23,24 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 5 of 7 (バックエンド閾値API)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-28 — 05-01 TDD RED フェーズ完了
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Phase 5 complete, ready for Phase 6
+Last activity: 2026-02-28 — 05-02 実装フェーズ完了
 
-Progress: [█░░░░░░░░░] 10% (v1.2)
+Progress: [██░░░░░░░░] 20% (v1.2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1 (v1.2)
-- Average duration: 2 min
-- Total execution time: 2 min
+- Total plans completed: 2 (v1.2)
+- Average duration: 5 min
+- Total execution time: 10 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 5 | 1/2 | 2 min | 2 min |
+| 5 | 2/2 | 10 min | 5 min |
 | 6 | 0/? | — | — |
 | 7 | 0/? | — | — |
 
@@ -56,9 +69,10 @@ Progress: [█░░░░░░░░░] 10% (v1.2)
 ### 決定事項
 
 - THRES-03 クロスユーザー共有検証はバックエンドテストでなく Phase 7 統合テストで行う（05-01 にて決定）
+- create_baby ルーターは Baby() コンストラクタでフィールドを明示列挙するため、新カラム追加時はルーターも修正が必要（05-02 にて確認）
 
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: 05-01-PLAN.md 完了（TDD RED フェーズ）、05-02-PLAN.md（実装フェーズ）待ち
+Stopped at: 05-02-PLAN.md 完了（実装フェーズ）、Phase 5 全計画完了
 Resume file: None
