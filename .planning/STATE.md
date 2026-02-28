@@ -1,31 +1,64 @@
-# プロジェクト・ステータス: Phase 4 完了
-
-## Current Position
-
-Phase: 4 完了 (赤ちゃん情報ウィジェット)
-Status: PR 作成待ち
-Last activity: 2026-02-28 — Phase 4 全プラン完了、verify_all 通過
+# プロジェクト・ステータス: Milestone v1.2
 
 ## Project Reference
 
+See: .planning/PROJECT.md (updated 2026-02-28)
+
 **Core value:** 家族全員が同じ記録を見ながら育児を分担できる
-**Current focus:** Milestone v1.1 完了 → PR 作成
+**Current focus:** Phase 5 — バックエンド閾値API
 
-## 進捗
+## Current Position
 
-- [x] v1.0: ダッシュボードUIのハニカム構造化 (Phase 1-3 完了)
-- [x] v1.1: 赤ちゃん情報ウィジェット (Phase 4 完了) ← NEW
+Phase: 5 of 7 (バックエンド閾値API)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-28 — 05-01 TDD RED フェーズ完了
 
-## Phase 4 成果物
+Progress: [█░░░░░░░░░] 10% (v1.2)
 
-| ファイル | 内容 |
-|---------|------|
-| `frontend/__tests__/babyWidget.test.tsx` | 12テスト全パス |
-| `frontend/components/dashboard/BabyWidget.tsx` | 六角形ウィジェット（イニシャル・名前・月齢） |
-| `frontend/components/dashboard/BabyInfoPopup.tsx` | Sheet(bottom)ポップアップ（詳細・編集リンク） |
-| `frontend/constants/dashboard.ts` | WIDGET_ROWS null→6 更新 |
-| `frontend/app/(dashboard)/dashboard/page.tsx` | BabyWidget追加、BabyProfileCard削除 |
+## Performance Metrics
 
-## Next Action
+**Velocity:**
+- Total plans completed: 1 (v1.2)
+- Average duration: 2 min
+- Total execution time: 2 min
 
-PR 作成: `python scripts/create_pr.py --base develop`
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 5 | 1/2 | 2 min | 2 min |
+| 6 | 0/? | — | — |
+| 7 | 0/? | — | — |
+
+## Accumulated Context
+
+### アーキテクチャ知見
+
+- ハニカムUI: `Hexagon` コンポーネント (SVG path) が中心。`HexagonWidgetCard` が `Hexagon` をラップ
+- ウィジェットは `BaseWidgetProps` を受け取り、`records` から計算して表示
+- ダッシュボードページ (`dashboard/page.tsx`) が `selectedBaby` を持ちウィジェットに渡す
+- 赤ちゃんデータ: `babies[].birthday` から `calcAge()` で月齢を取得
+- 閾値保存先: Babyプロフィール（家族共有のためバックエンド必須）
+
+### Phase 5 実装方針
+
+- Babyスキーマ拡張: `feeding_threshold_minutes` と `diaper_threshold_minutes` (nullable int)
+- マイグレーション後 openapi.json の更新必須
+- バックエンド変更後: `npm run schema:generate && git add frontend/openapi.json`
+
+### 注意点
+
+- TDD 必須: テスト先 → 実装 → Green → リファクタリング
+- `verify_all.sh` は PR 前必須（静的エクスポートビルドチェック含む）
+- フロントエンドは Static Export — SSR/Server Components 不可
+
+### 決定事項
+
+- THRES-03 クロスユーザー共有検証はバックエンドテストでなく Phase 7 統合テストで行う（05-01 にて決定）
+
+## Session Continuity
+
+Last session: 2026-02-28
+Stopped at: 05-01-PLAN.md 完了（TDD RED フェーズ）、05-02-PLAN.md（実装フェーズ）待ち
+Resume file: None
