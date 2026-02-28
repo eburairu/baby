@@ -39,9 +39,10 @@ interface FeedingFormProps {
     initialData?: Feeding
     onSuccess?: () => void
     lastMilkAmount?: number | null
+    lastBottleContentType?: BottleContentType | null
 }
 
-export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
+export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount, lastBottleContentType }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
 
@@ -62,7 +63,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     })
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度
-    const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(initialData?.bottle_content_type ?? null)
+    const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(initialData?.bottle_content_type ?? lastBottleContentType ?? null)
     const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(initialData?.feeding_completion ?? null)
     const [burped, setBurped] = useState<boolean | null>(initialData?.burped ?? null)
 
@@ -90,12 +91,17 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         form.setValue("right_breast_minutes", Math.ceil(rightSeconds / 60))
     }, [rightSeconds, form])
 
-    // 前回のミルク量をデフォルトとしてセット (SWRで後から読み込まれた場合)
+    // 前回のミルク量・種類をデフォルトとしてセット (SWRで後から読み込まれた場合)
     useEffect(() => {
-        if (!isEditing && lastMilkAmount && form.getValues("amount_ml") === 120) {
-            form.setValue("amount_ml", lastMilkAmount)
+        if (!isEditing) {
+            if (lastMilkAmount && form.getValues("amount_ml") === 120) {
+                form.setValue("amount_ml", lastMilkAmount)
+            }
+            if (lastBottleContentType && bottleContentType === null) {
+                setBottleContentType(lastBottleContentType)
+            }
         }
-    }, [lastMilkAmount, isEditing, form])
+    }, [lastMilkAmount, lastBottleContentType, isEditing, form, bottleContentType])
 
     const { submitRecord, isSubmitting } = useBaseRecordForm<FeedingFormValues>({
         endpoint: "/feedings/", // Note: This endpoint is actually not used directly when onAdd/onUpdate are provided, but required by type
@@ -103,7 +109,9 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         onSuccess: (data) => {
             // Reset for new entry only
             if (!isEditing) {
-                const nextAmount = (data as Feeding)?.amount_ml ?? lastMilkAmount ?? 120
+                const res = data as Feeding
+                const nextAmount = res?.amount_ml ?? lastMilkAmount ?? 120
+                const nextBottleType = res?.bottle_content_type ?? lastBottleContentType ?? null
                 
                 form.reset({
                     feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -115,7 +123,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                 })
                 resetAllTimers()
                 setFeedingCompletion(null)
-                setBottleContentType(null)
+                setBottleContentType(nextBottleType)
                 setBurped(null)
             }
             if (onSuccess) onSuccess()

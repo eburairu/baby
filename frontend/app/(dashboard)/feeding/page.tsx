@@ -62,7 +62,12 @@ export default function FeedingPage() {
             <TipsCard {...feedingTips} />
 
             {canWrite && numericBabyId && (
-                <FeedingForm babyId={numericBabyId} onAdd={handleAddFeeding} />
+                <FeedingForm 
+                    babyId={numericBabyId} 
+                    onAdd={handleAddFeeding} 
+                    lastMilkAmount={summary.lastMilkAmount}
+                    lastBottleContentType={summary.lastBottleContentType}
+                />
             )}
 
             <FeedingHistory
