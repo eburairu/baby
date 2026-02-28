@@ -3,7 +3,8 @@
 import React from "react"
 import { Hexagon } from "@/components/ui/hexagon"
 import { cn } from "@/lib/utils"
-import { ShieldOff, Loader2 } from "lucide-react"
+import { ShieldOff } from "lucide-react"
+import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 
 interface ErrorWithStatus {
     status?: number;
@@ -45,7 +46,7 @@ export const HexagonWidgetCard = ({
                 <div className="flex flex-col items-center justify-center text-center p-3 h-full w-full overflow-hidden">
                     {isLoading ? (
                         <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-6 w-6 animate-spin text-indigo-500 dark:text-indigo-400" />
+                            <BabyBottleLoading className="w-8 h-8 text-indigo-500 dark:text-indigo-400" />
                             <span className="text-[10px] text-gray-400 dark:text-zinc-500">読み込み中...</span>
                         </div>
                     ) : isError ? (

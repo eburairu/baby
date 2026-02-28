@@ -310,8 +310,8 @@ interface WidgetQuickButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 1.  **カラーバリアント**: `color` プロップ (`rose`, `amber`, `indigo`) により、背景色とテキスト色が自動的に決定される（`HexagonButton` の `variant` に渡される）。
 2.  **アクティブ状態**: `isActive` プロップにより、選択状態（濃い背景色 + 白文字 + グロー効果）のスタイルが適用される。
 3.  **ローディング時の挙動**:
-    - `loading={true}` の場合、ボタン内のコンテンツ（アイコンなど）が自動的にスピナー (`Loader2`) に置き換わる。
-    - ボタンのサイズは `size` プロップによって固定されているため、スピナー表示時もレイアウトシフトは発生しない。
+    - `loading={true}` の場合、ボタン内のコンテンツ（アイコンなど）が自動的に哺乳瓶のアニメーション (`BabyBottleLoading`) に置き換わる。
+    - ボタンのサイズは `size` プロップによって固定されているため、アニメーション表示時もレイアウトシフトは発生しない。
 
 ```tsx
 // 内部実装 (HexagonButton ラッパー)
@@ -368,7 +368,7 @@ export function WidgetQuickButton({
 1. **ボタンの無効化（Disabled）**: APIリクエスト中や状態遷移中は、連打による重複登録を防ぐため、必ず `disabled` 属性を付与する。
 2. **視覚的フィードバック**:
     - **テキスト置換**: 「保存」を「保存中...」のように変更する。
-    - **スピナー表示**: 文字列の代わりに、または文字列の隣に `Loader2`（Lucide React）などのスピナーを `animate-spin` で表示する。
+    - **スピナー表示**: 文字列の代わりに、または文字列の隣に `Loader2`（Lucide React）などのスピナーを `animate-spin` で表示する。ダッシュボードのウィジェットやクイックアクションボタンなどの「育児」に関連する主要なローディング表示には、`BabyBottleLoading`（哺乳瓶のアニメーション）を優先的に使用する。
     - **透明度**: `disabled` 時のスタイルとして `opacity-50` 等を適用し、クリック不可であることを示す（shadcn/ui のデフォルト挙動を推奨）。
 
 ---
