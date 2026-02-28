@@ -85,13 +85,27 @@ def get_admin_families(
         escaped_search = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
         query = query.filter(Family.name.ilike(f"%{escaped_search}%", escape="\\"))
     families = query.offset(skip).limit(limit).all()
+
+    # ⚡ Bolt: N+1クエリを防ぐため、全家族のメンバー数を1回のクエリで一括取得する
+    family_ids = [f.id for f in families]
+    member_counts = {}
+    if family_ids:
+        counts = db.query(
+            FamilyUser.family_id,
+            func.count(FamilyUser.user_id)
+        ).filter(
+            FamilyUser.family_id.in_(family_ids)
+        ).group_by(
+            FamilyUser.family_id
+        ).all()
+        member_counts = {family_id: count for family_id, count in counts}
+
     result = []
     for f in families:
-        member_count = db.query(func.count(FamilyUser.user_id)).filter(FamilyUser.family_id == f.id).scalar()
         result.append(FamilyAdminResponse(
             id=f.id,
             name=f.name,
-            member_count=member_count,
+            member_count=member_counts.get(f.id, 0),
             created_at=f.created_at
         ))
     return result
