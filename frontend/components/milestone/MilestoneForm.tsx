@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -26,6 +25,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { api } from "@/lib/api"
 import { Milestone } from "@/types/milestone"
 import { milestoneSchema, MilestoneFormValues } from "@/schemas/milestone"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
+import { MILESTONE_PRESETS } from "@/constants/milestone"
 
 interface MilestoneFormProps {
     babyId: number
@@ -35,19 +36,6 @@ interface MilestoneFormProps {
     onSuccess: (recordId?: number) => void
 }
 
-const MILESTONE_PRESETS = [
-    { value: "first_smile", label: "初めての笑顔" },
-    { value: "rolling_over", label: "寝返り" },
-    { value: "sitting_up", label: "お座り" },
-    { value: "crawling", label: "はいはい" },
-    { value: "standing_up", label: "つかまり立ち" },
-    { value: "walking", label: "ひとり歩き" },
-    { value: "first_word", label: "初めてのおしゃべり" },
-    { value: "first_solid_food", label: "離乳食開始" },
-    { value: "bye_bye", label: "バイバイ" },
-    { value: "custom", label: "その他（自由入力）" },
-]
-
 export function MilestoneForm({
     babyId,
     record,
@@ -55,7 +43,7 @@ export function MilestoneForm({
     onClose,
     onSuccess,
 }: MilestoneFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const isEditing = !!record
 
     const defaultValues: MilestoneFormValues = useMemo(() => {
         if (record) {
@@ -84,29 +72,32 @@ export function MilestoneForm({
 
     const milestoneType = form.watch("milestone_type")
 
-    const onSubmit = async (values: MilestoneFormValues) => {
-        setIsSubmitting(true)
-        try {
-            const payload = {
-                ...values,
-                baby_id: babyId,
-            }
-
-            if (record) {
-                await api.patch(`/milestones/${record.id}`, payload)
-                onSuccess()
+    const { submitRecord, isSubmitting } = useBaseRecordForm<MilestoneFormValues>({
+        endpoint: `/milestones/`,
+        babyId,
+        onSuccess: (data: unknown) => {
+            if (!isEditing) {
+                onSuccess((data as { id: number })?.id)
             } else {
-                const newRecord = await api.post<{ id: number }>(`/milestones/?baby_id=${babyId}`, payload)
-                onSuccess(newRecord?.id)
+                onSuccess()
             }
-            toast.success("記録しました")
             onClose()
-        } catch (error) {
-            console.error("Failed to save milestone record:", error)
-            toast.error("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
-        }
+        },
+        successMessage: isEditing ? "更新しました" : "記録しました",
+    })
+
+    const onSubmit = async (values: MilestoneFormValues) => {
+        await submitRecord(
+            values,
+            (vals, base) => ({ ...vals, baby_id: base.baby_id }),
+            async (payload) => {
+                if (isEditing) {
+                    return await api.patch(`/milestones/${record!.id}`, payload)
+                } else {
+                    return await api.post<{ id: number }>(`/milestones/?baby_id=${babyId}`, payload)
+                }
+            }
+        )
     }
 
     return (

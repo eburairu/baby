@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -25,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { Growth } from "@/types/growth"
 import { growthSchema, GrowthFormValues } from "@/schemas/growth"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 
 interface GrowthRecordFormProps {
     babyId: number
@@ -41,7 +41,7 @@ export function GrowthRecordForm({
     onClose,
     onSuccess,
 }: GrowthRecordFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const isEditing = !!record
 
     const defaultValues: GrowthFormValues = useMemo(() => {
         if (record) {
@@ -68,33 +68,39 @@ export function GrowthRecordForm({
         values: defaultValues, // Sync form with record prop changes
     })
 
-    const onSubmit = async (values: GrowthFormValues) => {
-        setIsSubmitting(true)
-        try {
-            const payload = {
-                baby_id: babyId,
-                date: values.date,
-                height: values.height ? parseFloat(values.height) : null,
-                weight: values.weight ? parseInt(values.weight) : null,
-                head_circumference: values.head_circumference ? parseFloat(values.head_circumference) : null,
-                notes: values.notes || null,
-            }
-
-            if (record) {
-                await api.put(`/growths/${record.id}`, payload)
-                onSuccess()
+    const { submitRecord, isSubmitting } = useBaseRecordForm<GrowthFormValues>({
+        endpoint: `/growths/`,
+        babyId,
+        onSuccess: (data: unknown) => {
+            if (!isEditing) {
+                onSuccess((data as { id: number })?.id)
             } else {
-                const newRecord = await api.post<{ id: number }>("/growths/", payload)
-                onSuccess(newRecord?.id)
+                onSuccess()
             }
-            toast.success("記録しました")
             onClose()
-        } catch (error) {
-            console.error("Failed to save growth record:", error)
-            toast.error("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
-        }
+        },
+        successMessage: isEditing ? "更新しました" : "記録しました",
+    })
+
+    const onSubmit = async (values: GrowthFormValues) => {
+        await submitRecord(
+            values,
+            (vals, base) => ({
+                baby_id: base.baby_id,
+                date: vals.date,
+                height: vals.height ? parseFloat(vals.height) : null,
+                weight: vals.weight ? parseInt(vals.weight) : null,
+                head_circumference: vals.head_circumference ? parseFloat(vals.head_circumference) : null,
+                notes: vals.notes || null,
+            }),
+            async (payload) => {
+                if (isEditing) {
+                    return await api.put(`/growths/${record!.id}`, payload)
+                } else {
+                    return await api.post<{ id: number }>("/growths/", payload)
+                }
+            }
+        )
     }
 
     return (
