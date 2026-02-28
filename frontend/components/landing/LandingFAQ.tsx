@@ -50,11 +50,13 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
                     <ChevronDown className="h-5 w-5 text-slate-400 shrink-0" />
                 )}
             </button>
-            {open && (
-                <div id={id} className="px-6 pb-6 text-slate-600 dark:text-slate-400 leading-relaxed text-sm border-t border-slate-100 dark:border-zinc-800 pt-4">
-                    {answer}
-                </div>
-            )}
+            <div
+                id={id}
+                hidden={!open}
+                className="px-6 pb-6 text-slate-600 dark:text-slate-400 leading-relaxed text-sm border-t border-slate-100 dark:border-zinc-800 pt-4"
+            >
+                {answer}
+            </div>
         </div>
     )
 }
