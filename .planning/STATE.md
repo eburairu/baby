@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: 赤ちゃん情報ウィジェット
 status: unknown
-last_updated: "2026-02-28T14:15:47.442Z"
+last_updated: "2026-02-28T14:19:20.774Z"
 progress:
   total_phases: 2
   completed_phases: 2
