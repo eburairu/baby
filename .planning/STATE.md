@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.1
+milestone_name: 赤ちゃん情報ウィジェット
+status: unknown
+last_updated: "2026-02-28T14:19:20.774Z"
+progress:
+  total_phases: 2
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
+---
+
 # プロジェクト・ステータス: Milestone v1.2
 
 ## Project Reference
@@ -10,24 +23,24 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 5 of 7 (バックエンド閾値API)
-Plan: — of ? in current phase
-Status: Ready to plan
-Last activity: 2026-02-28 — v1.2 ロードマップ作成
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Phase 5 complete, ready for Phase 6
+Last activity: 2026-02-28 — 05-02 実装フェーズ完了
 
-Progress: [░░░░░░░░░░] 0% (v1.2)
+Progress: [██░░░░░░░░] 20% (v1.2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0 (v1.2)
-- Average duration: —
-- Total execution time: —
+- Total plans completed: 2 (v1.2)
+- Average duration: 5 min
+- Total execution time: 10 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 5 | 0/? | — | — |
+| 5 | 2/2 | 10 min | 5 min |
 | 6 | 0/? | — | — |
 | 7 | 0/? | — | — |
 
@@ -53,8 +66,13 @@ Progress: [░░░░░░░░░░] 0% (v1.2)
 - `verify_all.sh` は PR 前必須（静的エクスポートビルドチェック含む）
 - フロントエンドは Static Export — SSR/Server Components 不可
 
+### 決定事項
+
+- THRES-03 クロスユーザー共有検証はバックエンドテストでなく Phase 7 統合テストで行う（05-01 にて決定）
+- create_baby ルーターは Baby() コンストラクタでフィールドを明示列挙するため、新カラム追加時はルーターも修正が必要（05-02 にて確認）
+
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: ロードマップ作成完了、Phase 5 の plan-phase 待ち
+Stopped at: 05-02-PLAN.md 完了（実装フェーズ）、Phase 5 全計画完了
 Resume file: None

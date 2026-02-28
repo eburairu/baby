@@ -331,6 +331,17 @@
             ],
             "title": "Characteristics"
           },
+          "diaper_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diaper Threshold Minutes"
+          },
           "due_date": {
             "anyOf": [
               {
@@ -342,6 +353,17 @@
               }
             ],
             "title": "Due Date"
+          },
+          "feeding_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feeding Threshold Minutes"
           },
           "gender": {
             "anyOf": [
@@ -465,6 +487,17 @@
             "title": "Created At",
             "type": "string"
           },
+          "diaper_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diaper Threshold Minutes"
+          },
           "due_date": {
             "anyOf": [
               {
@@ -480,6 +513,17 @@
           "family_id": {
             "title": "Family Id",
             "type": "integer"
+          },
+          "feeding_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feeding Threshold Minutes"
           },
           "gender": {
             "anyOf": [
@@ -542,6 +586,17 @@
             ],
             "title": "Characteristics"
           },
+          "diaper_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diaper Threshold Minutes"
+          },
           "due_date": {
             "anyOf": [
               {
@@ -553,6 +608,17 @@
               }
             ],
             "title": "Due Date"
+          },
+          "feeding_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feeding Threshold Minutes"
           },
           "gender": {
             "anyOf": [
