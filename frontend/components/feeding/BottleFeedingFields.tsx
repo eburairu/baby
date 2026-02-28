@@ -3,18 +3,17 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input"
 import { UseFormReturn } from "react-hook-form"
 import { FeedingFormValues } from "@/schemas/feeding"
-import { BottleContentType } from "@/types/feeding"
 import { BOTTLE_CONTENT_TYPES } from "@/constants/feeding"
 import { cn } from "@/lib/utils"
 import { UI_FORMS } from "@/constants/ui-colors"
 
 interface BottleFeedingFieldsProps {
     form: UseFormReturn<FeedingFormValues>
-    bottleContentType: BottleContentType | null
-    setBottleContentType: React.Dispatch<React.SetStateAction<BottleContentType | null>>
 }
 
-export function BottleFeedingFields({ form, bottleContentType, setBottleContentType }: BottleFeedingFieldsProps) {
+export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
+    const bottleContentType = form.watch("bottle_content_type")
+
     return (
         <>
             <div>
@@ -25,7 +24,7 @@ export function BottleFeedingFields({ form, bottleContentType, setBottleContentT
                             key={value}
                             type="button"
                             aria-pressed={bottleContentType === value}
-                            onClick={() => setBottleContentType(prev => prev === value ? null : value)}
+                            onClick={() => form.setValue("bottle_content_type", bottleContentType === value ? null : (value as FeedingFormValues["bottle_content_type"]))}
                             className={cn(
                                 "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
                                 bottleContentType === value

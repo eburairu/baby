@@ -13,12 +13,14 @@ export interface NormalizedFeeding {
     leftDuration: number
     rightDuration: number
     lastBreastSide: BreastSide | null
+    bottleContentType: BottleContentType | null
 }
 
 interface FeedingDetails {
     feeding_type?: string
     amount_ml?: number
     duration_minutes?: number
+    bottle_content_type?: BottleContentType | null
 }
 
 export function normalizeFeedingFromRecord(record: BabyRecord): NormalizedFeeding | null {
@@ -36,7 +38,8 @@ export function normalizeFeedingFromRecord(record: BabyRecord): NormalizedFeedin
         duration: details.duration_minutes || 0,
         leftDuration: 0, // レコードAPIからは取得不可
         rightDuration: 0, // レコードAPIからは取得不可
-        lastBreastSide: null // レコードAPIからは取得不可
+        lastBreastSide: null, // レコードAPIからは取得不可
+        bottleContentType: details.bottle_content_type || null
     }
 }
 
@@ -49,7 +52,8 @@ export function normalizeFeedingFromEntity(feeding: Feeding): NormalizedFeeding 
         duration: feeding.duration_minutes || 0,
         leftDuration: feeding.left_breast_minutes || 0,
         rightDuration: feeding.right_breast_minutes || 0,
-        lastBreastSide: feeding.last_breast_side || null
+        lastBreastSide: feeding.last_breast_side || null,
+        bottleContentType: feeding.bottle_content_type || null
     }
 }
 
@@ -63,6 +67,7 @@ export interface FeedingStatsResult {
     lastFeedingType: FeedingType | null
     lastBreastSide: BreastSide | null
     lastMilkAmount: number | null
+    lastBottleContentType: BottleContentType | null
     lastElapsed: string | null
 }
 
@@ -95,9 +100,10 @@ export function calculateFeedingStats(feedings: NormalizedFeeding[]): FeedingSta
 
     // 直近のミルク記録から前回量を取得
     const lastMilkFeeding = feedings.find(
-        f => (f.type === 'BOTTLE' || f.type === 'MIXED') && f.amount > 0
+        f => (f.type === 'BOTTLE' || f.type === 'MIXED') && (f.amount > 0 || f.bottleContentType)
     )
     const lastMilkAmount = lastMilkFeeding?.amount ?? null
+    const lastBottleContentType = lastMilkFeeding?.bottleContentType ?? null
 
     return {
         todayCount: todayFeedings.length,
@@ -109,6 +115,7 @@ export function calculateFeedingStats(feedings: NormalizedFeeding[]): FeedingSta
         lastFeedingType: lastFeeding ? lastFeeding.type : null,
         lastBreastSide,
         lastMilkAmount,
+        lastBottleContentType,
         lastElapsed: lastFeeding ? formatElapsed(lastFeeding.timestamp) : null
     }
 }

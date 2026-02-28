@@ -39,9 +39,10 @@ interface FeedingFormProps {
     initialData?: Feeding
     onSuccess?: () => void
     lastMilkAmount?: number | null
+    lastBottleContentType?: BottleContentType | null
 }
 
-export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount }: FeedingFormProps) {
+export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount, lastBottleContentType }: FeedingFormProps) {
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
 
@@ -62,7 +63,6 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     })
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度
-    const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(initialData?.bottle_content_type ?? null)
     const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(initialData?.feeding_completion ?? null)
     const [burped, setBurped] = useState<boolean | null>(initialData?.burped ?? null)
 
@@ -77,6 +77,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
             left_breast_minutes: initialData?.left_breast_minutes ?? 0,
             right_breast_minutes: initialData?.right_breast_minutes ?? 0,
             amount_ml: initialData?.amount_ml ?? lastMilkAmount ?? 120,
+            bottle_content_type: initialData?.bottle_content_type ?? lastBottleContentType ?? null,
             notes: initialData?.notes ?? "",
         },
     })
@@ -90,12 +91,17 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         form.setValue("right_breast_minutes", Math.ceil(rightSeconds / 60))
     }, [rightSeconds, form])
 
-    // 前回のミルク量をデフォルトとしてセット (SWRで後から読み込まれた場合)
+    // 前回のミルク量・種類をデフォルトとしてセット (SWRで後から読み込まれた場合)
     useEffect(() => {
-        if (!isEditing && lastMilkAmount && form.getValues("amount_ml") === 120) {
-            form.setValue("amount_ml", lastMilkAmount)
+        if (!isEditing) {
+            if (lastMilkAmount && form.getValues("amount_ml") === 120) {
+                form.setValue("amount_ml", lastMilkAmount)
+            }
+            if (lastBottleContentType && !form.getValues("bottle_content_type")) {
+                form.setValue("bottle_content_type", lastBottleContentType)
+            }
         }
-    }, [lastMilkAmount, isEditing, form])
+    }, [lastMilkAmount, lastBottleContentType, isEditing, form])
 
     const { submitRecord, isSubmitting } = useBaseRecordForm<FeedingFormValues>({
         endpoint: "/feedings/", // Note: This endpoint is actually not used directly when onAdd/onUpdate are provided, but required by type
@@ -103,7 +109,9 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         onSuccess: (data) => {
             // Reset for new entry only
             if (!isEditing) {
-                const nextAmount = (data as Feeding)?.amount_ml ?? lastMilkAmount ?? 120
+                const res = data as Feeding
+                const nextAmount = res?.amount_ml ?? lastMilkAmount ?? 120
+                const nextBottleType = res?.bottle_content_type ?? lastBottleContentType ?? null
                 
                 form.reset({
                     feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
@@ -111,11 +119,11 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                     left_breast_minutes: 0,
                     right_breast_minutes: 0,
                     amount_ml: nextAmount,
+                    bottle_content_type: nextBottleType,
                     notes: "",
                 })
                 resetAllTimers()
                 setFeedingCompletion(null)
-                setBottleContentType(null)
                 setBurped(null)
             }
             if (onSuccess) onSuccess()
@@ -134,7 +142,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         values: vals,
                         activeTab,
                         feedingCompletion,
-                        bottleContentType,
+                        bottleContentType: vals.bottle_content_type ?? null,
                         burped
                     }),
                     (payload) => onUpdate(initialData.id, payload)
@@ -148,7 +156,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         values: vals,
                         activeTab,
                         feedingCompletion,
-                        bottleContentType,
+                        bottleContentType: vals.bottle_content_type ?? null,
                         burped
                     }),
                     onAdd
@@ -161,7 +169,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         values: vals,
                         activeTab,
                         feedingCompletion,
-                        bottleContentType,
+                        bottleContentType: vals.bottle_content_type ?? null,
                         burped
                     })
                 })
@@ -170,7 +178,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
             console.error(error)
             // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
-    }, [activeTab, babyId, bottleContentType, burped, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
+    }, [activeTab, babyId, burped, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
@@ -226,8 +234,6 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                             <TabsContent value="BOTTLE" className="space-y-4 mt-0">
                                 <BottleFeedingFields
                                     form={form}
-                                    bottleContentType={bottleContentType}
-                                    setBottleContentType={setBottleContentType}
                                 />
                             </TabsContent>
 
