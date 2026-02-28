@@ -3,7 +3,7 @@
 import { POOP_COLORS, POOP_AMOUNTS } from "@/constants/diaper"
 
 import { Droplets, Biohazard } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 
@@ -54,9 +54,9 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
         },
     })
 
-    const selectedType = form.watch("diaper_type")
-    const selectedColor = form.watch("poop_color")
-    const selectedAmount = form.watch("poop_amount")
+    const selectedType = useWatch({ control: form.control, name: "diaper_type" })
+    const selectedColor = useWatch({ control: form.control, name: "poop_color" })
+    const selectedAmount = useWatch({ control: form.control, name: "poop_amount" })
 
     const { submitRecord, isSubmitting, error } = useBaseRecordForm<DiaperFormValues>({
         endpoint: "/diapers/",
