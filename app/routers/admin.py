@@ -74,8 +74,8 @@ def get_admin_stats(
 def get_admin_families(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
-    skip: int = 0,
-    limit: int = MAX_PAGINATION_LIMIT,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(MAX_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
     search: Optional[str] = Query(None, max_length=100)
 ):
     query = db.query(Family)
@@ -149,8 +149,8 @@ def get_admin_family_detail(
 def get_admin_users(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
-    skip: int = 0,
-    limit: int = MAX_PAGINATION_LIMIT
+    skip: int = Query(0, ge=0),
+    limit: int = Query(MAX_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT)
 ):
     # UserResponse スキーマが is_superadmin を持っているのでそれを利用
     users = db.query(User).offset(skip).limit(limit).all()
@@ -197,8 +197,8 @@ def toggle_superadmin(
 def get_audit_logs(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
-    skip: int = 0,
-    limit: int = 100
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100)
 ):
     logs = (
         db.query(AuditLog)
