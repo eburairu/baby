@@ -70,7 +70,13 @@ Plans:
   3. 閾値を超過した場合、赤いストロークが点滅し視覚的に警告される
   4. 画面を開いたまま1分経過するとストロークが自動更新される
   5. 赤ちゃんの月齢が変わると警告閾値が自動的にガイドライン準拠の値に切り替わる（カスタム閾値未設定時）
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — TDD RED: thresholdUtils・indicatorUtils テスト作成
+- [ ] 06-02-PLAN.md — TDD GREEN: thresholdUtils・indicatorUtils 実装
+- [ ] 06-03-PLAN.md — HexagonProgressArc SVG コンポーネント + HexagonWidgetCard 統合
+- [ ] 06-04-PLAN.md — FeedingWidget・DiaperWidget・ダッシュボード統合（目視確認チェックポイントあり）
 
 ### Phase 7: 閾値設定UI
 **Goal:** ユーザーが設定画面から赤ちゃんごとの閾値を自分の育児スタイルに合わせて変更できる
@@ -94,7 +100,7 @@ Plans:
 | 3 | v1.0 | — | 完了 | 2024-03-20 |
 | 4 | v1.1 | — | 完了 | - |
 | 5. バックエンド閾値API | v1.2 | 0/? | Not started | - |
-| 6. フロントエンドインジケーター | v1.2 | 0/? | Not started | - |
+| 6. フロントエンドインジケーター | v1.2 | 0/4 | Not started | - |
 | 7. 閾値設定UI | v1.2 | 0/? | Not started | - |
 
 **Coverage v1.2:** 8/8 requirements mapped
