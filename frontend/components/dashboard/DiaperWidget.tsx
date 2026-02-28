@@ -17,6 +17,11 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         return () => clearInterval(id)
     }, [])
 
+    // tick は再レンダリングを促すために state として持つが、計算自体には含める必要がない
+    // (再レンダリング時に calcProgress が新しい時刻で再計算されるため)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _tick = tick;
+
     const { wetCount, dirtyCount, lastElapsed, lastDiaperTime } = useMemo(() => {
         const diaperRecords = records
             ?.map(normalizeDiaperFromRecord)

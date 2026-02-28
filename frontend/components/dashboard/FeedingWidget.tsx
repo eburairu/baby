@@ -17,6 +17,11 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         return () => clearInterval(id)
     }, [])
 
+    // tick は再レンダリングを促すために state として持つが、計算自体には含める必要がない
+    // (再レンダリング時に calcProgress が新しい時刻で再計算されるため)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _tick = tick;
+
     const { todayCount, lastElapsed, lastFeedingTime } = useMemo(() => {
         const feedingRecords = records
             ?.map(normalizeFeedingFromRecord)
