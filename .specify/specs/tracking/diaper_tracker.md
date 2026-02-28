@@ -101,7 +101,7 @@
 
 以下の API は既に実装済み:
 
-- `GET /api/diapers/?baby_id={id}&skip={skip}&limit={limit}` - 記録一覧取得（ページネーション対応。デフォルト: skip=0, limit=20）
+- `GET /api/diapers/?baby_id={id}&skip={skip}&limit={limit}` - 記録一覧取得（ページネーション対応。デフォルト: skip=0, limit=100）
 - `POST /api/diapers/` - 記録作成
     - **通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Push/In-App）が送信される。
 - `PUT /api/diapers/{id}` - 記録更新
