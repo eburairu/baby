@@ -1,10 +1,12 @@
 "use client"
 
 import { useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ContractionRecord } from "@/types/contraction"
 import { calculateStats } from "@/lib/contractionUtils"
 import { formatSecondsToJapanese } from "@/lib/ageUtils"
+import { StatsCard } from "@/components/ui/stats-card"
+import { StatsBlock } from "@/components/ui/stats-block"
+import { Activity, Clock, Timer } from "lucide-react"
 
 interface ContractionStatsProps {
     contractions: ContractionRecord[]
@@ -29,38 +31,30 @@ export default function ContractionStats({ contractions }: ContractionStatsProps
             )}
 
             {/* 統計カード */}
-            <div className="grid grid-cols-3 gap-3">
-                <Card>
-                    <CardHeader className="pb-2 pt-4 px-4">
-                        <CardTitle className="text-xs text-muted-foreground font-normal">直近1時間</CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-4 pb-4">
-                        <p className="text-2xl font-bold">{stats.count}<span className="text-sm font-normal text-muted-foreground ml-1">回</span></p>
-                    </CardContent>
-                </Card>
+            <StatsCard>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <StatsBlock
+                        icon={Activity}
+                        label="直近1時間"
+                        value={`${stats.count}回`}
+                        color="rose"
+                    />
 
-                <Card>
-                    <CardHeader className="pb-2 pt-4 px-4">
-                        <CardTitle className="text-xs text-muted-foreground font-normal">平均持続</CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-4 pb-4">
-                        <p className="text-2xl font-bold">
-                            {stats.avgDuration != null ? formatSecondsToJapanese(stats.avgDuration) : "—"}
-                        </p>
-                    </CardContent>
-                </Card>
+                    <StatsBlock
+                        icon={Timer}
+                        label="平均持続"
+                        value={stats.avgDuration != null ? formatSecondsToJapanese(stats.avgDuration) : "—"}
+                        color="rose"
+                    />
 
-                <Card>
-                    <CardHeader className="pb-2 pt-4 px-4">
-                        <CardTitle className="text-xs text-muted-foreground font-normal">平均間隔</CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-4 pb-4">
-                        <p className="text-2xl font-bold">
-                            {stats.avgInterval != null ? formatSecondsToJapanese(stats.avgInterval) : "—"}
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+                    <StatsBlock
+                        icon={Clock}
+                        label="平均間隔"
+                        value={stats.avgInterval != null ? formatSecondsToJapanese(stats.avgInterval) : "—"}
+                        color="rose"
+                    />
+                </div>
+            </StatsCard>
         </div>
     )
 }
