@@ -12,16 +12,13 @@ export function DashboardSkeleton() {
 
     return (
         <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
-            {/* プロフィールカード */}
-            <Skeleton className="h-44 w-full rounded-2xl" />
-            
             {/* ハニカムウィジェットグリッドスケルトン */}
             <HoneycombGrid
                 size={honeycombSize}
                 gap={DASHBOARD_UI.WIDGET_GAP}
                 rows={DASHBOARD_UI.WIDGET_ROWS}
             >
-                {[...Array(6)].map((_, i) => (
+                {[...Array(7)].map((_, i) => (
                     <Hexagon
                         key={i}
                         size={honeycombSize}

@@ -4,13 +4,13 @@ import { useRecords } from "@/hooks/useData"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useWindowSize } from "@/hooks/useWindowSize"
-import { BabyProfileCard } from "@/components/dashboard/BabyProfileCard"
 import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
 import { SleepWidget } from "@/components/dashboard/SleepWidget"
 import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
 import { GrowthWidget } from "@/components/dashboard/GrowthWidget"
 import { NoteWidget } from "@/components/dashboard/NoteWidget"
 import { DiaryWidget } from "@/components/dashboard/DiaryWidget"
+import { BabyWidget } from "@/components/dashboard/BabyWidget"
 import { BirthRegistrationDialog } from "@/components/dashboard/BirthRegistrationDialog"
 import { OnboardingForm } from "@/components/dashboard/OnboardingForm"
 import { QuickActionBar } from "@/components/dashboard/QuickActionBar"
@@ -60,8 +60,6 @@ export default function DashboardPage() {
     const effectiveBabyId = selectedBabyId || String(babies[0].id)
     const selectedBaby = babies.find(b => String(b.id) === effectiveBabyId)
     const born = selectedBaby ? isBorn(selectedBaby.birthday) : true
-    const babiesWithStrId = babies.map(b => ({ ...b, id: String(b.id) }))
-
     const honeycombSize = (width && width < 640) 
         ? DASHBOARD_UI.WIDGET_SIZE.MOBILE 
         : DASHBOARD_UI.WIDGET_SIZE.DESKTOP
@@ -70,12 +68,6 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
             <PullToRefresh onRefresh={handleRefresh}>
                 <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
-                    <BabyProfileCard
-                        key={effectiveBabyId}
-                        babies={babiesWithStrId}
-                        selectedBabyId={effectiveBabyId}
-                    />
-
                     {!born && canWrite && selectedBaby && (
                         <BirthRegistrationDialog
                             babyId={effectiveBabyId}
@@ -131,6 +123,12 @@ export default function DashboardPage() {
                             babyId={effectiveBabyId}
                             size={honeycombSize}
                         />
+                        {selectedBaby && (
+                            <BabyWidget
+                                baby={selectedBaby}
+                                size={honeycombSize}
+                            />
+                        )}
                     </HoneycombGrid>
 
                     <RecentActivityFeed
