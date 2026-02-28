@@ -36,12 +36,12 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
     const id = `faq-${uniqueId}`
 
     return (
-        <div className="border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/50 transition-colors">
+        <div className="border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900/50 transition-colors focus-within:ring-2 focus-within:ring-indigo-500">
             <button
                 onClick={() => setOpen(!open)}
                 aria-expanded={open}
                 aria-controls={id}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer focus:outline-none"
             >
                 <span className="font-bold text-slate-800 dark:text-slate-200">{question}</span>
                 {open ? (

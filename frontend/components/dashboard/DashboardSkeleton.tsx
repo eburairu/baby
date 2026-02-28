@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
 import { useWindowSize } from "@/hooks/useWindowSize"
-import { Hexagon } from "@/components/ui/hexagon"
+import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { DASHBOARD_UI } from "@/constants/dashboard"
 
 export function DashboardSkeleton() {
@@ -19,11 +19,10 @@ export function DashboardSkeleton() {
                 rows={DASHBOARD_UI.WIDGET_ROWS}
             >
                 {[...Array(7)].map((_, i) => (
-                    <Hexagon
+                    <HexagonWidgetCard
                         key={i}
+                        isSkeleton
                         size={honeycombSize}
-                        color="currentColor"
-                        className="text-muted/50 animate-pulse"
                     />
                 ))}
             </HoneycombGrid>
