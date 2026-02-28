@@ -48,7 +48,7 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>赤ちゃんを追加</DialogTitle>
                 </DialogHeader>

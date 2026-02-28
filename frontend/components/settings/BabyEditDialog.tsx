@@ -61,7 +61,7 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>赤ちゃんの情報を編集</DialogTitle>
                 </DialogHeader>
