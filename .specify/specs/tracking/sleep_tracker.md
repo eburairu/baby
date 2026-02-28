@@ -130,13 +130,9 @@
 ### レスポンススキーマ (`SleepResponse`)
 
 ```typescript
-interface SleepResponse {
+interface SleepResponse extends SleepCreate {
   id: number
-  baby_id: number
   user_id: number
-  start_time: string
-  end_time: string | null
-  notes: string | null
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
   comment_count: number
 }
