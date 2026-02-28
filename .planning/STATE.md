@@ -3,9 +3,9 @@
 ## Current Position
 
 Phase: 4 (赤ちゃん情報ウィジェット)
-Plan: 04-02 (未着手)
-Status: In progress
-Last activity: 2026-02-28 — 04-01 完了（BabyWidget + BabyInfoPopup 実装）
+Plan: 04-02 (完了)
+Status: Phase 4 完了
+Last activity: 2026-02-28 — 04-02 完了（BabyWidget dashboard 組み込み、BabyProfileCard 削除）
 
 ## Project Reference
 
@@ -19,13 +19,15 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 - [x] v1.0: ダッシュボードUIのハニカム構造化 (Phase 1-3 完了)
 - [ ] v1.1: 赤ちゃん情報ウィジェット (Phase 4) ← 現在地
   - [x] 04-01: BabyWidget + BabyInfoPopup TDD 実装
-  - [ ] 04-02: Dashboard への組み込み
+  - [x] 04-02: Dashboard への組み込み
 
 ## Next Action
 
-04-02 を実行する（worktree 内で）:
+Phase 4 完了。PR を作成して develop にマージする。
+
 ```bash
 cd /Users/ry1e/Documents/work/baby/worktrees/feat/v1.1-baby-widget
+python scripts/create_pr.py
 ```
 
 ## Accumulated Context
