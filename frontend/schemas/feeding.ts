@@ -15,6 +15,7 @@ export const feedingSchema = z.object({
         .min(0, "0ml以上を指定してください")
         .max(500, "500ml以下を指定してください")
         .optional(),
+    bottle_content_type: z.enum(["FORMULA", "EXPRESSED_MILK", "MIXED"]).nullable().optional(),
     notes: z.string()
         .max(2000, "メモは2000文字以内で入力してください")
         .optional(),
