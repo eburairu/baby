@@ -103,18 +103,32 @@
 - `DELETE /api/growths/{id}`
     - 削除。
 
-### レスポンススキーマ (`GrowthResponse`)
+### リクエスト/レスポンス スキーマ
 
 ```typescript
-interface GrowthResponse {
-  id: number
+// POST リクエスト
+interface GrowthCreate {
   baby_id: number
+  date: string // YYYY-MM-DD形式
+  height?: number
+  weight?: number
+  head_circumference?: number
+  notes?: string
+}
+
+// PUT リクエスト
+interface GrowthUpdate {
+  date?: string
+  height?: number
+  weight?: number
+  head_circumference?: number
+  notes?: string
+}
+
+// レスポンス
+interface GrowthResponse extends GrowthCreate {
+  id: number
   user_id: number
-  date: string
-  height: number | null
-  weight: number | null
-  head_circumference: number | null
-  notes: string | null
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
   comment_count: number
 }
