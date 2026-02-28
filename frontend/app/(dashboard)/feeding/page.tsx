@@ -1,6 +1,6 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
-import { Baby as BabyIcon } from "lucide-react"
 
 import { useFeeding } from "@/hooks/useFeeding"
 import { useRecordPage } from "@/hooks/useRecordPage"
@@ -49,7 +49,7 @@ export default function FeedingPage() {
     return (
         <RecordPageLayout
             title="授乳記録"
-            icon={BabyIcon}
+            icon={AppIcons.feeding}
             iconColorClass="text-rose-500 dark:text-rose-400"
             isLoading={babiesLoading}
             isDataLoading={feedingsLoading}

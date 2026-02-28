@@ -1,4 +1,4 @@
-import { Milk, Baby } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import { FeedingType } from "@/types/feeding"
 
 interface FeedingIconProps {
@@ -15,7 +15,7 @@ export function FeedingIcon({ type, className }: FeedingIconProps) {
 
     return (
         <div className={`${baseClasses} ${colorClasses} ${className || ''}`}>
-            {isBreast ? <Baby className="w-5 h-5" /> : <Milk className="w-5 h-5" />}
+            {isBreast ? <AppIcons.feedingBreast className="w-5 h-5" /> : <AppIcons.feedingBottle className="w-5 h-5" />}
         </div>
     );
 }

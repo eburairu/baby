@@ -1,9 +1,10 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
 import { useMilestoneTimeline } from "@/hooks/useData"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
-import { Plus, Trophy, Image as ImageIcon, Calendar, ChevronRight } from "lucide-react"
+import { Plus, Image as ImageIcon, Calendar, ChevronRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { format } from "date-fns"
@@ -36,7 +37,7 @@ export default function MilestonesPage() {
     return (
         <RecordPageLayout
             title="発育発達マイルストーン"
-            icon={Trophy}
+            icon={AppIcons.milestone}
             iconColorClass="text-amber-500 dark:text-amber-400"
             isLoading={babiesLoading}
             isDataLoading={milestonesLoading}
