@@ -2,6 +2,7 @@
 
 import React from "react"
 import { Hexagon } from "@/components/ui/hexagon"
+import { HexagonProgressArc } from "@/components/ui/HexagonProgressArc"
 import { cn } from "@/lib/utils"
 import { ShieldOff } from "lucide-react"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
@@ -20,6 +21,8 @@ interface HexagonWidgetCardProps {
     isSkeleton?: boolean
     className?: string
     size?: number
+    indicatorProgress?: number   // undefined = インジケーター非表示
+    isOverThreshold?: boolean    // default false
 }
 
 /**
@@ -33,7 +36,9 @@ export const HexagonWidgetCard = ({
     isLoading,
     isSkeleton,
     className,
-    size = DASHBOARD_UI.WIDGET_SIZE.DESKTOP
+    size = DASHBOARD_UI.WIDGET_SIZE.DESKTOP,
+    indicatorProgress,
+    isOverThreshold = false
 }: HexagonWidgetCardProps) => {
     // 403 (Forbidden) のチェック
     const isForbidden = isError && typeof isError === 'object' && 'status' in isError && (isError as ErrorWithStatus).status === 403;
@@ -79,6 +84,13 @@ export const HexagonWidgetCard = ({
                     )}
                 </div>
             </Hexagon>
+            {indicatorProgress !== undefined && indicatorProgress > 0 && !isSkeleton && !isLoading && !isError && (
+                <HexagonProgressArc
+                    size={size}
+                    progress={indicatorProgress}
+                    isOverThreshold={isOverThreshold}
+                />
+            )}
         </div>
     )
 }
