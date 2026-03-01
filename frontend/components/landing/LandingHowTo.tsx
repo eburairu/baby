@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { UserPlus, Users, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 
 const HOW_TO_STEPS = [
     {
@@ -60,12 +61,16 @@ export function LandingHowTo({ isLoggedIn = false }: LandingHowToProps) {
                     ))}
                 </div>
                 {!isLoggedIn && (
-                    <div className="text-center">
-                        <Link href="/register">
-                            <Button className="h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 transition-all hover:shadow-indigo-200 dark:hover:shadow-indigo-900/30">
+                    <div className="flex flex-col items-center gap-2">
+                        <Link href="/register" className="w-full sm:w-auto">
+                            <Button className="group w-full sm:w-auto h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 transition-all hover:shadow-indigo-200 dark:hover:shadow-indigo-900/30">
                                 今すぐ無料で始める
+                                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Button>
                         </Link>
+                        <p className="text-xs font-bold mt-2 text-slate-500 dark:text-slate-400">
+                            ✨ 1分で簡単スタート ・ クレジットカード不要
+                        </p>
                     </div>
                 )}
             </div>
