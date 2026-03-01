@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, memo } from "react"
+import { useMemo, memo, useState, useEffect } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
@@ -9,9 +9,19 @@ import { Moon } from "lucide-react"
 import Link from "next/link"
 
 export const SleepWidget = memo(function SleepWidget({ babyId, records, isError, isLoading, size }: BaseWidgetProps) {
+    const [tick, setTick] = useState(0)
+
+    useEffect(() => {
+        const id = setInterval(() => setTick(t => t + 1), 60000)
+        return () => clearInterval(id)
+    }, [])
+
     const { isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
+        // tick に依存させることで1分ごとの更新を保証する
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        tick;
         return calculateSleepStats(records)
-    }, [records])
+    }, [records, tick])
 
     return (
         <Link href={`/sleep?baby_id=${babyId}`} className="block">
