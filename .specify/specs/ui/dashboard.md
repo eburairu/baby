@@ -140,7 +140,7 @@ Botoro のメイン画面（ホーム）となるダッシュボードの仕様�
 
 統合タイムラインを取得するために以下のエンドポイントを使用する。
 
-- **GET /api/babies/{baby_id}/records**
+- **GET /api/babies/{baby_id}/records?limit={limit}**
     - **Query Params**:
         - `limit`: 取得件数 (default: 50, min: 1, max: 1000)
     - **Response**: `List[UnifiedRecord]`

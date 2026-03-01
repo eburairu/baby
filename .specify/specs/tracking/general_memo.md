@@ -93,17 +93,27 @@ class Note(Base):
 ### リクエスト/レスポンススキーマ
 
 ```typescript
+// POST リクエスト
+interface NoteCreate {
+  content: string
+  note_time: string // ISO 8601
+}
+
+// PATCH リクエスト
+interface NoteUpdate {
+  content?: string
+  note_time?: string // ISO 8601
+}
+
 // レスポンス
-interface NoteResponse {
-    id: number
-    baby_id: number
-    user_id: number | null
-    content: string
-    note_time: string // ISO 8601
-    created_at: string // ISO 8601
-    updated_at: string // ISO 8601
-    recorded_by_display_name: string | null  // 記録者の表示名
-    comment_count: number
+interface NoteResponse extends NoteCreate {
+  id: number
+  baby_id: number
+  user_id: number | null
+  created_at: string // ISO 8601
+  updated_at: string // ISO 8601
+  recorded_by_display_name: string | null  // 記録者の表示名
+  comment_count: number
 }
 ```
 

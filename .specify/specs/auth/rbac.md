@@ -63,9 +63,9 @@ class UserRole(str, enum.Enum):
 | `/api/sleeps/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
 | `/api/sleeps/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
 | `/api/diapers/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/diapers/` | POST, PUT, DELETE | ✅ | ✅ | ❌ |
+| `/api/diapers/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
 | `/api/growth/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/growth/` | POST, PUT, DELETE | ✅ | ✅ | ❌ |
+| `/api/growth/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
 | `/api/contractions/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
 | `/api/contractions/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
 | `/api/contractions/{id}/stop` | PATCH | ✅ | ✅ | ❌ |
@@ -88,7 +88,7 @@ class UserRole(str, enum.Enum):
 | `/api/family/members` | GET | ✅ | ✅ | ✅ |
 | `/api/family/members/{id}/role` | PATCH | ✅ | ❌ | ❌ |
 | `/api/family/members/{id}` | DELETE | ✅ | ❌ | ❌ |
-| `/api/babies/{id}/permissions` | GET, PUT | ✅ | ❌ | ❌ |
+| `/api/babies/{id}/permissions` | GET, PATCH | ✅ | ❌ | ❌ |
 | **認証・プロフィール** | | | | |
 | `/api/auth/register/family` | POST | — ※5 | — | — |
 | `/api/auth/register/join` | POST | — ※5 | — | — |
@@ -244,7 +244,7 @@ RBAC のロールシステムとは別に、**赤ちゃん単位のきめ細か�
 - [x] 最終 ADMIN の降格防止ガード
 - [x] 最終 ADMIN の自己削除防止ガード（`app/routers/family.py` `delete_member`）
 - [x] `GET /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
-- [x] `PUT /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
+- [x] `PATCH /api/babies/{baby_id}/permissions` エンドポイント実装（`app/routers/baby_permissions.py`）
 - [x] `verify_baby_access()` をデフォルト拒否に変更（BabyPermission が存在しない場合に 403）
 - [x] `GET /api/babies/` を `allowed_baby_ids` フィルタ（opt-in 型）に変更
 - [x] `GET /api/babies/{baby_id}/permissions` の BabyPermission 未設定時のデフォルト値を `False` に変更

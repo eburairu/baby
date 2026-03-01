@@ -100,7 +100,7 @@ def delete_diaper(diaper_id: int, db: Session = Depends(get_db), current_user: U
     return {"message": "Deleted"}
 
 
-@router.put("/{diaper_id}", response_model=DiaperResponse)
+@router.patch("/{diaper_id}", response_model=DiaperResponse)
 def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     diaper = db.query(Diaper).filter(Diaper.id == diaper_id).first()
     if not diaper:

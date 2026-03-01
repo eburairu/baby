@@ -233,7 +233,7 @@ for record_type in VALID_RECORD_TYPES:
 }
 ```
 
-#### `PUT /api/babies/{baby_id}/permissions`
+#### `PATCH /api/babies/{baby_id}/permissions`
 
 **概要**: 指定した赤ちゃんの権限を一括更新する（upsert）。
 
@@ -272,7 +272,7 @@ for record_type in VALID_RECORD_TYPES:
 |------|-------|------------------------|---------------------------|
 | `GET /api/babies/` | 全件返す | `can_view=true` の赤ちゃんのみ返す | 返さない |
 | `GET /api/babies/{id}/permissions` | ✅ | ❌ 403 | ❌ 403 |
-| `PUT /api/babies/{id}/permissions` | ✅ | ❌ 403 | ❌ 403 |
+| `PATCH /api/babies/{id}/permissions` | ✅ | ❌ 403 | ❌ 403 |
 | `GET /api/feedings/?baby_id={id}` | ✅ | ✅ | 403 |
 | 他記録系エンドポイント | ✅ | ✅ | 403 |
 | ダッシュボードの赤ちゃん選択 | 全件表示 | 許可済みのみ表示 | 表示されない |

@@ -46,9 +46,9 @@
 
 - **更新エンドポイントの活用**:
     - 授乳 (`PATCH /api/feedings/{id}`) ※新規追加済み
-    - おむつ (`PUT /api/diapers/{id}`)
+    - おむつ (`PATCH /api/diapers/{id}`)
     - 睡眠 (`PATCH /api/sleeps/{id}`)
-    - 成長 (`PUT /api/growths/{id}`)
+    - 成長 (`PATCH /api/growths/{id}`)
     - メモ (`PATCH /api/notes/{id}`) ※フィールド名は `content`
     - 陣痛 (`PATCH /api/contractions/{id}`)
 

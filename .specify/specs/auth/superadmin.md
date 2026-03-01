@@ -83,8 +83,8 @@ def get_current_superadmin(
 以下のエンドポイントを `app/routers/admin.py` に実装する。
 
 - `GET /api/admin/stats`: システム全体の統計情報を取得
-- `GET /api/admin/families`: 家族一覧を取得（ページネーション、検索対応）
-- `GET /api/admin/users`: ユーザー一覧を取得（ページネーション、検索対応）
+- `GET /api/admin/families?skip={skip}&limit={limit}`: 家族一覧を取得（ページネーション、検索対応）
+- `GET /api/admin/users?skip={skip}&limit={limit}`: ユーザー一覧を取得（ページネーション、検索対応）
 - `PATCH /api/admin/users/{user_id}/superadmin`: SuperAdmin 権限を切り替え
 
 ---

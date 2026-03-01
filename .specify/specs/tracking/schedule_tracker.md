@@ -59,3 +59,23 @@
 
 - `verify_baby_access` を通じて、対象の赤ちゃんへのアクセス権限があるユーザーのみが操作可能。
 - 家族メンバーであれば閲覧・作成・削除が可能。
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+// POST リクエスト
+interface ScheduleCreate {
+  baby_id: number
+  title: string
+  description?: string
+  scheduled_time: string // ISO 8601
+  is_completed?: boolean // デフォルトは false
+}
+
+// レスポンス
+interface ScheduleResponse extends ScheduleCreate {
+  id: number
+  user_id: number
+  created_at: string // ISO 8601
+}
+```

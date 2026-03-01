@@ -85,7 +85,7 @@ def get_baby_permissions(
     )
 
 
-@router.put("/{baby_id}/permissions", response_model=BabyPermissionsResponse)
+@router.patch("/{baby_id}/permissions", response_model=BabyPermissionsResponse)
 def update_baby_permissions(
     baby_id: int,
     update_in: BabyPermissionUpdate,

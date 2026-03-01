@@ -75,7 +75,7 @@ def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), curren
     return response
 
 
-@router.put("/{growth_id}", response_model=GrowthResponse)
+@router.patch("/{growth_id}", response_model=GrowthResponse)
 def update_growth(
     growth_id: int,
     growth_in: GrowthUpdate,
