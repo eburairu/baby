@@ -1,3 +1,12 @@
+## 2026-03-05 - [汎用メモ機能における仕様と実装の乖離の発見]
+**学び:**
+- 汎用メモ機能（`app/routers/note.py`）において、APIレスポンススキーマ（`NoteResponse`）は定義されていたものの、リクエストスキーマ（`NoteCreate`, `NoteUpdate`）が仕様書（`general_memo.md`）に記載されていなかった。
+- さらに、メモ作成時（`POST /api/babies/{baby_id}/notes`）の副作用として「家族全員への通知（`notify_family_members`）」が実装されているが、API仕様のドキュメントに記載が漏れていた。これは他の記録機能（Diaper, Sleep等）でも過去に発生していたパターンと同様である。
+
+**アクション:**
+- `general_memo.md` を更新し、`NoteCreate`と`NoteUpdate`のスキーマを追加、`NoteResponse`を継承（`extends`）するようにリファクタリングし、副作用である通知機能の仕様をAPIエンドポイントセクションに明記した。
+- 今後は、新しいエンドポイントや機能の仕様を確認する際、Pydanticモデル全体（Create, Update, Response）の継承関係と、ルーターに実装されている副作用（特に通知機能）が仕様書に正しく反映されているかを必須チェック項目とする。
+
 ## 2026-03-05 - [予防接種API仕様と実装の乖離の発見]
 **学び:**
 - 予防接種機能（`app/routers/vaccinations.py`）において、仕様書（`vaccination_tracker.md`）では `POST /api/vaccinations/` に「一括生成」が含まれると記載されていましたが、実際のコードでは `POST /api/vaccinations/generate` という専用の生成エンドポイントに分離されていました。
