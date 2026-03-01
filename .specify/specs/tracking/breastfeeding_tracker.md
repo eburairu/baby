@@ -125,6 +125,7 @@ class FeedingCompletion(str, Enum):
 | `last_breast_side` | Enum | 最後に授乳した側 (`BreastSide`) |
 | `bottle_content_type` | Enum | ボトルの中身種別 (`BottleContentType`) |
 | `feeding_completion` | Enum | 授乳完全度 (`FeedingCompletion`) |
+| `burped` | Boolean | ゲップの有無 (Nullable) |
 | `notes` | String | メモ (最大2000文字) |
 
 ## API仕様
@@ -154,6 +155,7 @@ class FeedingCompletion(str, Enum):
   last_breast_side?: "LEFT" | "RIGHT" | "BOTH",
   bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED",
   feeding_completion?: "FULL" | "PARTIAL",
+  burped?: boolean,
   notes?: string // 最大2000文字 (NOTE_MAX_LENGTH)
 }
 ```
@@ -176,6 +178,7 @@ interface FeedingResponse {
   last_breast_side: "LEFT" | "RIGHT" | "BOTH" | null
   bottle_content_type: "FORMULA" | "EXPRESSED_MILK" | "MIXED" | null
   feeding_completion: "FULL" | "PARTIAL" | null
+  burped: boolean | null
   notes: string | null
   // 以下はRouterで付与される計算フィールド
   recorded_by_display_name: string | null // 記録者の表示名
