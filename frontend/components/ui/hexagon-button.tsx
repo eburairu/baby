@@ -28,7 +28,7 @@ interface HexagonButtonProps extends HTMLMotionProps<"button"> {
   animationType?: "tilt" | "bounce" | "none"
 }
 
-export function HexagonButton({
+export const HexagonButton = React.forwardRef<HTMLButtonElement, HexagonButtonProps>(({
   icon,
   label,
   loading = false,
@@ -40,7 +40,7 @@ export function HexagonButton({
   className,
   children,
   ...props
-}: HexagonButtonProps) {
+}, ref) => {
 
   const theme = HEXAGON_BUTTON_THEMES[variant]
   const currentTheme = active ? theme.active : theme.inactive
@@ -61,6 +61,7 @@ export function HexagonButton({
 
   return (
     <motion.button
+      ref={ref}
       whileHover="hover"
       whileTap="tap"
       className={cn(
@@ -117,4 +118,5 @@ export function HexagonButton({
       )}
     </motion.button>
   )
-}
+})
+HexagonButton.displayName = "HexagonButton"
