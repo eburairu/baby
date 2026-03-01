@@ -12,8 +12,7 @@ import { usePermissions } from "@/hooks/usePermissions"
 import { useUser } from "@/hooks/useAuth"
 import { CommentSection } from "@/components/records/CommentSection"
 import { api } from "@/lib/api"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 
 interface Props {
   record: BabyRecord | null
@@ -72,7 +71,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         case "growth":
           endpoint = `/growths/${record.id}`
           // Use format to get YYYY-MM-DD in local time
-          body.date = format(new Date(record.timestamp), "yyyy-MM-dd")
+          body.date = formatDateLocal(new Date(record.timestamp))
           await api.put(endpoint, body)
           break
         case "note":
@@ -137,7 +136,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-zinc-300">日時</Label>
               <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                {record.timestamp ? format(new Date(record.timestamp), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
+                {record.timestamp ? formatJapaneseDateTime(new Date(record.timestamp)) : "-"}
               </div>
             </div>
 
