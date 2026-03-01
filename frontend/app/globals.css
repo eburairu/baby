@@ -166,3 +166,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+@utility animate-ripple {
+  animation: ripple 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
