@@ -42,6 +42,30 @@ export function formatJapaneseDateTime(date: Date | string): string {
 }
 
 /**
+ * Formats a date to "yyyy年M月d日" (e.g., 2024年1月23日).
+ */
+export function formatJapaneseDate(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return format(d, "yyyy年M月d日", { locale: ja });
+}
+
+/**
+ * Formats a date for HTML input type="datetime-local" (e.g., 2024-01-23T14:30).
+ */
+export function formatDateTimeLocal(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return format(d, "yyyy-MM-dd'T'HH:mm", { locale: ja });
+}
+
+/**
+ * Formats a date for HTML input type="date" (e.g., 2024-01-23).
+ */
+export function formatDateLocal(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return format(d, "yyyy-MM-dd", { locale: ja });
+}
+
+/**
  * Checks if the given date is today.
  */
 export function isToday(date: Date | string): boolean {

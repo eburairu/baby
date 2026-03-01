@@ -123,6 +123,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         loading={loadingAction === "feeding_bottle"}
                         disabled={isLoading}
                         aria-label="ミルクを記録"
+                        animationType="tilt"
                     />
                     {/* 上段: 睡眠（中央・メイン） */}
                     <HexagonButton
@@ -133,7 +134,8 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => handleQuickRecord("sleep")}
                         loading={loadingAction === "sleep"}
                         disabled={isLoading}
-                        aria-label={activeSleep ? "睡眠終了を記録" : "睡眠開始を記録"}
+                        aria-label={activeSleep ? " 睡眠終了を記録" : "睡眠開始を記録"}
+                        animationType="tilt"
                     />
                     {/* 上段: 母乳 */}
                     <HexagonButton
@@ -144,6 +146,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         loading={loadingAction === "feeding_breast"}
                         disabled={isLoading}
                         aria-label="母乳を記録"
+                        animationType="tilt"
                     />
                     {/* 中段: おしっこ */}
                     <HexagonButton
@@ -154,6 +157,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         loading={loadingAction === "diaper_wet"}
                         disabled={isLoading}
                         aria-label="おしっこを記録"
+                        animationType="bounce"
                     />
                     {/* 中段: うんち */}
                     <HexagonButton
@@ -164,6 +168,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         loading={loadingAction === "diaper_dirty"}
                         disabled={isLoading}
                         aria-label="うんちを記録"
+                        animationType="bounce"
                     />
                     {/* 下段: メモ */}
                     <HexagonButton
@@ -173,6 +178,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => setNoteDialogOpen(true)}
                         disabled={isLoading}
                         aria-label="メモを追加"
+                        animationType="tilt"
                     />
                     {/* 下段: 成長 */}
                     <HexagonButton
@@ -182,6 +188,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => router.push(`/growth`)}
                         disabled={isLoading}
                         aria-label="成長記録ページへ"
+                        animationType="bounce"
                     />
                     {/* 下段: 日誌 */}
                     <HexagonButton
@@ -191,7 +198,9 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => router.push(`/diary`)}
                         disabled={isLoading}
                         aria-label="日誌ページへ"
+                        animationType="tilt"
                     />
+
                 </HoneycombGrid>
             </div>
 

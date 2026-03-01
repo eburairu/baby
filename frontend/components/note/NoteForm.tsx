@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { noteSchema, NoteFormValues } from "@/schemas/note"
-import { format } from "date-fns"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
 import { Plus, Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -40,7 +40,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
         defaultValues: {
-            note_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+            note_time: formatDateTimeLocal(new Date()),
             content: "",
         },
     })
@@ -54,7 +54,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
                 note_time: new Date(values.note_time).toISOString()
             })
             form.reset({
-                note_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                note_time: formatDateTimeLocal(new Date()),
                 content: "",
             })
             setIsExpanded(false)
