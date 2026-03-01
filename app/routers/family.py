@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies import get_db, get_current_user
+from app.utils.rate_limit import RateLimiter
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser, UserRole
 from app.schemas.family import (
@@ -20,6 +21,12 @@ from app.services.auth import get_password_hash
 router = APIRouter(prefix="/api/family", tags=["family"])
 logger = logging.getLogger(__name__)
 
+# Limit password reset attempts to 3 per 60 seconds to prevent abuse/DoS
+reset_password_limiter = RateLimiter(
+    requests_limit=3,
+    time_window=60,
+    error_message="Too many password reset attempts. Please try again later.",
+)
 
 def _get_family_user(db: Session, current_user: User) -> FamilyUser:
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
@@ -144,7 +151,7 @@ def update_member_role(
     )
 
 
-@router.post("/members/{user_id}/reset-password", response_model=PasswordResetResponse)
+@router.post("/members/{user_id}/reset-password", response_model=PasswordResetResponse, dependencies=[Depends(reset_password_limiter)])
 def reset_member_password(
     user_id: int,
     db: Session = Depends(get_db),
