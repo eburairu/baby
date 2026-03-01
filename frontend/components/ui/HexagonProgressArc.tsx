@@ -90,7 +90,8 @@ export function HexagonProgressArc({
         left: '50%', 
         transform: 'translateX(-50%)', 
         pointerEvents: 'none',
-        zIndex: 5
+        zIndex: 5,
+        overflow: 'visible'
       }}
       className={`${className ?? ''}`.trim()}
     >
