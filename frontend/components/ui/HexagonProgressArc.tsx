@@ -92,8 +92,18 @@ export function HexagonProgressArc({
         pointerEvents: 'none',
         zIndex: 5
       }}
-      className={`${pulseClass} ${className ?? ''}`.trim()}
+      className={`${className ?? ''}`.trim()}
     >
+      {isOverThreshold && (
+        <path
+          d={pathD}
+          fill="none"
+          stroke={color}
+          strokeWidth={5}
+          className="animate-ripple origin-center"
+          style={{ transformBox: 'fill-box' }}
+        />
+      )}
       <path
         d={pathD}
         fill="none"
@@ -103,6 +113,7 @@ export function HexagonProgressArc({
         strokeDasharray={`${clampedProgress} 1`}
         strokeDashoffset={0}
         strokeLinecap="round"
+        className={pulseClass}
       />
     </svg>
   )
