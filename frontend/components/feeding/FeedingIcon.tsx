@@ -1,5 +1,7 @@
 import { AppIcons } from "@/constants/icons"
 import { FeedingType } from "@/types/feeding"
+import { Hexagon } from "@/components/ui/hexagon"
+import { cn } from "@/lib/utils"
 
 interface FeedingIconProps {
     type: FeedingType
@@ -8,14 +10,24 @@ interface FeedingIconProps {
 
 export function FeedingIcon({ type, className }: FeedingIconProps) {
     const isBreast = type === 'BREAST';
-    const baseClasses = "p-2 rounded-full shrink-0";
-    const colorClasses = isBreast
-        ? "bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400"
-        : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
+    const bgClass = isBreast
+        ? "text-pink-100 dark:text-pink-900/30"
+        : "text-blue-100 dark:text-blue-900/30";
+    const iconClass = isBreast
+        ? "text-pink-600 dark:text-pink-400"
+        : "text-blue-600 dark:text-blue-400";
 
     return (
-        <div className={`${baseClasses} ${colorClasses} ${className || ''}`}>
-            {isBreast ? <AppIcons.feedingBreast className="w-5 h-5" /> : <AppIcons.feedingBottle className="w-5 h-5" />}
-        </div>
+        <Hexagon
+            size={36}
+            cornerRadius={6}
+            className={cn("shrink-0", bgClass, className)}
+        >
+            {isBreast ? (
+                <AppIcons.feedingBreast className={cn("w-4 h-4", iconClass)} />
+            ) : (
+                <AppIcons.feedingBottle className={cn("w-4 h-4", iconClass)} />
+            )}
+        </Hexagon>
     );
 }

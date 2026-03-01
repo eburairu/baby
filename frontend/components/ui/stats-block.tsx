@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
 import { STATS_BLOCK_CONFIG } from "@/constants/ui-colors"
+import { Hexagon } from "@/components/ui/hexagon"
 
 export type StatsBlockColor = keyof typeof STATS_BLOCK_CONFIG
 
@@ -31,9 +32,13 @@ export function StatsBlock({
         className
       )}
     >
-      <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-sm transition-colors shrink-0 mt-0.5">
+      <Hexagon
+        size={32}
+        cornerRadius={4}
+        className="text-white dark:text-zinc-800 shadow-sm shrink-0 mt-0.5"
+      >
         <Icon className={cn("h-4 w-4", styles.icon)} />
-      </div>
+      </Hexagon>
       <div className="min-w-0 flex-1">
         <p className="text-xs text-gray-500 dark:text-zinc-400">{label}</p>
         <p className="text-lg font-bold text-gray-800 dark:text-zinc-100 truncate">

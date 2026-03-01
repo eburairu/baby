@@ -39,7 +39,7 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
         <HexagonWidgetCard
           title={baby.name}
           icon={
-            <Hexagon size={28} color="rgb(99 102 241)">
+            <Hexagon size={28} color="rgb(99 102 241)" cornerRadius={4}>
               <span className="text-white font-bold text-xs">{initial}</span>
             </Hexagon>
           }

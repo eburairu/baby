@@ -81,7 +81,7 @@ Botoro 全ページに適用する統一 UI/UX ガイドライン。
 | ボタン（大） | `rounded-xl`（`h-12` 以上） |
 | ボタン（小・インライン） | shadcn デフォルト（`rounded-md`） |
 | ウィジェット内クイックボタン | `rounded-lg h-8` |
-| アイコンラッパー | `rounded-full` |
+| アイコンラッパー | `Hexagon` (六角形) |
 
 ### 1.4 Z-Index 階層
 
@@ -193,9 +193,9 @@ Botoro 全ページに適用する統一 UI/UX ガイドライン。
     <div className="grid grid-cols-2 gap-4">
       {/* 個々の統計ミニカード */}
       <div className="bg-{category}-50 rounded-xl p-4 flex items-center gap-3">
-        <div className="bg-white rounded-full p-2 shadow-sm">
+        <Hexagon size={32} cornerRadius={4} className="text-white dark:text-zinc-800 shadow-sm transition-colors shrink-0 mt-0.5">
           <Icon className="h-4 w-4 text-{category}-500" />
-        </div>
+        </Hexagon>
         <div>
           <p className="text-xs text-gray-500">ラベル</p>
           <p className="text-lg font-bold text-gray-800">値</p>
