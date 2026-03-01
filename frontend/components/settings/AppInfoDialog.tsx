@@ -1,7 +1,6 @@
 "use client"
 import { ExternalLink } from "lucide-react"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { formatJapaneseDate } from "@/lib/dateUtils"
 import ReactMarkdown from "react-markdown"
 import {
     Dialog,
@@ -21,7 +20,7 @@ export function AppInfoDialog({ open, onOpenChange }: AppInfoDialogProps) {
     const { appVersion, isLoading } = useAppVersion()
 
     const publishedDate = appVersion?.published_at
-        ? format(new Date(appVersion.published_at), "yyyy年M月d日", { locale: ja })
+        ? formatJapaneseDate(new Date(appVersion.published_at))
         : null
 
     return (
