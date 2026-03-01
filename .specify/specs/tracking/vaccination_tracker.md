@@ -41,8 +41,8 @@
     - **ロット番号**: 記録用。
     - **医療機関名**: 記録用。
     - **副反応の有無**: チェックボックスとメモ。
-- **保存**: API に POST/PUT して保存する。
-    - 保存成功後、家族全員に通知（"予防接種記録: {赤ちゃん名}が{ワクチン名}を接種しました。"）。
+- **保存**: API に POST/PATCH して保存する。
+    - 保存成功後、家族全員に通知（"予防接種記録: {赤ちゃん名}が{ワクチン名}を接種しました。"）※現在未実装。
 
 ### F3: スケジュール一覧 (Timeline View)
 
@@ -75,11 +75,48 @@
 - `GET /api/vaccinations/?baby_id={id}`
     - 記録済みおよび生成された全スケジュールを取得。
 - `POST /api/vaccinations/`
-    - 手動での記録追加または一括生成（初回アクセス時など）。
+    - 手動での記録追加。
+- `POST /api/vaccinations/generate`
+    - 指定した赤ちゃんの誕生日から予防接種スケジュールを一括生成する（初回アクセス時など）。
 - `PATCH /api/vaccinations/{id}`
     - ステータス更新（完了への変更など）。
 - `DELETE /api/vaccinations/{id}`
     - 記録の削除。
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+// POST リクエスト
+interface VaccinationCreate {
+  vaccine_name: string
+  dose_number: number
+  status?: "scheduled" | "completed" | "postponed" // デフォルトは "scheduled"
+  scheduled_date: string // YYYY-MM-DD
+  completed_date?: string // YYYY-MM-DD
+  lot_number?: string
+  hospital_name?: string
+  has_side_effect?: boolean
+  notes?: string
+}
+
+// PATCH リクエスト
+interface VaccinationUpdate {
+  status?: "scheduled" | "completed" | "postponed"
+  scheduled_date?: string
+  completed_date?: string
+  lot_number?: string
+  hospital_name?: string
+  has_side_effect?: boolean
+  notes?: string
+}
+
+// レスポンス
+interface VaccinationResponse extends VaccinationCreate {
+  id: number
+  baby_id: number
+  user_id: number | null
+}
+```
 
 ## 技術設計
 
