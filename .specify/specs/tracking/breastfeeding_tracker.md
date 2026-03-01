@@ -144,19 +144,35 @@ class FeedingCompletion(str, Enum):
 `app/schemas/feeding.py` 参照。バリデーションルールは `app/core/constants.py` に準拠。
 
 ```typescript
-{
-  baby_id: number,
-  feeding_time: string,                // ISO 8601
-  feeding_type: "BREAST" | "BOTTLE" | "MIXED", // ※MIXEDは現在UIから送信されない
-  amount_ml?: number,                  // 0 <= x <= 500 (MAX_FEEDING_ML)
-  duration_minutes?: number,           // 0 <= x <= 300 (MAX_FEEDING_DURATION_MINUTES)。左右指定時は自動計算
-  left_breast_minutes?: number,        // 0 <= x <= 120 (MAX_BREAST_FEEDING_MINUTES)
-  right_breast_minutes?: number,       // 0 <= x <= 120 (MAX_BREAST_FEEDING_MINUTES)
-  last_breast_side?: "LEFT" | "RIGHT" | "BOTH",
-  bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED",
-  feeding_completion?: "FULL" | "PARTIAL",
-  burped?: boolean,
-  notes?: string // 最大2000文字 (NOTE_MAX_LENGTH)
+// Create
+interface FeedingCreate {
+  baby_id: number
+  feeding_time: string                // ISO 8601
+  feeding_type: "BREAST" | "BOTTLE" | "MIXED" // ※MIXEDは現在UIから送信されない
+  amount_ml?: number                  // 0 <= x <= 500 (MAX_FEEDING_ML)
+  duration_minutes?: number           // 0 <= x <= 300 (MAX_FEEDING_DURATION_MINUTES)。左右指定時は自動計算
+  left_breast_minutes?: number        // 0 <= x <= 120 (MAX_BREAST_FEEDING_MINUTES)
+  right_breast_minutes?: number       // 0 <= x <= 120 (MAX_BREAST_FEEDING_MINUTES)
+  last_breast_side?: "LEFT" | "RIGHT" | "BOTH"
+  bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED"
+  feeding_completion?: "FULL" | "PARTIAL"
+  burped?: boolean
+  notes?: string                      // 最大2000文字 (NOTE_MAX_LENGTH)
+}
+
+// Update
+interface FeedingUpdate {
+  feeding_time?: string
+  feeding_type?: "BREAST" | "BOTTLE" | "MIXED"
+  amount_ml?: number
+  duration_minutes?: number
+  left_breast_minutes?: number
+  right_breast_minutes?: number
+  last_breast_side?: "LEFT" | "RIGHT" | "BOTH"
+  bottle_content_type?: "FORMULA" | "EXPRESSED_MILK" | "MIXED"
+  feeding_completion?: "FULL" | "PARTIAL"
+  burped?: boolean
+  notes?: string
 }
 ```
 
