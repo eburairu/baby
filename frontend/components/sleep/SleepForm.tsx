@@ -11,7 +11,7 @@ import { Sleep, SleepCreate, SleepUpdate } from "@/types/sleep"
 import { UI_BUTTONS } from "@/constants/ui-colors"
 import { sleepSchema, SleepFormValues } from "@/schemas/sleep"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
-import { format } from "date-fns"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
 import { api } from "@/lib/api"
 
 interface SleepFormProps {
@@ -27,10 +27,10 @@ export function SleepForm({ babyId, initialData, onSuccess }: SleepFormProps) {
         resolver: zodResolver(sleepSchema),
         defaultValues: {
             start_time: initialData
-                ? format(new Date(initialData.start_time), "yyyy-MM-dd'T'HH:mm")
+                ? formatDateTimeLocal(initialData.start_time)
                 : "",
             end_time: initialData?.end_time
-                ? format(new Date(initialData.end_time), "yyyy-MM-dd'T'HH:mm")
+                ? formatDateTimeLocal(initialData.end_time)
                 : "",
             notes: initialData?.notes ?? "",
         },

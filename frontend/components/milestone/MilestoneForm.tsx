@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
+import { formatDateLocal } from "@/lib/dateUtils"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -58,7 +58,7 @@ export function MilestoneForm({
         return {
             milestone_type: "",
             title: "",
-            achieved_date: format(new Date(), "yyyy-MM-dd"),
+            achieved_date: formatDateLocal(new Date()),
             notes: "",
             image_urls: [],
         }

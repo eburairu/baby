@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
+import { formatDateLocal } from "@/lib/dateUtils"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -54,7 +54,7 @@ export function GrowthRecordForm({
             }
         }
         return {
-            date: format(new Date(), "yyyy-MM-dd"),
+            date: formatDateLocal(new Date()),
             height: "",
             weight: "",
             head_circumference: "",
