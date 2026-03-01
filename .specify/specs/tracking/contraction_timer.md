@@ -84,7 +84,7 @@
     - Recharts 標準のアニメーションに加え、計測中の最新データポイントを動的に追加し、リアルタイムで波が右端に描画される。
 - **技術スタック**:
     - **Recharts** (`AreaChart`, `Area`, `XAxis`, `Tooltip`, `ResponsiveContainer`)
-    - **framer-motion** (コンテナ의登場アニメーション等)
+    - **framer-motion** (コンテナの登場アニメーション等)
 - **データ変換ロジック**:
     - 陣痛記録を Recharts 用の時系列配列（`{ time: string, value: number, duration?: number, ... }`）に変換する。
     - 1つの陣痛を複数のデータポイント（開始、ピーク、終了）で表現し、`monotone` 補間によって滑らかな山を作る。
