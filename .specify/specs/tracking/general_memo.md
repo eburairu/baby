@@ -93,11 +93,14 @@ class Note(Base):
 ### リクエスト/レスポンススキーマ
 
 ```typescript
-// POST リクエスト
-interface NoteCreate {
+// 共通ベース
+interface NoteBase {
     content: string
     note_time: string // ISO 8601
 }
+
+// POST リクエスト
+interface NoteCreate extends NoteBase {}
 
 // PATCH リクエスト
 interface NoteUpdate {
@@ -106,7 +109,7 @@ interface NoteUpdate {
 }
 
 // レスポンス
-interface NoteResponse extends NoteCreate {
+interface NoteResponse extends NoteBase {
     id: number
     baby_id: number
     user_id: number | null
