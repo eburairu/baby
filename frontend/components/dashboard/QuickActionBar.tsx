@@ -167,7 +167,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     />
                     {/* 下段: メモ */}
                     <HexagonButton
-                        variant="amber"
+                        variant="blue"
                         icon={<AppIcons.note className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => setNoteDialogOpen(true)}
@@ -185,7 +185,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     />
                     {/* 下段: 日誌 */}
                     <HexagonButton
-                        variant="zinc"
+                        variant="purple"
                         icon={<AppIcons.diary className="h-5 w-5" />}
                         size={BUTTON_SIZE}
                         onClick={() => router.push(`/diary`)}

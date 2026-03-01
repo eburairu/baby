@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, memo } from "react"
-import { Baby, Droplets, Biohazard } from "lucide-react"
+import { Droplets, Biohazard } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
@@ -9,6 +9,7 @@ import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } fro
 import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
 import Link from "next/link"
 import { useTick } from "@/hooks/useTick"
+import { AppIcons } from "@/constants/icons"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
     const tick = useTick()
@@ -36,7 +37,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         <Link href={`/diaper?baby_id=${babyId}`} className="block">
             <HexagonWidgetCard
                 title="おむつ"
-                icon={<Baby className="w-5 h-5 text-amber-500" />}
+                icon={<AppIcons.diaper className="w-5 h-5 text-amber-500" />}
                 isError={isError}
                 isLoading={isLoading}
                 size={size}
