@@ -19,7 +19,7 @@ export function ThresholdIndicatorPreview({ thresholdMinutes }: Props) {
       <div className="flex justify-between px-1 pt-0.5">
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-green-500" />
-          <span>~{yellowThreshold - 1}分</span>
+          <span>~{Math.max(0, yellowThreshold - 1)}分</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-yellow-500" />
