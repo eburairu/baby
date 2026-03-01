@@ -5,7 +5,7 @@ import { useFeedingTimer } from "@/hooks/useFeedingTimer"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
-import { format } from "date-fns"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
 import { Save, Heart, Milk } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -71,8 +71,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         resolver: zodResolver(feedingSchema) as any,
         defaultValues: {
             feeding_time: initialData 
-                ? format(new Date(initialData.feeding_time), "yyyy-MM-dd'T'HH:mm")
-                : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                ? formatDateTimeLocal(initialData.feeding_time)
+                : formatDateTimeLocal(new Date()),
             feeding_type: initialData?.feeding_type ?? "BREAST",
             left_breast_minutes: initialData?.left_breast_minutes ?? 0,
             right_breast_minutes: initialData?.right_breast_minutes ?? 0,
@@ -114,7 +114,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                 const nextBottleType = res?.bottle_content_type ?? lastBottleContentType ?? null
                 
                 form.reset({
-                    feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                    feeding_time: formatDateTimeLocal(new Date()),
                     feeding_type: activeTab as "BREAST" | "BOTTLE",
                     left_breast_minutes: 0,
                     right_breast_minutes: 0,

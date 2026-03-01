@@ -5,7 +5,7 @@ import { POOP_COLORS, POOP_AMOUNTS } from "@/constants/diaper"
 import { Droplets, Biohazard } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -70,7 +70,7 @@ function DiaperTypeButton({ type, selectedType, onClick, icon, label }: DiaperTy
             type="button"
             onClick={onClick}
             className={cn(
-                "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
+                "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 selectedType === type
                     ? UI_FORMS.selection.amberBordered.active
                     : UI_FORMS.selection.amberBordered.inactive
@@ -90,8 +90,8 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
         defaultValues: {
             diaper_type: initialData?.diaper_type ?? DiaperType.WET,
             change_time: initialData?.change_time
-                ? format(new Date(initialData.change_time), "yyyy-MM-dd'T'HH:mm")
-                : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                ? formatDateTimeLocal(initialData.change_time)
+                : formatDateTimeLocal(new Date()),
             notes: initialData?.notes ?? "",
             poop_color: "",
             custom_poop_color: "",
@@ -111,7 +111,7 @@ export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) 
             if (!isEditing) {
                 form.reset({
                     diaper_type: DiaperType.WET,
-                    change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                    change_time: formatDateTimeLocal(new Date()),
                     notes: "",
                     poop_color: "",
                     custom_poop_color: "",
