@@ -199,7 +199,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 <DialogContent className="max-w-md w-[90%] rounded-2xl p-0 overflow-hidden border-0 dark:bg-zinc-950">
                     <DialogHeader className="p-4 pb-0">
                         <DialogTitle className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-2">
-                            <StickyNote className="h-4 w-4 text-amber-500" />
+                            <StickyNote className="h-4 w-4 text-blue-500" />
                             メモを追加
                         </DialogTitle>
                     </DialogHeader>
