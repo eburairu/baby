@@ -77,3 +77,7 @@
 ## 2026-02-18 - [おむつAPIと仕様書の乖離解消]
 **学び:** `get_diapers` エンドポイントがページネーション対応 (`skip`, `limit` パラメータの追加) や部分更新のスキーマ (`DiaperUpdate`) をサポートしていたにも関わらず、`diaper_tracker.md` などの仕様書が古いままでした。APIエンドポイントの引数やPydanticスキーマが追加された場合、それを参照する仕様書側へも迅速に反映させる必要があります。
 **アクション:** API側のモデル (`app/schemas/diaper.py` 等) やルーター (`app/routers/diaper.py` 等) に変更が入った際には、対応する `.specify/specs/` 下の仕様書 (今回であれば `diaper_tracker.md`) も同期して更新・確認するプロセスを徹底します。
+
+## 2024-05-18 - [マイルストーン記録API仕様と実装の乖離の発見]
+**学び:** マイルストーン機能（`app/routers/milestones.py`）において、仕様書（`milestone_tracker.md`）では更新メソッドが `PUT` と記載され、さらに `timeline` のグループ化取得エンドポイントや、具体的なリクエスト・レスポンスのスキーマ定義が完全に欠落していました。特に `POST` 時に `baby_id` をリクエストボディではなくクエリパラメータから受け取る実装（スキーマ定義では `baby_id` が存在しない）は特有の挙動であり、これが仕様書に記載されていないとフロントエンドの実装や将来の拡張で混乱を招く原因となります。
+**アクション:** `milestone_tracker.md` を更新し、`PUT` を `PATCH` に修正するとともに、不足していた `GET /api/milestones/timeline` エンドポイント、および `MilestoneCreate`, `MilestoneUpdate`, `MilestoneResponse`, `MilestoneTimelineGroup` のスキーマ定義を追記しました。今後、他のトラッカー仕様書も同様に、特有のパラメータ渡し方（クエリ vs ボディ）や便利機能としてのグループ化APIが漏れていないか定期的に照合・補完するようにします。
