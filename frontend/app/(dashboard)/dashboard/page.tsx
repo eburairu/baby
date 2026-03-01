@@ -23,6 +23,7 @@ import { DASHBOARD_UI } from "@/constants/dashboard"
 import dynamic from "next/dynamic"
 import { resolveThreshold } from '@/lib/thresholdUtils'
 import { calcAge } from '@/lib/ageUtils'
+import { motion, AnimatePresence } from "framer-motion"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
     loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
@@ -99,60 +100,89 @@ export default function DashboardPage() {
                         />
                     )}
 
-                    <HoneycombGrid
-                        size={honeycombSize}
-                        gap={DASHBOARD_UI.WIDGET_GAP}
-                        rows={DASHBOARD_UI.WIDGET_ROWS}
-                    >
-                        <FeedingWidget
-                            babyId={actualBabyId}
-                            records={records}
-                            isLoading={recordsLoading}
-                            isError={recordsError}
-                            mutate={handleMutateRecords}
-                            size={honeycombSize}
-                            thresholdMinutes={feedingThreshold}
-                        />
-                        <SleepWidget
-                            babyId={actualBabyId}
-                            records={records}
-                            isLoading={recordsLoading}
-                            isError={recordsError}
-                            mutate={handleMutateRecords}
-                            size={honeycombSize}
-                        />
-                        <DiaperWidget
-                            babyId={actualBabyId}
-                            records={records}
-                            isLoading={recordsLoading}
-                            isError={recordsError}
-                            mutate={handleMutateRecords}
-                            size={honeycombSize}
-                            thresholdMinutes={diaperThreshold}
-                        />
-                        <GrowthWidget
-                            babyId={actualBabyId}
-                            records={records}
-                            isLoading={recordsLoading}
-                            isError={recordsError}
-                            size={honeycombSize}
-                        />
-                        <NoteWidget
-                            babyId={actualBabyId}
-                            records={records}
-                            isLoading={recordsLoading}
-                            isError={recordsError}
-                            size={honeycombSize}
-                        />
-                        <DiaryWidget
-                            babyId={actualBabyId}
-                            size={honeycombSize}
-                        />
-                        <BabyWidget
-                            baby={selectedBaby}
-                            size={honeycombSize}
-                        />
-                    </HoneycombGrid>
+                    <AnimatePresence mode="wait">
+                        {recordsLoading && !records ? (
+                            <motion.div
+                                key="skeleton"
+                                initial={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <HoneycombGrid
+                                    size={honeycombSize}
+                                    gap={DASHBOARD_UI.WIDGET_GAP}
+                                    rows={DASHBOARD_UI.WIDGET_ROWS}
+                                    animate={false}
+                                >
+                                    {[...Array(7)].map((_, i) => (
+                                        <div key={i} className="animate-pulse bg-muted/50 w-full h-full [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
+                                    ))}
+                                </HoneycombGrid>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="content"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5 }}
+                            >
+                                <HoneycombGrid
+                                    size={honeycombSize}
+                                    gap={DASHBOARD_UI.WIDGET_GAP}
+                                    rows={DASHBOARD_UI.WIDGET_ROWS}
+                                >
+                                    <FeedingWidget
+                                        babyId={actualBabyId}
+                                        records={records}
+                                        isLoading={recordsLoading}
+                                        isError={recordsError}
+                                        mutate={handleMutateRecords}
+                                        size={honeycombSize}
+                                        thresholdMinutes={feedingThreshold}
+                                    />
+                                    <SleepWidget
+                                        babyId={actualBabyId}
+                                        records={records}
+                                        isLoading={recordsLoading}
+                                        isError={recordsError}
+                                        mutate={handleMutateRecords}
+                                        size={honeycombSize}
+                                    />
+                                    <DiaperWidget
+                                        babyId={actualBabyId}
+                                        records={records}
+                                        isLoading={recordsLoading}
+                                        isError={recordsError}
+                                        mutate={handleMutateRecords}
+                                        size={honeycombSize}
+                                        thresholdMinutes={diaperThreshold}
+                                    />
+                                    <GrowthWidget
+                                        babyId={actualBabyId}
+                                        records={records}
+                                        isLoading={recordsLoading}
+                                        isError={recordsError}
+                                        size={honeycombSize}
+                                    />
+                                    <NoteWidget
+                                        babyId={actualBabyId}
+                                        records={records}
+                                        isLoading={recordsLoading}
+                                        isError={recordsError}
+                                        size={honeycombSize}
+                                    />
+                                    <DiaryWidget
+                                        babyId={actualBabyId}
+                                        size={honeycombSize}
+                                    />
+                                    <BabyWidget
+                                        baby={selectedBaby}
+                                        size={honeycombSize}
+                                    />
+                                </HoneycombGrid>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <RecentActivityFeed
                         babyId={actualBabyId}
