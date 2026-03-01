@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, memo, useState, useEffect } from "react"
+import { useMemo, memo } from "react"
 import { Baby, Droplets, Biohazard } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
@@ -8,14 +8,10 @@ import { BaseWidgetProps } from "@/types/widget"
 import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
 import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
 import Link from "next/link"
+import { useTick } from "@/hooks/useTick"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
-    const [tick, setTick] = useState(0)
-
-    useEffect(() => {
-        const id = setInterval(() => setTick(t => t + 1), 60000)
-        return () => clearInterval(id)
-    }, [])
+    const tick = useTick()
 
     const { wetCount, dirtyCount, lastElapsed, lastDiaperTime } = useMemo(() => {
         // tick に依存させることで1分ごとの更新を保証する
