@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
+import { formatDateLocal } from "@/lib/dateUtils"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -63,7 +63,7 @@ export function VaccinationForm({
             vaccine_name: "",
             dose_number: 1,
             status: "scheduled",
-            scheduled_date: format(new Date(), "yyyy-MM-dd"),
+            scheduled_date: formatDateLocal(new Date()),
             completed_date: null,
             lot_number: "",
             hospital_name: "",
