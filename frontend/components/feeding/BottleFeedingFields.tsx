@@ -1,7 +1,7 @@
 import React from "react"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { UseFormReturn } from "react-hook-form"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { FeedingFormValues } from "@/schemas/feeding"
 import { BOTTLE_CONTENT_TYPES } from "@/constants/feeding"
 import { cn } from "@/lib/utils"
@@ -12,7 +12,7 @@ interface BottleFeedingFieldsProps {
 }
 
 export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
-    const bottleContentType = form.watch("bottle_content_type")
+    const bottleContentType = useWatch({ control: form.control, name: "bottle_content_type" })
 
     return (
         <>
