@@ -100,3 +100,11 @@
 
 ### アクション:
 - 新規フォーム作成時や既存コードの改修時に `date-fns` を直接インポートしている箇所を見つけた場合は、必ず `dateUtils.ts` を経由するようにリファクタリングを継続する。
+
+## 2025-03-01 - [日付フォーマット処理のdateUtils集約の完全適用とdate-fns直接依存の排除]
+### 学び: date-fns への直接依存の排除と統一的なフォーマット
+- **コード構造**: 以前のリファクタリングで主要なフォームからは `date-fns` への直接依存を排除し、`dateUtils.ts` に集約したが、`FeedingStats`, `CommentItem`, `ContractionHistory`, `ContractionWaveGraph`, `GrowthChart`, `MilestonesPage`, `VaccinationsPage`, `AdminUsers`, `AdminFamilies` など、データを表示するコンポーネント側に依然として多数の `date-fns` 直接インポート（および `ja` ロケールのインポート）が残存していた。
+- **リファクタリング**: `lib/dateUtils.ts` に `formatShortDate` (MM/dd), `formatDateWithDayOfWeek` (yyyy/MM/dd (eee)), `formatPPP` (PPP), `formatDistanceToNow`, `subMonths`, `subDays` などの共通関数・ラッパーを追加し、各コンポーネントの `date-fns` および `date-fns/locale` の直接インポートを完全に排除した。これにより、ロケール設定漏れのリスクが消滅し、アプリ全体で日付フォーマット仕様を一元管理できるようになった。
+
+### アクション:
+- 今後新しいUIコンポーネントを作成する際、相対時間の計算や日付操作が必要になった場合も、安易に `date-fns` をコンポーネント内で直接インポートするのではなく、必ず `lib/dateUtils.ts` のラッパーを経由する。不足しているフォーマットがあれば `dateUtils.ts` に追加する。
