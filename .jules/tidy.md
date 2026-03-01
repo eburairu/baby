@@ -76,3 +76,7 @@
 ### アクション:
 - 今後も React Hook Form を使用する際、特定のフィールド値のみを監視してUIを切り替える場合は `useWatch` を標準として利用する。
 - 新しいトラッカーや履歴画面を追加する際は、必ず `components/records/` 配下の共通コンポーネントと、`hooks/useRecordDelete`, `useRecordComments` などの共通フックを使用する。
+
+2024-03-01 - [ダッシュボードウィジェットの時間更新ロジックの共通化と画像最適化]
+学び: 複数のダッシュボードウィジェット（FeedingWidget, DiaperWidget, SleepWidget）で、時間経過をリアルタイムにUIへ反映させるためだけに `useState` と `setInterval` + `useEffect` のセットが各ファイルで重複して実装されていました。これはコードの冗長性を生み、保守性を下げるアンチパターンです。また、LandingHeroコンポーネントで標準の `<img>` タグが使用されており、Next.jsのESLint警告（no-img-element）が出現していました。
+アクション: 時間更新のためのロジックをラップした `useTick` フックを新規作成し、各ウィジェットでこのフックを呼び出す形にリファクタリングしました。これにより、不要なライフサイクル管理コードを排除し、DRY原則を適用できました。今後は、同様の「単なるポーリングや時間更新」目的のState+Effectの組み合わせを見つけたら、`useTick` や `useInterval` のような共通フックへの移行を検討します。また、`<img>` タグを `next/image` に置き換えました。

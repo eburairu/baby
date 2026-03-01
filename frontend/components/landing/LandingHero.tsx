@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight, Monitor, Smartphone, Star, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
@@ -137,10 +138,12 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                                     baby-app.example.com/dashboard
                                 </div>
                             </div>
-                            <img
+                            <Image
                                 src="/screenshots/dashboard.png"
                                 alt="ダッシュボードのスクリーンショット（デスクトップ）"
-                                className="w-full opacity-90 dark:opacity-100"
+                                width={1200}
+                                height={800}
+                                className="w-full h-auto opacity-90 dark:opacity-100"
                             />
                         </motion.div>
                     )}
@@ -158,10 +161,12 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                             <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-slate-800 dark:border-zinc-800 bg-slate-800 dark:bg-zinc-900">
                                 {/* パンチホール */}
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-5 bg-slate-800 dark:bg-zinc-900 rounded-full z-10" />
-                                <img
+                                <Image
                                     src="/screenshots/dashboard-mobile.png"
                                     alt="ダッシュボードのスクリーンショット（モバイル）"
-                                    className="w-full opacity-90 dark:opacity-100"
+                                    width={400}
+                                    height={800}
+                                    className="w-full h-auto opacity-90 dark:opacity-100"
                                 />
                             </div>
                         </motion.div>
