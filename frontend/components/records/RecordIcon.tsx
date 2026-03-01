@@ -1,5 +1,6 @@
 import { AppIcons } from "@/constants/icons";
 import { cn } from "@/lib/utils";
+import { Hexagon } from "@/components/ui/hexagon";
 
 export type RecordType = 'feeding' | 'sleep' | 'diaper' | 'note' | 'growth';
 
@@ -8,12 +9,12 @@ interface RecordIconProps {
   className?: string;
 }
 
-const styles: Record<RecordType, string> = {
-  feeding: "bg-orange-100 dark:bg-orange-950/40 text-orange-500 dark:text-orange-400",
-  sleep: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-500 dark:text-indigo-400",
-  diaper: "bg-amber-100 dark:bg-amber-950/40 text-amber-500 dark:text-amber-400",
-  note: "bg-amber-100 dark:bg-amber-950/40 text-amber-500 dark:text-amber-400",
-  growth: "bg-green-100 dark:bg-green-950/40 text-green-500 dark:text-green-400",
+const styles: Record<RecordType, { bg: string, icon: string }> = {
+  feeding: { bg: "text-orange-100 dark:text-orange-950/40", icon: "text-orange-500 dark:text-orange-400" },
+  sleep: { bg: "text-indigo-100 dark:text-indigo-950/40", icon: "text-indigo-500 dark:text-indigo-400" },
+  diaper: { bg: "text-amber-100 dark:text-amber-950/40", icon: "text-amber-500 dark:text-amber-400" },
+  note: { bg: "text-amber-100 dark:text-amber-950/40", icon: "text-amber-500 dark:text-amber-400" },
+  growth: { bg: "text-green-100 dark:text-green-950/40", icon: "text-green-500 dark:text-green-400" },
 };
 
 export function RecordIcon({ type, className }: RecordIconProps) {
@@ -23,8 +24,12 @@ export function RecordIcon({ type, className }: RecordIconProps) {
   if (!Icon) return null;
 
   return (
-    <div className={cn("p-2 rounded-full", style, className)}>
-      <Icon className="w-5 h-5" />
-    </div>
+    <Hexagon
+      size={36}
+      cornerRadius={6}
+      className={cn("shrink-0", style.bg, className)}
+    >
+      <Icon className={cn("w-4 h-4", style.icon)} />
+    </Hexagon>
   );
 }

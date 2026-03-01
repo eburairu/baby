@@ -60,7 +60,7 @@ export function BabyInfoPopup({ baby, open, onOpenChange }: BabyInfoPopupProps) 
       >
         <SheetHeader className="items-center pb-4">
           <div className="flex justify-center mb-2">
-            <Hexagon size={56} color="var(--primary)">
+            <Hexagon size={56} color="var(--primary)" cornerRadius={8}>
               <span className="text-white font-bold text-xl">
                 {baby.name.charAt(0) || "?"}
               </span>
