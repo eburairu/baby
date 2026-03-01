@@ -81,7 +81,7 @@ class Note(Base):
 | メソッド | パス | 概要 |
 |---------|-----|------|
 | `GET` | `/api/babies/{baby_id}/notes` | メモ一覧取得（履歴） |
-| `POST` | `/api/babies/{baby_id}/notes` | メモの新規登録 |
+| `POST` | `/api/babies/{baby_id}/notes` | メモの新規登録<br>※保存成功後、対象の赤ちゃんの家族全員（記録者本人以外）に通知（プッシュ通知/アプリ内通知）を送信する |
 | `PATCH` | `/api/notes/{note_id}` | メモの編集 |
 | `DELETE` | `/api/notes/{note_id}` | メモの削除 |
 
@@ -93,13 +93,26 @@ class Note(Base):
 ### リクエスト/レスポンススキーマ
 
 ```typescript
+// 共通ベース
+interface NoteBase {
+    content: string
+    note_time: string // ISO 8601
+}
+
+// POST リクエスト
+interface NoteCreate extends NoteBase {}
+
+// PATCH リクエスト
+interface NoteUpdate {
+    content?: string
+    note_time?: string // ISO 8601
+}
+
 // レスポンス
-interface NoteResponse {
+interface NoteResponse extends NoteBase {
     id: number
     baby_id: number
     user_id: number | null
-    content: string
-    note_time: string // ISO 8601
     created_at: string // ISO 8601
     updated_at: string // ISO 8601
     recorded_by_display_name: string | null  // 記録者の表示名
