@@ -3,7 +3,7 @@
 import { memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { formatElapsed } from "@/lib/ageUtils"
-import { StickyNote } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import Link from "next/link"
@@ -17,11 +17,11 @@ export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading,
     <Link href={`/note?baby_id=${babyId}`} className="block">
       <HexagonWidgetCard
         title="メモ"
-        icon={<StickyNote className="w-5 h-5 text-amber-500" />}
+        icon={<AppIcons.note className="w-5 h-5 text-blue-500" />}
         isError={isError}
         isLoading={isLoading} 
         size={size}
-        className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
+        className="hover:shadow-blue-100 dark:hover:shadow-blue-900/20"
       >
         <div className="flex flex-col items-center">
           {lastNote ? (

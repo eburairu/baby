@@ -1,7 +1,7 @@
 "use client"
 
 import { memo } from "react"
-import { BookOpen } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import { useDailySummaries } from "@/hooks/useDailySummary"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
@@ -21,11 +21,11 @@ export const DiaryWidget = memo(function DiaryWidget({ babyId, size }: BaseWidge
         <Link href={`/diary?baby_id=${babyId}`} className="block">
             <HexagonWidgetCard
                 title="育児日誌"
-                icon={<BookOpen className="w-5 h-5 text-amber-600" />}
+                icon={<AppIcons.diary className="w-5 h-5 text-purple-500" />}
                 isError={error}
                 isLoading={isLoading} 
                 size={size}
-                className="hover:shadow-amber-100 dark:hover:shadow-amber-900/20"
+                className="hover:shadow-purple-100 dark:hover:shadow-purple-900/20"
             >
                 <div className="flex flex-col items-center">
                     {latestSummary ? (
