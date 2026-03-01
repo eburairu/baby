@@ -1,4 +1,4 @@
-# Google AdSense 広告表示 仕様書
+# Google AdSense 広告表示仕様書
 
 ## 1. 概要
 

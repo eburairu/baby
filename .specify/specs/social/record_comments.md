@@ -1,4 +1,4 @@
-# 記録へのコメント機能 仕様書 (Comments on Records Specification)
+# 記録へのコメント機能仕様書 (Comments on Records Specification)
 
 ## 概要
 
@@ -81,7 +81,7 @@ class CommentResponse(CommentBase):
         from_attributes = True
 
 **AIフィードバック機能**:
-AIによる自動生成コメントについては、[AI記録フィードバック機能 仕様書](../ai/ai_record_feedback.md) を参照のこと。
+AIによる自動生成コメントについては、[AI記録フィードバック機能仕様書](../ai/ai_record_feedback.md) を参照のこと。
 ```
 
 ### 既存スキーマの拡張

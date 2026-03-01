@@ -1,4 +1,4 @@
-# WHO成長曲線表示機能 仕様書 (WHO Growth Standards Specification)
+# WHO成長曲線表示機能仕様書 (WHO Growth Standards Specification)
 
 ## 概要
 

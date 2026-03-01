@@ -1,4 +1,4 @@
-# 家族管理画面 仕様書 (Family Settings Specification)
+# 家族管理画面仕様書 (Family Settings Specification)
 
 ## 概要
 

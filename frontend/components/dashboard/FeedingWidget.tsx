@@ -1,21 +1,17 @@
 "use client"
 
-import { useMemo, memo, useState, useEffect } from "react"
+import { useMemo, memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
 import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
-import { Milk } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
+import { useTick } from "@/hooks/useTick"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
-    const [tick, setTick] = useState(0)
-
-    useEffect(() => {
-        const id = setInterval(() => setTick(t => t + 1), 60000)
-        return () => clearInterval(id)
-    }, [])
+    const tick = useTick()
 
     const { todayCount, lastElapsed, lastFeedingTime } = useMemo(() => {
         // tick に依存させることで1分ごとの更新を保証する
@@ -38,7 +34,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         <Link href={`/feeding?baby_id=${babyId}`} className="block">
             <HexagonWidgetCard
                 title="授乳"
-                icon={<Milk className="w-5 h-5 text-rose-500" />}
+                icon={<AppIcons.feeding className="w-5 h-5 text-rose-500" />}
                 isError={isError}
                 isLoading={isLoading}
                 size={size}

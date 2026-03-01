@@ -1,4 +1,4 @@
-# 睡眠記録機能 仕様書 (Sleep Tracker Specification)
+# 睡眠記録機能仕様書 (Sleep Tracker Specification)
 
 ## 概要
 
@@ -112,17 +112,17 @@
 
 ```typescript
 // Create (Start)
-{
-  baby_id: number,
-  start_time: string, // ISO 8601
-  end_time?: string,  // Optional (for manual entry)
+interface SleepCreate {
+  baby_id: number
+  start_time: string // ISO 8601
+  end_time?: string  // Optional (for manual entry)
   notes?: string
 }
 
 // Update (End / Edit)
-{
-  start_time?: string,
-  end_time?: string,  // Set this to stop the timer
+interface SleepUpdate {
+  start_time?: string
+  end_time?: string  // Set this to stop the timer
   notes?: string
 }
 ```

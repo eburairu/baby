@@ -1,4 +1,4 @@
-# 赤ちゃんアクセス権限設定 仕様書 (Baby Permission Settings Specification)
+# 赤ちゃんアクセス権限設定仕様書 (Baby Permission Settings Specification)
 
 ## 概要
 

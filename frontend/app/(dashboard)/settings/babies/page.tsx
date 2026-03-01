@@ -24,7 +24,7 @@ export default function BabySettingsPage() {
     const [deleteTarget, setDeleteTarget] = useState<Baby | null>(null)
     const [addOpen, setAddOpen] = useState(false)
 
-    // 管理者以外はリダイレクト (正確な判定に基づい た修正済みの usePermissions を使用)
+    // 管理者以外はリダイレクト (正確な判定に基づいた修正済みの usePermissions を使用)
     useEffect(() => {
         if (!permsLoading && !isAdmin && !user?.is_superadmin) {
             router.push("/dashboard")

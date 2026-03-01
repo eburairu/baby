@@ -1,4 +1,4 @@
-# 赤ちゃん管理画面 仕様書 (Baby Settings Specification)
+# 赤ちゃん管理画面仕様書 (Baby Settings Specification)
 
 ## 概要
 

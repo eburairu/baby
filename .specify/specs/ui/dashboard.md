@@ -1,4 +1,4 @@
-# ダッシュボード機能 仕様書 (Dashboard Specification)
+# ダッシュボード機能仕様書 (Dashboard Specification)
 
 ## 概要
 

@@ -25,7 +25,7 @@ export default function FamilySettingsPage() {
 
     if (!user || !family) return null
 
-    // 現在のユーザーの情報を取得（MemberListに渡す ため）
+    // 現在のユーザーの情報を取得（MemberListに渡すため）
     const currentMember = members?.find((m) => m.username === user.username)
 
     const handleFamilyUpdated = () => {

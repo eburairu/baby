@@ -1,4 +1,4 @@
-# おむつ交換記録機能 仕様書 (Diaper Tracker Specification)
+# おむつ交換記録機能仕様書 (Diaper Tracker Specification)
 
 ## 概要
 
@@ -107,7 +107,7 @@
 - `PUT /api/diapers/{id}` - 記録更新
 - `DELETE /api/diapers/{id}` - 記録削除
 
-### リクエスト/レスポンス スキーマ
+### リクエスト/レスポンススキーマ
 
 ```typescript
 enum DiaperType {

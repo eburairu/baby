@@ -1,21 +1,18 @@
 "use client"
 
-import { useMemo, memo, useState, useEffect } from "react"
-import { Baby, Droplets, Biohazard } from "lucide-react"
+import { useMemo, memo } from "react"
+import { Droplets, Biohazard } from "lucide-react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { calculateDiaperStats, NormalizedDiaper, normalizeDiaperFromRecord } from "@/lib/diaperUtils"
 import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
 import Link from "next/link"
+import { useTick } from "@/hooks/useTick"
+import { AppIcons } from "@/constants/icons"
 
 export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
-    const [tick, setTick] = useState(0)
-
-    useEffect(() => {
-        const id = setInterval(() => setTick(t => t + 1), 60000)
-        return () => clearInterval(id)
-    }, [])
+    const tick = useTick()
 
     const { wetCount, dirtyCount, lastElapsed, lastDiaperTime } = useMemo(() => {
         // tick に依存させることで1分ごとの更新を保証する
@@ -40,7 +37,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
         <Link href={`/diaper?baby_id=${babyId}`} className="block">
             <HexagonWidgetCard
                 title="おむつ"
-                icon={<Baby className="w-5 h-5 text-amber-500" />}
+                icon={<AppIcons.diaper className="w-5 h-5 text-amber-500" />}
                 isError={isError}
                 isLoading={isLoading}
                 size={size}
