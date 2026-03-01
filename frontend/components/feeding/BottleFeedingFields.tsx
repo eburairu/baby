@@ -1,6 +1,8 @@
 import React from "react"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Minus, Plus } from "lucide-react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { FeedingFormValues } from "@/schemas/feeding"
 import { BOTTLE_CONTENT_TYPES } from "@/constants/feeding"
@@ -45,7 +47,33 @@ export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
                     <FormItem>
                         <FormLabel>ミルク量 (ml)</FormLabel>
                         <FormControl>
-                            <Input type="number" step="10" {...field} />
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => {
+                                        const current = Number(field.value) || 0;
+                                        form.setValue("amount_ml", Math.max(0, current - 10), { shouldValidate: true });
+                                    }}
+                                    className="h-10 w-10 shrink-0"
+                                >
+                                    <Minus className="h-4 w-4" />
+                                </Button>
+                                <Input type="number" step="10" {...field} className="text-center" />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => {
+                                        const current = Number(field.value) || 0;
+                                        form.setValue("amount_ml", Math.min(500, current + 10), { shouldValidate: true });
+                                    }}
+                                    className="h-10 w-10 shrink-0"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
