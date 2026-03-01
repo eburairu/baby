@@ -26,7 +26,7 @@ export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
                             aria-pressed={bottleContentType === value}
                             onClick={() => form.setValue("bottle_content_type", bottleContentType === value ? null : (value as FeedingFormValues["bottle_content_type"]))}
                             className={cn(
-                                "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
+                                "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                                 bottleContentType === value
                                     ? UI_FORMS.selection.blueSolid.active
                                     : UI_FORMS.selection.blueSolid.inactive

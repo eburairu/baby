@@ -20,7 +20,7 @@ export function FeedingCompletionSelector({ value, onChange }: Props) {
                         aria-pressed={value === item.value}
                         onClick={() => onChange(value === item.value ? null : item.value)}
                         className={cn(
-                            "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors",
+                            "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                             value === item.value
                                 ? item.value === "FULL"
                                     ? UI_FORMS.selection.greenSolid.active
