@@ -1,4 +1,4 @@
-# 育児日誌（AIまとめ）機能 仕様書 (Daily Diary Specification)
+# 育児日誌（AIまとめ）機能仕様書 (Daily Diary Specification)
 
 ## 概要
 

@@ -1,4 +1,4 @@
-# プロフィール編集機能 仕様書 (Profile Settings Specification)
+# プロフィール編集機能仕様書 (Profile Settings Specification)
 
 ## 概要
 

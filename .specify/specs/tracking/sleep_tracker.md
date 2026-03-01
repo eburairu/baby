@@ -1,4 +1,4 @@
-# 睡眠記録機能 仕様書 (Sleep Tracker Specification)
+# 睡眠記録機能仕様書 (Sleep Tracker Specification)
 
 ## 概要
 

@@ -1,4 +1,4 @@
-# PWA プッシュ通知機能 仕様書 (PWA Push Notifications Specification)
+# PWA プッシュ通知機能仕様書 (PWA Push Notifications Specification)
 
 ## 1. 概要
 

@@ -71,7 +71,7 @@
 - `DELETE /api/milestones/{id}`
     - 削除。
 
-### リクエスト/レスポンス スキーマ
+### リクエスト/レスポンススキーマ
 
 ```typescript
 // POST リクエスト (クエリパラメータ: ?baby_id={id})

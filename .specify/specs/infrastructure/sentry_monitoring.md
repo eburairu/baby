@@ -1,4 +1,4 @@
-# Sentry エラー監視 仕様書 (Sentry Error Monitoring Specification)
+# Sentry エラー監視仕様書 (Sentry Error Monitoring Specification)
 
 ## 1. 概要
 

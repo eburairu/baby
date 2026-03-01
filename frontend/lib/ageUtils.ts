@@ -38,8 +38,8 @@ export function calcAge(birthday: string): { months: number; days: number; label
 
 function createLabel(months: number, days: number): string {
     return months > 0
-        ? `生後 ${months}ヶ月${days > 0 ? `${days}日` : ''}`
-        : `生後 ${days}日`;
+        ? `生後${months}ヶ月${days > 0 ? `${days}日` : ''}`
+        : `生後${days}日`;
 }
 
 

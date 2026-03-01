@@ -12,14 +12,14 @@ describe("ageUtils", () => {
             const result = calcAge("2024-05-20T00:00:00Z")
             expect(result.months).toBe(0)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 0日")
+            expect(result.label).toBe("生後0日")
         })
 
         it("翌日の場合は生後1日を返す", () => {
             vi.setSystemTime(new Date("2024-05-21T10:00:00Z"))
             const result = calcAge("2024-05-20T00:00:00Z")
             expect(result.days).toBe(1)
-            expect(result.label).toBe("生後 1日")
+            expect(result.label).toBe("生後1日")
         })
 
         it("ちょうど1ヶ月後の場合は生後1ヶ月を返す", () => {
@@ -27,7 +27,7 @@ describe("ageUtils", () => {
             const result = calcAge("2024-05-20T00:00:00Z")
             expect(result.months).toBe(1)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 1ヶ月")
+            expect(result.label).toBe("生後1ヶ月")
         })
 
         it("1ヶ月と1日後の場合は生後1ヶ月1日を返す", () => {
@@ -35,7 +35,7 @@ describe("ageUtils", () => {
             const result = calcAge("2024-05-20T00:00:00Z")
             expect(result.months).toBe(1)
             expect(result.days).toBe(1)
-            expect(result.label).toBe("生後 1ヶ月1日")
+            expect(result.label).toBe("生後1ヶ月1日")
         })
 
         it("月末生まれの境界値を正しく計算する (1月31日生まれの3月1日時点)", () => {
@@ -43,16 +43,16 @@ describe("ageUtils", () => {
             const result = calcAge("2024-01-31T00:00:00Z")
             expect(result.months).toBe(1)
             expect(result.days).toBe(1)
-            expect(result.label).toBe("生後 1ヶ月1日")
+            expect(result.label).toBe("生後1ヶ月1日")
         })
 
         // Edge Cases
-        it("ちょうど1年後の場合は生後 12ヶ月 を返す", () => {
+        it("ちょうど1年後の場合は生後12ヶ月を返す", () => {
             vi.setSystemTime(new Date("2025-05-20T10:00:00Z"))
             const result = calcAge("2024-05-20T00:00:00Z")
             expect(result.months).toBe(12)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 12ヶ月")
+            expect(result.label).toBe("生後12ヶ月")
         })
 
         it("月末生まれの境界値: 1月31日生まれの2月28日時点 (非うるう年)", () => {
@@ -60,7 +60,7 @@ describe("ageUtils", () => {
             const result = calcAge("2023-01-31T00:00:00Z")
             expect(result.months).toBe(1)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 1ヶ月")
+            expect(result.label).toBe("生後1ヶ月")
         })
 
         it("月末生まれの境界値: 1月31日生まれの2月29日時点 (うるう年)", () => {
@@ -68,7 +68,7 @@ describe("ageUtils", () => {
             const result = calcAge("2024-01-31T00:00:00Z")
             expect(result.months).toBe(1)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 1ヶ月")
+            expect(result.label).toBe("生後1ヶ月")
         })
 
         it("うるう年生まれ: 2月29日生まれの翌年2月28日時点", () => {
@@ -76,15 +76,15 @@ describe("ageUtils", () => {
             const result = calcAge("2024-02-29T00:00:00Z")
             expect(result.months).toBe(12)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 12ヶ月")
+            expect(result.label).toBe("生後12ヶ月")
         })
 
-        it("未来の誕生日を指定した場合は 0ヶ月0日 を返す", () => {
+        it("未来の誕生日を指定した場合は0ヶ月0日を返す", () => {
             vi.setSystemTime(new Date("2024-05-20T10:00:00Z"))
             const result = calcAge("2024-05-21T00:00:00Z")
             expect(result.months).toBe(0)
             expect(result.days).toBe(0)
-            expect(result.label).toBe("生後 0日")
+            expect(result.label).toBe("生後0日")
         })
     })
 

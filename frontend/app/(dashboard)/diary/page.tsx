@@ -73,9 +73,9 @@ export default function DiaryPage() {
         setIsGenerating(true)
         setGenerateError(null)
         try {
-            // 手動編集済みを確認の上で再生成する場 合は先に編集をクリアする。
-            // バックエンドは is_edited=true のレコ ードを再生成せず返すため、
-            // クリアしないと再生成が行われないまま 成功扱いになってしまう。
+            // 手動編集済みを確認の上で再生成する場合は先に編集をクリアする。
+            // バックエンドは is_edited=true のレコードを再生成せず返すため、
+            // クリアしないと再生成が行われないまま成功扱いになってしまう。
             if (forceRegen && selectedSummary?.is_edited) {
                 await editDailySummary(babyId, selectedDate, null, selectedSummary.image_urls ?? [])
             }

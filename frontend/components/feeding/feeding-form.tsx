@@ -279,7 +279,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                 data-sentry-unmask
                             >
                                 {!isSubmitting && <Save className="w-4 h-4 mr-2" />}
-                                {isSubmitting ? "保 存中..." : isEditing ? "更新する" : "記録する"}
+                                {isSubmitting ? "保存中..." : isEditing ? "更新する" : "記録する"}
                             </Button>
                         </form>
                     </Form>
