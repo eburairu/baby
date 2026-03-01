@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Moon, Sun, Monitor } from "lucide-react"
 import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
+import { HexagonButton } from "@/components/ui/hexagon-button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +17,20 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl dark:bg-zinc-900 dark:border-zinc-800">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">テーマを切り替える</span>
-        </Button>
+        <div className="cursor-pointer">
+          <HexagonButton
+            variant="zinc"
+            size={40}
+            className="dark:bg-zinc-900 dark:border-zinc-800"
+            icon={
+              <>
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">テーマを切り替える</span>
+              </>
+            }
+          />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="dark:bg-zinc-900 dark:border-zinc-800">
         <DropdownMenuItem onClick={() => setTheme("light")} className="gap-2 dark:focus:bg-zinc-800">
