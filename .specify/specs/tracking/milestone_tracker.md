@@ -31,7 +31,7 @@
     - `first_word`: 初めてのおしゃべり
     - `first_solid_food`: 離乳食開始
     - `bye_bye`: バイバイ
-- **保存**: API に POST/PUT して保存する。
+- **保存**: API に POST/PATCH して保存する。
     - 保存成功後、家族全員にプッシュ通知（"できたね！: {赤ちゃん名}が「{マイルストーン名}」に成功しました！"）。
 
 ### F2: マイルストーン一覧 (Milestone Timeline)
@@ -61,13 +61,50 @@
 ## API
 
 - `GET /api/milestones/?baby_id={id}`
-    - 指定した赤ちゃんの全マイルストーンを取得。
-- `POST /api/milestones/`
-    - 新規作成。
-- `PUT /api/milestones/{id}`
+    - 指定した赤ちゃんの全マイルストーンを降順で取得。
+- `GET /api/milestones/timeline?baby_id={id}`
+    - 指定した赤ちゃんの全マイルストーンを月齢（生後○ヶ月）ごとにグループ化して取得。
+- `POST /api/milestones/?baby_id={id}`
+    - 新規作成。リクエストボディに `baby_id` を含めず、クエリパラメータから取得する。
+- `PATCH /api/milestones/{id}`
     - 編集更新。
 - `DELETE /api/milestones/{id}`
     - 削除。
+
+### リクエスト/レスポンス スキーマ
+
+```typescript
+// POST リクエスト (クエリパラメータ: ?baby_id={id})
+interface MilestoneCreate {
+  milestone_type: string
+  title: string
+  achieved_date: string // YYYY-MM-DD形式
+  image_urls?: string[]
+  notes?: string
+}
+
+// PATCH リクエスト
+interface MilestoneUpdate {
+  milestone_type?: string
+  title?: string
+  achieved_date?: string
+  image_urls?: string[]
+  notes?: string
+}
+
+// レスポンス
+interface MilestoneResponse extends MilestoneCreate {
+  id: number
+  baby_id: number
+  user_id: number | null
+}
+
+// タイムラインレスポンス
+interface MilestoneTimelineGroup {
+  month_age: number
+  milestones: MilestoneResponse[]
+}
+```
 
 ## 技術設計
 

@@ -129,24 +129,25 @@ export default function DashboardLayout({
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col transition-colors">
             {/* Desktop Navbar */}
             <header className="hidden md:block sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm transition-colors">
-                <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                        <Link href="/dashboard" className="text-xl font-bold bg-gradient-to-r from-rose-500 to-indigo-600 bg-clip-text text-transparent">
+                        <Link href="/dashboard" className="text-xl font-bold bg-gradient-to-r from-rose-500 to-indigo-600 bg-clip-text text-transparent shrink-0">
                             Botoro
                         </Link>
-                        <nav className="flex items-center gap-1">
+                        <nav className="flex items-center gap-0.5">
                             {navItems.map(item => (
                                 <Link
                                     key={item.href}
                                     href={item.href}
+                                    title={item.label}
                                     className={cn(
-                                        "px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+                                        "p-2.5 rounded-xl transition-all duration-200",
                                         pathname === item.href
                                             ? "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400"
                                             : "text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800/50"
                                     )}
                                 >
-                                    {item.label}
+                                    <item.Icon className={cn("h-5 w-5", pathname === item.href && item.color)} />
                                 </Link>
                             ))}
                         </nav>
