@@ -41,13 +41,13 @@ const ALL_NAV_ITEMS: {
 }[] = [
     { label: "ホーム",       href: "/dashboard",   Icon: Home,       color: "text-pink-500",    prenatal: true,  postnatal: true  },
     { label: "授乳",         href: "/feeding",     Icon: AppIcons.feeding,       color: "text-pink-500",    prenatal: false, postnatal: true  },
-    { label: "睡眠",         href: "/sleep",       Icon: AppIcons.sleep,       color: "text-violet-500",  prenatal: false, postnatal: true  },
+    { label: "睡眠",         href: "/sleep",       Icon: AppIcons.sleep,       color: "text-indigo-500",  prenatal: false, postnatal: true  },
     { label: "おむつ",       href: "/diaper",      Icon: AppIcons.diaper,       color: "text-amber-500",   prenatal: false, postnatal: true  },
     { label: "成長",         href: "/growth",      Icon: AppIcons.growth,      color: "text-emerald-500", prenatal: false, postnatal: true  },
     { label: "予防接種",     href: "/vaccinations",Icon: AppIcons.vaccination,    color: "text-sky-500",     prenatal: false, postnatal: true  },
     { label: "発育発達マイルストーン",href: "/milestones",  Icon: AppIcons.milestone,     color: "text-yellow-500",  prenatal: false, postnatal: true  },
-    { label: "メモ",         href: "/note",        Icon: AppIcons.note, color: "text-orange-400",  prenatal: false, postnatal: true  },
-    { label: "日誌",         href: "/diary",       Icon: AppIcons.diary,   color: "text-indigo-400",  prenatal: false, postnatal: true  },
+    { label: "メモ",         href: "/note",        Icon: AppIcons.note, color: "text-blue-500",  prenatal: false, postnatal: true  },
+    { label: "日誌",         href: "/diary",       Icon: AppIcons.diary,   color: "text-purple-500",  prenatal: false, postnatal: true  },
     { label: "陣痛タイマー", href: "/contraction", Icon: AppIcons.contraction,      color: "text-red-500",     prenatal: true,  postnatal: false },
 ]
 
@@ -59,7 +59,7 @@ const BOTTOM_NAV_ITEMS: {
 }[] = [
     { label: "ホーム",   href: "/dashboard", Icon: Home,       color: "text-pink-500" },
     { label: "授乳",     href: "/feeding",   Icon: AppIcons.feeding,       color: "text-pink-500" },
-    { label: "睡眠",     href: "/sleep",     Icon: AppIcons.sleep,       color: "text-violet-500" },
+    { label: "睡眠",     href: "/sleep",     Icon: AppIcons.sleep,       color: "text-indigo-500" },
     { label: "おむつ",   href: "/diaper",    Icon: AppIcons.diaper,       color: "text-amber-500" },
     { label: "成長",     href: "/growth",    Icon: AppIcons.growth,      color: "text-emerald-500" },
 ]

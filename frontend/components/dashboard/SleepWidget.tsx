@@ -5,7 +5,7 @@ import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { calculateSleepStats } from "@/lib/sleepUtils"
-import { Moon } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
 import { useTick } from "@/hooks/useTick"
 
@@ -25,7 +25,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
                 title="睡眠"
                 icon={
                     <div className="relative">
-                        <Moon className="w-5 h-5 text-indigo-500" />
+                        <AppIcons.sleep className="w-5 h-5 text-indigo-500" />
                         {isSleeping && (
                             <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-indigo-400 animate-pulse border-2 border-white dark:border-zinc-900" />
                         )}

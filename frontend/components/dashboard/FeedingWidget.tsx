@@ -34,11 +34,11 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
         <Link href={`/feeding?baby_id=${babyId}`} className="block">
             <HexagonWidgetCard
                 title="授乳"
-                icon={<AppIcons.feeding className="w-5 h-5 text-rose-500" />}
+                icon={<AppIcons.feeding className="w-5 h-5 text-pink-500" />}
                 isError={isError}
                 isLoading={isLoading}
                 size={size}
-                className="hover:shadow-rose-100 dark:hover:shadow-rose-900/20"
+                className="hover:shadow-pink-100 dark:hover:shadow-pink-900/20"
                 indicatorProgress={thresholdMinutes != null ? progress : undefined}
                 isOverThreshold={isOver}
             >

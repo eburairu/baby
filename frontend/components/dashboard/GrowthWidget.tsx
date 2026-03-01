@@ -4,7 +4,7 @@ import { memo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
-import { Ruler } from "lucide-react"
+import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
 
 export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError, size }: BaseWidgetProps) {
@@ -22,7 +22,7 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
         <Link href={`/growth?baby_id=${babyId}`} className="block">
             <HexagonWidgetCard
                 title="成長"
-                icon={<Ruler className="w-5 h-5 text-emerald-500" />}
+                icon={<AppIcons.growth className="w-5 h-5 text-emerald-500" />}
                 isError={isError}
                 isLoading={isLoading} 
                 size={size}
