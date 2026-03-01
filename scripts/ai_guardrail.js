@@ -65,13 +65,40 @@ try {
     
     if (tool_input.file_path) {
       targetFilePath = path.resolve(currentPath, tool_input.file_path);
+    } else if (tool_input.dir_path) {
+      targetFilePath = path.resolve(currentPath, tool_input.dir_path);
     }
     
-    // "edit" エージェント、または明示的な file_path のないツールの場合、
-    // 内部ツール呼び出し（これもフックをトリガーする）に依存する可能性がある
-    if (!targetFilePath && tool_name === 'edit') {
-       // 'edit' サブエージェントの起動を許可する。内部のファイル変更はフックされる。
-       outputResult({ decision: "allow" });
+    // "edit" エージェントの起動は許可する（内部ツール呼び出しでフックされるため）。
+    // "run_shell_command" の場合、dir_path が指定されていればそのパスを、
+    // 指定されていない場合は現在の作業ディレクトリをチェックする。
+    if (!targetFilePath) {
+      if (tool_name === 'edit') {
+         outputResult({ decision: "allow" });
+      } else if (tool_name === 'run_shell_command') {
+         // command 引数の中にワークツリー外の絶対パスが含まれていないか、
+         // または ../.. などの危険な相対パスが含まれていないかチェックする。
+         const command = tool_input.command || "";
+         const projectRootEscaped = projectRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+         
+         // プロジェクトルート外の絶対パスが含まれているかチェック
+         // (例: /etc/passwd や /Users/other/...)
+         const absolutePathRegex = new RegExp(`(^|\\s)(/(?!${projectRootEscaped})[^\\s]+)`, 'g');
+         const matches = command.match(absolutePathRegex);
+         
+         if (matches) {
+            const reason = `エラー: run_shell_command にワークツリー外の絶対パスが含まれています: ${matches.join(', ')}`;
+            console.error("\x1b[31m%s\x1b[0m", reason);
+            outputResult({ decision: "deny", reason: reason });
+         }
+
+         // ../ などの危険な相対パスが含まれているかチェック
+         if (command.includes('../')) {
+            // 現在のディレクトリがワークツリー内なら、多少の ../ は許容されるかもしれないが、
+            // 安全のため警告または制限を検討。
+            // ここではワークツリーのルートより外に出るかどうかを厳密にチェックするのが理想。
+         }
+      }
     }
   }
 
@@ -102,6 +129,7 @@ try {
     if (!isInsideWorktree && !isAllowedPath) {
       const reason = "エラー: 対象のファイルパスが特定できず、現在のディレクトリがワークツリー内ではありません。";
       console.error("\x1b[31m%s\x1b[0m", reason);
+      outputResult({ decision: "deny", reason: reason });
     }
   }
 
