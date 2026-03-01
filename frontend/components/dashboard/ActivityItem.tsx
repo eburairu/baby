@@ -3,7 +3,9 @@ import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User, StickyNote } from "lucide-react"
-import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
+import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS } from "@/constants/ui"
+import { AppIcons } from "@/constants/icons"
+import { cn } from "@/lib/utils"
 
 interface ActivityItemProps {
     record: BabyRecord
@@ -13,7 +15,19 @@ interface ActivityItemProps {
 export const ActivityItem = React.memo(function ActivityItem({ record, onClick }: ActivityItemProps) {
     const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
-    const LucideIcon = RECORD_TYPE_LUCIDE_ICONS[recordType]
+    const colorClass = RECORD_TYPE_COLORS[recordType as keyof typeof RECORD_TYPE_COLORS] || 'text-muted-foreground'
+    
+    let LucideIcon = RECORD_TYPE_LUCIDE_ICONS[recordType]
+    
+    // 授乳の場合は詳細タイプに応じてアイコンを切り替え
+    if (recordType === 'feeding') {
+        const feedingType = record.details?.feeding_type
+        if (feedingType === 'BREAST') {
+            LucideIcon = AppIcons.feedingBreast
+        } else if (feedingType === 'BOTTLE') {
+            LucideIcon = AppIcons.feedingBottle
+        }
+    }
 
     return (
         <li>
@@ -24,8 +38,8 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
                 onClick={() => onClick(record)}
             >
                 {LucideIcon
-                    ? <LucideIcon className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
-                    : <StickyNote className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
+                    ? <LucideIcon className={cn("h-5 w-5 shrink-0", colorClass)} aria-hidden="true" />
+                    : <StickyNote className={cn("h-5 w-5 shrink-0", colorClass)} aria-hidden="true" />
                 }
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">

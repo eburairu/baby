@@ -247,4 +247,32 @@ export const HEXAGON_BUTTON_THEMES = {
       glow: "bg-zinc-500/20",
     },
   },
+  purple: {
+    active: {
+      bg: "text-purple-500",
+      icon: "text-white",
+      border: "var(--color-purple-500)",
+      glow: "bg-purple-500/20",
+    },
+    inactive: {
+      bg: "text-purple-100 dark:text-purple-950/40",
+      icon: "text-purple-600 dark:text-purple-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-purple-500/20",
+    },
+  },
+  blue: {
+    active: {
+      bg: "text-blue-500",
+      icon: "text-white",
+      border: "var(--color-blue-500)",
+      glow: "bg-blue-500/20",
+    },
+    inactive: {
+      bg: "text-blue-100 dark:text-blue-950/40",
+      icon: "text-blue-600 dark:text-blue-400",
+      border: "rgba(0,0,0,0.05)",
+      glow: "bg-blue-500/20",
+    },
+  },
 } as const;
