@@ -74,7 +74,7 @@ export default function MilestonesPage() {
                             
                             <div className="space-y-4">
                                 <h3 className="text-sm font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                                    生後 {group.month_age} ヶ月
+                                    生後{group.month_age}ヶ月
                                 </h3>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

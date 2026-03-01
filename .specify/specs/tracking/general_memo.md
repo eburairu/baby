@@ -1,4 +1,4 @@
-# 汎用メモ機能 仕様書 (General Memo Specification)
+# 汎用メモ機能仕様書 (General Memo Specification)
 
 ## 概要
 
@@ -90,7 +90,7 @@ class Note(Base):
 - **`content`**: 1文字以上 2000文字以内。
 - **`note_time`**: 未来の日時は原則として許可しない。ただし、クライアントとサーバーの時刻同期のズレを考慮し、5分以内の未来日時は許容する。
 
-### リクエスト/レスポンス スキーマ
+### リクエスト/レスポンススキーマ
 
 ```typescript
 // レスポンス

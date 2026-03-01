@@ -1,4 +1,4 @@
-# 陣痛タイマー機能 仕様書 (Contraction Timer Specification)
+# 陣痛タイマー機能仕様書 (Contraction Timer Specification)
 
 ## 概要
 
@@ -131,7 +131,7 @@
 - `PATCH /api/contractions/{id}` - 陣痛記録更新 (New)
 - `DELETE /api/contractions/{id}` - 陣痛記録削除
 
-### リクエスト/レスポンス スキーマ
+### リクエスト/レスポンススキーマ
 
 ```typescript
 // POST リクエスト

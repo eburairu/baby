@@ -1,4 +1,4 @@
-# 授乳記録機能 仕様書 (Breastfeeding Tracker Specification)
+# 授乳記録機能仕様書 (Breastfeeding Tracker Specification)
 
 ## 概要
 

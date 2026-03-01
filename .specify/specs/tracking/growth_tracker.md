@@ -1,4 +1,4 @@
-# 成長記録 仕様書 (Growth Tracker Specification)
+# 成長記録仕様書 (Growth Tracker Specification)
 
 ## 概要
 
@@ -103,7 +103,7 @@
 - `DELETE /api/growths/{id}`
     - 削除。
 
-### リクエスト/レスポンス スキーマ
+### リクエスト/レスポンススキーマ
 
 ```typescript
 // POST リクエスト
