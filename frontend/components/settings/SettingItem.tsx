@@ -1,6 +1,7 @@
 import { ChevronRight, LucideIcon } from "lucide-react"
 import Link from "next/link"
 import React from "react"
+import { Hexagon } from "@/components/ui/hexagon"
 
 interface SettingItemProps {
     href?: string
@@ -25,19 +26,22 @@ export function SettingItem({
     isDestructive = false,
     rightElement,
 }: SettingItemProps) {
+    const hexagonColorClass = bgClass.replace(/bg-/g, 'text-');
+    
     const content = (
         <div className={`bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 transition-colors ${
             onClick || href ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800" : ""
         } ${
             isDestructive ? "hover:bg-red-50 dark:hover:bg-red-950/20 group" : ""
         }`}>
-            <div className={`relative flex items-center justify-center w-10 h-10 ${
+            <div className={`relative flex items-center justify-center ${
                 isDestructive ? "group-hover:text-red-100 dark:group-hover:text-red-900/30 transition-colors" : ""
             }`}>
-                <div className={`absolute inset-0 ${bgClass}`} style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}></div>
-                <Icon className={`relative z-10 h-5 w-5 ${colorClass} ${
-                    isDestructive ? "group-hover:text-red-600 dark:group-hover:text-red-400" : ""
-                }`} />
+                <Hexagon size={40} className={hexagonColorClass}>
+                    <Icon className={`relative z-10 h-5 w-5 ${colorClass} ${
+                        isDestructive ? "group-hover:text-red-600 dark:group-hover:text-red-400" : ""
+                    }`} />
+                </Hexagon>
             </div>
             <div className="flex-1">
                 <p className={`font-semibold text-gray-900 dark:text-zinc-100 text-sm ${
