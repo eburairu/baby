@@ -16,8 +16,10 @@ Botoro の赤ちゃん設定画面（`/settings/babies`）の仕様。
 - **アクションカラー**:
     - プライマリボタン（追加・保存）: `bg-indigo-600 hover:bg-indigo-700 text-white`
     - 危険操作（削除）: `bg-red-500 hover:bg-red-600 text-white`
-    - キャンセル: shadcn `variant="outline"`
-- **赤ちゃんカテゴリーカラー**: `pink` 系
+    - **キャンセル**: shadcn `variant="outline"`
+    - **ダイアログの挙動**: 
+        - 入力項目（特に特徴・傾向の多行テキストや閾値設定）が多いため、画面外への突き抜けを防止するために `max-h-[90vh]` および `overflow-y-auto` によるスクロール制御を行う。
+    - **赤ちゃんカテゴリーカラー**: `pink` 系
     - タイトル色: `text-pink-500`
     - ライトBG: `bg-pink-50`
 
