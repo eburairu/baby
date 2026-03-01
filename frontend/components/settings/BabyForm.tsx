@@ -15,6 +15,9 @@ import {
     FormMessage,
     FormDescription,
 } from "@/components/ui/form"
+import { calcAge } from "@/lib/ageUtils"
+import { resolveThreshold } from "@/lib/thresholdUtils"
+import { ThresholdIndicatorPreview } from "./ThresholdIndicatorPreview"
 
 const babySchema = z.object({
     name: z.string().min(1, "名前を入力してください"),
@@ -67,6 +70,17 @@ export function BabyForm({
             diaper_threshold_minutes: defaultValues.diaper_threshold_minutes ?? null,
         } : undefined,
     })
+
+    const birthday = form.watch("birthday")
+    const ageMonths = birthday ? calcAge(birthday).months : 0
+    const defaultFeedingThreshold = resolveThreshold(ageMonths, null, "feeding")
+    const defaultDiaperThreshold = resolveThreshold(ageMonths, null, "diaper")
+    
+    const feedingThresholdValue = form.watch("feeding_threshold_minutes")
+    const diaperThresholdValue = form.watch("diaper_threshold_minutes")
+
+    const activeFeedingThreshold = feedingThresholdValue ?? defaultFeedingThreshold
+    const activeDiaperThreshold = diaperThresholdValue ?? defaultDiaperThreshold
 
     return (
         <Form {...form}>
@@ -184,13 +198,14 @@ export function BabyForm({
                                 <FormControl>
                                     <Input 
                                         type="number" 
-                                        placeholder="空欄で自動設定" 
+                                        placeholder={`自動設定（${defaultFeedingThreshold}）`} 
                                         {...field} 
                                         value={field.value ?? ""}
                                     />
                                 </FormControl>
+                                <ThresholdIndicatorPreview thresholdMinutes={activeFeedingThreshold} />
                                 <FormDescription>
-                                    前回記録からの経過時間がこの分を超えると警告が表示されます。
+                                    前回記録からの経過時間がこの分を超えると警告が表示されます。空欄の場合は自動設定が適用されます。
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -206,13 +221,14 @@ export function BabyForm({
                                 <FormControl>
                                     <Input 
                                         type="number" 
-                                        placeholder="空欄で自動設定" 
+                                        placeholder={`自動設定（${defaultDiaperThreshold}）`} 
                                         {...field} 
                                         value={field.value ?? ""}
                                     />
                                 </FormControl>
+                                <ThresholdIndicatorPreview thresholdMinutes={activeDiaperThreshold} />
                                 <FormDescription>
-                                    前回記録からの経過時間がこの分を超えると警告が表示されます。
+                                    前回記録からの経過時間がこの分を超えると警告が表示されます。空欄の場合は自動設定が適用されます。
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
