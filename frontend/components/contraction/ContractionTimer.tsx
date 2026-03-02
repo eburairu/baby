@@ -18,7 +18,7 @@ interface ContractionTimerProps {
 }
 
 export default function ContractionTimer({ babyId, onRecorded }: ContractionTimerProps) {
-    const { status, elapsedSeconds, start, stop, tick } = useContractionTimer()
+    const { status, elapsedSeconds, start, stop, tick, sync } = useContractionTimer()
     const { mutate } = useContractionTimerSync(babyId)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -39,6 +39,9 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
                 mutate()
             } catch (err) {
                 console.error("Failed to sync timer start", err)
+                // サーバー同期に失敗した場合はロールバック
+                sync("idle", null)
+                toast.error("タイマーの開始に失敗しました。ネットワークを確認してください。")
             }
         } else {
             const result = stop()
@@ -64,13 +67,14 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
                 } catch (err) {
                     console.error("Failed to save contraction", err)
                     toast.error("保存に失敗しました")
+                    // サーバーの状態と同期し直す
                     mutate()
                 } finally {
                     setIsSubmitting(false)
                 }
             }
         }
-    }, [status, babyId, start, stop, onRecorded, mutate])
+    }, [status, babyId, start, stop, sync, onRecorded, mutate])
 
     return (
         <Card className={`transition-all duration-300 ${isTiming ? "border-red-400 bg-red-50 dark:bg-red-950/30 shadow-lg shadow-red-100 dark:shadow-red-900/20" : ""}`}>
