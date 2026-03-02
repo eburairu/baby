@@ -1,5 +1,5 @@
 "use client"
-import { useForm, Resolver } from "react-hook-form"
+import { useForm, Resolver, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
@@ -71,13 +71,13 @@ export function BabyForm({
         } : undefined,
     })
 
-    const birthday = form.watch("birthday")
+    const birthday = useWatch({ control: form.control, name: "birthday" })
     const ageMonths = birthday ? calcAge(birthday).months : 0
     const defaultFeedingThreshold = resolveThreshold(ageMonths, null, "feeding")
     const defaultDiaperThreshold = resolveThreshold(ageMonths, null, "diaper")
     
-    const feedingThresholdValue = form.watch("feeding_threshold_minutes")
-    const diaperThresholdValue = form.watch("diaper_threshold_minutes")
+    const feedingThresholdValue = useWatch({ control: form.control, name: "feeding_threshold_minutes" })
+    const diaperThresholdValue = useWatch({ control: form.control, name: "diaper_threshold_minutes" })
 
     const activeFeedingThreshold = feedingThresholdValue ?? defaultFeedingThreshold
     const activeDiaperThreshold = diaperThresholdValue ?? defaultDiaperThreshold
