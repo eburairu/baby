@@ -26,6 +26,6 @@ class FeedingTimerResponse(BaseModel):
 
 class FeedingTimerUpdate(BaseModel):
     active_side: Optional[Literal["LEFT", "RIGHT"]] = None
-    left_elapsed_seconds: int = 0
-    right_elapsed_seconds: int = 0
+    left_elapsed_seconds: Optional[int] = None
+    right_elapsed_seconds: Optional[int] = None
     segment_start_time: Optional[datetime] = None

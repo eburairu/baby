@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useFeedingTimer } from "@/hooks/useFeedingTimer"
+import { useFeedingTimerSync } from "@/hooks/useFeedingTimerSync"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
@@ -46,6 +47,9 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     const isEditing = !!initialData
     const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
 
+    // 授乳タイマーの同期
+    useFeedingTimerSync(isEditing ? null : babyId)
+
     // 左右独立タイマー (Hooks)
     const {
         leftSeconds,
@@ -58,8 +62,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         formatTimer,
         totalSeconds
     } = useFeedingTimer({
-        initialLeftMinutes: initialData?.left_breast_minutes ?? 0,
-        initialRightMinutes: initialData?.right_breast_minutes ?? 0
+        babyId: isEditing ? null : babyId
     })
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度

@@ -1906,14 +1906,26 @@
             "title": "Active Side"
           },
           "left_elapsed_seconds": {
-            "default": 0,
-            "title": "Left Elapsed Seconds",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Elapsed Seconds"
           },
           "right_elapsed_seconds": {
-            "default": 0,
-            "title": "Right Elapsed Seconds",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Elapsed Seconds"
           },
           "segment_start_time": {
             "anyOf": [

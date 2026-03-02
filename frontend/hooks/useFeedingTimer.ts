@@ -1,80 +1,82 @@
-import { useState, useRef, useCallback } from "react"
-import { useInterval } from "./useInterval"
+import { useCallback, useEffect } from "react"
+import { useFeedingTimerStore } from "@/stores/feedingTimerStore"
 import { formatTimeMMSS } from "@/lib/ageUtils"
+import { api } from "@/lib/api"
 
 export type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
 interface UseFeedingTimerProps {
-  initialLeftMinutes?: number
-  initialRightMinutes?: number
+  babyId: number | null
 }
 
+/**
+ * 授乳タイマーのロジックを管理するフック。
+ * Zustand ストア (`useFeedingTimerStore`) と連携し、バックエンドへの同期も行う。
+ */
 export function useFeedingTimer({
-  initialLeftMinutes = 0,
-  initialRightMinutes = 0
-}: UseFeedingTimerProps = {}) {
-    const [leftSeconds, setLeftSeconds] = useState(initialLeftMinutes * 60)
-    const [rightSeconds, setRightSeconds] = useState(initialRightMinutes * 60)
-    const [activeBreastSide, setActiveBreastSide] = useState<ActiveBreastSide>(null)
-    const leftBaseRef = useRef<number | null>(null)
-    const rightBaseRef = useRef<number | null>(null)
+  babyId
+}: UseFeedingTimerProps) {
+    const {
+        activeSide,
+        leftElapsedSeconds,
+        rightElapsedSeconds,
+        start,
+        stop,
+        reset,
+        tick,
+        setLeftSeconds,
+        setRightSeconds
+    } = useFeedingTimerStore()
 
-    // タイマーインターバル
-    useInterval(() => {
-        const now = Date.now()
-        if (activeBreastSide === "LEFT" && leftBaseRef.current !== null) {
-            const diff = Math.floor((now - leftBaseRef.current) / 1000)
-            setLeftSeconds(diff)
-        } else if (activeBreastSide === "RIGHT" && rightBaseRef.current !== null) {
-            const diff = Math.floor((now - rightBaseRef.current) / 1000)
-            setRightSeconds(diff)
+    // 1秒ごとにストアの tick を呼び出し、経過時間を更新する
+    useEffect(() => {
+        if (!activeSide) return
+        
+        const interval = setInterval(() => {
+            tick()
+        }, 1000)
+        
+        return () => clearInterval(interval)
+    }, [activeSide, tick])
+
+    /**
+     * 現在のタイマー状態をサーバーに保存する。
+     */
+    const syncWithServer = useCallback(async (side: ActiveBreastSide) => {
+        if (!babyId) return
+        
+        try {
+            await api.put(`/babies/${babyId}/timer/feeding`, {
+                active_side: side
+            })
+        } catch (error) {
+            console.error("Failed to sync feeding timer to server:", error)
         }
-    }, activeBreastSide !== null ? 1000 : null)
+    }, [babyId])
 
-    const startTimer = (side: "LEFT" | "RIGHT") => {
-        // 反対側が動いていれば停止
-        if (side === "LEFT" && activeBreastSide === "RIGHT") {
-            rightBaseRef.current = null
-        } else if (side === "RIGHT" && activeBreastSide === "LEFT") {
-            leftBaseRef.current = null
-        }
-
-        if (side === "LEFT") {
-            leftBaseRef.current = Date.now() - leftSeconds * 1000
+    const toggleTimer = async (side: "LEFT" | "RIGHT") => {
+        if (activeSide === side) {
+            stop()
+            await syncWithServer(null)
         } else {
-            rightBaseRef.current = Date.now() - rightSeconds * 1000
-        }
-        setActiveBreastSide(side)
-    }
-
-    const stopTimer = () => {
-        setActiveBreastSide(null)
-    }
-
-    const toggleTimer = (side: "LEFT" | "RIGHT") => {
-        if (activeBreastSide === side) {
-            stopTimer()
-        } else {
-            startTimer(side)
+            start(side)
+            await syncWithServer(side)
         }
     }
 
-    const resetAllTimers = useCallback(() => {
-        setActiveBreastSide(null)
-        leftBaseRef.current = null
-        rightBaseRef.current = null
-        setLeftSeconds(0)
-        setRightSeconds(0)
-    }, [])
+    const resetAllTimers = useCallback(async () => {
+        reset()
+        await syncWithServer(null)
+    }, [reset, syncWithServer])
 
-    const totalSeconds = leftSeconds + rightSeconds
+    const totalSeconds = leftElapsedSeconds + rightElapsedSeconds
 
     return {
-        leftSeconds,
-        rightSeconds,
+        leftSeconds: leftElapsedSeconds,
+        rightSeconds: rightElapsedSeconds,
         setLeftSeconds,
         setRightSeconds,
-        activeBreastSide,
+        activeBreastSide: activeSide,
         toggleTimer,
         resetAllTimers,
         formatTimer: formatTimeMMSS,
