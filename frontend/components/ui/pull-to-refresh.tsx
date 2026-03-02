@@ -3,6 +3,7 @@
 import * as React from "react"
 import { motion, useMotionValue, useTransform, animate } from "framer-motion"
 import { BabyBottleLoading } from "./baby-bottle-loading"
+import { Hexagon } from "./hexagon"
 import { cn } from "@/lib/utils"
 
 interface PullToRefreshProps {
@@ -93,9 +94,13 @@ export function PullToRefresh({
                 style={{ opacity, scale, height: pullThreshold }}
                 className="absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none z-0"
             >
-                <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-lg border border-slate-200 dark:border-zinc-700">
+                <div className="bg-white dark:bg-zinc-800 rounded-xl p-0.5 shadow-lg border border-slate-200 dark:border-zinc-700 overflow-hidden">
                     <motion.div style={{ rotate: isRefreshing ? undefined : rotate }}>
-                        <BabyBottleLoading className="w-8 h-8 text-primary" />
+                        <Hexagon size={48} color="transparent" className="flex items-center justify-center relative">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <BabyBottleLoading className="w-6 h-6 text-primary" />
+                            </div>
+                        </Hexagon>
                     </motion.div>
                 </div>
             </motion.div>

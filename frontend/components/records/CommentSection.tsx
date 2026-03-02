@@ -72,9 +72,10 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
         )) : null}
 
         {comments?.length === 0 && !isLoading && !error ? (
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-2">
-            メッセージを送って育児を応援しましょう！
-          </p>
+          <div className="flex flex-col items-center justify-center py-6 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-zinc-900/50 rounded-lg border border-dashed border-gray-200 dark:border-zinc-800">
+            <MessageCircle className="w-8 h-8 mb-2 opacity-50" />
+            <p className="text-xs">メッセージを送って育児を応援しましょう！</p>
+          </div>
         ) : null}
       </div>
 

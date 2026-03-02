@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
@@ -8,15 +8,19 @@ import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
 
 export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError, size }: BaseWidgetProps) {
-    const growthRecords = records?.filter(r => r.type === 'growth') ?? []
-    const latest = growthRecords[0] ?? null
-
-    const dateStr = latest?.timestamp 
-        ? `${new Date(latest.timestamp).getMonth() + 1}/${new Date(latest.timestamp).getDate()}`
-        : null
-
-    const weight = latest?.details.weight_kg as number | undefined
-    const height = latest?.details.height_cm as number | undefined
+    // パフォーマンス最適化: レコードのフィルタリングとパース処理をメモ化し、再レンダリング時の不要な計算を抑止
+    const { latest, dateStr, weight, height } = useMemo(() => {
+        const growthRecords = records?.filter(r => r.type === 'growth') ?? []
+        const latestRecord = growthRecords[0] ?? null
+        return {
+            latest: latestRecord,
+            dateStr: latestRecord?.timestamp
+                ? `${new Date(latestRecord.timestamp).getMonth() + 1}/${new Date(latestRecord.timestamp).getDate()}`
+                : null,
+            weight: latestRecord?.details.weight_kg as number | undefined,
+            height: latestRecord?.details.height_cm as number | undefined
+        }
+    }, [records])
 
     return (
         <Link href={`/growth?baby_id=${babyId}`} className="block">
