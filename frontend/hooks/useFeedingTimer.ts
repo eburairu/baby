@@ -45,9 +45,15 @@ export function useFeedingTimer({
     const syncWithServer = useCallback(async (side: ActiveBreastSide) => {
         if (!babyId) return
         
+        // 最新のストアの状態を取得（start/stop 後の最新の状態を同期する）
+        const { segmentStartTime, leftElapsedSeconds, rightElapsedSeconds } = useFeedingTimerStore.getState()
+        
         try {
             await api.put(`/babies/${babyId}/timer/feeding`, {
-                active_side: side
+                active_side: side,
+                segment_start_time: segmentStartTime ? segmentStartTime.toISOString() : null,
+                left_elapsed_seconds: leftElapsedSeconds,
+                right_elapsed_seconds: rightElapsedSeconds
             })
         } catch (error) {
             console.error("Failed to sync feeding timer to server:", error)

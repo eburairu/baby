@@ -89,6 +89,9 @@ def put_feeding_timer(
     # 送信された（Noneでない）フィールドのみを更新
     if body.active_side is not None or "active_side" in body.model_fields_set:
         state.active_side = body.active_side
+        # 停止時は segment_start_time をクリアする
+        if body.active_side is None:
+            state.segment_start_time = None
     
     if body.left_elapsed_seconds is not None:
         state.left_elapsed_seconds = body.left_elapsed_seconds
@@ -98,6 +101,10 @@ def put_feeding_timer(
     
     if body.segment_start_time is not None or "segment_start_time" in body.model_fields_set:
         state.segment_start_time = body.segment_start_time
+    elif state.active_side is not None and state.segment_start_time is None:
+        # サイドが設定されているのに開始時刻がない場合は現在時刻をセットする
+        from datetime import datetime
+        state.segment_start_time = datetime.utcnow()
         
     db.commit()
     db.refresh(state)
