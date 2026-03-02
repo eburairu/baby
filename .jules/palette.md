@@ -15,3 +15,7 @@
 ## 2024-03-01 - [カスタムラジオボタン群でのキーボードフォーカスの視認性向上]
 **学び:** `<button>`要素を使って独自のラジオボタングループ（例：`FeedingCompletionSelector`, `BottleFeedingFields`, `DiaperTypeButton`など）を実装する場合、デフォルトのフォーカススタイル（`outline`）がリセットされることが多い。そのため、キーボードで操作（Tab移動）した際に現在どこにフォーカスが当たっているのかが視覚的に分からなくなる問題がある。
 **アクション:** カスタムUIのインタラクティブな要素には、必ずTailwindの `focus-visible:` ユーティリティ（例：`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`）を追加して、キーボードナビゲーション時のアクセシビリティを確保する。
+
+## 2024-05-18 - [CommentSectionのEmpty State改善]
+**学び:** 空の状態（Empty State）は、単なるテキストよりもアイコンや枠線などの視覚的な手がかりを加えることで、ユーザーの次のアクション（今回は「応援メッセージを送る」）を自然に促すことができる。
+**アクション:** 今後、他のリストやセクションの空状態を実装・改善する際にも、同じようにアイコンと淡い背景色を用いたコンポーネントパターンの適用を検討する。
