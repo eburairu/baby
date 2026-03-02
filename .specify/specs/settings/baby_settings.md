@@ -57,6 +57,8 @@ Botoro の赤ちゃん設定画面（`/settings/babies`）の仕様。
     - 出産予定日（`due_date`、任意）
     - 特徴・傾向（`characteristics`、任意、多行テキスト）
         - AIが日誌生成時に自動更新するフィールドだが、親が手動で修正・追記できるようにする。
+    - 授乳アラート閾値（`feeding_threshold_minutes`、任意、数値）
+    - おむつアラート閾値（`diaper_threshold_minutes`、任意、数値）
 - `react-hook-form` + `zod` によるバリデーションを使用する。
 - 追加・編集画面は共通のフォームコンポーネントを利用する。
 - 保存後は一覧を即時更新し、成功トーストを表示する。
@@ -123,6 +125,14 @@ Botoro の赤ちゃん設定画面（`/settings/babies`）の仕様。
 │  │ 最近よく寝返りをするようになった  │  │
 │  │ 夜泣きが少し減ってきた           │  │
 │  └───────────────────────────────┘  │
+│  授乳アラート閾値 (分)              │
+│  ┌───────────────────────────────┐  │
+│  │ 180                           │  │
+│  └───────────────────────────────┘  │
+│  おむつアラート閾値 (分)            │
+│  ┌───────────────────────────────┐  │
+│  │ 120                           │  │
+│  └───────────────────────────────┘  │
 │              [キャンセル] [保存]     │
 └─────────────────────────────────────┘
 ```
@@ -162,6 +172,8 @@ const babySchema = z.object({
   birthday: z.string().optional(),   // "YYYY-MM-DD" or ""
   due_date: z.string().optional(),   // "YYYY-MM-DD" or ""
   characteristics: z.string().optional(), // 多行テキスト
+  feeding_threshold_minutes: z.number().optional().nullable(),
+  diaper_threshold_minutes: z.number().optional().nullable(),
 });
 ```
 
@@ -185,6 +197,8 @@ class BabyUpdate(BaseModel):
     due_date: Optional[date] = None
     gender: Optional[Literal["boy", "girl", "unknown"]] = None
     characteristics: Optional[str] = Field(None, max_length=1000)
+    feeding_threshold_minutes: Optional[int] = None
+    diaper_threshold_minutes: Optional[int] = None
 
     @field_validator('name')
     @classmethod
