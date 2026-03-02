@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Plus, RefreshCcw, CheckCircle2, Clock, AlertCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
-import { formatDateWithDayOfWeek } from "@/lib/dateUtils"
+import { format } from "date-fns"
+import { ja } from "date-fns/locale"
 import { api, isApiError } from "@/lib/api"
 import { VaccinationForm } from "@/components/vaccination/VaccinationForm"
 import { Vaccination } from "@/types/vaccination"
@@ -130,7 +131,7 @@ export default function VaccinationsPage() {
                                             <td className="px-4 py-4 font-medium text-gray-900 dark:text-zinc-100">{v.vaccine_name}</td>
                                             <td className="px-4 py-4 text-gray-500">{v.dose_number} 回目</td>
                                             <td className="px-4 py-4 text-gray-500">
-                                                {formatDateWithDayOfWeek(new Date(v.scheduled_date))}
+                                                {format(new Date(v.scheduled_date), 'yyyy/MM/dd (eee)', { locale: ja })}
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="flex items-center gap-1.5">

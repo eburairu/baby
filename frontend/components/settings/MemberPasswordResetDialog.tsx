@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { api, isApiError } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
 import { FamilyMember } from "@/types/family"
+import { useClipboard } from "@/hooks/useClipboard"
 
 interface Props {
     member: FamilyMember | null
@@ -34,13 +35,12 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
     const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null)
     const [resetting, setResetting] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [copied, setCopied] = useState(false)
+    const { copied, copyToClipboard } = useClipboard()
 
     const handleClose = () => {
         setStep("confirm")
         setTemporaryPassword(null)
         setError(null)
-        setCopied(false)
         onClose()
     }
 
@@ -66,11 +66,9 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
         }
     }
 
-    const handleCopy = () => {
+    const handleCopy = async () => {
         if (!temporaryPassword) return
-        navigator.clipboard.writeText(temporaryPassword)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        await copyToClipboard(temporaryPassword)
     }
 
     const displayName = member ? getDisplayName(member) : ""
