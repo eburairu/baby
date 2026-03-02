@@ -14,13 +14,13 @@ PROTECTED_BRANCHES=("develop" "main")
 # ステージングされたファイル一覧を取得
 STAGED_FILES=$(git diff --cached --name-only)
 
-# すべてが仕様書（.specify/specs/）または設計ドキュメント（.planning/）配下かどうかを判定
+# すべてが仕様書（.specify/specs/）・設計ドキュメント（.planning/）・スクリプト（scripts/）配下かどうかを判定
 ONLY_SPECS=true
 if [ -z "$STAGED_FILES" ]; then
   ONLY_SPECS=false
 else
   for file in $STAGED_FILES; do
-    if [[ ! "$file" =~ ^\.specify/specs/ ]] && [[ ! "$file" =~ ^\.planning/ ]]; then
+    if [[ ! "$file" =~ ^\.specify/specs/ ]] && [[ ! "$file" =~ ^\.planning/ ]] && [[ ! "$file" =~ ^scripts/ ]]; then
       ONLY_SPECS=false
       break
     fi
