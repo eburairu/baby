@@ -67,7 +67,7 @@ def update_family(
     return family
 
 
-@router.post("/invite_code/regenerate", response_model=FamilyResponse)
+@router.post("/invite_code/regenerate", response_model=FamilyResponse, dependencies=[Depends(reset_password_limiter)])
 def regenerate_invite_code(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
