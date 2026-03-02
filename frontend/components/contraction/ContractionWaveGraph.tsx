@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { format } from 'date-fns';
+import { formatTimeWithSeconds } from '@/lib/dateUtils';
 import type { ContractionRecord } from '@/types/contraction';
 import { useContractionTimer } from '@/stores/contractionStore';
 
@@ -111,11 +111,11 @@ export default function ContractionWaveGraph({ contractions }: ContractionWaveGr
             </p>
           ) : null}
           <p className="text-gray-500 dark:text-zinc-400">
-            開始: {format(new Date(data.startTime!), 'HH:mm:ss')}
+            開始: {formatTimeWithSeconds(data.startTime!)}
           </p>
           {data.endTime ? (
             <p className="text-gray-500 dark:text-zinc-400">
-              終了: {format(new Date(data.endTime), 'HH:mm:ss')}
+              終了: {formatTimeWithSeconds(data.endTime)}
             </p>
           ) : null}
         </div>

@@ -16,10 +16,11 @@ import { Button } from "@/components/ui/button"
 import type { Growth } from "@/types/growth"
 import { generateWhoSeries, mergeData } from "@/lib/growthUtils"
 import { useMemo, useState } from "react"
-import { format, subMonths, subDays } from "date-fns"
+import { subMonths, subDays } from "date-fns"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
+import { formatMonthDay, formatDate } from "@/lib/dateUtils"
 
 interface GrowthChartProps {
     records: Growth[]
@@ -94,7 +95,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     }
 
     const formatDateTick = (timestamp: number) => {
-        return format(new Date(timestamp), "MM/dd")
+        return formatMonthDay(timestamp)
     }
 
     // Tooltip formatter
@@ -128,7 +129,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                     />
                     <YAxis unit={unit} domain={["auto", "auto"]} tick={{ fill: textColor, fontSize: 10 }} />
                     <Tooltip 
-                        labelFormatter={(label) => format(new Date(label), "yyyy/MM/dd")} 
+                        labelFormatter={(label) => formatDate(label)}
                         formatter={tooltipFormatter}
                         contentStyle={{ 
                             backgroundColor: isDark ? "#18181b" : "#fff", 
