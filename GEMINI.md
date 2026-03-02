@@ -61,9 +61,10 @@ EOF
 
 ### Git Worktree の強制使用（MUST）
 
-開発作業を行う際は、**必ず `sh scripts/setup_worktree.sh` を使用して `worktrees/` 配下で作業すること**。
+開発作業を行う際は、**原則として `sh scripts/setup_worktree.sh` を使用して `worktrees/` 配下で作業すること**。
 
-- **禁止事項**: メインリポジトリ（ルート）での直接的な `git checkout -b` やファイル編集は厳禁。
+- **禁止事項**: メインリポジトリ（ルート）での直接的なコード編集や、機能実装のための `git checkout -b` は厳禁。
+- **例外**: **仕様書（`.specify/specs/`）または設計ドキュメント（`.planning/`）の更新のみを行う場合**は、ルートリポジトリの `develop` ブランチで直接編集・コミットを行ってもよい。
 - **目的**: 常に `develop` の最新状態をメインディレクトリに維持し、並行開発を円滑にするため。
 
 ### バックエンド変更後は openapi.json を必ず更新する
