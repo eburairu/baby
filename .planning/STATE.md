@@ -8,7 +8,7 @@ progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 9
-  completed_plans: 1
+  completed_plans: 3
 ---
 
 # プロジェクト・ステータス: Milestone v1.3
@@ -23,24 +23,24 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 8 of 10 (バックエンドタイマーAPI)
-Plan: 1 of 3 complete
-Status: In Progress
-Last activity: 2026-03-02 — Plan 08-01 TDD RED テスト作成完了
+Plan: 3 of 3 complete
+Status: Phase Complete
+Last activity: 2026-03-02 — Plan 08-03 タイマーAPIルーター実装完了（Phase 8 全プラン完了）
 
-Progress: [█░░░░░░░░░] 10%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1 (v1.3)
-- Average duration: 3 minutes
-- Total execution time: 3 minutes
+- Total plans completed: 3 (v1.3)
+- Average duration: 7 minutes
+- Total execution time: 21 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 08-backend-timer-api | 1/3 | 3 min | 3 min |
+| 08-backend-timer-api | 3/3 | 21 min | 7 min |
 
 *Updated after each plan completion*
 
@@ -55,6 +55,8 @@ Recent decisions affecting current work:
 - タイマー状態は baby_id に紐づく（家族内で正しい赤ちゃんの記録に紐づける）
 - [Phase 08-backend-timer-api]: タイマーAPIのエンドポイントパスは /api/babies/{baby_id}/timer/{type} に決定
 - [Phase 08-backend-timer-api]: テストは worktrees/feat/timer-api-tests ブランチで管理（TDD RED フェーズ完了）
+- [Phase 08-backend-timer-api Plan 03]: verify_baby_access は record_type="baby" を使用（"timer" では BabyPermission にエントリなく MEMBER が 403 になる）
+- [Phase 08-backend-timer-api Plan 03]: feat/timer-api-router に 2 ブランチをマージして 1 PR で 3 ブランチ分の成果物を統合
 
 ### Pending Todos
 
@@ -67,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 08-backend-timer-api-01-PLAN.md — TDD RED テスト作成完了
+Stopped at: Completed 08-backend-timer-api-03-PLAN.md — タイマーAPIルーター実装完了（Phase 8 全プラン完了）
 Resume file: None

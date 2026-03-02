@@ -102,7 +102,7 @@ Plans:
 
 ## Phases
 
-- [ ] **Phase 8: バックエンドタイマーAPI** - 陣痛・授乳タイマー状態をDBで管理するCRUD APIを実装する
+- [x] **Phase 8: バックエンドタイマーAPI** - 陣痛・授乳タイマー状態をDBで管理するCRUD APIを実装する
 - [ ] **Phase 9: 陣痛タイマーポーリング同期** - contractionStore をバックエンドAPI連携に切り替え、家族間同期を実現する
 - [ ] **Phase 10: 授乳タイマーポーリング同期** - useFeedingTimer をバックエンドAPI連携に切り替え、家族間同期を実現する
 
@@ -119,12 +119,12 @@ Plans:
   4. `PUT /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態を更新でき、別ユーザーが GET すると更新後の値が返る
   5. 別家族のユーザーが baby_id にアクセスすると 403 が返り、データが保護されている
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed (完了)
 
 Plans:
-- [ ] 08-01-PLAN.md — TDD RED: 陣痛・授乳タイマー API テスト作成
-- [ ] 08-02-PLAN.md — SQLAlchemy モデル・Pydantic スキーマ・Alembic マイグレーション
-- [ ] 08-03-PLAN.md — タイマー API ルーター実装・main.py 登録・openapi.json 更新
+- [x] 08-01-PLAN.md — TDD RED: 陣痛・授乳タイマー API テスト作成
+- [x] 08-02-PLAN.md — SQLAlchemy モデル・Pydantic スキーマ・Alembic マイグレーション
+- [x] 08-03-PLAN.md — タイマー API ルーター実装・main.py 登録・openapi.json 更新
 
 ### Phase 9: 陣痛タイマーポーリング同期
 **Goal:** ユーザーが陣痛タイマーを操作すると即座にバックエンドに書き込まれ、別デバイスのユーザーが3秒以内に同じ状態を確認できる
@@ -161,7 +161,7 @@ Plans:
 | 5. バックエンド閾値API | v1.2 | 2/2 | 完了 | 2026-02-28 |
 | 6. フロントエンドインジケーター | v1.2 | 4/4 | 完了 | 2026-03-01 |
 | 7. 閾値設定UI | v1.2 | 1/1 | 完了 | 2026-03-01 |
-| 8. バックエンドタイマーAPI | 2/3 | In Progress|  | - |
+| 8. バックエンドタイマーAPI | v1.3 | 3/3 | 完了 | 2026-03-02 |
 | 9. 陣痛タイマーポーリング同期 | v1.3 | 0/? | Not started | - |
 | 10. 授乳タイマーポーリング同期 | v1.3 | 0/? | Not started | - |
 
