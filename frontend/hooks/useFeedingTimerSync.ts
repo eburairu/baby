@@ -6,10 +6,10 @@ import { fetcher } from '@/lib/api'
 import { useFeedingTimerStore } from '@/stores/feedingTimerStore'
 
 interface TimerResponse {
-  activeSide: 'LEFT' | 'RIGHT' | null
-  leftElapsedSeconds: number
-  rightElapsedSeconds: number
-  segmentStartTime: string | null
+  active_side: 'LEFT' | 'RIGHT' | null
+  left_elapsed_seconds: number
+  right_elapsed_seconds: number
+  segment_start_time: string | null
 }
 
 /**
@@ -29,11 +29,13 @@ export function useFeedingTimerSync(babyId: number | null) {
 
   useEffect(() => {
     if (data) {
+      // API レスポンスの snake_case をストアの期待する引数にマッピング
+      // また、値が undefined や null の場合に 0 をデフォルト値として渡すことで NaN を防止
       sync(
-        data.activeSide,
-        data.leftElapsedSeconds,
-        data.rightElapsedSeconds,
-        data.segmentStartTime
+        data.active_side,
+        data.left_elapsed_seconds ?? 0,
+        data.right_elapsed_seconds ?? 0,
+        data.segment_start_time
       )
     }
   }, [data, sync])
