@@ -9,6 +9,7 @@ import type { ContractionRecord } from "@/types/contraction"
 import { toast } from "sonner"
 import { useInterval } from "@/hooks/useInterval"
 import { formatTimeMMSS } from "@/lib/ageUtils"
+import { useContractionTimerSync } from "@/hooks/useContractionTimerSync"
 
 interface ContractionTimerProps {
     babyId: number
@@ -18,6 +19,7 @@ interface ContractionTimerProps {
 
 export default function ContractionTimer({ babyId, onRecorded }: ContractionTimerProps) {
     const { status, elapsedSeconds, start, stop, tick } = useContractionTimer()
+    const { mutate } = useContractionTimerSync(babyId)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const isTiming = status === "timing"
@@ -27,31 +29,48 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
 
     const handleToggle = useCallback(async (offsetMs: number = 0) => {
         if (status === "idle") {
+            const startTime = new Date(Date.now() - offsetMs)
             start(offsetMs)
+            try {
+                await api.put(`/babies/${babyId}/timer/contraction`, {
+                    status: "timing",
+                    start_time: startTime.toISOString()
+                })
+                mutate()
+            } catch (err) {
+                console.error("Failed to sync timer start", err)
+            }
         } else {
             const result = stop()
             if (result) {
                 setIsSubmitting(true)
                 try {
-                    // interval_seconds (Start-to-Start) はサーバーサイドで計算されるが、
-                    // スキーマ上 optional なのでここでも送れる（現在の backend は server-side で計算している）
-                    await api.post("/contractions/", {
-                        baby_id: babyId,
-                        start_time: result.startTime.toISOString(),
-                        end_time: result.endTime.toISOString(),
-                        duration_seconds: result.durationSeconds,
-                    })
+                    // PUT (状態更新) と POST (記録作成) を並行して実行
+                    await Promise.all([
+                        api.put(`/babies/${babyId}/timer/contraction`, {
+                            status: "idle",
+                            start_time: null
+                        }),
+                        api.post("/contractions/", {
+                            baby_id: babyId,
+                            start_time: result.startTime.toISOString(),
+                            end_time: result.endTime.toISOString(),
+                            duration_seconds: result.durationSeconds,
+                        })
+                    ])
                     toast.success("記録しました")
                     onRecorded()
+                    mutate()
                 } catch (err) {
                     console.error("Failed to save contraction", err)
                     toast.error("保存に失敗しました")
+                    mutate()
                 } finally {
                     setIsSubmitting(false)
                 }
             }
         }
-    }, [status, babyId, start, stop, onRecorded])
+    }, [status, babyId, start, stop, onRecorded, mutate])
 
     return (
         <Card className={`transition-all duration-300 ${isTiming ? "border-red-400 bg-red-50 dark:bg-red-950/30 shadow-lg shadow-red-100 dark:shadow-red-900/20" : ""}`}>
