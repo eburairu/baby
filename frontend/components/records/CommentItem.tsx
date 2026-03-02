@@ -2,8 +2,7 @@ import { USER_ROLES } from "@/types/enums"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Trash2 } from "lucide-react"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { formatDateTime } from "@/lib/dateUtils"
 import { cn } from "@/lib/utils"
 import {
   AlertDialog,
@@ -58,7 +57,7 @@ export function CommentItem({ comment, currentUserId, onDelete, isDeleting }: Co
             {comment.ai_has_concern ? "⚠️ AI フィードバック（要確認）" : "🤖 AIフィードバック"}
           </span>
           <span className="text-[10px] text-gray-500 dark:text-gray-400">
-            {format(new Date(comment.created_at), "M/d HH:mm", { locale: ja })}
+            {formatDateTime(new Date(comment.created_at))}
           </span>
         </div>
         <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
@@ -94,7 +93,7 @@ export function CommentItem({ comment, currentUserId, onDelete, isDeleting }: Co
           )}
         </div>
         <span className="text-[10px] text-gray-500 dark:text-gray-400">
-          {format(new Date(comment.created_at), "M/d HH:mm", { locale: ja })}
+          {formatDateTime(new Date(comment.created_at))}
         </span>
       </div>
       <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">

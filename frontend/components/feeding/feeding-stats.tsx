@@ -1,7 +1,6 @@
 import { FeedingStatsResult } from "@/lib/feedingUtils";
 import { Clock, Baby } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
+import { formatDistanceToNow } from "@/lib/dateUtils";
 import { StatsBlock } from "@/components/ui/stats-block";
 import { StatsCard } from "@/components/ui/stats-card";
 import { BREAST_SIDE_LABEL, NEXT_SIDE_GUIDE, FEEDING_TYPE_LABELS } from "@/constants/feeding";
@@ -14,7 +13,6 @@ export function FeedingStats({ summary }: FeedingStatsProps) {
     const timeSinceLast = summary.lastFeedingTime
         ? formatDistanceToNow(new Date(summary.lastFeedingTime), {
             addSuffix: true,
-            locale: ja,
         })
         : "記録なし";
 

@@ -17,11 +17,11 @@
 ### F1: スケジュール入力
 
 - **入力項目**:
-    - **赤ちゃんID**: 記録対象の赤ちゃん。
-    - **タイトル**: 予定の名称（例: 予防接種）。必須。
-    - **説明**: 予定の詳細（例: BCGワクチン、14:00から）。任意。
-    - **予定日時**: 予定が実施される日時。必須。
-    - **完了フラグ**: 予定が完了したかどうか。デフォルトは未完了。
+  - **赤ちゃんID**: 記録対象の赤ちゃん。
+  - **タイトル**: 予定の名称（例: 予防接種）。必須。
+  - **説明**: 予定の詳細（例: BCGワクチン、14:00から）。任意。
+  - **予定日時**: 予定が実施される日時。必須。
+  - **完了フラグ**: 予定が完了したかどうか。デフォルトは未完了。
 - **保存**: API に POST して保存する。
 
 ### F2: スケジュール一覧
@@ -49,11 +49,31 @@
 ## API
 
 - `GET /api/schedules/?baby_id={id}`
-    - 指定した赤ちゃんのスケジュール一覧を取得。
+  - 指定した赤ちゃんのスケジュール一覧を取得。
 - `POST /api/schedules/`
-    - 新規スケジュールを作成。
+  - 新規スケジュールを作成。
 - `DELETE /api/schedules/{id}`
-    - 指定したスケジュールを削除。
+  - 指定したスケジュールを削除。
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+// POST リクエスト
+interface ScheduleCreate {
+  baby_id: number;
+  title: string;
+  description?: string;
+  scheduled_time: string; // ISO 8601
+  is_completed?: boolean; // デフォルトは false
+}
+
+// レスポンス
+interface ScheduleResponse extends ScheduleCreate {
+  id: number;
+  user_id: number;
+  created_at: string; // ISO 8601
+}
+```
 
 ## 権限管理
 

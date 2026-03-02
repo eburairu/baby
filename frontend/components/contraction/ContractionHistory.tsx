@@ -2,8 +2,7 @@
 
 import { HistoryCard } from "@/components/records/HistoryCard"
 import type { ContractionRecord } from "@/types/contraction"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { formatFullDateTime } from "@/lib/dateUtils"
 import { useContractionActions } from "@/hooks/useContractionActions"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { useRecordComments } from "@/hooks/useRecordComments"
@@ -44,7 +43,7 @@ export default function ContractionHistory({ contractions, onDeleted, onUpdated,
         records: contractions,
         recordType: "contraction",
         initialCommentRecordId,
-        getTitle: (record) => `陣痛 ${format(new Date(record.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}`,
+        getTitle: (record) => `陣痛 ${formatFullDateTime(new Date(record.start_time))}`,
         onCommentChange: onDeleted
     })
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 
 interface LandingCTAProps {
     isLoggedIn?: boolean
@@ -19,17 +20,24 @@ export function LandingCTA({ isLoggedIn = false }: LandingCTAProps) {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     {isLoggedIn ? (
-                        <Link href="/dashboard">
-                            <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-700 rounded-2xl shadow-xl dark:shadow-none transition-all">
+                        <Link href="/dashboard" className="w-full sm:w-auto">
+                            <Button className="group w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-700 rounded-2xl shadow-xl dark:shadow-none transition-all">
                                 ダッシュボードに戻る
+                                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                             </Button>
                         </Link>
                     ) : (
-                        <Link href="/register">
-                            <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-700 rounded-2xl shadow-xl dark:shadow-none transition-all">
-                                今すぐ無料で始める
-                            </Button>
-                        </Link>
+                        <div className="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
+                            <Link href="/register" className="w-full sm:w-auto">
+                                <Button className="group w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-700 rounded-2xl shadow-xl dark:shadow-none transition-all">
+                                    今すぐ無料で始める
+                                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                </Button>
+                            </Link>
+                            <p className="text-xs font-bold mt-2 text-indigo-200 dark:text-indigo-300 w-full text-center">
+                                ✨ 1分で簡単スタート ・ クレジットカード不要
+                            </p>
+                        </div>
                     )}
                 </div>
             </div>
