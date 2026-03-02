@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.3
-milestone_name: タイマー共有
-status: ready_to_plan
-last_updated: "2026-03-02T00:00:00.000Z"
+milestone_name: タイマー共有 — Phase 8-10
+status: unknown
+last_updated: "2026-03-02T09:59:23.161Z"
 progress:
-  total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 4
+  completed_phases: 3
+  total_plans: 11
+  completed_plans: 10
 ---
 
 # プロジェクト・ステータス: Milestone v1.3
@@ -43,6 +43,8 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 *Updated after each plan completion*
+| Phase 08-backend-timer-api P01 | 3 | 2 tasks | 2 files |
+| Phase 08-backend-timer-api P02 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -53,6 +55,9 @@ Recent decisions affecting current work:
 
 - タイマー同期はポーリング（~3秒）。WebSocket は使わない
 - タイマー状態は baby_id に紐づく（家族内で正しい赤ちゃんの記録に紐づける）
+- [Phase 08-backend-timer-api]: タイマーAPIのエンドポイントパスは /api/babies/{baby_id}/timer/{type} に決定
+- [Phase 08-backend-timer-api]: テストは worktrees/feat/timer-api-tests ブランチで管理（TDD RED フェーズ完了）
+- [Phase 08-backend-timer-api]: マイグレーション down_revision を f2e3d4c5 から a1b2c3d4e5f0 に修正 — develop DB では a1b2c3d4e5f0 がすでに head だったためチェーン修正が必要だった
 
 ### Pending Todos
 
