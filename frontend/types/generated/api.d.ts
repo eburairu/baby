@@ -31,7 +31,8 @@ export interface paths {
         /** Get Admin Families */
         get: operations["get_admin_families_api_admin_families_get"];
         put?: never;
-        post?: never;
+        /** Create Admin Family */
+        post: operations["create_admin_family_api_admin_families_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1547,6 +1548,25 @@ export interface components {
             /** Username */
             username: string;
         };
+        /** FamilyCreateAdmin */
+        FamilyCreateAdmin: {
+            /** Name */
+            name: string;
+        };
+        /** FamilyCreateResponseAdmin */
+        FamilyCreateResponseAdmin: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Invite Code */
+            invite_code: string;
+            /** Name */
+            name: string;
+        };
         /** FamilyDetailResponse */
         FamilyDetailResponse: {
             /** Babies */
@@ -2358,6 +2378,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FamilyAdminResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_admin_family_api_admin_families_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyCreateAdmin"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyCreateResponseAdmin"];
                 };
             };
             /** @description Validation Error */

@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { fetcher } from "@/lib/api";
 import {
   Search,
@@ -9,7 +9,10 @@ import {
   Baby,
   User as UserIcon,
   ShieldCheck,
-  Users
+  Users,
+  Plus,
+  Copy,
+  CheckCircle2
 } from "lucide-react";
 import {
   Table,
@@ -27,14 +30,32 @@ import {
   SheetTitle,
   SheetDescription
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface FamilyAdminResponse {
   id: number;
   name: string;
   member_count: number;
+  created_at: string;
+}
+
+interface FamilyCreateResponse {
+  id: number;
+  name: string;
+  invite_code: string;
   created_at: string;
 }
 
@@ -194,6 +215,10 @@ export default function AdminFamilies() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newFamilyName, setNewFamilyName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [createdFamily, setCreatedFamily] = useState<FamilyCreateResponse | null>(null);
 
   const { data: families, isLoading } = useSWR<FamilyAdminResponse[]>(
     `/admin/families${searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""}`,
@@ -205,6 +230,43 @@ export default function AdminFamilies() {
     setSheetOpen(true);
   };
 
+  const handleCreateFamily = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFamilyName.trim()) return;
+
+    setIsCreating(true);
+    try {
+      const res = await fetch("/api/admin/families", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newFamilyName.trim() }),
+      });
+
+      if (!res.ok) {
+        throw new Error("家族の作成に失敗しました");
+      }
+
+      const data: FamilyCreateResponse = await res.json();
+      setCreatedFamily(data);
+      setNewFamilyName("");
+      mutate(`/admin/families${searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""}`);
+      toast.success("家族を作成しました");
+    } catch (error) {
+      console.error(error);
+      toast.error("家族の作成に失敗しました");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const copyInviteCode = () => {
+    if (!createdFamily?.invite_code) return;
+    navigator.clipboard.writeText(createdFamily.invite_code);
+    toast.success("招待コードをコピーしました");
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -214,7 +276,7 @@ export default function AdminFamilies() {
         </p>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -224,6 +286,13 @@ export default function AdminFamilies() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <Button onClick={() => {
+          setCreatedFamily(null);
+          setCreateDialogOpen(true);
+        }} className="w-full sm:w-auto">
+          <Plus className="mr-2 h-4 w-4" />
+          新規家族作成
+        </Button>
       </div>
 
       <div className="rounded-md border bg-white">
@@ -286,6 +355,72 @@ export default function AdminFamilies() {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
       />
+
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          {createdFamily ? (
+            <>
+              <DialogHeader>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 mb-4">
+                  <CheckCircle2 className="h-6 w-6 text-green-600" />
+                </div>
+                <DialogTitle className="text-center">家族を作成しました</DialogTitle>
+                <DialogDescription className="text-center">
+                  「{createdFamily.name}」の作成が完了しました。
+                  以下の招待コードを代表者に伝えてください。
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-6 flex flex-col items-center">
+                <div className="flex items-center gap-2 bg-gray-50 px-4 py-3 rounded-lg border font-mono text-lg font-bold tracking-wider select-all">
+                  {createdFamily.invite_code}
+                  <Button variant="ghost" size="icon" onClick={copyInviteCode} className="h-8 w-8">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={() => setCreateDialogOpen(false)} className="w-full">
+                  閉じる
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <form onSubmit={handleCreateFamily}>
+              <DialogHeader>
+                <DialogTitle>新規家族作成</DialogTitle>
+                <DialogDescription>
+                  新しい家族グループを作成します。
+                  作成後、招待コードが発行されます。
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">家族名</Label>
+                  <Input
+                    id="name"
+                    placeholder="例: 佐藤家"
+                    value={newFamilyName}
+                    onChange={(e) => setNewFamilyName(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCreateDialogOpen(false)}
+                >
+                  キャンセル
+                </Button>
+                <Button type="submit" disabled={isCreating || !newFamilyName.trim()}>
+                  {isCreating ? "作成中..." : "作成する"}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
