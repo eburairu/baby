@@ -19,7 +19,8 @@ if [ -d "$TOPLEVEL/.git" ] && { [ "$CURRENT_BRANCH" = "develop" ] || [ "$CURRENT
   fi
 
   # .planning/ / .specify/ / scripts/ 配下は develop での直接編集を許可
-  if echo "$FILE_PATH" | grep -qE '^(\.planning|\.specify|scripts)/'; then
+  # worktrees/ 配下はワークツリーでの作業なので許可
+  if echo "$FILE_PATH" | grep -qE '^(\.planning|\.specify|scripts|worktrees)/'; then
     exit 0
   fi
 

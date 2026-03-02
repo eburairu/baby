@@ -7,11 +7,11 @@
 
 ### バックエンド — タイマー状態管理 (TIMER-BE)
 
-- [ ] **TIMER-BE-01**: `GET /api/babies/{baby_id}/timer/contraction` で陣痛タイマー状態（status, start_time）を取得できる
-- [ ] **TIMER-BE-02**: `PUT /api/babies/{baby_id}/timer/contraction` で陣痛タイマー状態を更新できる（開始/停止）
-- [ ] **TIMER-BE-03**: `GET /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態（active_side, 左右累積秒数, アクティブ区間開始時刻）を取得できる
-- [ ] **TIMER-BE-04**: `PUT /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態を更新できる
-- [ ] **TIMER-BE-05**: タイマー状態は baby_id に紐づき、同じ家族のユーザーのみアクセスできる
+- [x] **TIMER-BE-01**: `GET /api/babies/{baby_id}/timer/contraction` で陣痛タイマー状態（status, start_time）を取得できる
+- [x] **TIMER-BE-02**: `PUT /api/babies/{baby_id}/timer/contraction` で陣痛タイマー状態を更新できる（開始/停止）
+- [x] **TIMER-BE-03**: `GET /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態（active_side, 左右累積秒数, アクティブ区間開始時刻）を取得できる
+- [x] **TIMER-BE-04**: `PUT /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態を更新できる
+- [x] **TIMER-BE-05**: タイマー状態は baby_id に紐づき、同じ家族のユーザーのみアクセスできる
 
 ### フロントエンド — ポーリング同期 (TIMER-FE)
 
@@ -40,11 +40,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TIMER-BE-01 | Phase 8 | Pending |
-| TIMER-BE-02 | Phase 8 | Pending |
-| TIMER-BE-03 | Phase 8 | Pending |
-| TIMER-BE-04 | Phase 8 | Pending |
-| TIMER-BE-05 | Phase 8 | Pending |
+| TIMER-BE-01 | Phase 8 | Complete |
+| TIMER-BE-02 | Phase 8 | Complete |
+| TIMER-BE-03 | Phase 8 | Complete |
+| TIMER-BE-04 | Phase 8 | Complete |
+| TIMER-BE-05 | Phase 8 | Complete |
 | TIMER-FE-01 | Phase 9 | Pending |
 | TIMER-FE-02 | Phase 9 | Pending |
 | TIMER-FE-03 | Phase 10 | Pending |
