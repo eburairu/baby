@@ -1,41 +1,40 @@
-# Requirements: Botoro v1.2
+# Requirements: Botoro v1.3
 
-**Defined:** 2026-02-28
+**Defined:** 2026-03-02
 **Core Value:** 家族全員が同じ記録を見ながら育児を分担できる
 
-## v1.2 Requirements
+## v1.3 Requirements
 
-### インジケーター (INDICATOR)
+### バックエンド — タイマー状態管理 (TIMER-BE)
 
-- [x] **INDIC-01**: 授乳ウィジェットの六角形に、前回授乳からの経過時間プログレスストローク（円弧）が表示される
-- [x] **INDIC-02**: おむつウィジェットの六角形に、前回交換からの経過時間プログレスストローク（円弧）が表示される
-- [x] **INDIC-03**: ストロークは経過時間/警告閾値（0→100%）で緑（0–60%）→黄（60–80%）→赤（80–100%）と変化する
-- [x] **INDIC-04**: 100%到達後（閾値超過）はストロークが赤で点滅表示される
-- [x] **INDIC-05**: インジケーターは1分ごとにリアルタイム更新される
+- [ ] **TIMER-BE-01**: `GET /api/babies/{baby_id}/timer/contraction` で陣痛タイマー状態（status, start_time）を取得できる
+- [ ] **TIMER-BE-02**: `PUT /api/babies/{baby_id}/timer/contraction` で陣痛タイマー状態を更新できる（開始/停止）
+- [ ] **TIMER-BE-03**: `GET /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態（active_side, 左右累積秒数, アクティブ区間開始時刻）を取得できる
+- [ ] **TIMER-BE-04**: `PUT /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態を更新できる
+- [ ] **TIMER-BE-05**: タイマー状態は baby_id に紐づき、同じ家族のユーザーのみアクセスできる
 
-### 閾値管理 (THRESHOLD)
+### フロントエンド — ポーリング同期 (TIMER-FE)
 
-- [x] **THRES-01**: 赤ちゃんの月齢からWHO/小児科ガイドラインに基づく授乳・おむつ警告閾値が自動決定される
-- [ ] **THRES-02**: ユーザーが設定画面から赤ちゃんごとに授乳・おむつ閾値を個別設定できる
-- [x] **THRES-03**: カスタム閾値はバックエンドのBabyプロフィールに保存され、家族全員が同じ値を参照できる
+- [ ] **TIMER-FE-01**: 陣痛タイマーページが3秒ごとにバックエンドから状態を取得し UIを自動更新する
+- [ ] **TIMER-FE-02**: 陣痛タイマーの開始/停止操作が即座にバックエンドに書き込まれる
+- [ ] **TIMER-FE-03**: 授乳記録フォームのタイマーが3秒ごとにバックエンドから状態を取得し UIを自動更新する
+- [ ] **TIMER-FE-04**: 授乳タイマーの開始/一時停止操作が即座にバックエンドに書き込まれる
+- [ ] **TIMER-FE-05**: 別デバイスで操作された場合、ポーリングにより UIのタイマー状態・経過時間が更新される
 
 ## v2 Requirements
 
-### 通知 (NOTIFICATION)
+### 拡張同期
 
-- **NOTIF-01**: 閾値超過時にプッシュ通知を送信する（別インフラが必要なためv2以降）
-
-### 拡張インジケーター
-
-- **INDIC-EXT-01**: 睡眠ウィジェットへのインジケーター追加（睡眠記録の特性を踏まえた設計が必要）
+- **SYNC-01**: WebSocket によるサブ秒リアルタイム同期（ポーリングから昇格が必要な場合）
+- **SYNC-02**: 睡眠タイマーの共有（睡眠記録の特性を踏まえた設計が必要）
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| プッシュ通知 | 閾値超過時の通知は別インフラ（Web Push）が必要 |
-| 睡眠インジケーター | 睡眠は連続記録のため「経過時 間」の意味が異なる |
-| 家族間の閾値個別設定 | 同一赤ちゃんの記録を共有する家族は同じ閾値を使う設計 |
+| WebSocket リアルタイム同期 | ポーリング（数秒）で十分。インフラ複雑性を避ける |
+| プッシュ通知 | Web Push インフラが必要、v2以降 |
+| 睡眠タイマーの共有 | 睡眠は連続記録で「経過時間」の意味が異なる |
 
 ## Traceability
 
@@ -43,20 +42,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INDIC-01 | Phase 6 | Completed |
-| INDIC-02 | Phase 6 | Completed |
-| INDIC-03 | Phase 6 | Completed |
-| INDIC-04 | Phase 6 | Completed |
-| INDIC-05 | Phase 6 | Completed |
-| THRES-01 | Phase 6 | Completed |
-| THRES-02 | Phase 7 | Pending |
-| THRES-03 | Phase 5 | Completed |
+| TIMER-BE-01 | — | Pending |
+| TIMER-BE-02 | — | Pending |
+| TIMER-BE-03 | — | Pending |
+| TIMER-BE-04 | — | Pending |
+| TIMER-BE-05 | — | Pending |
+| TIMER-FE-01 | — | Pending |
+| TIMER-FE-02 | — | Pending |
+| TIMER-FE-03 | — | Pending |
+| TIMER-FE-04 | — | Pending |
+| TIMER-FE-05 | — | Pending |
 
 **Coverage:**
-- v1.2 requirements: 8 total
-- Mapped to phases: 8
-- Unmapped: 0
+- v1.3 requirements: 10 total
+- Mapped to phases: 0
+- Unmapped: 10 ⚠️
 
 ---
-*Requirements defined: 2026-02-28*
-*Last updated: 2026-03-01 — Phase 6 完了に伴う更新*
+*Requirements defined: 2026-03-02*
+*Last updated: 2026-03-02 — initial definition*
