@@ -66,7 +66,8 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                         <button
                             key={role.value}
                             onClick={() => setSelectedRole(role.value)}
-                            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${selectedRole === role.value
+                            aria-pressed={selectedRole === role.value}
+                            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${selectedRole === role.value
                                 ? "border-indigo-600 bg-indigo-50"
                                 : "border-gray-200 hover:border-gray-300"
                                 }`}
@@ -80,7 +81,8 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                     <Button variant="outline" onClick={onClose} disabled={saving}>キャンセル</Button>
                     <Button
                         onClick={handleSave}
-                        disabled={saving || selectedRole === member?.role}
+                        disabled={selectedRole === member?.role}
+                        loading={saving}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
                         変更する
