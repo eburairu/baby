@@ -38,26 +38,24 @@
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TIMER-BE-01 | — | Pending |
-| TIMER-BE-02 | — | Pending |
-| TIMER-BE-03 | — | Pending |
-| TIMER-BE-04 | — | Pending |
-| TIMER-BE-05 | — | Pending |
-| TIMER-FE-01 | — | Pending |
-| TIMER-FE-02 | — | Pending |
-| TIMER-FE-03 | — | Pending |
-| TIMER-FE-04 | — | Pending |
-| TIMER-FE-05 | — | Pending |
+| TIMER-BE-01 | Phase 8 | Pending |
+| TIMER-BE-02 | Phase 8 | Pending |
+| TIMER-BE-03 | Phase 8 | Pending |
+| TIMER-BE-04 | Phase 8 | Pending |
+| TIMER-BE-05 | Phase 8 | Pending |
+| TIMER-FE-01 | Phase 9 | Pending |
+| TIMER-FE-02 | Phase 9 | Pending |
+| TIMER-FE-03 | Phase 10 | Pending |
+| TIMER-FE-04 | Phase 10 | Pending |
+| TIMER-FE-05 | Phase 10 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 ⚠️
+- Mapped to phases: 10
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 — initial definition*
+*Last updated: 2026-03-02 — traceability updated (Phase 8-10)*

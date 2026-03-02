@@ -5,6 +5,7 @@
 - [x] **v1.0 ダッシュボードUIのハニカム構造化** — Phase 1-3 (完了)
 - [x] **v1.1 赤ちゃん情報ウィジェット** — Phase 4 (完了)
 - [x] **v1.2 経過時間インジケーター** — Phase 5-7 (完了)
+- [ ] **v1.3 タイマー共有** — Phase 8-10 (進行中)
 
 ---
 
@@ -95,6 +96,54 @@ Plans:
 
 ---
 
+## v1.3 タイマー共有 — Phase 8-10
+
+**Milestone Goal:** 陣痛タイマー・授乳タイマーの状態をバックエンドで管理し、家族間でポーリング同期することで別デバイスからも同じタイマーを操作できる
+
+## Phases
+
+- [ ] **Phase 8: バックエンドタイマーAPI** - 陣痛・授乳タイマー状態をDBで管理するCRUD APIを実装する
+- [ ] **Phase 9: 陣痛タイマーポーリング同期** - contractionStore をバックエンドAPI連携に切り替え、家族間同期を実現する
+- [ ] **Phase 10: 授乳タイマーポーリング同期** - useFeedingTimer をバックエンドAPI連携に切り替え、家族間同期を実現する
+
+## Phase Details
+
+### Phase 8: バックエンドタイマーAPI
+**Goal:** 陣痛・授乳タイマーの状態をバックエンドに保存・取得・更新できる
+**Depends on:** Phase 7
+**Requirements:** TIMER-BE-01, TIMER-BE-02, TIMER-BE-03, TIMER-BE-04, TIMER-BE-05
+**Success Criteria** (what must be TRUE):
+  1. `GET /api/babies/{baby_id}/timer/contraction` が陣痛タイマーの status と start_time を返す
+  2. `PUT /api/babies/{baby_id}/timer/contraction` で status を idle/timing に更新でき、別ユーザーが GET すると更新後の値が返る
+  3. `GET /api/babies/{baby_id}/timer/feeding` が active_side・左右累積秒数・アクティブ区間開始時刻を返す
+  4. `PUT /api/babies/{baby_id}/timer/feeding` で授乳タイマー状態を更新でき、別ユーザーが GET すると更新後の値が返る
+  5. 別家族のユーザーが baby_id にアクセスすると 403 が返り、データが保護されている
+**Plans:** TBD
+
+### Phase 9: 陣痛タイマーポーリング同期
+**Goal:** ユーザーが陣痛タイマーを操作すると即座にバックエンドに書き込まれ、別デバイスのユーザーが3秒以内に同じ状態を確認できる
+**Depends on:** Phase 8
+**Requirements:** TIMER-FE-01, TIMER-FE-02
+**Success Criteria** (what must be TRUE):
+  1. 陣痛タイマーページを開いたとき、バックエンドの現在状態（開始済み/停止中）が表示される
+  2. 「開始」ボタンを押すと即座にバックエンドに状態が書き込まれ、別デバイスで3秒以内に「計測中」として表示される
+  3. 「停止」ボタンを押すと即座にバックエンドに書き込まれ、別デバイスで3秒以内にタイマーが停止として表示される
+  4. ページを開いたままにすると3秒ごとにバックエンドから状態を取得しUIが自動更新される
+**Plans:** TBD
+
+### Phase 10: 授乳タイマーポーリング同期
+**Goal:** ユーザーが授乳タイマーを操作すると即座にバックエンドに書き込まれ、別デバイスのユーザーが3秒以内に同じ状態・経過時間を確認できる
+**Depends on:** Phase 9
+**Requirements:** TIMER-FE-03, TIMER-FE-04, TIMER-FE-05
+**Success Criteria** (what must be TRUE):
+  1. 授乳記録フォームを開いたとき、バックエンドの現在状態（どちら側が計測中か・累積時間）が表示される
+  2. 左右の切り替えや一時停止操作が即座にバックエンドに書き込まれる
+  3. デバイスAで授乳タイマーを開始すると、デバイスBで3秒以内に同じタイマーが計測中として表示される
+  4. デバイスAで計測中のタイマーをデバイスBから一時停止すると、デバイスAの画面でも3秒以内に停止状態に更新される
+**Plans:** TBD
+
+---
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -106,5 +155,8 @@ Plans:
 | 5. バックエンド閾値API | v1.2 | 2/2 | 完了 | 2026-02-28 |
 | 6. フロントエンドインジケーター | v1.2 | 4/4 | 完了 | 2026-03-01 |
 | 7. 閾値設定UI | v1.2 | 1/1 | 完了 | 2026-03-01 |
+| 8. バックエンドタイマーAPI | v1.3 | 0/? | Not started | - |
+| 9. 陣痛タイマーポーリング同期 | v1.3 | 0/? | Not started | - |
+| 10. 授乳タイマーポーリング同期 | v1.3 | 0/? | Not started | - |
 
-**Coverage v1.2:** 8/8 requirements mapped
+**Coverage v1.3:** 10/10 requirements mapped
