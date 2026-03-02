@@ -25,11 +25,16 @@ export function LandingCTA({ isLoggedIn = false }: LandingCTAProps) {
                             </Button>
                         </Link>
                     ) : (
-                        <Link href="/register">
-                            <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-700 rounded-2xl shadow-xl dark:shadow-none transition-all">
-                                今すぐ無料で始める
-                            </Button>
-                        </Link>
+                        <div className="flex flex-col items-center gap-3 w-full sm:w-auto">
+                            <Link href="/register" className="w-full sm:w-auto">
+                                <Button className="w-full sm:w-auto h-14 px-12 text-lg font-bold bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white hover:bg-indigo-50 dark:hover:bg-indigo-700 rounded-2xl shadow-xl dark:shadow-none transition-all">
+                                    今すぐ無料で始める
+                                </Button>
+                            </Link>
+                            <p className="text-sm font-medium text-indigo-200 dark:text-indigo-300">
+                                ✨ 1分で簡単登録 ・ クレジットカード不要
+                            </p>
+                        </div>
                     )}
                 </div>
             </div>
