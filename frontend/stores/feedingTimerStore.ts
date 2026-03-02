@@ -74,6 +74,8 @@ export const useFeedingTimerStore = create<FeedingTimerState>((set, get) => ({
 
     let extraLeft = 0
     let extraRight = 0
+    let nowForNextSegment: Date | null = null
+
     if (activeSide && startTimeDate) {
       const now = new Date()
       const elapsed = Math.round((now.getTime() - startTimeDate.getTime()) / 1000)
@@ -82,13 +84,15 @@ export const useFeedingTimerStore = create<FeedingTimerState>((set, get) => ({
       } else {
         extraRight = elapsed
       }
+      // クライアント時刻を次の計測セグメントの開始点にする
+      nowForNextSegment = now
     }
 
     set({
       activeSide,
       leftElapsedSeconds: leftElapsed + extraLeft,
       rightElapsedSeconds: rightElapsed + extraRight,
-      segmentStartTime: startTimeDate,
+      segmentStartTime: nowForNextSegment || startTimeDate,
     })
   },
 
@@ -116,10 +120,19 @@ export const useFeedingTimerStore = create<FeedingTimerState>((set, get) => ({
   },
 
   setLeftSeconds: (seconds: number) => {
-    set({ leftElapsedSeconds: seconds })
+    const { activeSide } = get()
+    set({
+      leftElapsedSeconds: seconds,
+      // タイマー稼働中ならセグメント開始時刻をリセットして跳ねを防止
+      segmentStartTime: activeSide ? new Date() : get().segmentStartTime,
+    })
   },
 
   setRightSeconds: (seconds: number) => {
-    set({ rightElapsedSeconds: seconds })
+    const { activeSide } = get()
+    set({
+      rightElapsedSeconds: seconds,
+      segmentStartTime: activeSide ? new Date() : get().segmentStartTime,
+    })
   },
 }))

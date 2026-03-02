@@ -1758,16 +1758,10 @@ export interface components {
         FeedingTimerUpdate: {
             /** Active Side */
             active_side?: ("LEFT" | "RIGHT") | null;
-            /**
-             * Left Elapsed Seconds
-             * @default 0
-             */
-            left_elapsed_seconds: number;
-            /**
-             * Right Elapsed Seconds
-             * @default 0
-             */
-            right_elapsed_seconds: number;
+            /** Left Elapsed Seconds */
+            left_elapsed_seconds?: number | null;
+            /** Right Elapsed Seconds */
+            right_elapsed_seconds?: number | null;
             /** Segment Start Time */
             segment_start_time?: string | null;
         };
