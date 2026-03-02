@@ -31,10 +31,10 @@ describe('useFeedingTimerSync', () => {
     const segmentStartTime = new Date(now.getTime() - 10000)
 
     const mockData = {
-      activeSide: 'LEFT',
-      leftElapsedSeconds: 10,
-      rightElapsedSeconds: 20,
-      segmentStartTime: segmentStartTime.toISOString(),
+      active_side: 'LEFT',
+      left_elapsed_seconds: 10,
+      right_elapsed_seconds: 20,
+      segment_start_time: segmentStartTime.toISOString(),
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
