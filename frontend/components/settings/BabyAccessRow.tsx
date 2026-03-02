@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useId } from "react"
 import { Baby, ChevronDown, ChevronUp } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,8 @@ interface Props {
 export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [saving, setSaving] = useState(false)
+  const uniqueId = useId()
+  const detailsId = `access-details-${uniqueId}`
 
   const hasBabyAccess = babyAccess.permissions["baby"] === true
   const hasAllAccess = Object.values(babyAccess.permissions).every((v) => v === true)
@@ -84,8 +86,11 @@ export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
           )}
 
           <button
+            type="button"
             onClick={() => setExpanded(!expanded)}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300"
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
             aria-label={expanded ? "折りたたむ" : "詳細設定を開く"}
           >
             {expanded ? (
@@ -99,7 +104,7 @@ export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
 
       {/* 展開時: 記録タイプ別トグル */}
       {expanded && (
-        <div className="px-3 pb-3 border-t border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950/40">
+        <div id={detailsId} className="px-3 pb-3 border-t border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950/40">
           <div className="grid grid-cols-2 gap-2 mt-3">
             {Object.entries(babyAccess.permissions).map(([rt, canView]) => (
               <div
