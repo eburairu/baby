@@ -9,6 +9,15 @@ class AdminStats(BaseModel):
     total_records: int
     active_users_last_24h: int
 
+class FamilyCreateAdmin(BaseModel):
+    name: str
+
+class FamilyCreateResponseAdmin(BaseModel):
+    id: int
+    name: str
+    invite_code: str
+    created_at: datetime
+
 class FamilyAdminResponse(BaseModel):
     id: int
     name: str

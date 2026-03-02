@@ -21,33 +21,33 @@
 ## ユーザーストーリー
 
 - **今日の流れを家族に共有したい**
-    - ユーザーは、仕事中のパートナーに「今日の赤ちゃんがどんな様子だったか」を短い文章で伝えたい。
-    - **Acceptance Criteria**: 記録に基づいた日誌がワンタップで生成され、共有できること。
+  - ユーザーは、仕事中のパートナーに「今日の赤ちゃんがどんな様子だったか」を短い文章で伝えたい。
+  - **Acceptance Criteria**: 記録に基づいた日誌がワンタップで生成され、共有できること。
 
 - **過去の記録を楽しく振り返りたい**
-    - ユーザーは、数ヶ月後に「この時期はどんな感じだったかな」とカレンダー感覚で振り返りたい。
-    - **Acceptance Criteria**: 日付ごとにまとめられた日誌一覧（`/diary`）が閲覧できること。
+  - ユーザーは、数ヶ月後に「この時期はどんな感じだったかな」とカレンダー感覚で振り返りたい。
+  - **Acceptance Criteria**: 日付ごとにまとめられた日誌一覧（`/diary`）が閲覧できること。
 
 - **手動で日記を残したい・修正したい**
-    - ユーザーは、AIが生成した文章に自分の感想を加えたり、AIが生成していない日でも自分で日記を書きたい。
-    - **Acceptance Criteria**: 生成済みの日誌を編集でき、編集済みフラグ（`is_edited`）が管理されること。
+  - ユーザーは、AIが生成した文章に自分の感想を加えたり、AIが生成していない日でも自分で日記を書きたい。
+  - **Acceptance Criteria**: 生成済みの日誌を編集でき、編集済みフラグ（`is_edited`）が管理されること。
 
 - **思い出の写真を残したい**
-    - ユーザーは、日誌と一緒にその日のベストショットを残したい。
-    - **Acceptance Criteria**: 日誌編集時に写真をアップロードでき、日誌詳細で閲覧できること。
+  - ユーザーは、日誌と一緒にその日のベストショットを残したい。
+  - **Acceptance Criteria**: 日誌編集時に写真をアップロードでき、日誌詳細で閲覧できること。
 
 ---
 
 ## 用語定義
 
-| 用語 | 定義 |
-|------|------|
-| `generated_content` | AI が生成した日誌テキスト（不変） |
-| `edited_content` | ユーザーが手動編集したテキスト（nullable） |
-| `display_content` | 表示用テキスト。`edited_content ?? generated_content` |
-| `is_edited` | `edited_content` が存在する場合 `true` |
-| `summary_date` | 日誌の対象日（`YYYY-MM-DD`、タイムゾーンは JST） |
-| `image_urls` | 添付された画像のURLリスト（JSON配列） |
+| 用語                | 定義                                                  |
+| ------------------- | ----------------------------------------------------- |
+| `generated_content` | AI が生成した日誌テキスト（不変）                     |
+| `edited_content`    | ユーザーが手動編集したテキスト（nullable）            |
+| `display_content`   | 表示用テキスト。`edited_content ?? generated_content` |
+| `is_edited`         | `edited_content` が存在する場合 `true`                |
+| `summary_date`      | 日誌の対象日（`YYYY-MM-DD`、タイムゾーンは JST）      |
+| `image_urls`        | 添付された画像のURLリスト（JSON配列）                 |
 
 ---
 
@@ -85,31 +85,65 @@ class DailySummary(Base):
 
 ### API エンドポイント
 
-| メソッド | パス | 概要 |
-|---------|-----|------|
-| `POST` | `/api/babies/{baby_id}/daily-summary` | 日誌の AI 生成（詳細は `ai_daily_summary.md`） |
-| `GET` | `/api/babies/{baby_id}/daily-summary` | 日誌一覧取得（**直近30件**、日付降順、`image_urls` 含む） |
-| `GET` | `/api/babies/{baby_id}/daily-summary/{date}` | 指定日の日誌取得（`image_urls` 含む） |
-| `PATCH` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の手動編集（`edited_content`, `image_urls` 更新） |
-| `DELETE` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の削除 |
+| メソッド | パス                                         | 概要                                                      |
+| -------- | -------------------------------------------- | --------------------------------------------------------- |
+| `POST`   | `/api/babies/{baby_id}/daily-summary`        | 日誌の AI 生成（詳細は `ai_daily_summary.md`）            |
+| `GET`    | `/api/babies/{baby_id}/daily-summary`        | 日誌一覧取得（**直近30件**、日付降順、`image_urls` 含む） |
+| `GET`    | `/api/babies/{baby_id}/daily-summary/{date}` | 指定日の日誌取得（`image_urls` 含む）                     |
+| `PATCH`  | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の手動編集（`edited_content`, `image_urls` 更新）     |
+| `DELETE` | `/api/babies/{baby_id}/daily-summary/{date}` | 日誌の削除                                                |
 
 ※ `PATCH` リクエストの詳細は `DailySummaryEdit` スキーマを参照。`image_urls` フィールドで画像リストの順序変更や削除を反映する。
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+// POST リクエスト
+interface DailySummaryCreate {
+  summary_date: string; // YYYY-MM-DD
+}
+
+// PATCH リクエスト
+interface DailySummaryEdit {
+  edited_content?: string | null;
+  image_urls?: string[];
+}
+
+// レスポンス
+interface DailySummaryResponse {
+  id: number;
+  baby_id: number;
+  user_id: number | null;
+  summary_date: string; // YYYY-MM-DD
+  generated_content: string;
+  edited_content: string | null;
+  is_edited: boolean;
+  model_name: string | null;
+  image_urls: string[];
+  created_at: string; // ISO 8601
+  updated_at: string; // ISO 8601
+  display_content: string;
+}
+```
 
 ---
 
 ## フロントエンド設計
 
 ### 1. ダッシュボードウィジェット (`DiaryWidget`)
+
 - 最新（今日または直近）の日誌の内容を一部表示。
 - アクション: 全文表示（ダイアログまたはページ遷移）。
 
 ### 2. 日誌一覧ページ (`/diary`)
+
 - カレンダーまたはリスト形式で過去の日誌を表示（**直近30日分のみ**）。
 - 未来の日付は選択不可。
 - 「日誌を生成」ボタンにより AI 生成プロセスを開始。
 - リスト表示時、画像がある場合はサムネイルアイコンを表示。
 
 ### 3. 編集ダイアログ (`DiaryEditDialog`)
+
 - テキストエリアによる編集。空欄保存で AI 生成内容にリセット。
 - 画像アップロード、並び替え、削除 UI を提供（詳細は `diary_image_upload.md`）。
 

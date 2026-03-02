@@ -31,7 +31,8 @@ export interface paths {
         /** Get Admin Families */
         get: operations["get_admin_families_api_admin_families_get"];
         put?: never;
-        post?: never;
+        /** Create Admin Family */
+        post: operations["create_admin_family_api_admin_families_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -415,6 +416,42 @@ export interface paths {
         put?: never;
         /** Create Record */
         post: operations["create_record_api_babies__baby_id__records_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/timer/contraction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Contraction Timer */
+        get: operations["get_contraction_timer_api_babies__baby_id__timer_contraction_get"];
+        /** Put Contraction Timer */
+        put: operations["put_contraction_timer_api_babies__baby_id__timer_contraction_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/timer/feeding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Feeding Timer */
+        get: operations["get_feeding_timer_api_babies__baby_id__timer_feeding_get"];
+        /** Put Feeding Timer */
+        put: operations["put_feeding_timer_api_babies__baby_id__timer_feeding_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1409,6 +1446,26 @@ export interface components {
             /** User Id */
             user_id: number;
         };
+        /** ContractionTimerResponse */
+        ContractionTimerResponse: {
+            /** Start Time */
+            start_time: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "idle" | "timing";
+        };
+        /** ContractionTimerUpdate */
+        ContractionTimerUpdate: {
+            /** Start Time */
+            start_time?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "idle" | "timing";
+        };
         /** ContractionUpdate */
         ContractionUpdate: {
             /** Duration Seconds */
@@ -1547,6 +1604,25 @@ export interface components {
             /** Username */
             username: string;
         };
+        /** FamilyCreateAdmin */
+        FamilyCreateAdmin: {
+            /** Name */
+            name: string;
+        };
+        /** FamilyCreateResponseAdmin */
+        FamilyCreateResponseAdmin: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Invite Code */
+            invite_code: string;
+            /** Name */
+            name: string;
+        };
         /** FamilyDetailResponse */
         FamilyDetailResponse: {
             /** Babies */
@@ -1666,6 +1742,28 @@ export interface components {
             right_breast_minutes?: number | null;
             /** User Id */
             user_id: number;
+        };
+        /** FeedingTimerResponse */
+        FeedingTimerResponse: {
+            /** Active Side */
+            active_side: ("LEFT" | "RIGHT") | null;
+            /** Left Elapsed Seconds */
+            left_elapsed_seconds: number;
+            /** Right Elapsed Seconds */
+            right_elapsed_seconds: number;
+            /** Segment Start Time */
+            segment_start_time: string | null;
+        };
+        /** FeedingTimerUpdate */
+        FeedingTimerUpdate: {
+            /** Active Side */
+            active_side?: ("LEFT" | "RIGHT") | null;
+            /** Left Elapsed Seconds */
+            left_elapsed_seconds?: number | null;
+            /** Right Elapsed Seconds */
+            right_elapsed_seconds?: number | null;
+            /** Segment Start Time */
+            segment_start_time?: string | null;
         };
         /**
          * FeedingType
@@ -2358,6 +2456,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FamilyAdminResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_admin_family_api_admin_families_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyCreateAdmin"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyCreateResponseAdmin"];
                 };
             };
             /** @description Validation Error */
@@ -3272,6 +3403,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnifiedRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_contraction_timer_api_babies__baby_id__timer_contraction_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionTimerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_contraction_timer_api_babies__baby_id__timer_contraction_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractionTimerUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionTimerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_feeding_timer_api_babies__baby_id__timer_feeding_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingTimerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_feeding_timer_api_babies__baby_id__timer_feeding_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedingTimerUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingTimerResponse"];
                 };
             };
             /** @description Validation Error */

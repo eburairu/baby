@@ -57,6 +57,12 @@ try {
     worktreesDir
   ];
 
+  // 許可された特定のファイル
+  const allowedFiles = [
+    path.join(projectRoot, "GEMINI.md"),
+    path.join(projectRoot, "package.json"), // バージョンアップ等のため
+  ];
+
   let targetFilePath = null;
 
   // ツール引数からファイルパスを抽出（利用可能な場合）
@@ -105,7 +111,7 @@ try {
   if (targetFilePath) {
     const isAllowed = allowedDirs.some(dir => 
       targetFilePath === dir || targetFilePath.startsWith(dir + path.sep)
-    );
+    ) || allowedFiles.includes(targetFilePath);
 
     if (process.env.DEBUG_GUARDRAIL) {
       console.error(`対象ファイル: ${targetFilePath}`);
@@ -113,7 +119,7 @@ try {
     }
 
     if (!isAllowed) {
-      const reason = "エラー: AI エージェントによるルートディレクトリでの直接編集は禁止されています。\n必ず `sh scripts/setup_worktree.sh` を使用して作成した worktrees/ 配下のファイルを編集してください。\n例外として scripts/, .gemini/, .specify/, .planning/, ~/.gemini/ 配下での作業は許可されています。";
+      const reason = "エラー: AI エージェントによるルートディレクトリでの直接編集は禁止されています。\n必ず `sh scripts/setup_worktree.sh` を使用して作成した worktrees/ 配下のファイルを編集してください。\n例外として scripts/, .gemini/, .specify/, .planning/, GEMINI.md, package.json 配下での作業は許可されています。";
       console.error("\x1b[31m%s\x1b[0m", reason);
       outputResult({ decision: "deny", reason: reason });
     }

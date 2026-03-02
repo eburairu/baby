@@ -924,6 +924,65 @@
         "title": "ContractionResponse",
         "type": "object"
       },
+      "ContractionTimerResponse": {
+        "properties": {
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "status": {
+            "enum": [
+              "idle",
+              "timing"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "start_time"
+        ],
+        "title": "ContractionTimerResponse",
+        "type": "object"
+      },
+      "ContractionTimerUpdate": {
+        "properties": {
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "status": {
+            "enum": [
+              "idle",
+              "timing"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ContractionTimerUpdate",
+        "type": "object"
+      },
       "ContractionUpdate": {
         "properties": {
           "duration_seconds": {
@@ -1320,6 +1379,48 @@
           "password"
         ],
         "title": "FamilyCreate",
+        "type": "object"
+      },
+      "FamilyCreateAdmin": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "FamilyCreateAdmin",
+        "type": "object"
+      },
+      "FamilyCreateResponseAdmin": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "invite_code": {
+            "title": "Invite Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "invite_code",
+          "created_at"
+        ],
+        "title": "FamilyCreateResponseAdmin",
         "type": "object"
       },
       "FamilyDetailResponse": {
@@ -1738,6 +1839,108 @@
           "user_id"
         ],
         "title": "FeedingResponse",
+        "type": "object"
+      },
+      "FeedingTimerResponse": {
+        "properties": {
+          "active_side": {
+            "anyOf": [
+              {
+                "enum": [
+                  "LEFT",
+                  "RIGHT"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Side"
+          },
+          "left_elapsed_seconds": {
+            "title": "Left Elapsed Seconds",
+            "type": "integer"
+          },
+          "right_elapsed_seconds": {
+            "title": "Right Elapsed Seconds",
+            "type": "integer"
+          },
+          "segment_start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment Start Time"
+          }
+        },
+        "required": [
+          "active_side",
+          "left_elapsed_seconds",
+          "right_elapsed_seconds",
+          "segment_start_time"
+        ],
+        "title": "FeedingTimerResponse",
+        "type": "object"
+      },
+      "FeedingTimerUpdate": {
+        "properties": {
+          "active_side": {
+            "anyOf": [
+              {
+                "enum": [
+                  "LEFT",
+                  "RIGHT"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Side"
+          },
+          "left_elapsed_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Elapsed Seconds"
+          },
+          "right_elapsed_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Elapsed Seconds"
+          },
+          "segment_start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment Start Time"
+          }
+        },
+        "title": "FeedingTimerUpdate",
         "type": "object"
       },
       "FeedingType": {
@@ -3804,6 +4007,45 @@
         "tags": [
           "admin"
         ]
+      },
+      "post": {
+        "operationId": "create_admin_family_api_admin_families_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FamilyCreateAdmin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyCreateResponseAdmin"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Admin Family",
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/api/admin/families/{family_id}": {
@@ -5073,6 +5315,190 @@
         "summary": "Create Record",
         "tags": [
           "babies"
+        ]
+      }
+    },
+    "/api/babies/{baby_id}/timer/contraction": {
+      "get": {
+        "operationId": "get_contraction_timer_api_babies__baby_id__timer_contraction_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractionTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Contraction Timer",
+        "tags": [
+          "timer"
+        ]
+      },
+      "put": {
+        "operationId": "put_contraction_timer_api_babies__baby_id__timer_contraction_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContractionTimerUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractionTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Contraction Timer",
+        "tags": [
+          "timer"
+        ]
+      }
+    },
+    "/api/babies/{baby_id}/timer/feeding": {
+      "get": {
+        "operationId": "get_feeding_timer_api_babies__baby_id__timer_feeding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedingTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Feeding Timer",
+        "tags": [
+          "timer"
+        ]
+      },
+      "put": {
+        "operationId": "put_feeding_timer_api_babies__baby_id__timer_feeding_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedingTimerUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedingTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Feeding Timer",
+        "tags": [
+          "timer"
         ]
       }
     },
