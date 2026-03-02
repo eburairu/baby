@@ -85,10 +85,20 @@ def put_feeding_timer(
     if state is None:
         state = FeedingTimerState(baby_id=baby_id)
         db.add(state)
-    state.active_side = body.active_side
-    state.left_elapsed_seconds = body.left_elapsed_seconds
-    state.right_elapsed_seconds = body.right_elapsed_seconds
-    state.segment_start_time = body.segment_start_time
+
+    # 送信された（Noneでない）フィールドのみを更新
+    if body.active_side is not None or "active_side" in body.model_fields_set:
+        state.active_side = body.active_side
+    
+    if body.left_elapsed_seconds is not None:
+        state.left_elapsed_seconds = body.left_elapsed_seconds
+    
+    if body.right_elapsed_seconds is not None:
+        state.right_elapsed_seconds = body.right_elapsed_seconds
+    
+    if body.segment_start_time is not None or "segment_start_time" in body.model_fields_set:
+        state.segment_start_time = body.segment_start_time
+        
     db.commit()
     db.refresh(state)
     return state
