@@ -80,8 +80,13 @@
 **ファイル**: `frontend/app/(dashboard)/settings/page.tsx`
 
 - 既存セクション（一般・アカウント・管理・ログアウト）の末尾に第3セクション「アプリ情報」を追加
+- **Botoro について**:
+  - アイコン: `Heart` (Lucide React, Indigo)
+  - タイトル: 「Botoro について」
+  - 説明テキスト: 「アプリの紹介を見る」
+  - クリックで `/about` ページへ遷移
 - **バージョン情報カード**:
-  - アイコン: `Info`（Lucide React）
+  - アイコン: `Info`（Lucide React, Slate）
   - タイトル: 「バージョン情報」
   - 説明テキスト: `v{バージョン番号}`（例: `v1.19.1`）
   - クリックで `AppInfoDialog` を開く
