@@ -5,6 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 import logging
+import secrets
 from app.core.constants import MAX_PAGINATION_LIMIT
 
 from app.database import SessionLocal
@@ -27,7 +28,9 @@ from app.schemas.admin import (
     FamilyDetailResponse, 
     AdminFamilyMemberResponse, 
     BabyAdminResponse, 
-    AuditLogResponse
+    AuditLogResponse,
+    FamilyCreateAdmin,
+    FamilyCreateResponseAdmin
 )
 from app.utils.audit import log_event
 
@@ -109,6 +112,48 @@ def get_admin_families(
             created_at=f.created_at
         ))
     return result
+
+@router.post("/families", response_model=FamilyCreateResponseAdmin)
+def create_admin_family(
+    family_in: FamilyCreateAdmin,
+    request: Request,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_superadmin)
+):
+    if not family_in.name.strip():
+        raise HTTPException(status_code=422, detail="Family name cannot be empty")
+
+    invite_code = secrets.token_hex(8).upper()
+    while db.query(Family).filter(Family.invite_code == invite_code).first():
+        invite_code = secrets.token_hex(8).upper()
+
+    new_family = Family(name=family_in.name.strip(), invite_code=invite_code)
+    db.add(new_family)
+    db.flush()
+
+    log_event(
+        db,
+        "ADMIN_CREATE_FAMILY",
+        user_id=admin.id,
+        details={
+            "family_id": new_family.id,
+            "family_name": new_family.name,
+            "invite_code": invite_code
+        },
+        ip_address=request.client.host if request.client else None,
+        commit=False
+    )
+
+    db.commit()
+    db.refresh(new_family)
+
+    logger.info("Family created by Admin: family_id=%s, name='%s', by admin_id=%s", new_family.id, new_family.name, admin.id)
+    return FamilyCreateResponseAdmin(
+        id=new_family.id,
+        name=new_family.name,
+        invite_code=new_family.invite_code,
+        created_at=new_family.created_at
+    )
 
 @router.get("/families/{family_id}", response_model=FamilyDetailResponse)
 def get_admin_family_detail(
