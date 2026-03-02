@@ -22,14 +22,12 @@ export const HEX_CONSTANTS = {
   POINTY_W_TO_H: Math.sqrt(3) / 2, // 0.866
   // Flat-topped の場合の幅と高さの比率 (height/width)
   FLAT_H_TO_W: Math.sqrt(3) / 2,
-  // プロジェクト標準の角丸値
-  DEFAULT_CORNER_RADIUS: 12,
 };
 
 export const Hexagon = ({
   children,
   size = 100,
-  cornerRadius = HEX_CONSTANTS.DEFAULT_CORNER_RADIUS,
+  cornerRadius,
   pointy = true,
   color = "currentColor",
   borderColor = "transparent",
@@ -44,8 +42,11 @@ export const Hexagon = ({
     const R = (size - borderWidth) / 2 - 2;
 
     const maxRadius = (R * Math.sqrt(3)) / 2;
-    const r = Math.min(Math.max(0, cornerRadius), maxRadius);
-    const offset = pointy ? -Math.PI / 2 : 0; // 上を頂点にするための調整
+    // 明示的な指定がない場合は size の 12% をデフォルト値とする
+    const effectiveCornerRadius = cornerRadius !== undefined ? cornerRadius : size * 0.12;
+    const r = Math.min(Math.max(0, effectiveCornerRadius), maxRadius);
+    const offset = pointy ? -Math.PI / 2 : 0; // 上 を頂点にするための調整
+
 
     const getPoint = (i: number) => {
       const angle = offset + (i % 6) * (Math.PI / 3);
