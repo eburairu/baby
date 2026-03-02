@@ -9,9 +9,9 @@ CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
 # show-toplevel/.git がディレクトリ → ルートリポジトリ
 # show-toplevel/.git がファイル    → git worktree（ブロックしない）
 if [ -d "$TOPLEVEL/.git" ] && { [ "$CURRENT_BRANCH" = "develop" ] || [ "$CURRENT_BRANCH" = "main" ]; }; then
-  # stdin から編集対象ファイルパスを取得
+  # stdin から編集対象ファイルパスを取得（tool_input.file_path）
   INPUT=$(cat)
-  FILE_PATH=$(echo "$INPUT" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('file_path', ''))" 2>/dev/null || true)
+  FILE_PATH=$(echo "$INPUT" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('tool_input', {}).get('file_path', ''))" 2>/dev/null || true)
 
   # 絶対パスをリポジトリルートからの相対パスに変換
   if [ -n "$TOPLEVEL" ]; then
