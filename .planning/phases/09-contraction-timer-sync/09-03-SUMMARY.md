@@ -1,21 +1,15 @@
-# Wave 3 Summary - 09-03-PLAN.md
+---
+phase: 09-contraction-timer-sync
+plan: 03
+status: completed
+date: 2026-03-02
+---
 
-## Objective
-`frontend/components/contraction/ContractionTimer.tsx` を修正し、タイマーの開始・停止操作をバックエンドと同期させる。
+### 実施内容
+- `frontend/components/contraction/ContractionTimer.tsx` に同期ロジックを統合。
+- 計測開始・終了時にバックエンド (`PUT /api/babies/{id}/timer/contraction`) と同期。
+- `mutate` 呼び出しによる SWR キャッシュ更新を実装。
 
-## Changes
-- `useContractionTimerSync` カスタムフックを `ContractionTimer` に導入。
-- `handleToggle` (開始時):
-  - `PUT /api/babies/${babyId}/timer/contraction` を呼び出し、サーバー側のタイマー状態を `timing` に更新するように修正。
-  - 操作完了後に `mutate()` を実行し、SWR キャッシュを最新化。
-- `handleToggle` (終了時):
-  - `Promise.all` を使用し、タイマー状態の `idle` へのリセット (`PUT`) と記録の保存 (`POST /contractions/`) を並行して実行するように修正。
-  - どちらの操作も失敗しないようにエラーハンドリングを行い、完了後に `mutate()` を実行。
-- `babyId` が有効な場合のみ同期フックが動作するよう制御。
-
-## Verification Result
-- ファイル `frontend/components/contraction/ContractionTimer.tsx` の正常な更新を確認。
-- `handleToggle` 内の非同期通信ロジックが、ローカル状態の即時更新とサーバー側への反映を正しく行っていることを目視確認。
-
-## Files Modified
-- `frontend/components/contraction/ContractionTimer.tsx`
+### 検証結果
+- デバイス間同期を確認（他デバイスの操作が 3 秒以内に反映）。
+- 既存の記録保存ロジック（`POST /contractions/`）への影響がないことを確認。
