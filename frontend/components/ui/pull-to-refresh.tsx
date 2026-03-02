@@ -94,15 +94,23 @@ export function PullToRefresh({
                 style={{ opacity, scale, height: pullThreshold }}
                 className="absolute top-0 left-0 right-0 flex items-center justify-center pointer-events-none z-0"
             >
-                <div className="bg-white dark:bg-zinc-800 rounded-xl p-0.5 shadow-lg border border-slate-200 dark:border-zinc-700 overflow-hidden">
-                    <motion.div style={{ rotate: isRefreshing ? undefined : rotate }}>
-                        <Hexagon size={48} color="transparent" className="flex items-center justify-center relative">
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                <BabyBottleLoading className="w-6 h-6 text-primary" />
-                            </div>
-                        </Hexagon>
-                    </motion.div>
-                </div>
+                <motion.div 
+                    style={{ rotate: isRefreshing ? undefined : rotate }}
+                    className="drop-shadow-sm"
+                >
+                    <Hexagon 
+                        size={48} 
+                        color="white" 
+                        className="flex items-center justify-center relative dark:text-zinc-800"
+                        borderColor="rgba(226, 232, 240, 0.8)"
+                        borderWidth={1}
+                        cornerRadius={6}
+                    >
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <BabyBottleLoading className="w-6 h-6 text-primary" />
+                        </div>
+                    </Hexagon>
+                </motion.div>
             </motion.div>
 
             {/* Content Area */}
