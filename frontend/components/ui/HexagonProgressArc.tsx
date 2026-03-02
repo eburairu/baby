@@ -18,16 +18,14 @@ export function HexagonProgressArc({
   className,
 }: HexagonProgressArcProps) {
   const { svgWidth, svgHeight, viewBox, pathD } = useMemo(() => {
-    const cornerRadius = HEX_CONSTANTS.DEFAULT_CORNER_RADIUS
     const cx = size / 2
     const cy = size / 2
     // Hexagon.tsx の R = (size - borderWidth) / 2 - 2 に合わせる (borderWidth=0想定)
     const R = size / 2 - 2
-    
-    const maxRadius = (R * Math.sqrt(3)) / 2
-    const r = Math.min(Math.max(0, cornerRadius), maxRadius)
-    const offset = -Math.PI / 2 // pointy 固定
 
+    const maxRadius = (R * Math.sqrt(3)) / 2
+    const r = Math.min(Math.max(0, size * 0.12), maxRadius)
+    const offset = -Math.PI / 2 // pointy 固定
     const getPoint = (i: number) => {
       const angle = offset + (i % 6) * (Math.PI / 3)
       return { 

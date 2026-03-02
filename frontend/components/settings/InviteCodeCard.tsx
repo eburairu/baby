@@ -14,6 +14,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { api } from "@/lib/api"
+import { useClipboard } from "@/hooks/useClipboard"
 
 interface Props {
     inviteCode: string
@@ -22,13 +23,11 @@ interface Props {
 }
 
 export function InviteCodeCard({ inviteCode, isAdmin, onRegenerated }: Props) {
-    const [copied, setCopied] = useState(false)
+    const { copied, copyToClipboard } = useClipboard()
     const [regenerating, setRegenerating] = useState(false)
 
     const handleCopy = async () => {
-        await navigator.clipboard.writeText(inviteCode)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        await copyToClipboard(inviteCode)
     }
 
     const handleRegenerate = async () => {

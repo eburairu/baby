@@ -5,7 +5,7 @@
 
 ## Shape: Rounded Hexagon
 - **Geometry**: 正六角形（Regular Hexagon）
-- **Radius**: 角の丸み（Radius）を5%〜10%程度持たせ、刺々しさを排除する。
+- **Radius**: 角の丸み（Radius）はサイズに対して一定の割合（デフォルト 12%）とし、小さいサイズでも六角形の形状が維持されるようにする。刺々しさを排除しつつ、一貫したアスペクト比を保つ。
 - **Orientation**: 頂点が上下に来る（Pointy-topped）配置をデフォルトとする。
 
 ## Colors
