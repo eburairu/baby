@@ -27,8 +27,7 @@ import {
   SheetTitle,
   SheetDescription
 } from "@/components/ui/sheet";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
+import { formatPPP } from "@/lib/dateUtils";
 import { useState } from "react";
 
 interface FamilyAdminResponse {
@@ -98,7 +97,7 @@ function FamilyDetailSheet({
             {family && (
               <span className="flex items-center gap-2 text-sm">
                 <Calendar className="h-3.5 w-3.5" />
-                作成: {format(new Date(family.created_at), "PPP", { locale: ja })}
+                作成: {formatPPP(new Date(family.created_at))}
               </span>
             )}
           </SheetDescription>
@@ -169,7 +168,7 @@ function FamilyDetailSheet({
                         <span className="text-sm font-medium">{baby.name}</span>
                         {baby.birthday && (
                           <span className="text-xs text-muted-foreground">
-                            {format(new Date(baby.birthday), "PPP", { locale: ja })} 生まれ
+                            {formatPPP(new Date(baby.birthday))} 生まれ
                           </span>
                         )}
                       </div>
@@ -268,7 +267,7 @@ export default function AdminFamilies() {
                   <TableCell className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5" />
-                      {format(new Date(family.created_at), "PPP", { locale: ja })}
+                      {formatPPP(new Date(family.created_at))}
                     </div>
                   </TableCell>
                   <TableCell>

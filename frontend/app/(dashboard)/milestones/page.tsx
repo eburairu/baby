@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Image as ImageIcon, Calendar, ChevronRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
-import { format } from "date-fns"
+import { formatShortDate } from "@/lib/dateUtils"
 import Image from "next/image"
 import { useState } from "react"
 import { MilestoneForm } from "@/components/milestone/MilestoneForm"
@@ -103,7 +103,7 @@ export default function MilestonesPage() {
                                                             <h4 className="font-bold text-gray-900 dark:text-zinc-100 truncate">{m.title}</h4>
                                                             <div className="flex items-center gap-1 text-[10px] text-gray-400 flex-shrink-0">
                                                                 <Calendar className="h-2.5 w-2.5" />
-                                                                {format(new Date(m.achieved_date), 'MM/dd')}
+                                                                {formatShortDate(new Date(m.achieved_date))}
                                                             </div>
                                                         </div>
                                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
