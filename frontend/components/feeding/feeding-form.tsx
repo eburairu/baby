@@ -62,9 +62,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         formatTimer,
         totalSeconds
     } = useFeedingTimer({
-        babyId: isEditing ? null : babyId,
-        initialLeftMinutes: initialData?.left_breast_minutes ?? 0,
-        initialRightMinutes: initialData?.right_breast_minutes ?? 0
+        babyId: isEditing ? null : babyId
     })
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度

@@ -37,6 +37,7 @@ describe('useFeedingTimerSync', () => {
       segmentStartTime: segmentStartTime.toISOString(),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useSWR as any).mockReturnValue({
       data: mockData,
       mutate: vi.fn(),
@@ -56,6 +57,7 @@ describe('useFeedingTimerSync', () => {
   })
 
   it('should not sync if data is null', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useSWR as any).mockReturnValue({
       data: null,
       mutate: vi.fn(),

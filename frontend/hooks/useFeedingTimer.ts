@@ -7,8 +7,6 @@ export type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
 interface UseFeedingTimerProps {
   babyId: number | null
-  initialLeftMinutes?: number
-  initialRightMinutes?: number
 }
 
 /**
@@ -16,9 +14,7 @@ interface UseFeedingTimerProps {
  * Zustand ストア (`useFeedingTimerStore`) と連携し、バックエンドへの同期も行う。
  */
 export function useFeedingTimer({
-  babyId,
-  initialLeftMinutes = 0,
-  initialRightMinutes = 0
+  babyId
 }: UseFeedingTimerProps) {
     const {
         activeSide,
