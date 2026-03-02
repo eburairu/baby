@@ -1,6 +1,6 @@
+export * from "./ContractionEditDialog"
 export { default as ContractionHistory } from "./ContractionHistory"
-export { ContractionHistoryItem } from "./ContractionHistoryItem"
-export { ContractionEditDialog } from "./ContractionEditDialog"
+export * from "./ContractionHistoryItem"
 export { default as ContractionStats } from "./ContractionStats"
 export { default as ContractionTimer } from "./ContractionTimer"
 export { default as ContractionWaveGraph } from "./ContractionWaveGraph"

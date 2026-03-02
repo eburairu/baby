@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { formatPPP } from "@/lib/dateUtils";
+import { format } from "date-fns";
+import { ja } from "date-fns/locale";
 import { User } from "@/lib/types";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -105,7 +106,7 @@ export default function AdminUsers() {
                   <TableCell className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5" />
-                      {formatPPP(new Date(u.created_at))}
+                      {format(new Date(u.created_at), "PPP", { locale: ja })}
                     </div>
                   </TableCell>
                   <TableCell>
