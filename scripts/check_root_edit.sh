@@ -9,6 +9,21 @@ CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
 # show-toplevel/.git がディレクトリ → ルートリポジトリ
 # show-toplevel/.git がファイル    → git worktree（ブロックしない）
 if [ -d "$TOPLEVEL/.git" ] && { [ "$CURRENT_BRANCH" = "develop" ] || [ "$CURRENT_BRANCH" = "main" ]; }; then
+  # stdin から編集対象ファイルパスを取得（tool_input.file_path）
+  INPUT=$(cat)
+  FILE_PATH=$(echo "$INPUT" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('tool_input', {}).get('file_path', ''))" 2>/dev/null || true)
+
+  # 絶対パスをリポジトリルートからの相対パスに変換
+  if [ -n "$TOPLEVEL" ]; then
+    FILE_PATH="${FILE_PATH#$TOPLEVEL/}"
+  fi
+
+  # .planning/ / .specify/ / scripts/ 配下は develop での直接編集を許可
+  # worktrees/ 配下はワークツリーでの作業なので許可
+  if echo "$FILE_PATH" | grep -qE '^(\.planning|\.specify|scripts|worktrees)/'; then
+    exit 0
+  fi
+
   echo "❌ ルートリポジトリの '$CURRENT_BRANCH' ブランチを直接編集できません。"
   echo "   先にワークツリーを作成してください:"
   echo "   sh scripts/setup_worktree.sh feat/your-feature-name"

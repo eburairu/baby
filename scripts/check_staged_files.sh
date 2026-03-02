@@ -5,7 +5,8 @@
 
 # ============================================================
 # ルートリポジトリの保護ブランチへの直接コミットをブロック
-# ただし、仕様書（.specify/specs/）の更新のみの場合は許可する
+# ただし、仕様書（.specify/specs/）・設計ドキュメント（.planning/）・スクリプト（scripts/）
+# のみの変更の場合は許可する
 # ============================================================
 TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null)
 CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
@@ -14,13 +15,13 @@ PROTECTED_BRANCHES=("develop" "main")
 # ステージングされたファイル一覧を取得
 STAGED_FILES=$(git diff --cached --name-only)
 
-# すべてが仕様書（.specify/specs/）または設計ドキュメント（.planning/）配下かどうかを判定
+# すべてが仕様書（.specify/specs/）・設計ドキュメント（.planning/）・スクリプト（scripts/）配下かどうかを判定
 ONLY_SPECS=true
 if [ -z "$STAGED_FILES" ]; then
   ONLY_SPECS=false
 else
   for file in $STAGED_FILES; do
-    if [[ ! "$file" =~ ^\.specify/specs/ ]] && [[ ! "$file" =~ ^\.planning/ ]]; then
+    if [[ ! "$file" =~ ^\.specify/specs/ ]] && [[ ! "$file" =~ ^\.planning/ ]] && [[ ! "$file" =~ ^scripts/ ]]; then
       ONLY_SPECS=false
       break
     fi
@@ -39,7 +40,7 @@ if [ "$ONLY_SPECS" = "false" ] && [ -d "$TOPLEVEL/.git" ]; then
 fi
 
 if [ "$ONLY_SPECS" = "true" ] && [ -d "$TOPLEVEL/.git" ]; then
-  echo "ℹ️  通知: 仕様書または設計ドキュメントの更新のみであるため、'$CURRENT_BRANCH' ブランチへの直接コミットを許可します。"
+  echo "ℹ️  通知: 仕様書・設計ドキュメント・スクリプトの更新のみであるため、'$CURRENT_BRANCH' ブランチへの直接コミットを許可します。"
 fi
 
 FORBIDDEN_PATTERNS=(".venv" "node_modules" "worktrees/")
