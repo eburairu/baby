@@ -23,6 +23,8 @@ export function useRecordComments<T extends { id: number }>({
 
     // 初期ロード時に指定されたIDがあれば自動でダイアログを開く
     useEffect(() => {
+        let timerId: ReturnType<typeof setTimeout> | undefined;
+
         if (
             initialCommentRecordId &&
             records &&
@@ -33,9 +35,15 @@ export function useRecordComments<T extends { id: number }>({
             if (found) {
                 initializedRef.current = true
                 // レンダリング直後のステート更新を避けるために非同期化
-                setTimeout(() => {
+                timerId = setTimeout(() => {
                     setTarget({ id: found.id, title: getTitle(found) })
                 }, 0)
+            }
+        }
+
+        return () => {
+            if (timerId) {
+                clearTimeout(timerId);
             }
         }
     }, [initialCommentRecordId, records, getTitle])
