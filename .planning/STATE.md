@@ -1,79 +1,73 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: 赤ちゃん情報ウィジェット
-status: unknown
-last_updated: "2026-03-01T07:45:00.000Z"
+milestone: v1.3
+milestone_name: タイマー共有 — Phase 8-10
+status: in_progress
+last_updated: "2026-03-02T10:00:00Z"
 progress:
-  total_phases: 4
-  completed_phases: 4
+  total_phases: 3
+  completed_phases: 0
   total_plans: 9
-  completed_plans: 9
+  completed_plans: 3
 ---
 
-# プロジェクト・ステータス: Milestone v1.2
+# プロジェクト・ステータス: Milestone v1.3
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-28)
+See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** 家族全員が同じ記録を見ながら育児を分担できる
-**Current focus:** Phase 7 — 閾値設定UI (COMPLETE)
+**Current focus:** Milestone v1.3 — Phase 8 バックエンドタイマーAPI
 
 ## Current Position
 
-Phase: 7 of 7 (閾値設定UI)
-Plan: 1 of 1 in current phase — COMPLETE
-Status: Phase 7 complete, PR created (#538)
-Last activity: 2026-03-01 — 07-01 閾値設定UI実装完了
+Phase: 8 of 10 (バックエンドタイマーAPI)
+Plan: 3 of 3 complete
+Status: Phase Complete
+Last activity: 2026-03-02 — Plan 08-03 タイマーAPIルーター実装完了（Phase 8 全プラン完了）
 
-Progress: [██████████] 100% (v1.2)
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (v1.2)
-- Average duration: 15 min
-- Total execution time: 105 min
+- Total plans completed: 3 (v1.3)
+- Average duration: 7 minutes
+- Total execution time: 21 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 5 | 2/2 | 10 min | 5 min |
-| 6 | 4/4 | 38 min | 9.5 min |
-| 7 | 1/1 | 57 min | 57 min |
+| 08-backend-timer-api | 3/3 | 21 min | 7 min |
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
-### アーキテクチャ知見
+### Decisions
 
-- ハニカムUI: `Hexagon` コンポーネント (SVG path) が中心。`HexagonWidgetCard` が `Hexagon` をラップ
-- ウィジェットは `BaseWidgetProps` を受け取り、`records` から計算して表示
-- ダッシュボードページ (`dashboard/page.tsx`) が `selectedBaby` を持ちウィジェットに渡す
-- 赤ちゃんデータ: `babies[].birthday` から `calcAge()` で月齢を取得
-- 閾値保存先: Babyプロフィール（家族共有のためバックエンド必須）
-- インジケーター: `HexagonProgressArc` による六角形外周ストローク。`indicatorUtils` で比率・色・超過判定を管理。
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
 
-### Phase 6 実装ポイント
+- タイマー同期はポーリング（~3秒）。WebSocket は使わない
+- タイマー状態は baby_id に紐づく（家族内で正しい赤ちゃんの記録に紐づける）
+- [Phase 08-backend-timer-api]: タイマーAPIのエンドポイントパスは /api/babies/{baby_id}/timer/{type} に決定
+- [Phase 08-backend-timer-api]: テストは worktrees/feat/timer-api-tests ブランチで管理（TDD RED フェーズ完了）
+- [Phase 08-backend-timer-api Plan 03]: verify_baby_access は record_type="baby" を使用（"timer" では BabyPermission にエントリなく MEMBER が 403 になる）
+- [Phase 08-backend-timer-api Plan 03]: feat/timer-api-router に 2 ブランチをマージして 1 PR で 3 ブランチ分の成果物を統合
 
-- TDDによるロジックの堅牢性確保（`thresholdUtils`, `indicatorUtils`）
-- 1分ごとの `setInterval` による自動更新
-- 月齢ベースの自動閾値解決（WHOガイドライン準拠）
+### Pending Todos
 
-### Phase 7 実装ポイント
-- `BabyForm` に閾値（分）の入力フィールドを追加
-- `z.preprocess` と `z.union` による空文字 -> `null` (自動設定) 変換
-- `Resolver` キャストによる Zod/TypeScript の型推論不整合の解消
+None yet.
 
-### 注意点
+### Blockers/Concerns
 
-- TDD 必須: テスト先 → 実装 → Green → リファクタリング
-- `verify_all.sh` は PR 前必須（静的エクスポートビルドチェック含む）
-- フロントエンドは Static Export — SSR/Server Components 不可
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Phase 7 (07-01-PLAN.md) 完了（PR作成済み #538）
+Last session: 2026-03-02
+Stopped at: Completed 08-backend-timer-api-03-PLAN.md — タイマーAPIルーター実装完了（Phase 8 全プラン完了）
 Resume file: None
