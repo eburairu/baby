@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { formatDateLocal } from "@/lib/dateUtils"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,7 @@ import { Milestone } from "@/types/milestone"
 import { milestoneSchema, MilestoneFormValues } from "@/schemas/milestone"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 import { MILESTONE_PRESETS } from "@/constants/milestone"
+import { MilestoneTitleField } from "./MilestoneTitleField"
 
 interface MilestoneFormProps {
     babyId: number
@@ -69,8 +70,6 @@ export function MilestoneForm({
         defaultValues,
         values: defaultValues,
     })
-
-    const milestoneType = useWatch({ control: form.control, name: "milestone_type" })
 
     const { submitRecord, isSubmitting } = useBaseRecordForm<MilestoneFormValues>({
         endpoint: `/milestones/`,
@@ -140,23 +139,7 @@ export function MilestoneForm({
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>タイトル</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="例: 初めて寝返りをした！"
-                                            {...field}
-                                            disabled={milestoneType !== "custom" && !!milestoneType}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <MilestoneTitleField form={form} />
 
                         <FormField
                             control={form.control}
