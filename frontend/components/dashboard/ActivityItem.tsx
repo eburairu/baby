@@ -5,7 +5,17 @@ import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User, StickyNote } from "lucide-react"
 import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS } from "@/constants/ui"
 import { AppIcons } from "@/constants/icons"
+import { Hexagon } from "@/components/ui/hexagon"
 import { cn } from "@/lib/utils"
+
+const RECORD_TYPE_BG_COLORS: Record<string, string> = {
+    feeding: "text-orange-100 dark:text-orange-950/40",
+    sleep: "text-indigo-100 dark:text-indigo-950/40",
+    diaper: "text-amber-100 dark:text-amber-950/40",
+    growth: "text-green-100 dark:text-green-950/40",
+    note: "text-blue-100 dark:text-blue-950/40",
+    contraction: "text-orange-100 dark:text-orange-950/40",
+}
 
 interface ActivityItemProps {
     record: BabyRecord
@@ -16,9 +26,10 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
     const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
     const colorClass = RECORD_TYPE_COLORS[recordType as keyof typeof RECORD_TYPE_COLORS] || 'text-muted-foreground'
-    
+    const bgColorClass = RECORD_TYPE_BG_COLORS[recordType] || 'text-gray-100 dark:text-zinc-800'
+
     let LucideIcon = RECORD_TYPE_LUCIDE_ICONS[recordType]
-    
+
     // 授乳の場合は詳細タイプに応じてアイコンを切り替え
     if (recordType === 'feeding') {
         const feedingType = record.details?.feeding_type
@@ -29,6 +40,8 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
         }
     }
 
+    const IconComponent = LucideIcon ?? StickyNote
+
     return (
         <li>
             <button
@@ -37,10 +50,9 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
                 className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
                 onClick={() => onClick(record)}
             >
-                {LucideIcon
-                    ? <LucideIcon className={cn("h-5 w-5 shrink-0", colorClass)} aria-hidden="true" />
-                    : <StickyNote className={cn("h-5 w-5 shrink-0", colorClass)} aria-hidden="true" />
-                }
+                <Hexagon size={36} cornerRadius={6} className={cn("shrink-0", bgColorClass)}>
+                    <IconComponent className={cn("h-4 w-4", colorClass)} aria-hidden="true" />
+                </Hexagon>
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                         {label}
