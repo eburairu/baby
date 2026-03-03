@@ -73,7 +73,10 @@ export function NotificationItem({ notification, onRead, onClick }: Props) {
                 isProcessing && "opacity-70 cursor-wait"
             )}
         >
-            <div className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm">
+            <div
+                className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center bg-white dark:bg-zinc-800"
+                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+            >
                 {isProcessing ? (
                     <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
                 ) : (
