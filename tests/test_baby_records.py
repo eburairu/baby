@@ -46,7 +46,12 @@ def test_records_returns_older_records_when_single_type_exceeds_per_type_limit(a
     data = res.json()
 
     yesterday_str = yesterday.strftime("%Y-%m-%d")
-    older = [r["timestamp"] for r in data if r["timestamp"][:10] <= yesterday_str]
+    from dateutil import parser
+    older = []
+    for r in data:
+        dt = parser.parse(r["timestamp"]).astimezone(timezone.utc)
+        if dt.strftime("%Y-%m-%d") <= yesterday_str:
+            older.append(r["timestamp"])
     assert len(older) >= 1, "昨日以前の記録が返ってこない（各タイプのper-type limitバグ）"
 
 def test_baby_crud(auth_client):
