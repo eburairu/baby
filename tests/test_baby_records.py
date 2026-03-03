@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime, timedelta, timezone
+from app.routers.baby import JST
 
 
 def test_records_returns_older_records_when_single_type_exceeds_per_type_limit(auth_client):
@@ -20,11 +21,12 @@ def test_records_returns_older_records_when_single_type_exceeds_per_type_limit(a
     baby_id = res.json()["id"]
 
     now = datetime.now(timezone.utc)
-    yesterday = now - timedelta(days=1)
+    yesterday = now - timedelta(days=30)
 
     # 今日の授乳を21件作成（旧バグのper-type limit=20を超える）
     for i in range(21):
-        t = now - timedelta(minutes=i)
+        t = now - timedelta(days=i)
+        # Make sure earlier entries are distinct
         client.post("/api/feedings/", json={
             "baby_id": baby_id,
             "feeding_time": t.isoformat(),
@@ -46,7 +48,12 @@ def test_records_returns_older_records_when_single_type_exceeds_per_type_limit(a
     data = res.json()
 
     yesterday_str = yesterday.strftime("%Y-%m-%d")
-    older = [r["timestamp"] for r in data if r["timestamp"][:10] <= yesterday_str]
+    yesterday_str_jst = yesterday.astimezone(JST).strftime("%Y-%m-%d")
+    older = [r["timestamp"] for r in data if r["timestamp"][:10] <= yesterday_str_jst]
+    print("DATA", len(data))
+    print("OLDER", len(older))
+    for d in data:
+        print(d["timestamp"])
     assert len(older) >= 1, "昨日以前の記録が返ってこない（各タイプのper-type limitバグ）"
 
 def test_baby_crud(auth_client):
