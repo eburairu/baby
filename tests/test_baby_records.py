@@ -1,6 +1,54 @@
 import pytest
 from datetime import datetime, timedelta, timezone
 
+
+def test_records_returns_older_records_when_single_type_exceeds_per_type_limit(auth_client):
+    """per-typeクエリ上限(旧:DEFAULT_PAGINATION_LIMIT=20)を超える件数を今日投入したとき、
+    limit=100 で昨日の記録も返ること。
+
+    バグ再現:
+    各タイプのクエリに .limit(limit) をかけていたため、
+    フロントが limit=100 でリクエストしても feeding.limit(100) = 今日の上位100件のみとなり、
+    今日21件＋昨日1件のケースで旧 per-type limit=20 だと feeding.limit(20)=今日20件のみ取得。
+    → records[:100] には昨日の記録が含まれない。
+
+    修正後: 各タイプのクエリは MAX_PAGINATION_LIMIT=100 で取得するため、
+    今日21件＋昨日1件=22件を取得し limit=100 で全22件を返す。
+    """
+    client = auth_client()
+    res = client.post("/api/babies/", json={"name": "テスト太郎", "birthday": "2024-01-01"})
+    baby_id = res.json()["id"]
+
+    now = datetime.now(timezone.utc)
+    yesterday = now - timedelta(days=1)
+
+    # 今日の授乳を21件作成（旧バグのper-type limit=20を超える）
+    for i in range(21):
+        t = now - timedelta(minutes=i)
+        client.post("/api/feedings/", json={
+            "baby_id": baby_id,
+            "feeding_time": t.isoformat(),
+            "feeding_type": "BREAST",
+        })
+
+    # 昨日の授乳を1件作成（合計22件）
+    client.post("/api/feedings/", json={
+        "baby_id": baby_id,
+        "feeding_time": yesterday.isoformat(),
+        "feeding_type": "BREAST",
+    })
+
+    # limit=100 で取得すると昨日の記録も含まれること
+    # バグ前: feeding.limit(20) = 今日20件のみ（昨日欠落）→ records[:100] = 20件
+    # 修正後: feeding.limit(100) = 22件 → records[:100] = 22件（昨日含む）
+    res = client.get(f"/api/babies/{baby_id}/records?limit=100")
+    assert res.status_code == 200
+    data = res.json()
+
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+    older = [r["timestamp"] for r in data if r["timestamp"][:10] <= yesterday_str]
+    assert len(older) >= 1, "昨日以前の記録が返ってこない（各タイプのper-type limitバグ）"
+
 def test_baby_crud(auth_client):
     client = auth_client()
     # 赤ちゃん登録

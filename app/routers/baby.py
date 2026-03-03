@@ -201,7 +201,7 @@ def get_records(
         for feeding in db.query(
             Feeding.id, Feeding.user_id, Feeding.feeding_time,
             Feeding.feeding_type, Feeding.amount_ml, Feeding.duration_minutes, Feeding.notes
-        ).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(limit).all():
+        ).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -216,7 +216,7 @@ def get_records(
     if can_view_type("sleep"):
         for sleep in db.query(
             Sleep.id, Sleep.user_id, Sleep.start_time, Sleep.end_time, Sleep.notes
-        ).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(limit).all():
+        ).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
@@ -229,7 +229,7 @@ def get_records(
     if can_view_type("diaper"):
         for diaper in db.query(
             Diaper.id, Diaper.user_id, Diaper.change_time, Diaper.diaper_type, Diaper.notes
-        ).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(limit).all():
+        ).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
@@ -243,7 +243,7 @@ def get_records(
         for growth in db.query(
             Growth.id, Growth.user_id, Growth.date,
             Growth.weight, Growth.height, Growth.head_circumference, Growth.notes
-        ).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(limit).all():
+        ).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -259,7 +259,7 @@ def get_records(
     if can_view_type("note"):
         for note in db.query(
             Note.id, Note.user_id, Note.note_time, Note.content
-        ).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(limit).all():
+        ).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
@@ -272,7 +272,7 @@ def get_records(
         for c in db.query(
             Contraction.id, Contraction.user_id, Contraction.start_time,
             Contraction.end_time, Contraction.duration_seconds, Contraction.notes
-        ).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(limit).all():
+        ).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {
