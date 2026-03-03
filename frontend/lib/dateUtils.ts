@@ -1,4 +1,4 @@
-import { format, isToday as isTodayFns } from "date-fns";
+import { format, isToday as isTodayFns, formatDistanceToNow as formatDistanceToNowFns, subMonths as subMonthsFns, subDays as subDaysFns } from "date-fns";
 import { ja } from "date-fns/locale";
 
 /**
@@ -103,4 +103,28 @@ export function formatDateWithWeekday(date: Date | string | number): string {
 export function formatTimeWithSeconds(date: Date | string | number): string {
   const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
   return format(d, "HH:mm:ss", { locale: ja });
+}
+
+/**
+ * Returns the distance between the given date and now in words.
+ */
+export function formatTimeAgo(date: Date | string | number): string {
+  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+  return formatDistanceToNowFns(d, { addSuffix: true, locale: ja });
+}
+
+/**
+ * Subtracts the given number of months from the given date.
+ */
+export function subtractMonths(date: Date | string | number, amount: number): Date {
+  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+  return subMonthsFns(d, amount);
+}
+
+/**
+ * Subtracts the given number of days from the given date.
+ */
+export function subtractDays(date: Date | string | number, amount: number): Date {
+  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+  return subDaysFns(d, amount);
 }
