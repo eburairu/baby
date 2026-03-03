@@ -1,7 +1,8 @@
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 import { useFeedingTimerStore } from "@/stores/feedingTimerStore"
 import { formatTimeMMSS } from "@/lib/ageUtils"
 import { api } from "@/lib/api"
+import { useInterval } from "@/hooks/useInterval"
 
 export type ActiveBreastSide = "LEFT" | "RIGHT" | null
 
@@ -29,15 +30,7 @@ export function useFeedingTimer({
     } = useFeedingTimerStore()
 
     // 1秒ごとにストアの tick を呼び出し、経過時間を更新する
-    useEffect(() => {
-        if (!activeSide) return
-        
-        const interval = setInterval(() => {
-            tick()
-        }, 1000)
-        
-        return () => clearInterval(interval)
-    }, [activeSide, tick])
+    useInterval(tick, activeSide ? 1000 : null)
 
     /**
      * 現在のタイマー状態をサーバーに保存する。

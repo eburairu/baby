@@ -27,6 +27,7 @@ import { api } from "@/lib/api"
 import { Vaccination } from "@/types/vaccination"
 import { vaccinationSchema, VaccinationFormValues } from "@/schemas/vaccination"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
+import { NATIVE_SELECT_CLASS } from "@/constants/ui"
 
 interface VaccinationFormProps {
     babyId: number
@@ -157,7 +158,7 @@ export function VaccinationForm({
                                     <FormLabel>状態</FormLabel>
                                     <FormControl>
                                         <select
-                                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            className={NATIVE_SELECT_CLASS}
                                             value={field.value}
                                             onChange={field.onChange}
                                         >
