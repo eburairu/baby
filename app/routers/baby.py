@@ -283,10 +283,25 @@ def get_records(
                 0
             ))
 
-    # Fetch comment counts ONLY for the retrieved records
+    # ⚡ Bolt: Fetch, Sort, Truncate, THEN Enrich
+    # メモリ上でソートし、要求されたlimitまで先に切り詰めることで、以降のコメントカウント取得やUser取得のクエリ発行対象を数千件から数十件（limit数）に削減する
+
+    # 全ての記録のタイムゾーンを比較可能なように統一（JSTとして明示）
+    processed_raw_records = []
+    for r in raw_records:
+        ts = r[3]
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=JST)
+        processed_raw_records.append((r[0], r[1], r[2], ts, r[4], r[5]))
+
+    # タイムスタンプ降順でソートし、limitで切り詰める
+    processed_raw_records.sort(key=lambda r: r[3], reverse=True)
+    truncated_records = processed_raw_records[:limit]
+
+    # Fetch comment counts ONLY for the truncated records
     comment_counts = {}
     record_ids_by_type = defaultdict(list)
-    for r in raw_records:
+    for r in truncated_records:
         rec_id, rec_type = r[0], r[1]
         record_ids_by_type[rec_type].append(rec_id)
 
@@ -317,8 +332,8 @@ def get_records(
                 # In case table doesn't exist or query fails
                 pass
 
-    # User を一括取得してマップを作成
-    user_ids = {r[2] for r in raw_records if r[2] is not None}
+    # User を一括取得してマップを作成（truncatedされたレコード群のみ）
+    user_ids = {r[2] for r in truncated_records if r[2] is not None}
     users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
     user_map = {u.id: u.display_name or u.username for u in users}
 
@@ -331,16 +346,10 @@ def get_records(
             comment_count=comment_counts.get((rec_type, rec_id), 0),
             recorded_by_display_name=user_map.get(user_id),
         )
-        for rec_id, rec_type, user_id, ts, details, _ in raw_records
+        for rec_id, rec_type, user_id, ts, details, _ in truncated_records
     ]
 
-    # 全ての記録のタイムゾーンをJSTとして明示する
-    for r in records:
-        if r.timestamp.tzinfo is None:
-            r.timestamp = r.timestamp.replace(tzinfo=JST)
-
-    records.sort(key=lambda r: r.timestamp, reverse=True)
-    return records[:limit]
+    return records
 
 
 @router.post("/{baby_id}/records", response_model=UnifiedRecord)
