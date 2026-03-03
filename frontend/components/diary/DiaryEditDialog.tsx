@@ -164,7 +164,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                                         <button
                                             type="button"
                                             onClick={() => handleRemoveImage(url)}
-                                            className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                                            className="absolute -top-1.5 -right-1.5 bg-gray-700 hover:bg-red-600 transition-colors text-white rounded-full w-5 h-5 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-zinc-900"
                                             aria-label="写真を削除"
                                         >
                                             <X className="h-3 w-3" />
