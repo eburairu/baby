@@ -74,14 +74,17 @@
 ### リクエスト/レスポンススキーマ
 
 ```typescript
-// POST リクエスト (クエリパラメータ: ?baby_id={id})
-interface MilestoneCreate {
+// 共通ベース
+interface MilestoneBase {
   milestone_type: string
   title: string
   achieved_date: string // YYYY-MM-DD形式
-  image_urls?: string[]
+  image_urls: string[]
   notes?: string
 }
+
+// POST リクエスト (クエリパラメータ: ?baby_id={id})
+interface MilestoneCreate extends MilestoneBase {}
 
 // PATCH リクエスト
 interface MilestoneUpdate {
@@ -93,7 +96,7 @@ interface MilestoneUpdate {
 }
 
 // レスポンス
-interface MilestoneResponse extends MilestoneCreate {
+interface MilestoneResponse extends MilestoneBase {
   id: number
   baby_id: number
   user_id: number | null
