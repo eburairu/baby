@@ -55,6 +55,26 @@
 - `DELETE /api/schedules/{id}`
     - 指定したスケジュールを削除。
 
+### リクエスト/レスポンススキーマ
+
+```typescript
+// POST リクエスト
+interface ScheduleCreate {
+  baby_id: number
+  title: string
+  description?: string
+  scheduled_time: string // ISO 8601形式
+  is_completed?: boolean // デフォルト: false
+}
+
+// レスポンス
+interface ScheduleResponse extends ScheduleCreate {
+  id: number
+  user_id: number
+  created_at: string // ISO 8601形式
+}
+```
+
 ## 権限管理
 
 - `verify_baby_access` を通じて、対象の赤ちゃんへのアクセス権限があるユーザーのみが操作可能。
