@@ -10,6 +10,13 @@ from app.models.ai_summary import DailySummary
 from app.schemas.ai_summary import DailySummaryCreate, DailySummaryEdit, DailySummaryResponse
 from app.services.ai_summary import generate_daily_summary
 from app.utils.notifications import notify_family_members
+from app.utils.rate_limit import RateLimiter
+
+daily_summary_limiter = RateLimiter(
+    requests_limit=5,
+    time_window=60,
+    error_message="Too many daily summary requests. Please try again later.",
+)
 
 router = APIRouter(prefix="/api/babies/{baby_id}/daily-summary", tags=["daily-summary"])
 
@@ -22,6 +29,9 @@ def create_or_get_daily_summary(
     current_user: User = Depends(get_current_user),
 ):
     """日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。"""
+    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレート制限
+    daily_summary_limiter.check(f"user_{current_user.id}")
+
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=True)
 
     # 未来日付チェック（JST基準）

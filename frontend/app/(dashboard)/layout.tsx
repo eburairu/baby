@@ -96,7 +96,10 @@ export default function DashboardLayout({
         babies && babies.length > 1 ? (
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
+                    <button
+                        aria-label="赤ちゃんを切り替える"
+                        className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
+                    >
                         <Baby className="w-4 h-4 opacity-80" />
                         <span className="font-medium">{selectedBaby.name}</span>
                         <ChevronDown className="h-3 w-3 opacity-60" />

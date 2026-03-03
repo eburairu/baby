@@ -11,6 +11,13 @@ from app.services.ai_feedback import (
     generate_record_feedback,
     save_ai_comment,
 )
+from app.utils.rate_limit import RateLimiter
+
+record_feedback_limiter = RateLimiter(
+    requests_limit=5,
+    time_window=60,
+    error_message="Too many AI feedback requests. Please try again later.",
+)
 
 router = APIRouter(prefix="/api/babies/{baby_id}/record-feedback", tags=["ai-feedback"])
 
@@ -23,6 +30,9 @@ def create_record_feedback(
     current_user: User = Depends(get_current_user),
 ):
     """直近24時間の記録をAIが分析し、コメントとして保存する"""
+    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレート制限
+    record_feedback_limiter.check(f"user_{current_user.id}")
+
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=False)
 
     # record_id が baby_id に属するか確認
