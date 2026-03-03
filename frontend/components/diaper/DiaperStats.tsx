@@ -1,8 +1,8 @@
 import { Diaper } from "@/types/diaper"
-import { Droplets, Trash2 } from "lucide-react"
 import { StatsBlock } from "@/components/ui/stats-block"
 import { calculateDiaperStats, normalizeDiaperFromEntity } from "@/lib/diaperUtils"
 import { StatsCard } from "@/components/ui/stats-card"
+import { AppIcons } from "@/constants/icons"
 
 interface Props {
     diapers: Diaper[]
@@ -17,7 +17,7 @@ export function DiaperStats({ diapers }: Props) {
         <StatsCard>
             <div className="grid grid-cols-2 gap-4">
                 <StatsBlock
-                    icon={Droplets}
+                    icon={AppIcons.diaperWet}
                     label="おしっこ"
                     value={`${stats.wetCount}回`}
                     color="amber"
@@ -27,7 +27,7 @@ export function DiaperStats({ diapers }: Props) {
                     </p>
                 </StatsBlock>
                 <StatsBlock
-                    icon={Trash2}
+                    icon={AppIcons.diaperDirty}
                     label="うんち"
                     value={`${stats.dirtyCount}回`}
                     color="amber"
