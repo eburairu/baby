@@ -16,11 +16,10 @@ import { Button } from "@/components/ui/button"
 import type { Growth } from "@/types/growth"
 import { generateWhoSeries, mergeData } from "@/lib/growthUtils"
 import { useMemo, useState } from "react"
-import { subMonths, subDays } from "date-fns"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
-import { formatMonthDay, formatDate } from "@/lib/dateUtils"
+import { formatMonthDay, formatDate, subtractDays, subtractMonths } from "@/lib/dateUtils"
 
 interface GrowthChartProps {
     records: Growth[]
@@ -53,7 +52,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
     const defaultRange = useMemo(() => {
         if (records.length === 0) return { left: "dataMin" as const, right: "dataMax" as const };
         const latestDate = new Date(Math.max(...records.map(r => new Date(r.date).getTime())));
-        const sevenDaysAgo = subDays(latestDate, 7).getTime();
+        const sevenDaysAgo = subtractDays(latestDate, 7).getTime();
         const firstRecordDate = new Date(Math.min(...records.map(r => new Date(r.date).getTime()))).getTime();
         return {
             left: Math.max(sevenDaysAgo, firstRecordDate),
@@ -72,12 +71,12 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
             setLeft("dataMin");
             setRight("dataMax");
         } else if (range === "7days") {
-            const startDate = subDays(latestDate, 7).getTime();
+            const startDate = subtractDays(latestDate, 7).getTime();
             const firstRecordDate = new Date(Math.min(...records.map(r => new Date(r.date).getTime()))).getTime();
             setLeft(Math.max(startDate, firstRecordDate));
             setRight(latestDate.getTime());
         } else {
-            const startDate = subMonths(latestDate, range).getTime();
+            const startDate = subtractMonths(latestDate, range).getTime();
             const firstRecordDate = new Date(Math.min(...records.map(r => new Date(r.date).getTime()))).getTime();
             setLeft(Math.max(startDate, firstRecordDate));
             setRight(latestDate.getTime());

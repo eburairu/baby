@@ -111,3 +111,7 @@
 ## 2026-03-02 - [Tidy: リファクタリング - 日付フォーマットの共通化]
 **学び:** コードベース全体で `format(new Date(), ...)` と date-fns の `ja` ロケールが各コンポーネントに直接インポートされ、散在しているパターン（アンチパターン）を発見しました。これにより、同じフォーマット文字列（例: `"MM/dd"`, `"PPP"`）が複数箇所にハードコードされ、保守性と可読性が低下していました。
 **アクション:** `frontend/lib/dateUtils.ts` に `formatMonthDay`, `formatJapaneseDatePPP`, `formatDateWithWeekday` などの意味のある名前を持つラッパー関数を追加し、これらを利用するように各コンポーネントをリファクタリングしました。今後も日付フォーマットは `dateUtils.ts` に集約し、コンポーネント側からは直接 date-fns を呼び出さないよう徹底します。
+
+## 2026-03-02 - [Tidy: リファクタリング - date-fns の依存排除と useEffect + setInterval の共通化]
+**学び:** `GrowthChart` や `feeding-stats` において、`date-fns` の `subMonths`, `subDays`, `formatDistanceToNow` といった関数が直接インポートされていました。これによりコード内でライブラリへの依存が分散し、将来的なバージョンアップや他のライブラリへの乗り換えが困難になります。また `useFeedingTimer` において、`useEffect` 内部で `setInterval` を利用し手動でクリーンアップを行っていましたが、プロジェクト内にはすでに `useInterval` フックが存在しており、これを活用していない冗長な記述でした。
+**アクション:** `dateUtils.ts` に `subtractMonths`, `subtractDays`, `formatTimeAgo` のラッパーを追加し、これらを経由して `date-fns` を利用するように修正しました。また、インターバル処理は必ず `useInterval` などの専用カスタムフックを使用し、ライフサイクル管理を宣言的かつ安全に行うように統一します。
