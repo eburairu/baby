@@ -25,3 +25,7 @@
 ## 2026-03-05 - [SQLAlchemy N+1 Loop Prevention in Family Retrieval]
 **Learning:** Querying related entity aggregations (like member count per family) inside a loop (`db.query(func.count(FamilyUser.user_id)).filter(FamilyUser.family_id == f.id).scalar()`) creates a significant N+1 bottleneck when paginating families in the admin dashboard.
 **Action:** Extract family IDs into a list (`[f.id for f in families]`) and execute a single grouped query (`.in_(family_ids)` combined with `.group_by(FamilyUser.family_id)`) to map counts into a dictionary before the loop. This reduces queries from O(N) to O(1).
+
+## 2026-03-05 - [React Virtual List Styling Pitfall]
+**Learning:** When using `@tanstack/react-virtual` for list virtualization, applying `contain: 'strict'` or `content-visibility: hidden` to the scrolling parent container can cause the browser to calculate the container's intrinsic height as 0 (size containment). If the container relies on contents to define its height up to a `max-height`, it will collapse, hiding all virtual items.
+**Action:** Do not use `contain: 'strict'` on the virtualization container unless an explicit `height` is set. Let the virtualizer handle the heavy lifting of DOM recycling without over-constraining the container.

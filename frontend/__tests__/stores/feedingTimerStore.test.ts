@@ -31,7 +31,7 @@ describe('useFeedingTimerStore', () => {
         expect(state.activeSide).toBe('LEFT')
         expect(state.leftElapsedSeconds).toBe(10 + 30) // base + (now - segmentStartTime)
         expect(state.rightElapsedSeconds).toBe(20)
-        expect(state.segmentStartTime).toEqual(segmentStartTime)
+        expect(state.segmentStartTime).toEqual(now) // The test should expect `now` because store.ts updates segmentStartTime to `nowForNextSegment = now` when activeSide is provided
     })
 
     it('should tick correctly when active', () => {
