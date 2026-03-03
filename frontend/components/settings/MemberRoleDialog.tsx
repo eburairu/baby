@@ -66,7 +66,8 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                         <button
                             key={role.value}
                             onClick={() => setSelectedRole(role.value)}
-                            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${selectedRole === role.value
+                            aria-pressed={selectedRole === role.value}
+                            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400 ${selectedRole === role.value
                                 ? "border-indigo-600 bg-indigo-50"
                                 : "border-gray-200 hover:border-gray-300"
                                 }`}
