@@ -171,3 +171,15 @@
 ## 2023-10-27 - [TypeScriptインターフェースとPydanticモデルの継承構造の同期]
 **学び:** マイルストーン記録機能の仕様書において、TypeScriptのインターフェースがバックエンドのPydanticモデルの継承構造（`Base` クラスの利用など）を正しく反映していないことによる定義の冗長化や不一致が発生しやすい。例えば、`image_urls` がPythonコードでは `[]` がデフォルトでありながら、仕様書では `?` (Optional) として記載されていたり、`Create` や `Response` が個別にフィールドを再定義していたりする。
 **アクション:** 今後の仕様書の更新時には、単にエンドポイントとスキーマ名を記載するだけでなく、バックエンドのPydanticの継承構造（例：`MilestoneBase` -> `MilestoneCreate` 等）を正確にTypeScriptのインターフェース設計（`interface MilestoneBase`, `extends MilestoneBase`）に反映させることで、冗長なフィールド定義を防ぎ、実装との一貫性を維持する。
+
+## 2026-03-05 - [スケジュールAPI仕様と実装の乖離の発見]
+
+**学び:**
+
+- スケジュール機能（`app/routers/schedule.py`）において、バックエンドではリクエスト・レスポンス用のPydanticモデル（`ScheduleCreate`, `ScheduleResponse`）が定義され使用されているにもかかわらず、仕様書（`schedule_tracker.md`）には「リクエスト/レスポンススキーマ」のセクション自体が存在せず、TypeScriptのインターフェース定義が完全に欠落していました。
+- 他のトラッカー（Growth, Milestone, Vaccinationなど）で見られた「スキーマ定義の欠落」というパターンが、スケジュール機能の仕様書にも同様に残存していることが確認されました。
+
+**アクション:**
+
+- `schedule_tracker.md` を更新し、「リクエスト/レスポンススキーマ」セクションを新設。`ScheduleCreate` と `ScheduleResponse` のTypeScriptインターフェースを、既存のPydanticモデルに合わせて正確に定義しました（`extends` を使用した継承パターンの適用を含む）。
+- 今後の仕様書のレビューや新規作成においては、エンドポイントのパスやメソッドだけでなく、対応する完全なデータモデル（Request/Response Schema）が記述されているかを徹底して確認します。
