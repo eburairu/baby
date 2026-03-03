@@ -69,39 +69,6 @@ cd worktrees/<branch-name>/frontend
 pnpm install
 ```
 
-## Claude Code への開発指示（ユーザー向け）
-
-### 最初の一言で伝えること
-
-```
-feat/xxx を作業ブランチとして、〇〇を実装したい。
-```
-
-これだけで Claude Code が以下を自律実行する:
-1. `sh scripts/setup_worktree.sh feat/xxx` でワークツリーを作成
-2. `.specify/specs/` から仕様書を確認し、実装方針を提示
-3. TDD（テスト先行）で実装 → `verify_all.sh` で全チェック → PR 作成
-
-### 伝えると助かる追加情報
-
-| 情報 | 例 |
-|---|---|
-| 関連仕様書のパス | `.specify/specs/milestone.md` |
-| 影響範囲のヒント | 「フロントエンドのみ」「API 変更あり」 |
-| 実装上の制約 | 「破壊的変更は NG」「既存コンポーネントを再利用」 |
-
-### 自分でワークツリーを作成して作業する場合
-
-```bash
-# 1. ワークツリー作成
-sh scripts/setup_worktree.sh feat/xxx
-
-# 2. ワークツリーに移動して作業
-cd worktrees/feat/xxx
-```
-
----
-
 ## 開発サイクル
 
 1. **開始**: 開発者はメインディレクトリ（`develop` ブランチ）で `scripts/setup_worktree.sh` を実行。

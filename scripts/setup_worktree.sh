@@ -83,10 +83,9 @@ fi
 
 echo ""
 echo "Worktree setup complete!"
+echo "To start working, run: cd $WORKTREE_DIR"
 echo ""
 echo "📋 作業中の develop 同期リマインダー:"
 echo "  - 長時間作業時は定期的に: git merge origin/${BASE_BRANCH}"
 echo "  - PR 作成前に必ず: git fetch origin ${BASE_BRANCH} && git merge origin/${BASE_BRANCH}"
 echo "  - PR 作成前の全チェック: sh scripts/verify_all.sh"
-echo ""
-echo "To start working, run: cd $WORKTREE_DIR"

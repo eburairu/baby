@@ -90,19 +90,6 @@ git add frontend/openapi.json
 - `.venv`・`node_modules` — シンボリックリンク（ワークツリー由来）
 - `*.pem`・`*.key`・`*.cert` — 秘密鍵・証明書ファイル
 
-## タスク完了時のプッシュ通知
-
-タスクが完了したら必ず以下のコマンドで通知を送る（トークンは `.env` の `MOSHI_TOKEN`）:
-
-```bash
-source .env 2>/dev/null || true
-curl -X POST https://api.getmoshi.app/api/webhook \
-  -H "Content-Type: application/json" \
-  -d "{\"token\": \"$MOSHI_TOKEN\", \"title\": \"Done\", \"message\": \"Brief summary\"}"
-```
-
-`message` にはタスクの簡潔な要約を英語で記載する。
-
 ## 開発ワークフロー
 
 ワークツリー作成・PR作成・クリーンアップのワークフローは各スクリプトを参照:

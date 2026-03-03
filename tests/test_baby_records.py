@@ -46,10 +46,10 @@ def test_records_returns_older_records_when_single_type_exceeds_per_type_limit(a
     data = res.json()
 
     yesterday_str = yesterday.strftime("%Y-%m-%d")
-    from dateutil import parser
     older = []
     for r in data:
-        dt = parser.parse(r["timestamp"]).astimezone(timezone.utc)
+        # Some API responses include timezone offsets (e.g. +09:00). Replace 'Z' with +00:00 for consistency
+        dt = datetime.fromisoformat(r["timestamp"].replace("Z", "+00:00")).astimezone(timezone.utc)
         if dt.strftime("%Y-%m-%d") <= yesterday_str:
             older.append(r["timestamp"])
     assert len(older) >= 1, "昨日以前の記録が返ってこない（各タイプのper-type limitバグ）"
