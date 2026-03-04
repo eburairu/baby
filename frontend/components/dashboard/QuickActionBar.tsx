@@ -12,7 +12,9 @@ import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
 import { FeedingQuickAddModal } from "@/components/feeding/FeedingQuickAddModal"
+import { DiaperQuickAddModal } from "@/components/diaper/DiaperQuickAddModal"
 import { BottleContentType, FeedingType } from "@/types/feeding"
+import { DiaperType } from "@/types/diaper"
 import * as Sentry from "@sentry/nextjs"
 
 /** クイックアクションボタンの統一サイズ（六角形の高さ） */
@@ -30,6 +32,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const [noteDialogOpen, setNoteDialogOpen] = useState(false)
     const [feedingModalType, setFeedingModalType] = useState<FeedingType | null>(null)
+    const [diaperModalType, setDiaperModalType] = useState<DiaperType | null>(null)
 
     const activeSleep = useMemo(() => {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
@@ -56,12 +59,15 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         setFeedingModalType(type)
     }
 
-    const handleQuickRecord = async (type: "sleep" | "diaper_wet" | "diaper_dirty") => {
-        Sentry.logger.info("Quick action started", { type })
-        setLoadingAction(type)
+    const handleDiaperModal = (type: DiaperType) => {
+        setDiaperModalType(type)
+    }
 
-        const actionMap = {
-            "sleep": async () => {
+    const handleSleep = async () => {
+        Sentry.logger.info("Quick action started", { type: "sleep" })
+        setLoadingAction("sleep")
+        await executeRecord(
+            async () => {
                 if (activeSleep) {
                     await api.patch(`/sleeps/${activeSleep.id}`, { end_time: new Date().toISOString() })
                     return { id: activeSleep.id }
@@ -72,44 +78,37 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     })
                 }
             },
-            "diaper_wet": async () => api.post<{ id: number }>("/diapers/", {
-                baby_id: Number(babyId),
-                diaper_type: "WET",
-                change_time: new Date().toISOString(),
-            }),
-            "diaper_dirty": async () => api.post<{ id: number }>("/diapers/", {
-                baby_id: Number(babyId),
-                diaper_type: "DIRTY",
-                change_time: new Date().toISOString(),
-            }),
-        }
-
-        const configMap = {
-            "sleep": { label: activeSleep ? "睡眠終了" : "睡眠開始" },
-            "diaper_wet": { feedbackType: "diaper" as const, label: "おしっこ" },
-            "diaper_dirty": { feedbackType: "diaper" as const, label: "うんち" },
-        }
-
-        await executeRecord(actionMap[type], configMap[type])
-        Sentry.logger.info("Quick action completed", { type })
+            { label: activeSleep ? "睡眠終了" : "睡眠開始" }
+        )
+        Sentry.logger.info("Quick action completed", { type: "sleep" })
         setLoadingAction(null)
     }
 
     const isLoading = loadingAction !== null
 
     return (
-        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[340px]">
+        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[360px]">
             <div className="pointer-events-auto">
-                {/* 3-2-3 ハニカム配置 */}
+                {/* 2-3-4 ハニカム配置 */}
                 <HoneycombGrid
                     size={BUTTON_SIZE}
                     gap={4}
                     rows={[
-                        [0, 1, 2], // 上段: ミルク, 睡眠, 母乳
-                        [3, 4],    // 中段: おしっこ, うんち
-                        [5, 6, 7]  // 下段: メモ, 成長, 日誌
+                        [0, 1],       // 上段: 授乳, ミルク
+                        [2, 3, 4],    // 中段: おしっこ, うんち, おしっこ/うんち
+                        [5, 6, 7, 8]  // 下段: 睡眠, 成長, メモ, 日誌
                     ]}
                 >
+                    {/* 上段: 授乳 */}
+                    <HexagonButton
+                        variant="rose"
+                        icon={<AppIcons.feedingBreast className="h-5 w-5" />}
+                        size={BUTTON_SIZE}
+                        onClick={() => handleFeedingModal("BREAST")}
+                        disabled={isLoading}
+                        aria-label="母乳を記録"
+                        animationType="tilt"
+                    />
                     {/* 上段: ミルク */}
                     <HexagonButton
                         variant="rose"
@@ -120,35 +119,12 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         aria-label="ミルクを記録"
                         animationType="tilt"
                     />
-                    {/* 上段: 睡眠（中央・メイン） */}
-                    <HexagonButton
-                        variant="indigo"
-                        icon={activeSleep ? <AppIcons.sleepActive className="h-6 w-6" /> : <AppIcons.sleep className="h-6 w-6" />}
-                        size={BUTTON_SIZE}
-                        active={!!activeSleep}
-                        onClick={() => handleQuickRecord("sleep")}
-                        loading={loadingAction === "sleep"}
-                        disabled={isLoading}
-                        aria-label={activeSleep ? " 睡眠終了を記録" : "睡眠開始を記録"}
-                        animationType="tilt"
-                    />
-                    {/* 上段: 母乳 */}
-                    <HexagonButton
-                        variant="rose"
-                        icon={<AppIcons.feedingBreast className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => handleFeedingModal("BREAST")}
-                        disabled={isLoading}
-                        aria-label="母乳を記録"
-                        animationType="tilt"
-                    />
                     {/* 中段: おしっこ */}
                     <HexagonButton
                         variant="amber"
                         icon={<AppIcons.diaperWet className="h-5 w-5" />}
                         size={BUTTON_SIZE}
-                        onClick={() => handleQuickRecord("diaper_wet")}
-                        loading={loadingAction === "diaper_wet"}
+                        onClick={() => handleDiaperModal(DiaperType.WET)}
                         disabled={isLoading}
                         aria-label="おしっこを記録"
                         animationType="bounce"
@@ -158,20 +134,31 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         variant="amber"
                         icon={<AppIcons.diaperDirty className="h-5 w-5" />}
                         size={BUTTON_SIZE}
-                        onClick={() => handleQuickRecord("diaper_dirty")}
-                        loading={loadingAction === "diaper_dirty"}
+                        onClick={() => handleDiaperModal(DiaperType.DIRTY)}
                         disabled={isLoading}
                         aria-label="うんちを記録"
                         animationType="bounce"
                     />
-                    {/* 下段: メモ */}
+                    {/* 中段: おしっこ/うんち */}
                     <HexagonButton
-                        variant="blue"
-                        icon={<AppIcons.note className="h-5 w-5" />}
+                        variant="amber"
+                        icon={<span className="flex gap-0.5"><AppIcons.diaperWet className="h-4 w-4" /><AppIcons.diaperDirty className="h-4 w-4" /></span>}
                         size={BUTTON_SIZE}
-                        onClick={() => setNoteDialogOpen(true)}
+                        onClick={() => handleDiaperModal(DiaperType.BOTH)}
                         disabled={isLoading}
-                        aria-label="メモを追加"
+                        aria-label="おしっこ・うんちを記録"
+                        animationType="bounce"
+                    />
+                    {/* 下段: 睡眠 */}
+                    <HexagonButton
+                        variant="indigo"
+                        icon={activeSleep ? <AppIcons.sleepActive className="h-6 w-6" /> : <AppIcons.sleep className="h-6 w-6" />}
+                        size={BUTTON_SIZE}
+                        active={!!activeSleep}
+                        onClick={handleSleep}
+                        loading={loadingAction === "sleep"}
+                        disabled={isLoading}
+                        aria-label={activeSleep ? "睡眠終了を記録" : "睡眠開始を記録"}
                         animationType="tilt"
                     />
                     {/* 下段: 成長 */}
@@ -183,6 +170,16 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         disabled={isLoading}
                         aria-label="成長記録ページへ"
                         animationType="bounce"
+                    />
+                    {/* 下段: メモ */}
+                    <HexagonButton
+                        variant="blue"
+                        icon={<AppIcons.note className="h-5 w-5" />}
+                        size={BUTTON_SIZE}
+                        onClick={() => setNoteDialogOpen(true)}
+                        disabled={isLoading}
+                        aria-label="メモを追加"
+                        animationType="tilt"
                     />
                     {/* 下段: 日誌 */}
                     <HexagonButton
@@ -228,6 +225,16 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     onSuccess={mutateRecords}
                     lastMilkAmount={lastMilkAmount}
                     lastBottleContentType={lastBottleContentType}
+                />
+            )}
+
+            {diaperModalType && (
+                <DiaperQuickAddModal
+                    babyId={Number(babyId)}
+                    defaultDiaperType={diaperModalType}
+                    open={diaperModalType !== null}
+                    onOpenChange={(open) => { if (!open) setDiaperModalType(null) }}
+                    onSuccess={mutateRecords}
                 />
             )}
         </div>
