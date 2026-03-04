@@ -3,19 +3,10 @@ import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User, StickyNote } from "lucide-react"
-import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS } from "@/constants/ui"
+import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS, RECORD_TYPE_BG_COLORS } from "@/constants/ui"
 import { AppIcons } from "@/constants/icons"
 import { Hexagon } from "@/components/ui/hexagon"
 import { cn } from "@/lib/utils"
-
-const RECORD_TYPE_BG_COLORS: Record<string, string> = {
-    feeding: "text-orange-100 dark:text-orange-950/40",
-    sleep: "text-indigo-100 dark:text-indigo-950/40",
-    diaper: "text-amber-100 dark:text-amber-950/40",
-    growth: "text-green-100 dark:text-green-950/40",
-    note: "text-blue-100 dark:text-blue-950/40",
-    contraction: "text-orange-100 dark:text-orange-950/40",
-}
 
 interface ActivityItemProps {
     record: BabyRecord

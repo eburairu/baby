@@ -119,3 +119,6 @@
 ## 2026-03-02 - [Tidy: リファクタリング - useWatchの正しい適用とFat Componentの分割]
 **学び:** `form.watch` を `useWatch` に置き換える最適化は、フォームコンポーネントのトップレベルで呼び出してしまうと、結果的に親コンポーネント全体が再レンダリングされるため、パフォーマンス改善の恩恵を十分に受けられない（アンチパターン）ことが分かりました。これを防ぐには、監視対象のフィールドに依存する部分だけを別コンポーネントに切り出し、その内部で `useWatch` を呼び出す必要があります。
 **アクション:** `DiaperForm`, `MilestoneForm`, `VaccinationForm` において、フィールドの表示/非表示や活性状態が他フィールドに依存している箇所を、それぞれ `PoopDetailsFields`, `MilestoneTitleField`, `VaccinationCompletedFields` として切り出し、フォーム全体の無駄な再レンダリングを防止しました。今後も `useWatch` を導入する際は、適用範囲を限定するためのサブコンポーネント化をセットで行うことを標準とします。
+## 2026-03-02 - [Tidy: リファクタリング - ダイアログの共通化と定数の集約]
+**学び:** ダッシュボードの `RecordDetailDialog` において、共通の `EditDialogBase` が使用されておらず、またネイティブの `confirm()` が使用されていました。さらに、`ActivityItem` 内で背景色の定数 (`RECORD_TYPE_BG_COLORS`) がインラインで定義されていました。これらはDRY原則とUIの一貫性を損なうアンチパターンです。
+**アクション:** `RecordDetailDialog` を `EditDialogBase` に置き換え、`AlertDialog` による削除確認を導入しました。また `RECORD_TYPE_BG_COLORS` を `frontend/constants/ui.ts` に集約し、コンポーネント間で再利用可能にしました。今後も共通ベースコンポーネントの使用と定数の外部化を徹底します。
