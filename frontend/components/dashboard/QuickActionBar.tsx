@@ -1,5 +1,4 @@
 "use client"
-import { RECORD_TYPES } from '@/types/enums';
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
@@ -12,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
+import { FeedingQuickAddModal } from "@/components/feeding/FeedingQuickAddModal"
+import { BottleContentType, FeedingType } from "@/types/feeding"
 import * as Sentry from "@sentry/nextjs"
 
 /** クイックアクションボタンの統一サイズ（六角形の高さ） */
@@ -28,13 +29,14 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
     const { canWrite, executeRecord } = useQuickRecord(babyId, { onSuccess: mutateRecords })
     const [loadingAction, setLoadingAction] = useState<string | null>(null)
     const [noteDialogOpen, setNoteDialogOpen] = useState(false)
+    const [feedingModalType, setFeedingModalType] = useState<FeedingType | null>(null)
 
     const activeSleep = useMemo(() => {
         return records?.find(r => r.type === 'sleep' && !r.details?.end_time)
     }, [records])
 
-    // 前回のミルク量を取得（デフォルト値として使用）
-    const lastMilkAmount = useMemo(() => {
+    // 前回のミルク量・種類を取得（モーダルのデフォルト値として使用）
+    const { lastMilkAmount, lastBottleContentType } = useMemo(() => {
         const milkRecord = records?.find(r => {
             if (r.type !== 'feeding') return false
             const ft = r.details?.feeding_type
@@ -42,27 +44,23 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
             const amount = Number(r.details?.amount_ml)
             return amount > 0
         })
-        return milkRecord ? Number(milkRecord.details?.amount_ml) : null
+        return {
+            lastMilkAmount: milkRecord ? Number(milkRecord.details?.amount_ml) : null,
+            lastBottleContentType: (milkRecord?.details?.bottle_content_type as BottleContentType | null) ?? null,
+        }
     }, [records])
 
     if (!canWrite) return null
 
-    const handleQuickRecord = async (type: "feeding_bottle" | "feeding_breast" | "sleep" | "diaper_wet" | "diaper_dirty") => {
+    const handleFeedingModal = (type: FeedingType) => {
+        setFeedingModalType(type)
+    }
+
+    const handleQuickRecord = async (type: "sleep" | "diaper_wet" | "diaper_dirty") => {
         Sentry.logger.info("Quick action started", { type })
         setLoadingAction(type)
 
         const actionMap = {
-            "feeding_bottle": async () => api.post<{ id: number }>("/feedings/", {
-                baby_id: Number(babyId),
-                feeding_type: "BOTTLE",
-                feeding_time: new Date().toISOString(),
-                ...(lastMilkAmount ? { amount_ml: lastMilkAmount } : {}),
-            }),
-            "feeding_breast": async () => api.post<{ id: number }>("/feedings/", {
-                baby_id: Number(babyId),
-                feeding_type: "BREAST",
-                feeding_time: new Date().toISOString(),
-            }),
             "sleep": async () => {
                 if (activeSleep) {
                     await api.patch(`/sleeps/${activeSleep.id}`, { end_time: new Date().toISOString() })
@@ -87,8 +85,6 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
         }
 
         const configMap = {
-            "feeding_bottle": { feedbackType: RECORD_TYPES.FEEDING, label: "ミルク" },
-            "feeding_breast": { feedbackType: RECORD_TYPES.FEEDING, label: "母乳" },
             "sleep": { label: activeSleep ? "睡眠終了" : "睡眠開始" },
             "diaper_wet": { feedbackType: "diaper" as const, label: "おしっこ" },
             "diaper_dirty": { feedbackType: "diaper" as const, label: "うんち" },
@@ -119,8 +115,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         variant="rose"
                         icon={<AppIcons.feedingBottle className="h-5 w-5" />}
                         size={BUTTON_SIZE}
-                        onClick={() => handleQuickRecord("feeding_bottle")}
-                        loading={loadingAction === "feeding_bottle"}
+                        onClick={() => handleFeedingModal("BOTTLE")}
                         disabled={isLoading}
                         aria-label="ミルクを記録"
                         animationType="tilt"
@@ -142,8 +137,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         variant="rose"
                         icon={<AppIcons.feedingBreast className="h-5 w-5" />}
                         size={BUTTON_SIZE}
-                        onClick={() => handleQuickRecord("feeding_breast")}
-                        loading={loadingAction === "feeding_breast"}
+                        onClick={() => handleFeedingModal("BREAST")}
                         disabled={isLoading}
                         aria-label="母乳を記録"
                         animationType="tilt"
@@ -224,6 +218,18 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {feedingModalType && (
+                <FeedingQuickAddModal
+                    babyId={Number(babyId)}
+                    feedingType={feedingModalType}
+                    open={feedingModalType !== null}
+                    onOpenChange={(open) => { if (!open) setFeedingModalType(null) }}
+                    onSuccess={mutateRecords}
+                    lastMilkAmount={lastMilkAmount}
+                    lastBottleContentType={lastBottleContentType}
+                />
+            )}
         </div>
     )
 }
