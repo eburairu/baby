@@ -43,7 +43,9 @@
 - **保存**: API に POST して保存する。
     - **処理中フィードバック**: 保存ボタンが押された後、API レスポンスが返るまでの間、ボタンを無効化（Disabled）し、「保存中...」およびスピナーを表示して処理中であることを示す。
 - **クイック記録**:
-    - ダッシュボードの `FeedingWidget` から、タイマーなしで即座に記録を作成可能（詳細はUIコンポーネント構成参照）。
+    - ダッシュボードの `QuickActionBar` のミルク（🍼）・母乳（🤱）ボタンをタップすると `FeedingQuickAddModal` が開く。
+    - モーダルはタップしたボタンに対応するタブ（ミルク or 母乳）が選択済みの状態で開き、ユーザーが詳細を入力してから記録する。
+    - 即時記録（ボタンタップで直接API呼び出し）は行わない。
 
 ### F2: 授乳記録一覧 (タイムライン)
 
@@ -207,7 +209,7 @@ interface FeedingResponse {
 
 - `FeedingPage` (`app/(dashboard)/feeding/page.tsx`): ページラッパー
 - `FeedingWidget` (`frontend/components/dashboard/FeedingWidget.tsx`): ダッシュボード用ウィジェット
-    - **Quick Record機能**: ワンタップで記録を開始できる `WidgetQuickButton` を提供（`useQuickRecord` hook使用）。
+- `FeedingQuickAddModal` (`frontend/components/feeding/FeedingQuickAddModal.tsx`): クイックアクションバーから呼び出される授乳記録モーダル。`FeedingForm` を内包し、初期タブ（ミルク or 母乳）を `feedingType` prop で受け取る。
 - `FeedingForm` (`frontend/components/feeding/feeding-form.tsx`): 入力フォーム（作成・編集兼用）
     - `FeedingTimerSection`: 左右独立タイマーUI。**新規作成時のみ表示**され、編集モードでは非表示。
     - `BreastFeedingFields`: 母乳手動入力フィールド。
