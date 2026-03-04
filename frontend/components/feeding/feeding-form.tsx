@@ -41,11 +41,12 @@ interface FeedingFormProps {
     onSuccess?: () => void
     lastMilkAmount?: number | null
     lastBottleContentType?: BottleContentType | null
+    defaultFeedingType?: FeedingType
 }
 
-export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount, lastBottleContentType }: FeedingFormProps) {
+export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount, lastBottleContentType, defaultFeedingType }: FeedingFormProps) {
     const isEditing = !!initialData
-    const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? "BREAST")
+    const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? defaultFeedingType ?? "BREAST")
 
     // 授乳タイマーの同期
     useFeedingTimerSync(isEditing ? null : babyId)
