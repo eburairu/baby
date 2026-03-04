@@ -7,16 +7,13 @@ import { cn } from "@/lib/utils"
 import { ShieldOff } from "lucide-react"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { DASHBOARD_UI } from "@/constants/dashboard"
-
-interface ErrorWithStatus {
-    status?: number;
-}
+import { isApiError } from "@/lib/api"
 
 interface HexagonWidgetCardProps {
     title?: string
     icon?: React.ReactNode
     children?: React.ReactNode
-    isError?: boolean | ErrorWithStatus | null | unknown
+    isError?: boolean | null | unknown
     isLoading?: boolean
     isSkeleton?: boolean
     className?: string
@@ -41,7 +38,7 @@ export const HexagonWidgetCard = ({
     isOverThreshold = false
 }: HexagonWidgetCardProps) => {
     // 403 (Forbidden) のチェック
-    const isForbidden = isError && typeof isError === 'object' && 'status' in isError && (isError as ErrorWithStatus).status === 403;
+    const isForbidden = isApiError(isError) && isError.status === 403;
 
     return (
         <div className={cn(

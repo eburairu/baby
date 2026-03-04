@@ -56,7 +56,8 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
                             onClick={() => setIsCharacteristicsExpanded(!isCharacteristicsExpanded)}
                             aria-expanded={isCharacteristicsExpanded}
                             aria-controls={characteristicsId}
-                            className="flex items-center justify-between w-full mb-2 px-1 py-1 -mx-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/50"
+                            aria-label={isCharacteristicsExpanded ? "赤ちゃんの特徴を閉じる" : "赤ちゃんの特徴を開く"}
+                            className="flex items-center justify-between w-full mb-2 px-1 py-1 -mx-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors hover:bg-gray-50 dark:hover:bg-zinc-800/50 active:bg-gray-100 dark:active:bg-zinc-700/50"
                         >
                             <div className="flex items-center gap-1.5">
                                 <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 fill-amber-500/10" />

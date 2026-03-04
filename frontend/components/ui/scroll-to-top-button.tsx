@@ -29,7 +29,7 @@ export function ScrollToTopButton({ hasBottomBar = false }: { hasBottomBar?: boo
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             variant="primary"
             size={56}
-            className="shadow-lg"
+            className="drop-shadow-lg"
             aria-label="ページトップへ戻る"
             icon={<ArrowUp className="h-5 w-5" />}
           />
