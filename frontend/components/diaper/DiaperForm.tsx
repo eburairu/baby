@@ -29,6 +29,7 @@ import { PoopDetailsFields } from "./PoopDetailsFields"
 interface Props {
     babyId: string | number
     initialData?: Diaper
+    defaultDiaperType?: DiaperType
     onSuccess: (recordId?: number) => void
     onUpdate?: (id: number, data: DiaperUpdate) => Promise<Diaper | undefined>
 }
@@ -79,13 +80,13 @@ function DiaperTypeButton({ type, selectedType, onClick, icon, label }: DiaperTy
     )
 }
 
-export function DiaperForm({ babyId, initialData, onSuccess, onUpdate }: Props) {
+export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, onUpdate }: Props) {
     const isEditing = !!initialData
 
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
         defaultValues: {
-            diaper_type: initialData?.diaper_type ?? DiaperType.WET,
+            diaper_type: initialData?.diaper_type ?? defaultDiaperType ?? DiaperType.WET,
             change_time: initialData?.change_time
                 ? formatDateTimeLocal(initialData.change_time)
                 : formatDateTimeLocal(new Date()),
