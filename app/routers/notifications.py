@@ -187,12 +187,13 @@ def update_settings(
     return settings
 
 
-@router.post("/test", dependencies=[Depends(test_notification_limiter)])
+@router.post("/test")
 def send_test_notification(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """テスト通知を自分自身に送信する"""
+    test_notification_limiter.check(f"user_{current_user.id}")
     from app.utils.notifications import send_push_notification
 
     subscriptions = db.query(PushSubscription).filter(
