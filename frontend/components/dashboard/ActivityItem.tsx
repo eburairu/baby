@@ -38,7 +38,7 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
             <button
                 type="button"
                 aria-label={`${label}の詳細を表示`}
-                className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
+                className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 active:bg-gray-100 dark:active:bg-zinc-700 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
                 onClick={() => onClick(record)}
             >
                 <Hexagon size={36} cornerRadius={6} className={cn("shrink-0", bgColorClass)}>
