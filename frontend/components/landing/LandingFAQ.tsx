@@ -41,7 +41,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
                 onClick={() => setOpen(!open)}
                 aria-expanded={open}
                 aria-controls={id}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer focus:outline-none"
+                className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 dark:hover:bg-zinc-800 active:bg-slate-100 dark:active:bg-zinc-700 transition-colors cursor-pointer focus:outline-none"
             >
                 <span className="font-bold text-slate-800 dark:text-slate-200">{question}</span>
                 {open ? (
