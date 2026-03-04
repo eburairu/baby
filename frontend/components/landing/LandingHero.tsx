@@ -97,10 +97,11 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-900 rounded-full p-1 border border-slate-200 dark:border-zinc-800">
                         <button
                             onClick={() => setActiveView("desktop")}
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
+                            aria-pressed={activeView === "desktop"}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
                                 activeView === "desktop"
                                     ? "bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-100 shadow-sm"
-                                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-zinc-800/50"
                             }`}
                         >
                             <Monitor className="w-3.5 h-3.5" />
@@ -108,10 +109,11 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                         </button>
                         <button
                             onClick={() => setActiveView("mobile")}
-                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
+                            aria-pressed={activeView === "mobile"}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
                                 activeView === "mobile"
                                     ? "bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-100 shadow-sm"
-                                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-zinc-800/50"
                             }`}
                         >
                             <Smartphone className="w-3.5 h-3.5" />
