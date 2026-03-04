@@ -4,6 +4,7 @@ from typing import List, Optional
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
 from app.models.notification import PushSubscription, NotificationSetting, AppNotification
+from app.utils.rate_limit import RateLimiter
 from app.schemas.notification import (
     AppNotificationResponse,
     UnreadCountResponse,
@@ -14,6 +15,12 @@ from app.schemas.notification import (
 )
 
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
+
+test_notification_limiter = RateLimiter(
+    requests_limit=3,
+    time_window=60,
+    error_message="Too many test notifications requested. Please try again later.",
+)
 
 
 # ---- アプリ内通知センター ----
@@ -186,6 +193,7 @@ def send_test_notification(
     current_user: User = Depends(get_current_user)
 ):
     """テスト通知を自分自身に送信する"""
+    test_notification_limiter.check(f"user_{current_user.id}")
     from app.utils.notifications import send_push_notification
 
     subscriptions = db.query(PushSubscription).filter(

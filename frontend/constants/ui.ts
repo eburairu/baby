@@ -27,4 +27,13 @@ export const RECORD_TYPE_COLORS = {
   [RECORD_TYPES.CONTRACTION]: 'text-orange-500 dark:text-orange-400',
 } as const;
 
+export const RECORD_TYPE_BG_COLORS = {
+  [RECORD_TYPES.FEEDING]: 'text-orange-100 dark:text-orange-950/40',
+  [RECORD_TYPES.SLEEP]: 'text-indigo-100 dark:text-indigo-950/40',
+  [RECORD_TYPES.DIAPER]: 'text-amber-100 dark:text-amber-950/40',
+  [RECORD_TYPES.GROWTH]: 'text-green-100 dark:text-green-950/40',
+  [RECORD_TYPES.NOTE]: 'text-blue-100 dark:text-blue-950/40',
+  [RECORD_TYPES.CONTRACTION]: 'text-orange-100 dark:text-orange-950/40',
+} as const;
+
 export const RECORD_TYPE_LUCIDE_ICONS: Record<keyof typeof RECORD_TYPE_LABELS, LucideIcon> = RECORD_TYPE_ICONS;

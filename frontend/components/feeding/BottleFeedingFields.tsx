@@ -57,6 +57,7 @@ export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
                                         form.setValue("amount_ml", Math.max(0, current - 10), { shouldValidate: true });
                                     }}
                                     className="h-10 w-10 shrink-0"
+                                    aria-label="減らす"
                                 >
                                     <Minus className="h-4 w-4" />
                                 </Button>
@@ -70,6 +71,7 @@ export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
                                         form.setValue("amount_ml", Math.min(500, current + 10), { shouldValidate: true });
                                     }}
                                     className="h-10 w-10 shrink-0"
+                                    aria-label="増やす"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </Button>

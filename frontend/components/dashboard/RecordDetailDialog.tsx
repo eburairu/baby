@@ -3,7 +3,6 @@ import { RECORD_TYPES } from '@/types/enums';
 
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,8 +10,11 @@ import { BabyRecord } from "@/types/record"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useUser } from "@/hooks/useAuth"
 import { CommentSection } from "@/components/records/CommentSection"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Loader2 } from "lucide-react"
 
 interface Props {
   record: BabyRecord | null
@@ -95,8 +97,10 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     }
   }
 
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+
   const handleDelete = async () => {
-    if (!record || !confirm("この記録を削除してもよろしいですか？")) return
+    if (!record) return
 
     setLoading(true)
     try {
@@ -110,6 +114,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         case "contraction": endpoint = `/contractions/${record.id}`; break
       }
       await api.delete(endpoint)
+      setDeleteConfirmOpen(false)
       onSuccess()
       onOpenChange(false)
     } catch (error) {
@@ -123,15 +128,13 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
   if (!record) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span>{TYPE_LABELS[record.type] || record.type}の記録</span>
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
+    <>
+      <EditDialogBase
+        open={open}
+        onOpenChange={onOpenChange}
+        title={<span>{TYPE_LABELS[record.type] || record.type}の記録</span>}
+      >
+        <div className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-zinc-300">日時</Label>
@@ -162,12 +165,12 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
               />
             </div>
 
-            <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-4 pt-4 border-t dark:border-zinc-800">
               {canWrite && (
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={handleDelete}
+                  onClick={() => setDeleteConfirmOpen(true)}
                   disabled={loading}
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 sm:mr-auto"
                 >
@@ -193,7 +196,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                   </Button>
                 )}
               </div>
-            </DialogFooter>
+            </div>
           </form>
 
           {/* コメントセクションの追加 */}
@@ -204,7 +207,25 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
             onCommentChange={onSuccess}
           />
         </div>
-      </DialogContent>
-    </Dialog>
+      </EditDialogBase>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
+            <AlertDialogDescription data-sentry-unmask>
+              この記録を削除しますか？この操作は取り消せません。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={loading} data-sentry-unmask>キャンセル</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              削除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }

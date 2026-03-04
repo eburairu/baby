@@ -5,6 +5,7 @@ import { Baby, MessageCircle, Sparkles, Bell, Clock, Loader2 } from "lucide-reac
 import { cn } from "@/lib/utils"
 import type { AppNotification } from "@/hooks/useNotifications"
 import { markAsRead } from "@/hooks/useNotifications"
+import { Hexagon } from "@/components/ui/hexagon"
 
 const TYPE_ICON: Record<AppNotification["type"], React.ReactNode> = {
     family_record: <Baby className="h-4 w-4 text-rose-500" />,
@@ -73,13 +74,18 @@ export function NotificationItem({ notification, onRead, onClick }: Props) {
                 isProcessing && "opacity-70 cursor-wait"
             )}
         >
-            <div className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm">
+            <Hexagon
+                size={32}
+                className="mt-0.5 shrink-0 text-white dark:text-zinc-800"
+                borderWidth={0}
+                borderColor="transparent"
+            >
                 {isProcessing ? (
                     <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
                 ) : (
                     TYPE_ICON[notification.type]
                 )}
-            </div>
+            </Hexagon>
             <div className="flex-1 min-w-0">
                 <p className={cn(
                     "text-sm text-gray-800 dark:text-zinc-100 leading-snug",

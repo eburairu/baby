@@ -25,3 +25,7 @@
 ## 2026-03-05 - [SQLAlchemy N+1 Loop Prevention in Family Retrieval]
 **Learning:** Querying related entity aggregations (like member count per family) inside a loop (`db.query(func.count(FamilyUser.user_id)).filter(FamilyUser.family_id == f.id).scalar()`) creates a significant N+1 bottleneck when paginating families in the admin dashboard.
 **Action:** Extract family IDs into a list (`[f.id for f in families]`) and execute a single grouped query (`.in_(family_ids)` combined with `.group_by(FamilyUser.family_id)`) to map counts into a dictionary before the loop. This reduces queries from O(N) to O(1).
+
+## 2026-03-09 - [Fetch, Sort, Truncate, THEN Enrich pattern]
+**Learning:** When aggregating lists from multiple tables in memory (like a timeline), fetching auxiliary data (like comment counts and related users) for *all* retrieved items before truncating the list to the pagination `limit` causes explosive DB load. If each table returns up to 1000 items, you might query auxiliary data for 7000 items, only to discard 6950 of them after sorting.
+**Action:** Always follow the "Fetch -> Sort -> Truncate -> THEN Enrich" pattern. Sort the unified in-memory list and apply the `limit` slice *before* executing the `IN()` queries for related entities like comments and user mappings.
