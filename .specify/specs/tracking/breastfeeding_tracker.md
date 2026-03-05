@@ -191,21 +191,9 @@ interface FeedingUpdate {
 ### レスポンススキーマ (`FeedingResponse`)
 
 ```typescript
-interface FeedingResponse {
+interface FeedingResponse extends FeedingCreate {
   id: number
-  baby_id: number
   user_id: number
-  feeding_time: string
-  feeding_type: "BREAST" | "BOTTLE" | "MIXED"
-  amount_ml: number | null
-  duration_minutes: number | null
-  left_breast_minutes: number | null
-  right_breast_minutes: number | null
-  last_breast_side: "LEFT" | "RIGHT" | "BOTH" | null
-  bottle_content_type: "FORMULA" | "EXPRESSED_MILK" | "MIXED" | null
-  feeding_completion: "FULL" | "PARTIAL" | null
-  burped: boolean | null
-  notes: string | null
   // 以下はRouterで付与される計算フィールド
   recorded_by_display_name: string | null // 記録者の表示名
   comment_count: number // コメント数（デフォルト: 0）
