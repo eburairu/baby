@@ -5,6 +5,7 @@ import { useSleeps } from "@/hooks/useSleep"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { SleepTimer } from "@/components/sleep/sleep-timer"
 import { SleepStats } from "@/components/sleep/sleep-stats"
+import { SleepChart } from "@/components/sleep/SleepChart"
 import { SleepHistory } from "@/components/sleep/sleep-history"
 import { SleepCreateDialog } from "@/components/sleep/SleepCreateDialog"
 import { TipsCard } from "@/components/ui/tips-card"
@@ -22,7 +23,7 @@ export default function SleepPage() {
         commentRecordId,
     } = useRecordPage()
 
-    const { isError: sleepError, isLoading: sleepsLoading, mutate: refreshSleeps } = useSleeps(babyId ?? null)
+    const { sleeps, isError: sleepError, isLoading: sleepsLoading, mutate: refreshSleeps } = useSleeps(babyId ?? null)
 
     const handleRefresh = async () => {
         await refreshSleeps()
@@ -40,6 +41,8 @@ export default function SleepPage() {
             onRefresh={handleRefresh}
         >
             <SleepStats babyId={babyId!} />
+
+            <SleepChart sleeps={sleeps ?? []} />
 
             <TipsCard {...sleepTips} />
 
