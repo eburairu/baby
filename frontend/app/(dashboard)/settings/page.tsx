@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck, Sparkles, Heart } from "lucide-react"
+import { Users, Baby, User, Moon, LogOut, Bell, Info, ShieldCheck, Heart } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useUser } from "@/hooks/useAuth"
 import { usePermissions } from "@/hooks/usePermissions"
@@ -65,15 +65,6 @@ const menuItems = [
         description: "メンバーの閲覧アクセス設定",
         color: "text-emerald-600",
         bg: "bg-emerald-50 dark:bg-emerald-950/30",
-        adminOnly: true,
-    },
-    {
-        href: "/settings/ai",
-        icon: Sparkles,
-        label: "AI 設定",
-        description: "モデルや生成パラメーターの調整",
-        color: "text-amber-600",
-        bg: "bg-amber-50 dark:bg-amber-950/30",
         adminOnly: true,
     },
 ]

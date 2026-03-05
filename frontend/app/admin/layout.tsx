@@ -4,13 +4,14 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SuperAdminGuard } from "@/components/auth/SuperAdminGuard";
-import { 
-  LayoutDashboard, 
-  Users, 
-  UsersRound, 
+import {
+  LayoutDashboard,
+  Users,
+  UsersRound,
   ChevronLeft,
   ShieldCheck,
-  Menu
+  Menu,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -27,6 +28,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: "ダッシュボード", href: "/admin", icon: LayoutDashboard },
     { name: "家族一覧", href: "/admin/families", icon: UsersRound },
     { name: "ユーザー管理", href: "/admin/users", icon: Users },
+    { name: "AI 設定", href: "/admin/ai", icon: Sparkles },
   ];
 
   return (
