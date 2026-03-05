@@ -4,6 +4,7 @@ import { AppIcons } from "@/constants/icons"
 import { useDiapers } from "@/hooks/useDiaper"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
+import { DiaperChart } from "@/components/diaper/DiaperChart"
 import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
 import { TipsCard } from "@/components/ui/tips-card"
@@ -40,6 +41,8 @@ export default function DiaperPage() {
             onRefresh={handleRefresh}
         >
             <DiaperStats diapers={diapers || []} />
+
+            <DiaperChart diapers={diapers || []} />
 
             <TipsCard {...diaperTips} />
 
