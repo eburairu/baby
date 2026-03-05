@@ -49,18 +49,27 @@ export function DiaperChart({ diapers }: DiaperChartProps) {
     const hasAny = trendData.some(d => d.wet > 0 || d.dirty > 0)
 
     // リズムビュー用データ
-    const { rhythmPoints, medianIntervalMin, lastTimestamp } = useMemo(() => {
+    const { wetPoints, dirtyPoints, medianIntervalMin, lastTimestamp } = useMemo(() => {
         const todayStr = format(new Date(), "yyyy-MM-dd")
         const normalized = diapers.map(normalizeDiaperFromEntity)
         const timestamps = normalized.map(d => d.timestamp)
 
-        const items = normalized.map(d => ({
-            timestamp: d.timestamp,
-            label: d.type === "WET" ? "おしっこ" : d.type === "DIRTY" ? "うんち" : "おしっこ+うんち",
-        }))
+        const wetItems = normalized
+            .filter(d => d.type === "WET" || d.type === "BOTH")
+            .map(d => ({
+                timestamp: d.timestamp,
+                label: d.type === "BOTH" ? "おしっこ+うんち" : "おしっこ",
+            }))
+        const dirtyItems = normalized
+            .filter(d => d.type === "DIRTY" || d.type === "BOTH")
+            .map(d => ({
+                timestamp: d.timestamp,
+                label: d.type === "BOTH" ? "おしっこ+うんち" : "うんち",
+            }))
 
         return {
-            rhythmPoints: buildRhythmData(items, todayStr),
+            wetPoints: buildRhythmData(wetItems, todayStr),
+            dirtyPoints: buildRhythmData(dirtyItems, todayStr),
             medianIntervalMin: timestamps.length >= MIN_RECORDS_FOR_PREDICTION
                 ? calcMedianIntervalMin(timestamps)
                 : null,
@@ -135,7 +144,8 @@ export function DiaperChart({ diapers }: DiaperChartProps) {
             ) : (
                 <RhythmChartView
                     groups={[
-                        { data: rhythmPoints, fill: isDark ? "#fbbf24" : "#f59e0b", name: "おむつ" },
+                        { data: wetPoints, fill: isDark ? "#38bdf8" : "#0ea5e9", name: "おしっこ", shape: "drop" },
+                        { data: dirtyPoints, fill: isDark ? "#fb923c" : "#f97316", name: "うんち", shape: "triangle" },
                     ]}
                     medianIntervalMin={medianIntervalMin}
                     lastTimestampISO={lastTimestamp}
