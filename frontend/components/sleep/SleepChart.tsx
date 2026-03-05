@@ -1,87 +1,93 @@
 "use client"
 import {
-    ComposedChart,
+    BarChart,
     Bar,
-    Line,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    Legend,
 } from "recharts"
 import { useTheme } from "next-themes"
 import { useMemo, useState } from "react"
-import { format } from "date-fns"
+import { format, subDays, isSameDay } from "date-fns"
 import { StatsCard } from "@/components/ui/stats-card"
 import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
 import { RhythmChartView } from "@/components/charts/RhythmChartView"
-import { calculateDailyStats, normalizeFeedingFromEntity } from "@/lib/feedingUtils"
 import { buildRhythmData, calcMedianIntervalMin } from "@/lib/rhythmUtils"
-import type { Feeding } from "@/types/feeding"
+import type { Sleep } from "@/types/sleep"
 
 const CHART_HEIGHT = 200
 const MIN_RECORDS_FOR_PREDICTION = 5
 
-interface FeedingChartProps {
-    feedings: Feeding[]
+interface SleepChartProps {
+    sleeps: Sleep[]
 }
 
-export function FeedingChart({ feedings }: FeedingChartProps) {
+interface DailySleepData {
+    date: string
+    count: number
+    totalMin: number
+}
+
+function calculateDailySleepStats(sleeps: Sleep[], days = 7): DailySleepData[] {
+    const today = new Date()
+    return Array.from({ length: days }, (_, i) => {
+        const day = subDays(today, days - 1 - i)
+        const daySleeps = sleeps.filter(s => isSameDay(new Date(s.start_time), day))
+        const totalMin = daySleeps.reduce((acc, s) => {
+            if (!s.end_time) return acc
+            const ms = new Date(s.end_time).getTime() - new Date(s.start_time).getTime()
+            return acc + Math.floor(ms / 60000)
+        }, 0)
+        return {
+            date: format(day, "M/d"),
+            count: daySleeps.length,
+            totalMin,
+        }
+    })
+}
+
+export function SleepChart({ sleeps }: SleepChartProps) {
     const { resolvedTheme } = useTheme()
     const isDark = resolvedTheme === "dark"
 
     const [view, setView] = useState<"trend" | "rhythm">(() => {
         if (typeof window === "undefined") return "trend"
-        return (localStorage.getItem("feeding-chart-view") as "trend" | "rhythm") ?? "trend"
+        return (localStorage.getItem("sleep-chart-view") as "trend" | "rhythm") ?? "trend"
     })
 
     const handleViewChange = (v: "trend" | "rhythm") => {
         setView(v)
-        localStorage.setItem("feeding-chart-view", v)
+        localStorage.setItem("sleep-chart-view", v)
     }
 
     // 推移ビュー用データ
-    const trendData = useMemo(() => {
-        const normalized = feedings.map(normalizeFeedingFromEntity)
-        return calculateDailyStats(normalized, 7)
-    }, [feedings])
-
+    const trendData = useMemo(() => calculateDailySleepStats(sleeps, 7), [sleeps])
     const hasAny = trendData.some(d => d.count > 0)
 
-    // リズムビュー用データ
-    const { breastPoints, bottlePoints, medianIntervalMin, lastTimestamp } = useMemo(() => {
+    // リズムビュー用データ（睡眠開始時刻をプロット）
+    const { rhythmPoints, medianIntervalMin, lastTimestamp } = useMemo(() => {
         const todayStr = format(new Date(), "yyyy-MM-dd")
-        const normalized = feedings.map(normalizeFeedingFromEntity)
-        const timestamps = normalized.map(f => f.timestamp)
-
-        const breastItems = normalized
-            .filter(f => f.type === "BREAST" || f.type === "MIXED")
-            .map(f => ({ timestamp: f.timestamp, label: "母乳" }))
-        const bottleItems = normalized
-            .filter(f => f.type === "BOTTLE" || f.type === "MIXED")
-            .map(f => ({
-                timestamp: f.timestamp,
-                label: f.amount > 0 ? `ミルク ${f.amount}ml` : "ミルク",
-            }))
+        const timestamps = sleeps.map(s => s.start_time)
+        const items = sleeps.map(s => ({
+            timestamp: s.start_time,
+            label: "就寝",
+        }))
 
         return {
-            breastPoints: buildRhythmData(breastItems, todayStr),
-            bottlePoints: buildRhythmData(bottleItems, todayStr),
+            rhythmPoints: buildRhythmData(items, todayStr),
             medianIntervalMin: timestamps.length >= MIN_RECORDS_FOR_PREDICTION
                 ? calcMedianIntervalMin(timestamps)
                 : null,
-            lastTimestamp: feedings[0]?.feeding_time ?? null,
+            lastTimestamp: sleeps[0]?.start_time ?? null,
         }
-    }, [feedings])
+    }, [sleeps])
 
     const gridColor = isDark ? "#3f3f46" : "#e5e7eb"
     const textColor = isDark ? "#a1a1aa" : "#6b7280"
     const tooltipBg = isDark ? "#18181b" : "#ffffff"
     const tooltipBorder = isDark ? "#3f3f46" : "#e5e7eb"
-
-    const hasBreast = trendData.some(d => d.breastMin > 0)
-    const hasBottle = trendData.some(d => d.bottleMl > 0)
 
     return (
         <StatsCard>
@@ -97,7 +103,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                     <p className="py-8 text-center text-sm text-gray-400 dark:text-zinc-500">記録がありません</p>
                 ) : (
                     <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-                        <ComposedChart data={trendData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+                        <BarChart data={trendData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                             <XAxis
                                 dataKey="date"
@@ -106,23 +112,12 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                                 tickLine={false}
                             />
                             <YAxis
-                                yAxisId="count"
                                 allowDecimals={false}
                                 tick={{ fontSize: 11, fill: textColor }}
                                 axisLine={false}
                                 tickLine={false}
                                 width={24}
                             />
-                            {(hasBreast || hasBottle) && (
-                                <YAxis
-                                    yAxisId="amount"
-                                    orientation="right"
-                                    tick={{ fontSize: 11, fill: textColor }}
-                                    axisLine={false}
-                                    tickLine={false}
-                                    width={32}
-                                />
-                            )}
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: tooltipBg,
@@ -133,48 +128,24 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                                 formatter={(value, name) => {
                                     const v = value as number
                                     if (name === "回数") return [`${v}回`, name]
-                                    if (name === "母乳(分)") return [`${v}分`, name]
-                                    if (name === "ミルク(ml)") return [`${v}ml`, name]
+                                    if (name === "合計(分)") return [`${v}分`, name]
                                     return [v, name as string]
                                 }}
                             />
-                            <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
                             <Bar
-                                yAxisId="count"
                                 dataKey="count"
                                 name="回数"
-                                fill={isDark ? "#fb7185" : "#f43f5e"}
+                                fill={isDark ? "#818cf8" : "#6366f1"}
                                 radius={[3, 3, 0, 0]}
                                 maxBarSize={32}
                             />
-                            {hasBreast && (
-                                <Line
-                                    yAxisId="amount"
-                                    dataKey="breastMin"
-                                    name="母乳(分)"
-                                    stroke={isDark ? "#818cf8" : "#6366f1"}
-                                    dot={false}
-                                    strokeWidth={2}
-                                />
-                            )}
-                            {hasBottle && (
-                                <Line
-                                    yAxisId="amount"
-                                    dataKey="bottleMl"
-                                    name="ミルク(ml)"
-                                    stroke={isDark ? "#fbbf24" : "#f59e0b"}
-                                    dot={false}
-                                    strokeWidth={2}
-                                />
-                            )}
-                        </ComposedChart>
+                        </BarChart>
                     </ResponsiveContainer>
                 )
             ) : (
                 <RhythmChartView
                     groups={[
-                        { data: breastPoints, fill: isDark ? "#fb7185" : "#f43f5e", name: "母乳" },
-                        { data: bottlePoints, fill: isDark ? "#fbbf24" : "#f59e0b", name: "ミルク" },
+                        { data: rhythmPoints, fill: isDark ? "#818cf8" : "#6366f1", name: "就寝" },
                     ]}
                     medianIntervalMin={medianIntervalMin}
                     lastTimestampISO={lastTimestamp}
