@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton"
 import { PullToRefresh } from "@/components/ui/pull-to-refresh"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
+import { HexagonWidgetCard } from "@/components/dashboard/HexagonWidgetCard"
 import { DASHBOARD_UI } from "@/constants/dashboard"
 import dynamic from "next/dynamic"
 import { resolveThreshold } from '@/lib/thresholdUtils'
@@ -115,7 +116,11 @@ export default function DashboardPage() {
                                     animate={false}
                                 >
                                     {[...Array(7)].map((_, i) => (
-                                        <div key={i} className="animate-pulse bg-muted/50 w-full h-full [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]" />
+                                        <HexagonWidgetCard
+                                            key={i}
+                                            isSkeleton
+                                            size={honeycombSize}
+                                        />
                                     ))}
                                 </HoneycombGrid>
                             </motion.div>
