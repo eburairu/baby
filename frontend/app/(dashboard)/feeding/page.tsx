@@ -5,6 +5,7 @@ import { AppIcons } from "@/constants/icons"
 import { useFeeding } from "@/hooks/useFeeding"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { FeedingStats } from "@/components/feeding/feeding-stats"
+import { FeedingChart } from "@/components/feeding/FeedingChart"
 import { FeedingForm } from "@/components/feeding/feeding-form"
 import { FeedingHistory } from "@/components/feeding/feeding-history"
 import { TipsCard } from "@/components/ui/tips-card"
@@ -58,6 +59,8 @@ export default function FeedingPage() {
             onRefresh={refreshFeedings}
         >
             <FeedingStats summary={summary} />
+
+            <FeedingChart feedings={feedings ?? []} />
 
             <TipsCard {...feedingTips} />
 
