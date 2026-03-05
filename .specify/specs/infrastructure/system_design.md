@@ -98,6 +98,8 @@ baby-app/
 - **`type`**: 記録種別 (`feeding`, `sleep`, `diaper`, `growth`, `contraction`, `note`)
 - **`timestamp`**: 記録の主たる日時
 - **`details`**: 種別ごとの詳細データ（`notes` など）を格納するオブジェクト
+- **`comment_count`**: 記録に対するコメント数
+- **`recorded_by_display_name`**: 記録者の表示名
 
 ## 権限管理
 
