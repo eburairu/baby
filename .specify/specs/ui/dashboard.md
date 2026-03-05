@@ -160,7 +160,7 @@ Botoro のメイン画面（ホーム）となるダッシュボードの仕様�
 
 - **GET /api/babies/{baby_id}/records**
     - **Query Params**:
-        - `limit`: 取得件数 (default: 50, min: 1, max: 1000)
+        - `limit`: 取得件数 (default: 20, min: 1, max: 100)
     - **Response**: `List[UnifiedRecord]`
 
 **レスポンススキーマ (`UnifiedRecord`)**

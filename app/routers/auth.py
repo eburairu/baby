@@ -27,6 +27,13 @@ login_limiter = RateLimiter(
     error_message="Too many login attempts. Please try again later.",
 )
 
+# Limit password change attempts to 3 per 60 seconds
+change_password_limiter = RateLimiter(
+    requests_limit=3,
+    time_window=60,
+    error_message="Too many password change attempts. Please try again later.",
+)
+
 # Limit registration attempts to 3 per 60 seconds to prevent spam
 register_limiter = RateLimiter(
     requests_limit=3,
@@ -51,7 +58,7 @@ def _create_session(db: Session, user_id: int) -> str:
     return token
 
 
-@router.post("/change-password", status_code=204)
+@router.post("/change-password", status_code=204, dependencies=[Depends(change_password_limiter)])
 def change_password(
     req: PasswordChangeRequest,
     request: Request,
