@@ -42,9 +42,9 @@ export function TipsCard({ storageKey, color, tips }: TipsCardProps) {
 
   return (
     <Collapsible open={isOpen} onOpenChange={handleOpenChange}>
-      <div className={cn("rounded-xl border overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1 focus-within:ring-offset-background", c.border, c.bg)}>
+      <div className={cn("rounded-xl border overflow-hidden", c.border, c.bg)}>
         <CollapsibleTrigger className={cn(
-          "w-full flex items-center justify-between px-4 py-3 transition-colors focus:outline-none",
+          "w-full flex items-center justify-between px-4 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
           c.trigger
         )}>
           <div className="flex items-center gap-2">
