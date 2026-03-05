@@ -94,12 +94,14 @@ type ShapeRenderer = (props: ShapeProps) => React.ReactElement | null
 
 function makeShapeRenderer(shape: RhythmShape): ShapeRenderer | undefined {
     if (shape === "circle") return undefined
-    return (props: ShapeProps) => {
+    const ShapeComponent = (props: ShapeProps) => {
         if (shape === "heart") return <HeartShape {...props} />
         if (shape === "drop") return <DropShape {...props} />
         if (shape === "triangle") return <TriangleShape {...props} />
         return null
     }
+    ShapeComponent.displayName = `RhythmShape_${shape}`
+    return ShapeComponent
 }
 
 export function RhythmChartView({
