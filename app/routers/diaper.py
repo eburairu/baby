@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -26,8 +26,8 @@ def _build_diaper_response(record: Diaper, user_map: dict, comment_count_map: di
 @router.get("/", response_model=List[DiaperResponse])
 def get_diapers(
     baby_id: int,
-    skip: int = 0,
-    limit: int = MAX_PAGINATION_LIMIT,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(MAX_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
