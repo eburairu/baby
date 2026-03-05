@@ -12,9 +12,11 @@ import {
 import { useTheme } from "next-themes"
 import type { RhythmPoint } from "@/lib/rhythmUtils"
 
+export type RhythmShape = "circle" | "heart" | "drop" | "triangle"
+
 interface RhythmChartViewProps {
-    /** 色ごとにグループ化されたデータ */
-    groups: { data: RhythmPoint[]; fill: string; name?: string }[]
+    /** 種別ごとにグループ化されたデータ */
+    groups: { data: RhythmPoint[]; fill: string; name?: string; shape?: RhythmShape }[]
     medianIntervalMin: number | null
     lastTimestampISO: string | null
     height?: number
@@ -47,6 +49,59 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Toolti
             <p className="text-gray-500 dark:text-zinc-400">{point.label}</p>
         </div>
     )
+}
+
+// --- カスタムシェイプ ---
+
+const R = 5
+
+interface ShapeProps {
+    cx?: number
+    cy?: number
+    fill?: string
+    opacity?: number
+}
+
+function HeartShape({ cx = 0, cy = 0, fill, opacity }: ShapeProps) {
+    // 上部に2つの丸み、下に向けて尖るハート形
+    const d = [
+        `M ${cx},${cy - R * 0.5}`,
+        `C ${cx - R * 0.6},${cy - R * 0.9} ${cx - R},${cy - R * 0.6} ${cx - R},${cy - R * 0.1}`,
+        `C ${cx - R},${cy + R * 0.4} ${cx},${cy + R} ${cx},${cy + R}`,
+        `C ${cx},${cy + R} ${cx + R},${cy + R * 0.4} ${cx + R},${cy - R * 0.1}`,
+        `C ${cx + R},${cy - R * 0.6} ${cx + R * 0.6},${cy - R * 0.9} ${cx},${cy - R * 0.5} Z`,
+    ].join(" ")
+    return <path d={d} fill={fill} opacity={opacity} />
+}
+
+function DropShape({ cx = 0, cy = 0, fill, opacity }: ShapeProps) {
+    // 上が尖り下が丸い水滴形（teardrop）
+    const d = [
+        `M ${cx},${cy - R}`,
+        `C ${cx + R * 0.6},${cy - R * 0.3} ${cx + R},${cy + R * 0.3} ${cx},${cy + R}`,
+        `C ${cx - R},${cy + R * 0.3} ${cx - R * 0.6},${cy - R * 0.3} ${cx},${cy - R} Z`,
+    ].join(" ")
+    return <path d={d} fill={fill} opacity={opacity} />
+}
+
+function TriangleShape({ cx = 0, cy = 0, fill, opacity }: ShapeProps) {
+    // 上向き正三角形
+    const points = `${cx},${cy - R} ${cx + R * 0.866},${cy + R * 0.5} ${cx - R * 0.866},${cy + R * 0.5}`
+    return <polygon points={points} fill={fill} opacity={opacity} />
+}
+
+type ShapeRenderer = (props: ShapeProps) => React.ReactElement | null
+
+function makeShapeRenderer(shape: RhythmShape): ShapeRenderer | undefined {
+    if (shape === "circle") return undefined
+    const ShapeComponent = (props: ShapeProps) => {
+        if (shape === "heart") return <HeartShape {...props} />
+        if (shape === "drop") return <DropShape {...props} />
+        if (shape === "triangle") return <TriangleShape {...props} />
+        return null
+    }
+    ShapeComponent.displayName = `RhythmShape_${shape}`
+    return ShapeComponent
 }
 
 export function RhythmChartView({
@@ -127,16 +182,20 @@ export function RhythmChartView({
                             }}
                         />
                     )}
-                    {groups.map((g, i) => (
-                        <Scatter
-                            key={i}
-                            name={g.name}
-                            data={g.data}
-                            fill={g.fill}
-                            opacity={0.8}
-                            r={4}
-                        />
-                    ))}
+                    {groups.map((g, i) => {
+                        const shapeRenderer = g.shape ? makeShapeRenderer(g.shape) : undefined
+                        return (
+                            <Scatter
+                                key={i}
+                                name={g.name}
+                                data={g.data}
+                                fill={g.fill}
+                                opacity={0.8}
+                                r={R}
+                                {...(shapeRenderer ? { shape: shapeRenderer } : {})}
+                            />
+                        )
+                    })}
                 </ScatterChart>
             </ResponsiveContainer>
         </div>
