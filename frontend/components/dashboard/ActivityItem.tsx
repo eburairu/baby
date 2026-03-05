@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils"
 interface ActivityItemProps {
     record: BabyRecord
     onClick: (record: BabyRecord) => void
+    tick: number
 }
 
-export const ActivityItem = React.memo(function ActivityItem({ record, onClick }: ActivityItemProps) {
+export const ActivityItem = React.memo(function ActivityItem({ record, onClick, tick: _tick }: ActivityItemProps) {
     const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
     const colorClass = RECORD_TYPE_COLORS[recordType as keyof typeof RECORD_TYPE_COLORS] || 'text-muted-foreground'

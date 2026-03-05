@@ -47,6 +47,7 @@ export function createWidgetMemoComparison(recordType: string) {
         if (prev.babyId !== next.babyId) return false
         if (prev.mutate !== next.mutate) return false
         if (prev.size !== next.size) return false
+        if (prev.thresholdMinutes !== next.thresholdMinutes) return false
         return areRecordsEqual(prev.records, next.records, recordType)
     }
 }

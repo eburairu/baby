@@ -6,6 +6,7 @@ import { BabyRecord } from "@/types/record"
 import dynamic from "next/dynamic"
 import { ActivityItem } from "./ActivityItem"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
+import { useTick } from "@/hooks/useTick"
 
 const RecordDetailDialog = dynamic(() => import("./RecordDetailDialog").then(mod => mod.RecordDetailDialog), {
     ssr: false
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export const RecentActivityFeed = React.memo(function RecentActivityFeed({ records, isLoading, mutate }: Props) {
+    const tick = useTick()
     const [selectedRecord, setSelectedRecord] = useState<BabyRecord | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -62,6 +64,7 @@ export const RecentActivityFeed = React.memo(function RecentActivityFeed({ recor
                                         <ActivityItem
                                             record={record}
                                             onClick={handleRecordClick}
+                                            tick={tick}
                                         />
                                         {(index + 1) % 10 === 0 && (
                                             <li className="list-none">
