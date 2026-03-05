@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Baby as BabyIcon, Pencil, Trash2 } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
+import { SettingsCard } from "./SettingsCard"
 
 import type { Baby } from "@/types/baby"
 
@@ -21,7 +22,7 @@ export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
     const age = baby.birthday ? calcAge(baby.birthday).label : ""
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
+        <SettingsCard>
             <div className="flex items-start justify-between">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -63,6 +64,6 @@ export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
                     </div>
                 )}
             </div>
-        </div>
+        </SettingsCard>
     )
 }

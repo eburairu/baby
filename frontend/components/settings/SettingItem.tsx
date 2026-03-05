@@ -2,6 +2,7 @@ import { ChevronRight, LucideIcon } from "lucide-react"
 import Link from "next/link"
 import React from "react"
 import { Hexagon } from "@/components/ui/hexagon"
+import { SettingsCard } from "./SettingsCard"
 
 interface SettingItemProps {
     href?: string
@@ -29,7 +30,7 @@ export function SettingItem({
     const hexagonColorClass = bgClass.replace(/bg-/g, 'text-');
     
     const content = (
-        <div className={`bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 flex items-center gap-4 transition-colors ${
+        <SettingsCard className={`flex items-center gap-4 ${
             onClick || href ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800" : ""
         } ${
             isDestructive ? "hover:bg-red-50 dark:hover:bg-red-950/20 group" : ""
@@ -58,7 +59,7 @@ export function SettingItem({
             ) : (href || onClick) ? (
                 <ChevronRight className="h-4 w-4 text-gray-400 dark:text-zinc-600" />
             ) : null}
-        </div>
+        </SettingsCard>
     )
 
     if (href) {
