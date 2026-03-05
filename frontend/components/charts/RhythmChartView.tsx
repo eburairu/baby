@@ -78,8 +78,8 @@ function DropShape({ cx = 0, cy = 0, fill, opacity }: ShapeProps) {
     // 上が尖り下が丸い水滴形（teardrop）
     const d = [
         `M ${cx},${cy - R}`,
-        `C ${cx + R * 0.6},${cy - R * 0.3} ${cx + R},${cy + R * 0.3} ${cx},${cy + R}`,
-        `C ${cx - R},${cy + R * 0.3} ${cx - R * 0.6},${cy - R * 0.3} ${cx},${cy - R} Z`,
+        `C ${cx + R * 0.6},${cy - R * 0.3} ${cx + R},${cy + R * 0.7} ${cx},${cy + R}`,
+        `C ${cx - R},${cy + R * 0.7} ${cx - R * 0.6},${cy - R * 0.3} ${cx},${cy - R} Z`,
     ].join(" ")
     return <path d={d} fill={fill} opacity={opacity} />
 }

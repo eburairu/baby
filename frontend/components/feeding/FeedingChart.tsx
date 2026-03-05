@@ -162,7 +162,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                                     yAxisId="amount"
                                     dataKey="bottleMl"
                                     name="ミルク(ml)"
-                                    stroke={isDark ? "#fbbf24" : "#f59e0b"}
+                                    stroke={isDark ? "#60a5fa" : "#3b82f6"}
                                     dot={false}
                                     strokeWidth={2}
                                 />
@@ -174,7 +174,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                 <RhythmChartView
                     groups={[
                         { data: breastPoints, fill: isDark ? "#fb7185" : "#f43f5e", name: "母乳", shape: "heart" },
-                        { data: bottlePoints, fill: isDark ? "#fbbf24" : "#f59e0b", name: "ミルク", shape: "drop" },
+                        { data: bottlePoints, fill: isDark ? "#60a5fa" : "#3b82f6", name: "ミルク", shape: "drop" },
                     ]}
                     medianIntervalMin={medianIntervalMin}
                     lastTimestampISO={lastTimestamp}
