@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useId } from "react"
+import { useState, useId, memo } from "react"
 import { Sparkles, ChevronDown } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
@@ -18,7 +18,7 @@ interface Props {
     selectedBabyId: string
 }
 
-export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, selectedBabyId }: Props) {
+export const BabyProfileCard = memo(function BabyProfileCard({ babies, selectedBabyId }: Props) {
     const selected = babies.find((b) => b.id === selectedBabyId)
     const age = selected?.birthday ? calcAge(selected.birthday) : null
     const prenatalLabel = !selected?.birthday ? getPrenatalLabel(selected?.due_date) : null

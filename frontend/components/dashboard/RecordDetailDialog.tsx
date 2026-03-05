@@ -9,12 +9,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { BabyRecord } from "@/types/record"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useUser } from "@/hooks/useAuth"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { CommentSection } from "@/components/records/CommentSection"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Loader2 } from "lucide-react"
+import { getRecordEndpoint } from "@/lib/recordUtils"
 
 interface Props {
   record: BabyRecord | null
@@ -44,44 +44,51 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     }
   }, [record])
 
+  const { setDeleteTargetId, ConfirmDeleteDialog, isDeleting } = useRecordDelete({
+    resourceName: "記録",
+    onDelete: async () => {
+      if (!record) return
+      const endpoint = getRecordEndpoint(record.type, record.id)
+      await api.delete(endpoint)
+    },
+    onSuccess: () => {
+      onSuccess()
+      onOpenChange(false)
+    }
+  })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!record) return
 
     setLoading(true)
     try {
-      let endpoint = ""
+      const endpoint = getRecordEndpoint(record.type, record.id)
       const isoTimestamp = new Date(record.timestamp).toISOString()
       const body: Record<string, string | null> = { notes }
 
       switch (record.type) {
         case RECORD_TYPES.FEEDING:
-          endpoint = `/feedings/${record.id}`
           body.feeding_time = isoTimestamp
           await api.patch(endpoint, body)
           break
         case "sleep":
-          endpoint = `/sleeps/${record.id}`
           body.start_time = isoTimestamp
           await api.patch(endpoint, body)
           break
         case "diaper":
-          endpoint = `/diapers/${record.id}`
           body.change_time = isoTimestamp
           await api.put(endpoint, body)
           break
         case "growth":
-          endpoint = `/growths/${record.id}`
           // Use format to get YYYY-MM-DD in local time
           body.date = formatDateLocal(new Date(record.timestamp))
           await api.put(endpoint, body)
           break
         case "note":
-          endpoint = `/notes/${record.id}`
           await api.patch(endpoint, { content: notes, note_time: isoTimestamp })
           break
         case "contraction":
-          endpoint = `/contractions/${record.id}`
           body.start_time = isoTimestamp
           await api.patch(endpoint, body)
           break
@@ -92,34 +99,6 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     } catch (error) {
       console.error(error)
       alert("更新に失敗しました")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-
-  const handleDelete = async () => {
-    if (!record) return
-
-    setLoading(true)
-    try {
-      let endpoint = ""
-      switch (record.type) {
-        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
-        case "sleep": endpoint = `/sleeps/${record.id}`; break
-        case "diaper": endpoint = `/diapers/${record.id}`; break
-        case "growth": endpoint = `/growths/${record.id}`; break
-        case "note": endpoint = `/notes/${record.id}`; break
-        case "contraction": endpoint = `/contractions/${record.id}`; break
-      }
-      await api.delete(endpoint)
-      setDeleteConfirmOpen(false)
-      onSuccess()
-      onOpenChange(false)
-    } catch (error) {
-      console.error(error)
-      alert("削除に失敗しました")
     } finally {
       setLoading(false)
     }
@@ -170,8 +149,8 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setDeleteConfirmOpen(true)}
-                  disabled={loading}
+                  onClick={() => setDeleteTargetId(record.id)}
+                  disabled={loading || isDeleting}
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 sm:mr-auto"
                 >
                   削除
@@ -189,7 +168,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 {canWrite && (
                   <Button 
                     type="submit" 
-                    disabled={loading}
+                    disabled={loading || isDeleting}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
                     {loading ? "保存中..." : "保存する"}
@@ -209,23 +188,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         </div>
       </EditDialogBase>
 
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
-            <AlertDialogDescription data-sentry-unmask>
-              この記録を削除しますか？この操作は取り消せません。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={loading} data-sentry-unmask>キャンセル</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              削除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog />
     </>
   )
 }

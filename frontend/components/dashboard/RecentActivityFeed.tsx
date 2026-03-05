@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, memo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { BabyRecord } from "@/types/record"
@@ -24,7 +24,7 @@ interface Props {
     mutate?: () => void
 }
 
-export const RecentActivityFeed = React.memo(function RecentActivityFeed({ records, isLoading, mutate }: Props) {
+export const RecentActivityFeed = memo(function RecentActivityFeed({ records, isLoading, mutate }: Props) {
     const [selectedRecord, setSelectedRecord] = useState<BabyRecord | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
 
