@@ -22,6 +22,9 @@ export const HEX_CONSTANTS = {
   POINTY_W_TO_H: Math.sqrt(3) / 2, // 0.866
   // Flat-topped の場合の幅と高さの比率 (height/width)
   FLAT_H_TO_W: Math.sqrt(3) / 2,
+  // clip-path 用のポリゴン文字列
+  POLYGON_POINTY: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+  POLYGON_FLAT: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
 };
 
 export const Hexagon = ({
@@ -101,8 +104,8 @@ export const Hexagon = ({
         height: effectiveSize.height,
         // コンテナ自体も六角形に近い形にしてヒットエリアを調整
         clipPath: pointy 
-          ? "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)"
-          : "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)"
+          ? HEX_CONSTANTS.POLYGON_POINTY
+          : HEX_CONSTANTS.POLYGON_FLAT
       }}
       {...props}
     >
