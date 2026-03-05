@@ -43,6 +43,7 @@ import { Label } from "@/components/ui/label";
 import { formatJapaneseDatePPP } from "@/lib/dateUtils";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useClipboard } from "@/hooks/useClipboard";
 
 interface FamilyAdminResponse {
   id: number;
@@ -218,6 +219,7 @@ export default function AdminFamilies() {
   const [newFamilyName, setNewFamilyName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [createdFamily, setCreatedFamily] = useState<FamilyCreateResponse | null>(null);
+  const { copyToClipboard } = useClipboard();
 
   const { data: families, isLoading } = useSWR<FamilyAdminResponse[]>(
     `/admin/families${searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""}`,
@@ -260,10 +262,12 @@ export default function AdminFamilies() {
     }
   };
 
-  const copyInviteCode = () => {
+  const copyInviteCode = async () => {
     if (!createdFamily?.invite_code) return;
-    navigator.clipboard.writeText(createdFamily.invite_code);
-    toast.success("招待コードをコピーしました");
+    const success = await copyToClipboard(createdFamily.invite_code);
+    if (success) {
+      toast.success("招待コードをコピーしました");
+    }
   };
 
   return (

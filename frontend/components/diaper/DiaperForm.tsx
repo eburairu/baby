@@ -139,7 +139,7 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
                  if (onUpdate) {
                      return await onUpdate(initialData.id, updatePayload)
                  } else {
-                     return await api.patch<Diaper>(`/diapers/${initialData.id}`, updatePayload)
+                     return await api.put<Diaper>(`/diapers/${initialData.id}`, updatePayload)
                  }
             } : undefined)
         } catch (e) {

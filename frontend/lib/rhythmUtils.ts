@@ -34,7 +34,10 @@ export function buildRhythmData(
 
         if (dayOffset === -1) continue
 
-        const timeMinutes = dt.getHours() * 60 + dt.getMinutes()
+        // Convert UTC time to JST (+09:00) and get hours/minutes
+        // as the test and application expect JST rhythm data
+        const jstDate = new Date(dt.getTime() + 9 * 60 * 60 * 1000)
+        const timeMinutes = jstDate.getUTCHours() * 60 + jstDate.getUTCMinutes()
 
         result.push({
             dayOffset,
