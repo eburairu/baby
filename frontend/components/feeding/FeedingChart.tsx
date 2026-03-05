@@ -173,8 +173,8 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
             ) : (
                 <RhythmChartView
                     groups={[
-                        { data: breastPoints, fill: isDark ? "#fb7185" : "#f43f5e", name: "母乳" },
-                        { data: bottlePoints, fill: isDark ? "#fbbf24" : "#f59e0b", name: "ミルク" },
+                        { data: breastPoints, fill: isDark ? "#fb7185" : "#f43f5e", name: "母乳", shape: "heart" },
+                        { data: bottlePoints, fill: isDark ? "#fbbf24" : "#f59e0b", name: "ミルク", shape: "drop" },
                     ]}
                     medianIntervalMin={medianIntervalMin}
                     lastTimestampISO={lastTimestamp}

@@ -196,3 +196,15 @@
 
 - `schedule_tracker.md` を更新し、「リクエスト/レスポンススキーマ」セクションを新設。`ScheduleCreate` と `ScheduleResponse` のTypeScriptインターフェースを、既存のPydanticモデルに合わせて正確に定義しました（`extends` を使用した継承パターンの適用を含む）。
 - 今後の仕様書のレビューや新規作成においては、エンドポイントのパスやメソッドだけでなく、対応する完全なデータモデル（Request/Response Schema）が記述されているかを徹底して確認します。
+
+## 2026-03-05 - [授乳記録API仕様のレスポンスモデルとバックエンド実装の継承構造の同期]
+
+**学び:**
+
+- 授乳記録（`app/routers/feeding.py`）において、バックエンドのPydanticモデル（`app/schemas/feeding.py`）ではレスポンススキーマ（`FeedingResponse`）がリクエストスキーマ（`FeedingCreate`）を継承（`class FeedingResponse(FeedingCreate):`）して重複フィールドを省略しているにもかかわらず、仕様書（`.specify/specs/tracking/breastfeeding_tracker.md`）ではすべてのプロパティが再定義されており、冗長になっていた。
+- これは他ドメイン（Growth, Milestone, Scheduleなど）でも頻出している、仕様書のTypeScriptインターフェースと実装モデルの継承構造の乖離パターンである。
+
+**アクション:**
+
+- `breastfeeding_tracker.md` の `FeedingResponse` インターフェースを更新し、バックエンドの実装に合わせて `extends FeedingCreate` を使用して冗長なフィールドを削除し、一貫性を持たせた。
+- 今後仕様書をレビューする際は、レスポンススキーマがリクエストスキーマを継承している場合、TypeScriptインターフェース側でも適切に `extends` を用いて冗長な記述を避けることを徹底する。
