@@ -69,7 +69,7 @@ export function RhythmChartView({
         const last = new Date(lastTimestampISO)
         const predMs = last.getTime() + medianIntervalMin * 60 * 1000
         const pred = new Date(predMs)
-        predictionMinutes = pred.getUTCHours() * 60 + pred.getUTCMinutes()
+        predictionMinutes = pred.getHours() * 60 + pred.getMinutes()
     }
 
     const xTicks = [0, 360, 720, 1080, 1440]

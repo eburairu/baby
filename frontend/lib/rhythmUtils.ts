@@ -34,7 +34,7 @@ export function buildRhythmData(
 
         if (dayOffset === -1) continue
 
-        const timeMinutes = dt.getUTCHours() * 60 + dt.getUTCMinutes()
+        const timeMinutes = dt.getHours() * 60 + dt.getMinutes()
 
         result.push({
             dayOffset,
