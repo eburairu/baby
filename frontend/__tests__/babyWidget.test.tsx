@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { calcAge } from "@/lib/ageUtils"
+import { formatJapaneseDate } from "@/lib/dateUtils"
 // TDD: BabyWidget から named export を value import（ファイルが存在しないと Red になる）
 import { BabyWidget } from "@/components/dashboard/BabyWidget"
 
@@ -45,16 +46,11 @@ describe("BabyWidget の表示ロジック", () => {
   })
 
   describe("誕生日フォーマット", () => {
-    const formatBirthday = (birthday: string) => {
-      const d = new Date(birthday)
-      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
-    }
-
     it("'2024-03-15' を '2024年3月15日' に変換できる", () => {
-      expect(formatBirthday("2024-03-15")).toBe("2024年3月15日")
+      expect(formatJapaneseDate("2024-03-15")).toBe("2024年3月15日")
     })
     it("'2025-01-01' を '2025年1月1日' に変換できる", () => {
-      expect(formatBirthday("2025-01-01")).toBe("2025年1月1日")
+      expect(formatJapaneseDate("2025-01-01")).toBe("2025年1月1日")
     })
   })
 

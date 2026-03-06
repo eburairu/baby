@@ -3,6 +3,7 @@
 import { memo } from "react"
 import { AppIcons } from "@/constants/icons"
 import { useDailySummaries } from "@/hooks/useDailySummary"
+import { formatMonthDay } from "@/lib/dateUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import Link from "next/link"
@@ -14,7 +15,7 @@ export const DiaryWidget = memo(function DiaryWidget({ babyId, size }: BaseWidge
     
     // 日付ラベル
     const dateLabel = latestSummary 
-        ? `${new Date(latestSummary.summary_date + "T00:00:00").getMonth() + 1}/${new Date(latestSummary.summary_date + "T00:00:00").getDate()}`
+        ? formatMonthDay(latestSummary.summary_date + "T00:00:00")
         : null
 
     return (
