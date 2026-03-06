@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { useTheme } from "next-themes"
 import type { RhythmPoint } from "@/lib/rhythmUtils"
+import { getChartGridColor, getChartTextColor } from "@/components/charts/ChartStyles"
 
 export type RhythmShape = "circle" | "heart" | "drop" | "triangle"
 
@@ -115,8 +116,8 @@ export function RhythmChartView({
 
     const hasAny = groups.some(g => g.data.length > 0)
 
-    const gridColor = isDark ? "#3f3f46" : "#e5e7eb"
-    const textColor = isDark ? "#a1a1aa" : "#6b7280"
+    const gridColor = getChartGridColor(isDark)
+    const textColor = getChartTextColor(isDark)
 
     // 予測ライン: 最終記録時刻 + 中央値間隔
     let predictionMinutes: number | null = null

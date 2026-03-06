@@ -17,6 +17,7 @@ import type { Growth } from "@/types/growth"
 import { generateWhoSeries, mergeData } from "@/lib/growthUtils"
 import { useMemo, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { getChartGridColor, getChartTextColor, getChartTooltipStyle } from "@/components/charts/ChartStyles"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
 import { formatMonthDay, formatDate, subtractDays, subtractMonths } from "@/lib/dateUtils"
@@ -106,8 +107,8 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
         return [numValue, displayName];
     }
 
-    const gridColor = isDark ? "#27272a" : "#e5e7eb" // zinc-800 : gray-200
-    const textColor = isDark ? "#a1a1aa" : "#6b7280" // zinc-400 : gray-500
+    const gridColor = getChartGridColor(isDark)
+    const textColor = getChartTextColor(isDark)
     const whoLineColor = isDark ? "#3f3f46" : "#ccc" // zinc-700 : ccc
     const whoFillColor = isDark ? "#18181b" : "#e0e0e0" // zinc-900 : e0e0e0
     const emeraldColor = "#10b981" // emerald-500
@@ -130,11 +131,7 @@ export function GrowthChart({ records, babyBirthday, babyGender }: GrowthChartPr
                     <Tooltip 
                         labelFormatter={(label) => formatDate(label)}
                         formatter={tooltipFormatter}
-                        contentStyle={{ 
-                            backgroundColor: isDark ? "#18181b" : "#fff", 
-                            borderColor: isDark ? "#27272a" : "#e5e7eb",
-                            color: isDark ? "#f4f4f5" : "#1f2937"
-                        }}
+                        contentStyle={getChartTooltipStyle(isDark)}
                         itemStyle={{ color: isDark ? "#f4f4f5" : "#1f2937" }}
                     />
                     <Legend wrapperStyle={{ paddingTop: "10px" }} />

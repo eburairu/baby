@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./collapsible"
 import type { TipsItem } from "@/lib/tips-data"
 import { TIPS_CARD_CONFIG } from "@/constants/ui-colors"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
 
 interface TipsCardProps {
   storageKey: string
@@ -14,31 +15,29 @@ interface TipsCardProps {
 }
 
 export function TipsCard({ storageKey, color, tips }: TipsCardProps) {
-  const [isOpen, setIsOpen] = useState(true)
+  const [savedState, setSavedState] = useLocalStorage<"open" | "closed">(storageKey, "open")
+
   const [mounted, setMounted] = useState(false)
 
   // 色設定を取得
   const c = TIPS_CARD_CONFIG[color]
 
+  // setTimeout を使って非同期にマウント状態を更新することで、
+  // React Compilerの「同期的なsetStateによるカスケーディングレンダー」の警告を回避します。
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey)
     const timer = setTimeout(() => {
-      setIsOpen(saved !== "closed")
       setMounted(true)
     }, 0)
     return () => clearTimeout(timer)
-  }, [storageKey])
+  }, [])
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open)
-    if (open) {
-      localStorage.removeItem(storageKey)
-    } else {
-      localStorage.setItem(storageKey, "closed")
-    }
+    setSavedState(open ? "open" : "closed")
   }
 
   if (!mounted) return null
+
+  const isOpen = savedState !== "closed"
 
   return (
     <Collapsible open={isOpen} onOpenChange={handleOpenChange}>
