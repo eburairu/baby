@@ -120,11 +120,17 @@ export function RhythmChartView({
 
     // 予測ライン: 最終記録時刻 + 中央値間隔
     let predictionMinutes: number | null = null
+    let predictionLabel: string | null = null
     if (lastTimestampISO && medianIntervalMin !== null) {
         const last = new Date(lastTimestampISO)
         const predMs = last.getTime() + medianIntervalMin * 60 * 1000
         const pred = new Date(predMs)
+        const h = pred.getHours().toString().padStart(2, "0")
+        const m = pred.getMinutes().toString().padStart(2, "0")
+        const isNextDay = pred.toDateString() !== new Date().toDateString()
+            && pred > new Date()
         predictionMinutes = pred.getHours() * 60 + pred.getMinutes()
+        predictionLabel = isNextDay ? `明日 ${h}:${m}頃` : `${h}:${m}頃`
     }
 
     const xTicks = [0, 360, 720, 1080, 1440]
@@ -137,10 +143,19 @@ export function RhythmChartView({
 
     return (
         <div>
-            {medianIntervalMin !== null && (
-                <p className="mb-2 text-[10px] text-gray-400 dark:text-zinc-500">
-                    平均間隔: 約{Math.round(medianIntervalMin / 60 * 10) / 10}時間
-                </p>
+            {(medianIntervalMin !== null || predictionLabel !== null) && (
+                <div className="mb-2 flex items-center justify-between">
+                    {medianIntervalMin !== null ? (
+                        <p className="text-[10px] text-gray-400 dark:text-zinc-500">
+                            平均間隔: 約{Math.round(medianIntervalMin / 60 * 10) / 10}時間
+                        </p>
+                    ) : <span />}
+                    {predictionLabel !== null && (
+                        <p className="text-[10px] font-medium text-violet-500 dark:text-violet-400">
+                            次回予測: {predictionLabel}
+                        </p>
+                    )}
+                </div>
             )}
             <ResponsiveContainer width="100%" height={height}>
                 <ScatterChart margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
