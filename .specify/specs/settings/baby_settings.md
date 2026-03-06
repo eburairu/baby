@@ -188,6 +188,8 @@ const babySchema = z.object({
 
 #### スキーマ定義
 
+**バックエンド (Pydantic Models)**
+
 `app/schemas/baby.py`
 
 ```python
@@ -206,6 +208,40 @@ class BabyUpdate(BaseModel):
         if v is None:
             raise ValueError('Name cannot be null')
         return v
+```
+
+**フロントエンド (TypeScript Interfaces)**
+
+```typescript
+type Gender = "boy" | "girl" | "unknown";
+
+interface BabyBase {
+  name: string;
+  birthday?: string | null;  // ISO 8601 YYYY-MM-DD
+  due_date?: string | null;  // ISO 8601 YYYY-MM-DD
+  gender?: Gender | null;
+  characteristics?: string | null;
+  feeding_threshold_minutes?: number | null;
+  diaper_threshold_minutes?: number | null;
+}
+
+interface BabyCreate extends BabyBase {}
+
+interface BabyUpdate {
+  name?: string;
+  birthday?: string | null;
+  due_date?: string | null;
+  gender?: Gender | null;
+  characteristics?: string | null;
+  feeding_threshold_minutes?: number | null;
+  diaper_threshold_minutes?: number | null;
+}
+
+interface BabyResponse extends BabyBase {
+  id: number;
+  family_id: number;
+  created_at: string; // ISO 8601
+}
 ```
 
 #### 削除時のカスケード仕様

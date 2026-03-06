@@ -217,3 +217,12 @@
 
 **アクション:**
 - 今後はトラッカー機能に限らず、Settings関連の仕様書（`baby_permissions.md`, `family_settings.md` など）をレビュー・更新する際にも、APIエンドポイントに対応する完全なデータモデル（Request/Response Schema）が TypeScript インターフェース形式で記述されているかを徹底して確認・補完します。
+
+## 2026-03-06 - [赤ちゃん管理設定API仕様のTypeScriptスキーマ欠如の発見]
+
+**学び:**
+- 設定画面に関する仕様書（`baby_settings.md`）では、バックエンドのモデル（`BabyUpdate`など）を直接Pythonコードで示す記述のみがあり、フロントエンド向けに設計された共通の `BabyBase`, `BabyCreate`, `BabyUpdate`, `BabyResponse` の完全なTypeScriptインターフェース定義が欠如していた。
+- 他の設定関連ドキュメント（`baby_permissions.md` など）でも見られた傾向だが、トラッカー（記録系機能）に比べて、設定画面に関する仕様書はスキーマ定義が省略される、またはバックエンドのモデル定義のみで済まされる傾向が強い。
+
+**アクション:**
+- 設定仕様書や新規機能ドキュメントにおいて、バックエンドのPythonモデルだけでなく、対応する完全なデータモデル（Request/Response Schema）がフロントエンド側からどう扱われるかを示すTypeScriptインターフェースとして `extends` などを用いて正しく記述されているかを必ず確認・補完する。
