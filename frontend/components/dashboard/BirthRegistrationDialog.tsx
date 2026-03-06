@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DialogTrigger, DialogTitle, DialogDescription, DialogFooter, DialogHeader, DialogContent, Dialog } from "@/components/ui/dialog"
 import { api, isApiError } from "@/lib/api"
+import { formatDateLocal } from "@/lib/dateUtils"
 import { PartyPopper } from "lucide-react"
 
 interface Props {
@@ -16,8 +17,7 @@ interface Props {
 export function BirthRegistrationDialog({ babyId, babyName, onSuccess }: Props) {
     const [open, setOpen] = useState(false)
     const [birthday, setBirthday] = useState(() => {
-        const now = new Date()
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
+        return formatDateLocal(new Date())
     })
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
