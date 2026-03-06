@@ -16,6 +16,7 @@ import { MemberRoleDialog } from "./MemberRoleDialog"
 import { MemberPasswordResetDialog } from "./MemberPasswordResetDialog"
 import { api } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
+import { formatDate } from "@/lib/dateUtils"
 import { UserRole } from "@/lib/constants"
 import { FamilyMember } from "@/types/family"
 
@@ -24,11 +25,6 @@ interface Props {
     currentUserId: number
     isAdmin: boolean
     onUpdated: () => void
-}
-
-function formatDate(iso: string) {
-    const d = new Date(iso)
-    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`
 }
 
 export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props) {
