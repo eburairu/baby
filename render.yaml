@@ -1,7 +1,6 @@
 services:
-  # 1. バックエンド: FastAPI (Python Native Web Service)
   - type: web
-    name: baby-api-next
+    name: baby-app-next
     runtime: python
     autoDeploy: false
     plan: free
