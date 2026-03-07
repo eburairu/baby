@@ -11,7 +11,7 @@ import {
     Legend,
 } from "recharts"
 import { useTheme } from "next-themes"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { format } from "date-fns"
 import { StatsCard } from "@/components/ui/stats-card"
 import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
@@ -19,6 +19,8 @@ import { RhythmChartView } from "@/components/charts/RhythmChartView"
 import { calculateDailyStats, normalizeFeedingFromEntity } from "@/lib/feedingUtils"
 import { buildRhythmData, calcMedianIntervalMin } from "@/lib/rhythmUtils"
 import type { Feeding } from "@/types/feeding"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { getChartGridColor, getChartTextColor, getChartTooltipStyle } from "@/components/charts/ChartStyles"
 
 const CHART_HEIGHT = 200
 const MIN_RECORDS_FOR_PREDICTION = 5
@@ -31,15 +33,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
     const { resolvedTheme } = useTheme()
     const isDark = resolvedTheme === "dark"
 
-    const [view, setView] = useState<"trend" | "rhythm">(() => {
-        if (typeof window === "undefined") return "trend"
-        return (localStorage.getItem("feeding-chart-view") as "trend" | "rhythm") ?? "trend"
-    })
-
-    const handleViewChange = (v: "trend" | "rhythm") => {
-        setView(v)
-        localStorage.setItem("feeding-chart-view", v)
-    }
+    const [view, setView] = useLocalStorage<"trend" | "rhythm">("feeding-chart-view", "trend")
 
     // 推移ビュー用データ
     const trendData = useMemo(() => {
@@ -75,10 +69,8 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
         }
     }, [feedings])
 
-    const gridColor = isDark ? "#3f3f46" : "#e5e7eb"
-    const textColor = isDark ? "#a1a1aa" : "#6b7280"
-    const tooltipBg = isDark ? "#18181b" : "#ffffff"
-    const tooltipBorder = isDark ? "#3f3f46" : "#e5e7eb"
+    const gridColor = getChartGridColor(isDark)
+    const textColor = getChartTextColor(isDark)
 
     const hasBreast = trendData.some(d => d.breastMin > 0)
     const hasBottle = trendData.some(d => d.bottleMl > 0)
@@ -89,7 +81,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                 <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
                     {view === "trend" ? "7日間の推移" : "生活リズム（過去7日）"}
                 </p>
-                <ChartViewToggle view={view} onChange={handleViewChange} />
+                <ChartViewToggle view={view} onChange={setView} />
             </div>
 
             {view === "trend" ? (
@@ -124,12 +116,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                                 />
                             )}
                             <Tooltip
-                                contentStyle={{
-                                    backgroundColor: tooltipBg,
-                                    border: `1px solid ${tooltipBorder}`,
-                                    borderRadius: "8px",
-                                    fontSize: "12px",
-                                }}
+                                contentStyle={getChartTooltipStyle(isDark)}
                                 formatter={(value, name) => {
                                     const v = value as number
                                     if (name === "回数") return [`${v}回`, name]

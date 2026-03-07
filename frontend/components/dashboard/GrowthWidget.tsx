@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
+import { formatMonthDay } from "@/lib/dateUtils"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { BaseWidgetProps } from "@/types/widget"
 import { AppIcons } from "@/constants/icons"
@@ -15,7 +16,7 @@ export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoad
         return {
             latest: latestRecord,
             dateStr: latestRecord?.timestamp
-                ? `${new Date(latestRecord.timestamp).getMonth() + 1}/${new Date(latestRecord.timestamp).getDate()}`
+                ? formatMonthDay(latestRecord.timestamp)
                 : null,
             weight: latestRecord?.details.weight_kg as number | undefined,
             height: latestRecord?.details.height_cm as number | undefined

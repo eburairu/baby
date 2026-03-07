@@ -74,7 +74,7 @@ export function DiarySummaryCard({ summary, onEdit, onDelete, canWrite = true }:
                                 key={url}
                                 type="button"
                                 onClick={() => setLightboxUrl(url)}
-                                className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-amber-400 dark:ring-amber-500"
+                                className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 dark:focus-visible:ring-amber-500 focus-visible:ring-offset-2 hover:opacity-90 active:scale-95 transition-all"
                                 aria-label="写真を拡大"
                             >
                                 <Image

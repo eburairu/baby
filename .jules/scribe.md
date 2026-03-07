@@ -208,3 +208,25 @@
 
 - `breastfeeding_tracker.md` の `FeedingResponse` インターフェースを更新し、バックエンドの実装に合わせて `extends FeedingCreate` を使用して冗長なフィールドを削除し、一貫性を持たせた。
 - 今後仕様書をレビューする際は、レスポンススキーマがリクエストスキーマを継承している場合、TypeScriptインターフェース側でも適切に `extends` を用いて冗長な記述を避けることを徹底する。
+
+## 2026-03-05 - [赤ちゃん権限設定仕様書におけるスキーマ定義の欠落]
+
+**学び:**
+- 家族設定や赤ちゃん設定（Settings）の仕様書において、APIエンドポイントのパスやアクセス制御の記述はあるものの、リクエスト/レスポンススキーマ（TypeScriptインターフェース）の定義が完全に欠落しているパターンが見つかりました（例：`baby_permissions.md` における `BabyPermissionsResponse`, `BabyPermissionUpdate` など）。
+- トラッカー機能（Growth, Milestone等）だけでなく、設定画面ドメインでも同様の乖離（スキーマ定義の漏れ）が発生しやすいことが判明しました。
+
+**アクション:**
+- 今後はトラッカー機能に限らず、Settings関連の仕様書（`baby_permissions.md`, `family_settings.md` など）をレビュー・更新する際にも、APIエンドポイントに対応する完全なデータモデル（Request/Response Schema）が TypeScript インターフェース形式で記述されているかを徹底して確認・補完します。
+
+## 2026-03-06 - [赤ちゃん管理設定API仕様のTypeScriptスキーマ欠如の発見]
+
+**学び:**
+- 設定画面に関する仕様書（`baby_settings.md`）では、バックエンドのモデル（`BabyUpdate`など）を直接Pythonコードで示す記述のみがあり、フロントエンド向けに設計された共通の `BabyBase`, `BabyCreate`, `BabyUpdate`, `BabyResponse` の完全なTypeScriptインターフェース定義が欠如していた。
+- 他の設定関連ドキュメント（`baby_permissions.md` など）でも見られた傾向だが、トラッカー（記録系機能）に比べて、設定画面に関する仕様書はスキーマ定義が省略される、またはバックエンドのモデル定義のみで済まされる傾向が強い。
+
+**アクション:**
+- 設定仕様書や新規機能ドキュメントにおいて、バックエンドのPythonモデルだけでなく、対応する完全なデータモデル（Request/Response Schema）がフロントエンド側からどう扱われるかを示すTypeScriptインターフェースとして `extends` などを用いて正しく記述されているかを必ず確認・補完する。
+
+## 2024-05-19 - 予防接種機能などの新しい記録タイプの権限設定漏れ
+**学び:** 新しい記録タイプ（例：`vaccination`）をシステムに追加し、API側で `verify_baby_access(..., record_type="vaccination")` と呼び出す実装がされても、`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `.specify/specs/settings/baby_permissions.md` の仕様に追記することが漏れやすい。これにより、フロントエンドや権限設定画面から新しい記録タイプの可視性を制御できなくなるバグが発生しうる。
+**アクション:** 新規の記録・トラッカー機能を追加する際は、必ず権限設定（`VALID_RECORD_TYPES` と `baby_permissions.md`）にもその新しい `record_type` を追加するよう、仕様書レビューやプルリクエストのチェックリストに含める。

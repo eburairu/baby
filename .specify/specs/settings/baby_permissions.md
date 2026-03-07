@@ -49,6 +49,7 @@ Baby（赤ちゃん全体の可視性）
        ├── growth（成長）
        ├── contraction（陣痛）
        ├── schedule（スケジュール）
+       ├── vaccination（予防接種）
        └── note（汎用メモ）
 ```
 
@@ -63,6 +64,7 @@ Baby（赤ちゃん全体の可視性）
 | `"growth"` | 成長記録 | `growth_records` |
 | `"contraction"` | 陣痛記録 | `contractions` |
 | `"schedule"` | スケジュール | `schedules` |
+| `"vaccination"` | 予防接種記録 | `vaccinations` |
 | `"note"` | 汎用メモ | `notes` |
 
 ### 権限判定ロジック
@@ -238,6 +240,44 @@ for record_type in VALID_RECORD_TYPES:
 **概要**: 指定した赤ちゃんの権限を一括更新する（upsert）。
 
 **権限**: admin のみ
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule" | "vaccination";
+
+// 単一の権限レコード（1ユーザー × 1record_type）
+interface BabyPermissionItem {
+  record_type: string;
+  can_view: boolean;
+}
+
+// 1ユーザーに対するすべての record_type の権限セット
+interface UserPermissionSet {
+  user_id: number;
+  username: string;
+  permissions: BabyPermissionItem[];
+}
+
+// GET レスポンス: 赤ちゃん 1 体の全メンバー権限
+interface BabyPermissionsResponse {
+  baby_id: number;
+  baby_name: string;
+  members: UserPermissionSet[];
+}
+
+// PUT 用: 1ユーザー × 1record_type の更新エントリ
+interface UserPermissionEntry {
+  user_id: number;
+  record_type: string;  // 有効値は ValidRecordType
+  can_view: boolean;
+}
+
+// PUT リクエストボディ: 赤ちゃん 1 体の全権限を一括更新
+interface BabyPermissionUpdate {
+  permissions: UserPermissionEntry[];
+}
+```
 
 ---
 

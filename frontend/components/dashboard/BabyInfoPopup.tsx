@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
+import { formatJapaneseDate } from "@/lib/dateUtils"
 import { usePermissions } from "@/hooks/usePermissions"
 
 interface BabyForWidget {
@@ -38,8 +39,7 @@ const genderLabel = (g: string | null | undefined): string => {
 }
 
 const formatBirthday = (birthday: string): string => {
-  const d = new Date(birthday)
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+  return formatJapaneseDate(birthday)
 }
 
 export function BabyInfoPopup({ baby, open, onOpenChange }: BabyInfoPopupProps) {

@@ -82,7 +82,7 @@ export function ContractionEditDialog({
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>キャンセル</Button>
-                        <Button type="submit" disabled={isUpdating}>
+                        <Button type="submit" loading={isUpdating}>
                             {isUpdating ? "保存中..." : "保存する"}
                         </Button>
                     </DialogFooter>
