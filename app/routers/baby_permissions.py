@@ -45,7 +45,7 @@ def get_baby_permissions(
         FamilyUser.role.in_([UserRole.MEMBER, UserRole.VIEWER])
     ).all()
 
-    record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
+    record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "vaccination", "note"]
     
     # 3. 全メンバーの BabyPermission を一括取得（N+1 の解消）
     member_user_ids = [u.id for _, u in members]
@@ -104,7 +104,7 @@ def update_baby_permissions(
     family_id = baby.family_id
 
     # 2. リクエストの各エントリについて検証
-    valid_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
+    valid_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "vaccination", "note"]
     for entry in update_in.permissions:
         if entry.record_type not in valid_types:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid record_type: {entry.record_type}")
