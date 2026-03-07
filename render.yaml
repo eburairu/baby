@@ -5,8 +5,7 @@ services:
     autoDeploy: false
     plan: free
     buildCommand: >-
-      pip install uv &&
-      uv pip install -r requirements.txt &&
+      pip install -r requirements.txt &&
       cd frontend &&
       corepack enable pnpm &&
       pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store &&
