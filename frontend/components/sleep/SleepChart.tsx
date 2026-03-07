@@ -10,7 +10,7 @@ import {
 } from "recharts"
 import { useTheme } from "next-themes"
 import { useMemo } from "react"
-import { format, subDays, isSameDay } from "date-fns"
+import { formatDateLocal, subtractDays, isSameDay, formatMonthDaySlash } from "@/lib/dateUtils"
 import { StatsCard } from "@/components/ui/stats-card"
 import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
 import { RhythmChartView } from "@/components/charts/RhythmChartView"
@@ -35,7 +35,7 @@ interface DailySleepData {
 function calculateDailySleepStats(sleeps: Sleep[], days = 7): DailySleepData[] {
     const today = new Date()
     return Array.from({ length: days }, (_, i) => {
-        const day = subDays(today, days - 1 - i)
+        const day = subtractDays(today, days - 1 - i)
         const daySleeps = sleeps.filter(s => isSameDay(new Date(s.start_time), day))
         const totalMin = daySleeps.reduce((acc, s) => {
             if (!s.end_time) return acc
@@ -43,7 +43,7 @@ function calculateDailySleepStats(sleeps: Sleep[], days = 7): DailySleepData[] {
             return acc + Math.floor(ms / 60000)
         }, 0)
         return {
-            date: format(day, "M/d"),
+            date: formatMonthDaySlash(day),
             count: daySleeps.length,
             totalMin,
         }
@@ -62,7 +62,7 @@ export function SleepChart({ sleeps }: SleepChartProps) {
 
     // リズムビュー用データ（睡眠開始時刻をプロット）
     const { rhythmPoints, medianIntervalMin, lastTimestamp } = useMemo(() => {
-        const todayStr = format(new Date(), "yyyy-MM-dd")
+        const todayStr = formatDateLocal(new Date())
         const timestamps = sleeps.map(s => s.start_time)
         const items = sleeps.map(s => ({
             timestamp: s.start_time,

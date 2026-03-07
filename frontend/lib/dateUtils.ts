@@ -1,4 +1,4 @@
-import { format, isToday as isTodayFns, formatDistanceToNow as formatDistanceToNowFns, subMonths as subMonthsFns, subDays as subDaysFns } from "date-fns";
+import { format, isToday as isTodayFns, formatDistanceToNow as formatDistanceToNowFns, subMonths as subMonthsFns, subDays as subDaysFns, isSameDay as isSameDayFns, differenceInMinutes as differenceInMinutesFns, parseISO as parseISOFns } from "date-fns";
 import { ja } from "date-fns/locale";
 
 /**
@@ -127,4 +127,38 @@ export function subtractMonths(date: Date | string | number, amount: number): Da
 export function subtractDays(date: Date | string | number, amount: number): Date {
   const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
   return subDaysFns(d, amount);
+}
+
+
+/**
+ * Checks if two dates are the same day.
+ */
+export function isSameDay(dateLeft: Date | string | number, dateRight: Date | string | number): boolean {
+  const dLeft = typeof dateLeft === "string" || typeof dateLeft === "number" ? new Date(dateLeft) : dateLeft;
+  const dRight = typeof dateRight === "string" || typeof dateRight === "number" ? new Date(dateRight) : dateRight;
+  return isSameDayFns(dLeft, dRight);
+}
+
+/**
+ * Gets the number of minutes between the given dates.
+ */
+export function differenceInMinutes(dateLeft: Date | string | number, dateRight: Date | string | number): number {
+  const dLeft = typeof dateLeft === "string" || typeof dateLeft === "number" ? new Date(dateLeft) : dateLeft;
+  const dRight = typeof dateRight === "string" || typeof dateRight === "number" ? new Date(dateRight) : dateRight;
+  return differenceInMinutesFns(dLeft, dRight);
+}
+
+/**
+ * Parses an ISO 8601 string to a Date object.
+ */
+export function parseISO(dateString: string): Date {
+  return parseISOFns(dateString);
+}
+
+/**
+ * Formats a date to "M/d" (e.g., 1/23).
+ */
+export function formatMonthDaySlash(date: Date | string | number): string {
+  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+  return format(d, "M/d", { locale: ja });
 }

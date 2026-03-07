@@ -1,4 +1,4 @@
-import { subDays, isSameDay, differenceInMinutes, parseISO } from "date-fns"
+import { subtractDays, isSameDay, differenceInMinutes, parseISO } from "@/lib/dateUtils"
 
 export interface RhythmPoint {
     dayOffset: number    // 0=今日, 1=昨日, ..., 6=6日前
@@ -26,7 +26,7 @@ export function buildRhythmData(
         let dayOffset = -1
 
         for (let i = 0; i < days; i++) {
-            if (isSameDay(dt, subDays(today, i))) {
+            if (isSameDay(dt, subtractDays(today, i))) {
                 dayOffset = i
                 break
             }
