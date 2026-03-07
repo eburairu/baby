@@ -25,10 +25,8 @@ async-timeout==5.0.1 ; python_full_version < '3.11'
     # via aiohttp
 attrs==25.4.0
     # via aiohttp
-bcrypt==3.2.2
-    # via
-    #   baby
-    #   passlib
+bcrypt==5.0.0
+    # via baby
 boto3==1.42.54
     # via baby
 botocore==1.42.54
@@ -40,10 +38,8 @@ certifi==2026.1.4
     #   httpcore
     #   httpx
     #   requests
-cffi==2.0.0
-    # via
-    #   bcrypt
-    #   cryptography
+cffi==2.0.0 ; platform_python_implementation != 'PyPy'
+    # via cryptography
 charset-normalizer==3.4.4
     # via requests
 click==8.3.1
@@ -58,7 +54,6 @@ cryptography==46.0.5
     #   google-auth
     #   http-ece
     #   py-vapid
-    #   python-jose
     #   pywebpush
 distro==1.9.0
     # via
@@ -66,8 +61,6 @@ distro==1.9.0
     #   openai
 dnspython==2.8.0
     # via email-validator
-ecdsa==0.19.1
-    # via python-jose
 email-validator==2.3.0
     # via baby
 exceptiongroup==1.3.1 ; python_full_version < '3.11'
@@ -122,8 +115,6 @@ multidict==6.7.1
     #   yarl
 openai==2.21.0
     # via baby
-passlib==1.7.4
-    # via baby
 propcache==0.4.1
     # via
     #   aiohttp
@@ -135,11 +126,10 @@ py-vapid==1.9.4
 pyasn1==0.6.2
     # via
     #   pyasn1-modules
-    #   python-jose
     #   rsa
 pyasn1-modules==0.4.2
     # via google-auth
-pycparser==3.0 ; implementation_name != 'PyPy'
+pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
     # via cffi
 pydantic==2.12.5
     # via
@@ -158,8 +148,6 @@ python-dotenv==1.2.1
     # via
     #   pydantic-settings
     #   uvicorn
-python-jose==3.5.0
-    # via baby
 python-multipart==0.0.22
     # via baby
 pywebpush==2.3.0
@@ -172,15 +160,11 @@ requests==2.32.5
     #   google-genai
     #   pywebpush
 rsa==4.9.1
-    # via
-    #   google-auth
-    #   python-jose
+    # via google-auth
 s3transfer==0.16.0
     # via boto3
 six==1.17.0
-    # via
-    #   ecdsa
-    #   python-dateutil
+    # via python-dateutil
 sniffio==1.3.1
     # via
     #   google-genai
