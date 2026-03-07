@@ -49,6 +49,7 @@ Baby（赤ちゃん全体の可視性）
        ├── growth（成長）
        ├── contraction（陣痛）
        ├── schedule（スケジュール）
+       ├── vaccination（予防接種）
        └── note（汎用メモ）
 ```
 
@@ -63,6 +64,7 @@ Baby（赤ちゃん全体の可視性）
 | `"growth"` | 成長記録 | `growth_records` |
 | `"contraction"` | 陣痛記録 | `contractions` |
 | `"schedule"` | スケジュール | `schedules` |
+| `"vaccination"` | 予防接種記録 | `vaccinations` |
 | `"note"` | 汎用メモ | `notes` |
 
 ### 権限判定ロジック
@@ -242,7 +244,7 @@ for record_type in VALID_RECORD_TYPES:
 ### リクエスト/レスポンススキーマ
 
 ```typescript
-type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule";
+type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule" | "vaccination";
 
 // 単一の権限レコード（1ユーザー × 1record_type）
 interface BabyPermissionItem {
