@@ -9,7 +9,6 @@ export function useUser() {
         shouldRetryOnError: false,
         revalidateOnFocus: true, // PWAに戻ったときに再チェック
         revalidateOnMount: true, // マウント時に必ず実行
-        dedupingInterval: 0, // 重複排除を無効化して確実に実行
     });
 
     return {
