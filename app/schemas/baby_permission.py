@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Literal
 
 
-VALID_RECORD_TYPES = Literal["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule"]
+VALID_RECORD_TYPES = Literal["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "vaccination"]
 
 
 class BabyPermissionItem(BaseModel):
