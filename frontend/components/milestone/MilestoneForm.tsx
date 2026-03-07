@@ -182,7 +182,7 @@ export function MilestoneForm({
                             <Button type="button" variant="outline" onClick={onClose}>
                                 キャンセル
                             </Button>
-                            <Button type="submit" disabled={isSubmitting}>
+                            <Button type="submit" loading={isSubmitting}>
                                 {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
                             </Button>
                         </DialogFooter>
