@@ -1,13 +1,10 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import {
-    Dialog,
-    DialogContent,
     DialogDescription,
     DialogFooter,
-    DialogHeader,
-    DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -36,16 +33,16 @@ export function ContractionEditDialog({
     }, [onUpdate])
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-            <DialogContent className="sm:max-w-[425px]">
-                <form onSubmit={handleSubmit}>
-                    <DialogHeader>
-                        <DialogTitle>記録の編集</DialogTitle>
-                        <DialogDescription>
-                            陣痛の開始時刻や持続時間を修正します。
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
+        <EditDialogBase
+            open={isOpen}
+            onOpenChange={(open) => { if (!open) onClose() }}
+            title="記録の編集"
+        >
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <DialogDescription className="text-sm text-muted-foreground pb-2">
+                    陣痛の開始時刻や持続時間を修正します。
+                </DialogDescription>
+                <div className="grid gap-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="start_time" className="text-right">開始時刻</Label>
                             <Input
@@ -78,16 +75,15 @@ export function ContractionEditDialog({
                                 className="col-span-3"
                                 placeholder="痛みの強さなど"
                             />
-                        </div>
                     </div>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={onClose}>キャンセル</Button>
-                        <Button type="submit" loading={isUpdating}>
-                            {isUpdating ? "保存中..." : "保存する"}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+                </div>
+                <DialogFooter className="pt-4">
+                    <Button type="button" variant="outline" onClick={onClose}>キャンセル</Button>
+                    <Button type="submit" loading={isUpdating}>
+                        {isUpdating ? "保存中..." : "保存する"}
+                    </Button>
+                </DialogFooter>
+            </form>
+        </EditDialogBase>
     )
 }
