@@ -130,3 +130,10 @@ out` として共通化することで保守性が向上した。
 
 ### アクション:
 - 今後も、ネイティブの `Date` オブジェクトのメソッドをコンポーネント内で直接呼び出して文字列結合によるフォーマット構築を行うのは避け、`dateUtils.ts` の関数を標準として利用することを徹底します。これにより、フォーマット変更時の保守性とコードの可読性を高めます。
+
+## 2026-03-02 - [Tidy: リファクタリング - date-fns への直接依存の完全な排除と utils 集約]
+**学び:** `DiaperChart`, `SleepChart`, `FeedingChart` などの各種チャートコンポーネントや、`rhythmUtils`, `diaperUtils`, `feedingUtils` などのユーティリティ関数において、`format`, `subDays`, `isSameDay`, `differenceInMinutes`, `parseISO` といった `date-fns` の関数が直接インポートされ、散在していました。前回の `dateUtils` への集約が部分的であったため、依然としてライブラリへの依存が複数ファイルに残っており、将来的なフォーマット変更や別ライブラリ（Temporal API など）への移行を困難にするアンチパターンでした。
+**アクション:** `dateUtils.ts` に不足していた `isSameDay`, `differenceInMinutes`, `parseISO`, `formatMonthDaySlash` などのラッパー関数を追加し、関連するすべてのコンポーネントとユーティリティから `date-fns` の直接インポートを完全に排除しました。これにより、アプリ内のすべての日付操作・フォーマット処理が `dateUtils.ts` を経由するようになり、保守性と一貫性が劇的に向上しました。今後も、外部の日付ライブラリを直接利用することは厳格に避け、必ず自前のユーティリティ層を通すアーキテクチャを維持します。
+## 2026-03-02 - [Tidy: リファクタリング - 編集ダイアログのUI共通化]
+学び: 各種フォーム（GrowthRecordForm, VaccinationForm, MilestoneForm, ContractionEditDialog）において、Dialogコンポーネントが個別に直接使用されており、共通のEditDialogBaseが活用されていないアンチパターンを発見しました。これにより、ダイアログのUIや挙動に一貫性が欠け、冗長なコードが存在していました。
+アクション: これらのフォームをEditDialogBaseを使用するようにリファクタリングし、UIの一貫性を確保しました。今後新しいダイアログを作成する際は、必ずEditDialogBaseを使用することを徹底します。

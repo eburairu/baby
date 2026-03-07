@@ -5,13 +5,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { formatDateLocal } from "@/lib/dateUtils"
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
+import { DialogFooter } from "@/components/ui/dialog"
 import {
     Form,
     FormControl,
@@ -107,13 +102,13 @@ export function VaccinationForm({
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>{record ? "予防接種を編集" : "新しい予防接種を追加"}</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+        <EditDialogBase
+            open={isOpen}
+            onOpenChange={(open) => { if (!open) onClose() }}
+            title={record ? "予防接種を編集" : "新しい予防接種を追加"}
+        >
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -190,17 +185,16 @@ export function VaccinationForm({
                             )}
                         />
 
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={onClose}>
-                                キャンセル
-                            </Button>
-                            <Button type="submit" loading={isSubmitting}>
-                                {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={onClose}>
+                            キャンセル
+                        </Button>
+                        <Button type="submit" loading={isSubmitting}>
+                            {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </EditDialogBase>
     )
 }

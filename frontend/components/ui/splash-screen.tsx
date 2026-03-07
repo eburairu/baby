@@ -22,7 +22,7 @@ export function SplashScreen() {
         if (isMounted && !isLoading) {
             const timer = setTimeout(() => {
                 setIsVisible(false)
-            }, 600) // 余韻を持たせてフェードアウト
+            }, 200)
             return () => clearTimeout(timer)
         }
     }, [isMounted, isLoading])
