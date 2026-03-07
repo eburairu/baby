@@ -234,3 +234,7 @@
 ## 2026-03-07 - [Settings UI/Tracker] ValidRecordType の仕様ドリフト
 **学び:** 新規のレコードタイプ（例: `note`, `vaccination`など）が追加され、バックエンドのルーターロジック(`app/routers/baby_permissions.py`)に権限対象として組み込まれた際、`.specify/specs/settings/baby_permissions.md` などのフロントエンド向けTypeScriptインターフェース定義(`ValidRecordType`等)から漏れやすい。
 **アクション:** 権限・設定機能の仕様書を更新する際は、必ずバックエンドルーター内の有効なリスト（例: `valid_types`）と突合し、型定義を同期させる。
+
+## 2026-03-08 - [新しい記録タイプの権限管理リストからの漏れ]
+**学び:** `note` や `vaccination` のような新しい記録タイプが追加された際、仕様書（`baby_permissions.md`）には追加されていても、バックエンド側の `VALID_RECORD_TYPES` やルーター内の `valid_types`, `record_types` などの直接的な文字列リストに追加し忘れる実装漏れが発生しやすい。
+**アクション:** 新しい記録タイプを追加する際は、権限モデルやルーターの実装（`baby_permission.py`, `baby_permissions.py`）内のハードコードされたリストにも追加されているか必ず確認・同期する。
