@@ -7,7 +7,6 @@ export function useBabies(options?: { fallbackData?: Baby[] }) {
         ...options,
         shouldRetryOnError: false,
         revalidateOnFocus: true,
-        revalidateOnMount: true,
         keepPreviousData: true,
     });
     return {
