@@ -137,3 +137,7 @@ out` として共通化することで保守性が向上した。
 ## 2026-03-02 - [Tidy: リファクタリング - 編集ダイアログのUI共通化]
 学び: 各種フォーム（GrowthRecordForm, VaccinationForm, MilestoneForm, ContractionEditDialog）において、Dialogコンポーネントが個別に直接使用されており、共通のEditDialogBaseが活用されていないアンチパターンを発見しました。これにより、ダイアログのUIや挙動に一貫性が欠け、冗長なコードが存在していました。
 アクション: これらのフォームをEditDialogBaseを使用するようにリファクタリングし、UIの一貫性を確保しました。今後新しいダイアログを作成する際は、必ずEditDialogBaseを使用することを徹底します。
+
+## 2026-03-03 - [Tidy: リファクタリング - ダイアログコンポーネントの共通化とUIの一貫性確保]
+**学び:** `DiaryEditDialog` や `QuickActionBar` で、すでに用意されている共通の `EditDialogBase` が使用されず、プリミティブな `Dialog` や `DialogContent` が直接記述されていた。また、`DiaryDeleteDialog` では、他の `AlertDialog` で採用されているデフォルトの角丸指定（`rounded-lg`）とは異なる個別のクラス（`rounded-2xl`）が直接付与され、UIの一貫性を損なうアンチパターンとなっていた。
+**アクション:** `Dialog` を `EditDialogBase` に置き換えることでコードの重複を減らし、かつ `AlertDialog` のインラインの角丸クラスを削除してアプリ全体のUIスタイルに準拠させた。共通コンポーネントが存在する場合は、例外を設けず積極的に利用する。また、元のUIレイアウトやデザインを破壊しないよう、慎重な置換を心がける。
