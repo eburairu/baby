@@ -238,3 +238,7 @@
 ## 2026-03-08 - [新しい記録タイプの権限管理リストからの漏れ]
 **学び:** `note` や `vaccination` のような新しい記録タイプが追加された際、仕様書（`baby_permissions.md`）には追加されていても、バックエンド側の `VALID_RECORD_TYPES` やルーター内の `valid_types`, `record_types` などの直接的な文字列リストに追加し忘れる実装漏れが発生しやすい。
 **アクション:** 新しい記録タイプを追加する際は、権限モデルやルーターの実装（`baby_permission.py`, `baby_permissions.py`）内のハードコードされたリストにも追加されているか必ず確認・同期する。
+
+## $(date +%Y-%m-%d) - baby_permissions.md の ValidRecordType 更新
+**学び:** 新しい記録タイプ（今回は vaccination, note）が追加された場合、対応するスキーマ（`VALID_RECORD_TYPES`）やルーターでリストが更新されても、関連する仕様書（`baby_permissions.md` など）の型定義やサンプルJSONへの追記が漏れやすい。
+**アクション:** 新たな機能や列挙型（定数）を追加・更新した際には、`.specify/specs/` 配下の関連ドキュメントの型定義やJSONレスポンス例の記載が追随しているか、必ず確認するようにする。
