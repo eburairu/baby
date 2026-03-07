@@ -4,9 +4,13 @@ services:
     runtime: python
     autoDeploy: false
     plan: free
+    # NOTE: pip を使用している理由
+    # uv pip install に切り替えたところ、Render の Python native runtime が
+    # ビルド時に有効化する virtualenv を uv が認識できず、alembic/uvicorn が
+    # 起動時の PATH に含まれず exit 127 でクラッシュした（2026-03-07）。
+    # uv --system オプションも同様に失敗。pip はこの問題が発生しないため pip を維持する。
     buildCommand: >-
-      pip install uv &&
-      uv pip install -r requirements.txt &&
+      pip install -r requirements.txt &&
       cd frontend &&
       corepack enable pnpm &&
       pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store &&
