@@ -34,10 +34,12 @@ services:
   # 2. フロントエンド: Next.js (Native Static Site)
   - type: static
     name: baby-app-next
-    buildCommand: cd frontend && npm install -g pnpm && pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store && pnpm build
+    buildCommand: cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store && pnpm build
     publishDir: frontend/out
     autoDeploy: false
     envVars:
+      - key: NODE_VERSION
+        value: "22"
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
     routes:
