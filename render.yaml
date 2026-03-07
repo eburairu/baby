@@ -5,7 +5,7 @@ services:
     runtime: python
     autoDeploy: false
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install uv && uv pip install --system -r requirements.txt
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
     envVars:
       - key: DATABASE_URL
@@ -34,9 +34,12 @@ services:
   # 2. フロントエンド: Next.js (Native Static Site)
   - type: static
     name: baby-app-next
-    buildCommand: cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
+    buildCommand: cd frontend && npm install -g pnpm && pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store && pnpm build
     publishDir: frontend/out
     autoDeploy: false
+    envVars:
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
     routes:
       # API リクエストをバックエンドへリライト (Cookie を維持するためシングルオリジンに見せる)
       - type: rewrite
