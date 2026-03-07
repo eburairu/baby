@@ -5,7 +5,13 @@ services:
     runtime: python
     autoDeploy: false
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: >-
+      pip install uv &&
+      uv pip install --system -r requirements.txt &&
+      cd frontend &&
+      corepack enable pnpm &&
+      pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store &&
+      pnpm build
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
     envVars:
       - key: DATABASE_URL
@@ -14,8 +20,6 @@ services:
         generateValue: true
       - key: COOKIE_SECURE
         value: "true"
-      - key: CORS_ORIGINS
-        value: "https://baby-app-next.onrender.com"  # フロントエンドの URL
       - key: TZ
         value: "Asia/Tokyo"
       - key: LLM_PROVIDER
@@ -30,19 +34,7 @@ services:
         value: "1"
       - key: PYTHONDONTWRITEBYTECODE
         value: "1"
-
-  # 2. フロントエンド: Next.js (Native Static Site)
-  - type: static
-    name: baby-app-next
-    buildCommand: cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
-    publishDir: frontend/out
-    autoDeploy: false
-    routes:
-      # API リクエストをバックエンドへリライト (Cookie を維持するためシングルオリジンに見せる)
-      - type: rewrite
-        source: /api/*
-        destination: https://baby-api-next.onrender.com/api/*
-      # SPA ルーティング対応 (存在しないパスは index.html へ)
-      - type: rewrite
-        source: /*
-        destination: /index.html
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
