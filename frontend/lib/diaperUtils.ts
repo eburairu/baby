@@ -1,8 +1,7 @@
 import { Diaper, DiaperType } from "@/types/diaper";
 import { BabyRecord } from "@/types/record";
 import { formatElapsed } from "@/lib/ageUtils";
-import { isToday } from "@/lib/dateUtils";
-import { format, subDays, isSameDay } from "date-fns";
+import { isToday, formatMonthDaySlash, subtractDays, isSameDay } from "@/lib/dateUtils";
 
 export interface NormalizedDiaper {
     id: number;
@@ -79,12 +78,12 @@ export interface DailyDiaperData {
 export function calculateDailyDiaperStats(diapers: NormalizedDiaper[], days = 7): DailyDiaperData[] {
     const today = new Date()
     return Array.from({ length: days }, (_, i) => {
-        const day = subDays(today, days - 1 - i)
+        const day = subtractDays(today, days - 1 - i)
         const dayDiapers = diapers.filter(d => isSameDay(new Date(d.timestamp), day))
         const wet = dayDiapers.filter(d => d.type === DiaperType.WET || d.type === DiaperType.BOTH).length
         const dirty = dayDiapers.filter(d => d.type === DiaperType.DIRTY || d.type === DiaperType.BOTH).length
         return {
-            date: format(day, 'M/d'),
+            date: formatMonthDaySlash(day),
             wet,
             dirty,
         }

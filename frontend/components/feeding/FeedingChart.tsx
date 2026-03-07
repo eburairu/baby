@@ -12,7 +12,7 @@ import {
 } from "recharts"
 import { useTheme } from "next-themes"
 import { useMemo } from "react"
-import { format } from "date-fns"
+import { formatDateLocal } from "@/lib/dateUtils"
 import { StatsCard } from "@/components/ui/stats-card"
 import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
 import { RhythmChartView } from "@/components/charts/RhythmChartView"
@@ -45,7 +45,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
 
     // リズムビュー用データ
     const { breastPoints, bottlePoints, medianIntervalMin, lastTimestamp } = useMemo(() => {
-        const todayStr = format(new Date(), "yyyy-MM-dd")
+        const todayStr = formatDateLocal(new Date())
         const normalized = feedings.map(normalizeFeedingFromEntity)
         const timestamps = normalized.map(f => f.timestamp)
 

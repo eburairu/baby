@@ -1,9 +1,8 @@
 import { BabyRecord } from "@/types/record"
 import { Feeding, FeedingType, BreastSide, FeedingCreate, BottleContentType, FeedingCompletion } from "@/types/feeding"
 import { formatElapsed } from "@/lib/ageUtils"
-import { isToday } from "@/lib/dateUtils"
+import { isToday, formatMonthDaySlash, subtractDays, isSameDay } from "@/lib/dateUtils"
 import { FeedingFormValues } from "@/schemas/feeding"
-import { format, subDays, isSameDay } from "date-fns"
 
 export interface NormalizedFeeding {
     id: number
@@ -131,7 +130,7 @@ export interface DailyFeedingData {
 export function calculateDailyStats(feedings: NormalizedFeeding[], days = 7): DailyFeedingData[] {
     const today = new Date()
     return Array.from({ length: days }, (_, i) => {
-        const day = subDays(today, days - 1 - i)
+        const day = subtractDays(today, days - 1 - i)
         const dayFeedings = feedings.filter(f => isSameDay(new Date(f.timestamp), day))
         let breastMin = 0
         let bottleMl = 0
@@ -140,7 +139,7 @@ export function calculateDailyStats(feedings: NormalizedFeeding[], days = 7): Da
             if (f.type === 'BOTTLE' || f.type === 'MIXED') bottleMl += f.amount
         }
         return {
-            date: format(day, 'M/d'),
+            date: formatMonthDaySlash(day),
             count: dayFeedings.length,
             breastMin,
             bottleMl,
