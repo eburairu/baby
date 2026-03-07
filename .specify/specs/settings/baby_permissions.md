@@ -244,7 +244,7 @@ for record_type in VALID_RECORD_TYPES:
 ### リクエスト/レスポンススキーマ
 
 ```typescript
-type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule" | "vaccination";
+type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule" | "vaccination" | "note";
 
 // 単一の権限レコード（1ユーザー × 1record_type）
 interface BabyPermissionItem {

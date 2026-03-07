@@ -230,3 +230,7 @@
 ## 2024-05-19 - 予防接種機能などの新しい記録タイプの権限設定漏れ
 **学び:** 新しい記録タイプ（例：`vaccination`）をシステムに追加し、API側で `verify_baby_access(..., record_type="vaccination")` と呼び出す実装がされても、`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `.specify/specs/settings/baby_permissions.md` の仕様に追記することが漏れやすい。これにより、フロントエンドや権限設定画面から新しい記録タイプの可視性を制御できなくなるバグが発生しうる。
 **アクション:** 新規の記録・トラッカー機能を追加する際は、必ず権限設定（`VALID_RECORD_TYPES` と `baby_permissions.md`）にもその新しい `record_type` を追加するよう、仕様書レビューやプルリクエストのチェックリストに含める。
+
+## 2026-03-07 - [Settings UI/Tracker] ValidRecordType の仕様ドリフト
+**学び:** 新規のレコードタイプ（例: `note`, `vaccination`など）が追加され、バックエンドのルーターロジック(`app/routers/baby_permissions.py`)に権限対象として組み込まれた際、`.specify/specs/settings/baby_permissions.md` などのフロントエンド向けTypeScriptインターフェース定義(`ValidRecordType`等)から漏れやすい。
+**アクション:** 権限・設定機能の仕様書を更新する際は、必ずバックエンドルーター内の有効なリスト（例: `valid_types`）と突合し、型定義を同期させる。
