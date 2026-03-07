@@ -258,6 +258,10 @@ def generate_record_feedback(
         if attempt > 0:
             time.sleep(2 ** attempt)  # 2s, 4s
         try:
+            reasoning_effort = config.get("llm_reasoning_effort")
+            # "none"/"default" は送らない。Flash など非思考モデルに送ると 400 INVALID_ARGUMENT になる
+            is_thinking = reasoning_effort and reasoning_effort not in ("default", "none")
+            temperature = 1.0 if is_thinking else float(config.get("llm_temperature", 0.5))
             kwargs = {
                 "model": model_name,
                 "messages": [
@@ -265,13 +269,12 @@ def generate_record_feedback(
                     {"role": "user", "content": prompt},
                 ],
                 "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
-                "temperature": float(config.get("llm_temperature", 0.5)),
+                "temperature": temperature,
                 "response_format": {"type": "json_object"},
             }
-            
-            # 推論（思考）プロセスの制御設定があれば追加 (Gemini 2.5/3.0+ OpenAI互換レイヤー)
-            reasoning_effort = config.get("llm_reasoning_effort")
-            if reasoning_effort and reasoning_effort != "default":
+
+            # 思考モード時のみ reasoning_effort を送る（Pro Preview 系のみ対応）
+            if is_thinking:
                 kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
 
             response = client.chat.completions.create(**kwargs)
