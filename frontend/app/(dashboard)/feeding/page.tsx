@@ -1,7 +1,6 @@
 "use client"
 import { AppIcons } from "@/constants/icons"
 
-
 import { useFeeding } from "@/hooks/useFeeding"
 import { useRecordPage } from "@/hooks/useRecordPage"
 import { FeedingStats } from "@/components/feeding/feeding-stats"
@@ -26,8 +25,7 @@ export default function FeedingPage() {
         commentRecordId,
     } = useRecordPage()
 
-    // 授乳データ取得 (babyId が文字列の場合があるため考慮)
-    const numericBabyId = babyId ? parseInt(babyId, 10) : undefined
+    // 授乳データ取得 (babyId はフック内で数値に変換される)
     const {
         feedings,
         loading: feedingsLoading,
@@ -37,11 +35,11 @@ export default function FeedingPage() {
         updateFeeding,
         deleteFeeding,
         refresh: refreshFeedings,
-    } = useFeeding(numericBabyId ?? null)
+    } = useFeeding(babyId ?? null)
 
     const handleAddFeeding = async (data: FeedingCreate): Promise<Feeding | undefined> => {
         const newRecord = await addFeeding(data)
-        if (newRecord && numericBabyId) {
+        if (newRecord && babyId) {
             triggerFeedback(RECORD_TYPES.FEEDING, newRecord.id)
         }
         return newRecord
@@ -64,9 +62,9 @@ export default function FeedingPage() {
 
             <TipsCard {...feedingTips} />
 
-            {canWrite && numericBabyId && (
+            {canWrite && babyId && (
                 <FeedingForm 
-                    babyId={numericBabyId} 
+                    babyId={typeof babyId === 'string' ? parseInt(babyId, 10) : (babyId || 0)} 
                     onAdd={handleAddFeeding} 
                     lastMilkAmount={summary.lastMilkAmount}
                     lastBottleContentType={summary.lastBottleContentType}
@@ -80,7 +78,7 @@ export default function FeedingPage() {
                 onRefresh={refreshFeedings}
                 canWrite={canWrite}
                 initialCommentRecordId={commentRecordId}
-                babyId={numericBabyId}
+                babyId={typeof babyId === 'string' ? parseInt(babyId, 10) : (babyId ?? undefined)}
             />
         </RecordPageLayout>
     )

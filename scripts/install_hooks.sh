@@ -39,6 +39,17 @@ cat > "$HOOK_FILE" <<EOF
 # pre-commit hook: ステージング済みファイルの自動チェック
 sh "$CHECK_SCRIPT"
 sh "$CHECK_OPENAPI_SCRIPT"
+
+# フロントエンドの変更が含まれる場合、Lint を実行する
+STAGED_FILES=\$(git diff --cached --name-only)
+if echo "\$STAGED_FILES" | grep -q "^frontend/"; then
+  echo "🔍 フロントエンドの Lint を実行中..."
+  # ルートディレクトリ配下の frontend ではなく、現在の git-dir に対応する frontend を取得
+  GIT_ROOT=\$(git rev-parse --show-toplevel)
+  if [ -d "\$GIT_ROOT/frontend" ]; then
+    cd "\$GIT_ROOT/frontend" && pnpm lint || exit 1
+  fi
+fi
 EOF
 
 chmod +x "$HOOK_FILE"

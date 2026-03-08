@@ -92,6 +92,7 @@ CI が `frontend/openapi.json is out of date` で落ちる原因になる。
 sh scripts/verify_all.sh
 
 # ステージング前の禁止ファイルチェック（自動的に pre-commit hook でも実行される）
+# ※ 現在、frontend/ 配下の変更が含まれる場合は pnpm lint も自動実行されます
 sh scripts/check_staged_files.sh
 ```
 
