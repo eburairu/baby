@@ -13,7 +13,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "types:generate": "openapi-typescript openapi.json -o types/generated/api.d.ts"
+    "types:generate": "openapi-typescript openapi.json -o types/generated/api.d.ts",
+    "postbuild": "node -e \"const{existsSync:e,copyFileSync:c,readdirSync:r}=require('fs'),{join:j}=require('path');if(e(j('public','sw.js'))){c(j('public','sw.js'),j('out','sw.js'));r('public').filter(f=>f.startsWith('workbox-')).forEach(f=>c(j('public',f),j('out',f)));console.log('SW files copied to out/')}else{console.warn('sw.js not found in public/')}\""
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

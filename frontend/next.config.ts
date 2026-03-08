@@ -32,7 +32,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(withPWA(nextConfig), {
+// withSentryConfig を内側、withPWA を外側にする。
+// 内側にすると withSentryConfig の runAfterProductionCompile が withPWA のものを上書きし
+// sw.js が生成されなくなるため順序を逆にする。
+const sentryConfig = withSentryConfig(nextConfig, {
   org: "eburairu",
   project: "baby-app-next",
 
@@ -42,3 +45,5 @@ export default withSentryConfig(withPWA(nextConfig), {
   // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 });
+
+export default withPWA(sentryConfig);
