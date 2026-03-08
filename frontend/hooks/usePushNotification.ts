@@ -10,6 +10,17 @@ export function usePushNotification() {
     if ("Notification" in window) {
       setPermission(Notification.permission);
     }
+    // 既存の購読状態をSWから読み込む
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        const reg = regs.find((r) => r.active) ?? regs[0];
+        if (reg?.pushManager) {
+          reg.pushManager.getSubscription().then((sub) => {
+            if (sub) setSubscription(sub);
+          });
+        }
+      });
+    }
   }, []);
 
   const requestPermission = async () => {
@@ -46,8 +57,11 @@ export function usePushNotification() {
     if (!("serviceWorker" in navigator)) return null;
 
     try {
-      // まず登録済み SW を確認する（ready より先に呼ぶことで「未登録」を即座に検出）
-      const existingReg = await navigator.serviceWorker.getRegistration("/");
+      // getRegistrations() で全登録を取得し active なものを選ぶ
+      // iOS PWA では getRegistration("/") がスコープ不一致で undefined を返すことがある
+      const regs = await navigator.serviceWorker.getRegistrations();
+      const existingReg = regs.find((r) => r.active) ?? regs[0];
+
       if (!existingReg) {
         throw new Error(
           "Service Worker が登録されていません。ページを再読み込みして再試行してください。"
@@ -79,6 +93,7 @@ export function usePushNotification() {
 
       if (existingSubscription) {
         await sendSubscriptionToBackend(existingSubscription);
+        setSubscription(existingSubscription);
         return existingSubscription;
       }
 
@@ -93,6 +108,20 @@ export function usePushNotification() {
       const msg = error instanceof Error ? error.message : String(error);
       console.error("Failed to subscribe user:", msg);
       throw new Error(msg);
+    }
+  };
+
+  const unsubscribeUser = async (sub: PushSubscription) => {
+    try {
+      await sub.unsubscribe();
+      await fetch(
+        `/api/notifications/unsubscribe?endpoint=${encodeURIComponent(sub.endpoint)}`,
+        { method: "POST" }
+      );
+      setSubscription(null);
+    } catch (error) {
+      console.error("Failed to unsubscribe:", error);
+      throw error;
     }
   };
 
@@ -127,6 +156,7 @@ export function usePushNotification() {
     subscription,
     requestPermission,
     subscribeUser,
+    unsubscribeUser,
     sendSubscriptionToBackend,
   };
 }
