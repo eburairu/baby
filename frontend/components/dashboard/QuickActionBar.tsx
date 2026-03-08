@@ -7,7 +7,7 @@ import { useQuickRecord } from "@/hooks/useQuickRecord"
 import { BabyRecord } from "@/types/record"
 import { AppIcons } from "@/constants/icons"
 import { StickyNote } from "lucide-react" // keep StickyNote for dialog title
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { NoteForm } from "@/components/note/NoteForm"
 import { HexagonButton } from "@/components/ui/hexagon-button"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
@@ -195,26 +195,27 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                 </HoneycombGrid>
             </div>
 
-            <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
-                <DialogContent className="max-w-md w-[90%] rounded-2xl p-0 overflow-hidden border-0 dark:bg-zinc-950">
-                    <DialogHeader className="p-4 pb-0">
-                        <DialogTitle className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-2">
-                            <StickyNote className="h-4 w-4 text-blue-500" />
-                            メモを追加
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="p-4">
-                        <NoteForm
-                            babyId={Number(babyId)}
-                            defaultExpanded={true}
-                            onAddSuccess={() => {
-                                setNoteDialogOpen(false)
-                                if (mutateRecords) mutateRecords()
-                            }}
-                        />
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <EditDialogBase
+                open={noteDialogOpen}
+                onOpenChange={setNoteDialogOpen}
+                title={
+                    <span className="flex items-center gap-2 text-base font-semibold text-gray-800 dark:text-zinc-100">
+                        <StickyNote className="h-4 w-4 text-blue-500" />
+                        メモを追加
+                    </span>
+                }
+            >
+                <div className="pt-2">
+                    <NoteForm
+                        babyId={Number(babyId)}
+                        defaultExpanded={true}
+                        onAddSuccess={() => {
+                            setNoteDialogOpen(false)
+                            if (mutateRecords) mutateRecords()
+                        }}
+                    />
+                </div>
+            </EditDialogBase>
 
             {feedingModalType && (
                 <FeedingQuickAddModal

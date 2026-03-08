@@ -228,7 +228,12 @@ for record_type in VALID_RECORD_TYPES:
         { "record_type": "baby",        "can_view": true  },
         { "record_type": "feeding",     "can_view": true  },
         { "record_type": "sleep",       "can_view": false },
-        ...
+        { "record_type": "diaper",      "can_view": true  },
+        { "record_type": "growth",      "can_view": true  },
+        { "record_type": "contraction", "can_view": false },
+        { "record_type": "schedule",    "can_view": true  },
+        { "record_type": "vaccination", "can_view": true  },
+        { "record_type": "note",        "can_view": true  }
       ]
     }
   ]

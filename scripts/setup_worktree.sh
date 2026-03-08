@@ -12,7 +12,8 @@ if [ -z "$BRANCH_NAME" ]; then
   exit 1
 fi
 
-WORKTREE_DIR="worktrees/$BRANCH_NAME"
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+WORKTREE_DIR="$ROOT_DIR/worktrees/$BRANCH_NAME"
 
 # 0. 最新のコードをフェッチ
 echo "Fetching latest changes from origin..."

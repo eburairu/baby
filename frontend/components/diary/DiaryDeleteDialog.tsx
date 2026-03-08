@@ -36,7 +36,7 @@ export function DiaryDeleteDialog({ summary, open, onOpenChange, onConfirm }: Di
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="rounded-2xl">
+            <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>育児日誌を削除しますか？</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -44,10 +44,10 @@ export function DiaryDeleteDialog({ summary, open, onOpenChange, onConfirm }: Di
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">キャンセル</AlertDialogCancel>
+                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleConfirm}
-                        className="rounded-xl bg-red-500 hover:bg-red-600"
+                        className="bg-red-500 hover:bg-red-600"
                     >
                         削除
                     </AlertDialogAction>
