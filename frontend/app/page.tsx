@@ -4,16 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@/hooks/useAuth"
 import { LandingContent } from "@/components/landing/LandingContent"
+import { useMounted } from "@/hooks/useMounted"
 
 export default function LandingPage() {
     const { user, isLoading } = useUser()
     const router = useRouter()
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setMounted(true)
-    }, [])
+    const mounted = useMounted(0, false)
 
     useEffect(() => {
         if (mounted && !isLoading && user) {

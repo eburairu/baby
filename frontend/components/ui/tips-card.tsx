@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./collapsib
 import type { TipsItem } from "@/lib/tips-data"
 import { TIPS_CARD_CONFIG } from "@/constants/ui-colors"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { useMounted } from "@/hooks/useMounted"
 
 interface TipsCardProps {
   storageKey: string
@@ -17,19 +18,10 @@ interface TipsCardProps {
 export function TipsCard({ storageKey, color, tips }: TipsCardProps) {
   const [savedState, setSavedState] = useLocalStorage<"open" | "closed">(storageKey, "open")
 
-  const [mounted, setMounted] = useState(false)
+  const mounted = useMounted(0, true)
 
   // 色設定を取得
   const c = TIPS_CARD_CONFIG[color]
-
-  // setTimeout を使って非同期にマウント状態を更新することで、
-  // React Compilerの「同期的なsetStateによるカスケーディングレンダー」の警告を回避します。
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true)
-    }, 0)
-    return () => clearTimeout(timer)
-  }, [])
 
   const handleOpenChange = (open: boolean) => {
     setSavedState(open ? "open" : "closed")
