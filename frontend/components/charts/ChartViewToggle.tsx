@@ -15,8 +15,9 @@ export function ChartViewToggle({ view, onChange }: ChartViewToggleProps) {
                     <button
                         key={v}
                         onClick={() => onChange(v)}
+                        aria-pressed={active}
                         className={[
-                            "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                            "rounded-md px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 focus-visible:ring-offset-gray-100 dark:focus-visible:ring-offset-zinc-800",
                             active
                                 ? "bg-white text-gray-800 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
                                 : "text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200",
