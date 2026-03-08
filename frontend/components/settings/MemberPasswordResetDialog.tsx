@@ -11,13 +11,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
+import { DialogFooter } from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
 import { api, isApiError } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
@@ -75,11 +70,12 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
 
     if (step === "result" && temporaryPassword) {
         return (
-            <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>🔑 仮パスワードが発行されました</DialogTitle>
-                    </DialogHeader>
+            <EditDialogBase
+                open={open}
+                onOpenChange={(v) => { if (!v) handleClose() }}
+                title="🔑 仮パスワードが発行されました"
+            >
+                <div className="flex flex-col gap-4">
                     <div className="space-y-4 py-2">
                         <p className="text-sm text-gray-600 dark:text-zinc-400">
                             <span className="font-medium">{displayName}</span> さんの仮パスワード:
@@ -102,13 +98,13 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                             <p>本人に安全な方法で伝えてください。</p>
                         </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="border-t dark:border-zinc-800 pt-4 mt-2">
                         <Button onClick={handleClose} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                             閉じる
                         </Button>
                     </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                </div>
+            </EditDialogBase>
         )
     }
 
