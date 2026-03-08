@@ -92,7 +92,7 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
             <PullToRefresh onRefresh={handleRefresh}>
-                <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+                <main className="px-4 py-6 max-w-3xl mx-auto space-y-6">
                     {!born && canWrite && selectedBaby && (
                         <BirthRegistrationDialog
                             babyId={actualBabyId}

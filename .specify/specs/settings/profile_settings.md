@@ -195,8 +195,7 @@ class UserResponse(BaseModel):
     display_name: Optional[str] = None   # ← 追加
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 ```
 
 ---
@@ -211,8 +210,7 @@ class FamilyMemberResponse(BaseModel):
     role: str
     joined_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 ```
 
 `FamilyMemberResponse` は `FamilyUser` と `User` の JOIN で組み立てるため、`app/routers/family.py` 内の `GET /api/family/members` エンドポイントも合わせて更新が必要（後述）。

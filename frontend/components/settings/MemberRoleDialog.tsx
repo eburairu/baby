@@ -1,12 +1,7 @@
 "use client"
 import { useState } from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
+import { DialogFooter } from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
 import { api, isApiError } from "@/lib/api"
 import { UserRole } from "@/lib/constants"
@@ -55,11 +50,13 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
     ]
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }} >
-            <DialogContent onOpenAutoFocus={handleOpen}>
-                <DialogHeader>
-                    <DialogTitle>ロールを変更: {member?.username}</DialogTitle>
-                </DialogHeader>
+        <EditDialogBase
+            open={open}
+            onOpenChange={(v) => { if (!v) onClose() }}
+            onOpenAutoFocus={handleOpen}
+            title={`ロールを変更: ${member?.username}`}
+        >
+            <div className="flex flex-col gap-4">
                 <div className="space-y-2 py-2">
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     {roles.map((role) => (
@@ -77,7 +74,7 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                         </button>
                     ))}
                 </div>
-                <DialogFooter>
+                <DialogFooter className="border-t dark:border-zinc-800 pt-4 mt-2">
                     <Button variant="outline" onClick={onClose} disabled={saving}>キャンセル</Button>
                     <Button
                         onClick={handleSave}
@@ -87,7 +84,7 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                         変更する
                     </Button>
                 </DialogFooter>
-            </DialogContent>
-        </Dialog>
+            </div>
+        </EditDialogBase>
     )
 }

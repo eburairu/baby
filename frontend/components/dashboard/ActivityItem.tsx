@@ -40,6 +40,7 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
         <li>
             <button
                 type="button"
+                aria-haspopup="dialog"
                 aria-label={`${label}の詳細を表示`}
                 className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 active:bg-gray-100 dark:active:bg-zinc-700 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
                 onClick={() => onClick(record)}

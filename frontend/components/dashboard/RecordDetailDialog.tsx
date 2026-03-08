@@ -189,10 +189,10 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 {canWrite && (
                   <Button 
                     type="submit" 
-                    disabled={loading}
+                    loading={loading}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
-                    {loading ? "保存中..." : "保存する"}
+                    保存する
                   </Button>
                 )}
               </div>
