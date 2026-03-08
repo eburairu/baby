@@ -3,15 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ChevronRight, Clock } from "lucide-react"
-import { ARTICLES } from "@/lib/column-data"
-
-const CATEGORY_COLORS: Record<string, string> = {
-    "授乳・ミルク": "bg-rose-50 text-rose-600",
-    "睡眠": "bg-indigo-50 text-indigo-600",
-    "おむつ・健康": "bg-amber-50 text-amber-600",
-    "夫婦・家族": "bg-emerald-50 text-emerald-600",
-    "成長記録": "bg-blue-50 text-blue-600",
-}
+import { ARTICLES, CATEGORY_COLORS } from "@/lib/column-data"
 
 const FEATURED = ARTICLES.slice(0, 3)
 
