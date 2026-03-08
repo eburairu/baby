@@ -20,7 +20,7 @@ interface NotificationSettings {
 }
 
 export default function NotificationsPage() {
-  const { permission, requestPermission, subscribeUser, sendSubscriptionToBackend } = usePushNotification();
+  const { permission, subscription, requestPermission, subscribeUser, unsubscribeUser, sendSubscriptionToBackend } = usePushNotification();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [dndInputsVisible, setDndInputsVisible] = useState(false);
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
                 </Button>
               )}
             </div>
-            {permission === "granted" && (
+            {permission === "granted" && subscription && (
               <div className="flex items-center justify-between pt-2 border-t">
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">テスト通知を送信</p>
@@ -214,6 +214,40 @@ export default function NotificationsPage() {
                   }}
                 >
                   送信
+                </Button>
+              </div>
+            )}
+            {permission === "granted" && subscription && (
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">このデバイスの通知を無効にする</p>
+                  <p className="text-xs text-muted-foreground">このデバイスへのプッシュ通知を停止します</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={async () => {
+                    try {
+                      await unsubscribeUser(subscription);
+                      toast.success("このデバイスの通知を無効にしました");
+                    } catch {
+                      toast.error("通知の無効化に失敗しました");
+                    }
+                  }}
+                >
+                  無効にする
+                </Button>
+              </div>
+            )}
+            {permission === "granted" && !subscription && (
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">このデバイスで通知を受け取る</p>
+                  <p className="text-xs text-muted-foreground">プッシュ通知の購読を登録します</p>
+                </div>
+                <Button size="sm" onClick={handleEnableNotifications}>
+                  購読する
                 </Button>
               </div>
             )}
