@@ -4,11 +4,11 @@ import { LandingHeader } from "./LandingHeader"
 import { LandingHero } from "./LandingHero"
 import { LandingFeatures } from "./LandingFeatures"
 import { LandingDetailedFeatures } from "./LandingDetailedFeatures"
-import { LandingTestimonials } from "./LandingTestimonials"
 import { LandingHowTo } from "./LandingHowTo"
 import { LandingTrust } from "./LandingTrust"
 import { LandingFAQ } from "./LandingFAQ"
 import { LandingCTA } from "./LandingCTA"
+import { LandingColumnTeaser } from "./LandingColumnTeaser"
 import { LandingFooter } from "./LandingFooter"
 
 export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
@@ -20,9 +20,9 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 <LandingHero isLoggedIn={isLoggedIn} />
                 <LandingFeatures />
                 <LandingDetailedFeatures />
-                <LandingTestimonials />
                 <LandingHowTo isLoggedIn={isLoggedIn} />
                 <LandingTrust />
+                <LandingColumnTeaser />
                 <LandingFAQ />
                 <LandingCTA isLoggedIn={isLoggedIn} />
             </main>

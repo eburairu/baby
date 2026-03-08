@@ -19,6 +19,7 @@ export function LandingFooter() {
                                 <a href="#details" className="block text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">機能一覧</a>
                                 <a href="#howto" className="block text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">使い方</a>
                                 <a href="#faq" className="block text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">よくある質問</a>
+                                <Link href="/column" className="block text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">育児コラム</Link>
                             </div>
                         </div>
                         <div className="space-y-2">

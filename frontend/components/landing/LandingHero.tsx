@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Monitor, Smartphone, Star, User } from "lucide-react"
+import { ArrowRight, Monitor, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
@@ -58,34 +58,6 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                         )}
                     </div>
 
-                    {/* Social Proof */}
-                    <div className="mt-8 pt-8 border-t border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 justify-center lg:justify-start">
-                        <div className="flex -space-x-3">
-                            {[...Array(4)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-950 flex items-center justify-center bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 overflow-hidden"
-                                >
-                                    <User className="w-5 h-5" />
-                                </div>
-                            ))}
-                            <div className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-950 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-xs text-indigo-600 dark:text-indigo-400 font-bold">
-                                +2k
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-center sm:items-start gap-1">
-                            <div className="flex text-amber-400 gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 fill-current" />
-                                ))}
-                            </div>
-                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                <span className="font-bold text-slate-900 dark:text-slate-100">4.9/5</span>
-                                <span className="mx-1.5 text-slate-300 dark:text-slate-700">|</span>
-                                多くのパパママが愛用中
-                            </p>
-                        </div>
-                    </div>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
