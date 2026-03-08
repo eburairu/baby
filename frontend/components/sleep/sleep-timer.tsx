@@ -43,7 +43,7 @@ export function SleepTimer({ babyId }: Props) {
                             : "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-200 dark:shadow-none"
                         }`}
                 >
-                    {loading ? "処理中..." : (isSleeping ? "おはよう (Stop)" : "おやすみ (Start)")}
+                    {isSleeping ? "おはよう (Stop)" : "おやすみ (Start)"}
                 </Button>
             </CardContent>
         </Card>
