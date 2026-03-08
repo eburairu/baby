@@ -105,7 +105,7 @@ export default function SettingsPage() {
                 <h1 className="text-base font-semibold text-gray-900 dark:text-zinc-100">設定</h1>
             </header>
 
-            <div className="max-w-2xl mx-auto p-4 space-y-3 pb-20">
+            <div className="max-w-3xl mx-auto p-4 space-y-3 pb-20">
                 {user?.is_superadmin && (
                     <section className="space-y-3">
                         <h2 className="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider ml-1 mb-1">システム管理</h2>
