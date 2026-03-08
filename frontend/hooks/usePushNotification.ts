@@ -57,20 +57,14 @@ export function usePushNotification() {
     if (!("serviceWorker" in navigator)) return null;
 
     try {
-      // getRegistrations() で全登録を取得し active なものを選ぶ
+      // getRegistrations() で全登録を取得し active なものを探す
       // iOS PWA では getRegistration("/") がスコープ不一致で undefined を返すことがある
+      // 登録がない・active でない場合は ready で待機する（登録スクリプトが非同期のため）
       const regs = await navigator.serviceWorker.getRegistrations();
-      const existingReg = regs.find((r) => r.active) ?? regs[0];
+      const activeReg = regs.find((r) => r.active);
 
-      if (!existingReg) {
-        throw new Error(
-          "Service Worker が登録されていません。ページを再読み込みして再試行してください。"
-        );
-      }
-
-      // active な SW が既にあればそのまま使う。インストール中の場合のみ ready を待機する
-      const registration = existingReg.active
-        ? existingReg
+      const registration = activeReg
+        ? activeReg
         : await Promise.race([
             navigator.serviceWorker.ready,
             new Promise<never>((_, reject) =>
