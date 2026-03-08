@@ -1,11 +1,6 @@
 "use client"
 import { useState } from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api } from "@/lib/api"
 import { BabyForm, BabyFormData } from "./BabyForm"
 
@@ -47,11 +42,14 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>赤ちゃんを追加</DialogTitle>
-                </DialogHeader>
+        <EditDialogBase
+            open={open}
+            onOpenChange={(v) => { if (!v) handleClose() }}
+            title="赤ちゃんを追加"
+            dialogClassName="max-h-[90vh] flex flex-col"
+            contentClassName="flex-1 overflow-y-auto"
+        >
+            <div className="pt-2">
                 <BabyForm
                     onSubmit={onSubmit}
                     onCancel={handleClose}
@@ -60,7 +58,7 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                     error={error}
                     defaultValues={{ gender: "unknown" }}
                 />
-            </DialogContent>
-        </Dialog>
+            </div>
+        </EditDialogBase>
     )
 }
