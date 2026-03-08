@@ -64,7 +64,7 @@ export default function BabySettingsPage() {
             </SettingsHeader>
 
             <PullToRefresh onRefresh={handleRefresh}>
-                <div className="max-w-3xl mx-auto p-4 space-y-4 pb-20">
+                <div className="max-w-5xl mx-auto p-4 space-y-4 pb-20">
                     {!babies || babies.length === 0 ? (
                         <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-8 text-center transition-colors">
                             <p className="text-gray-400 dark:text-zinc-500 text-sm mb-4 flex items-center justify-center gap-1"><BabyIcon className="w-4 h-4" /> まだ赤ちゃんが登録されていません</p>
