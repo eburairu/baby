@@ -4,7 +4,6 @@ import { LandingHeader } from "./LandingHeader"
 import { LandingHero } from "./LandingHero"
 import { LandingFeatures } from "./LandingFeatures"
 import { LandingDetailedFeatures } from "./LandingDetailedFeatures"
-import { LandingTestimonials } from "./LandingTestimonials"
 import { LandingHowTo } from "./LandingHowTo"
 import { LandingTrust } from "./LandingTrust"
 import { LandingFAQ } from "./LandingFAQ"
@@ -20,7 +19,6 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 <LandingHero isLoggedIn={isLoggedIn} />
                 <LandingFeatures />
                 <LandingDetailedFeatures />
-                <LandingTestimonials />
                 <LandingHowTo isLoggedIn={isLoggedIn} />
                 <LandingTrust />
                 <LandingFAQ />
