@@ -48,7 +48,7 @@ export default function FamilySettingsPage() {
             <SettingsHeader title="家族設定" />
 
             <PullToRefresh onRefresh={handleRefresh}>
-                <div className="max-w-3xl mx-auto p-4 space-y-4 pb-20">
+                <div className="max-w-5xl mx-auto p-4 space-y-4 pb-20">
                     {/* 家族名 */}
                     <FamilyNameForm
                         name={family.name}

@@ -40,7 +40,7 @@ export default function PermissionsPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
       <SettingsHeader title="権限管理" icon={ShieldCheck} />
 
-      <div className="max-w-3xl mx-auto p-4 space-y-4 pb-20">
+      <div className="max-w-5xl mx-auto p-4 space-y-4 pb-20">
         <p className="text-xs text-gray-500 dark:text-zinc-500">
           メンバーがどの赤ちゃんの情報を閲覧できるか管理します。新規参加者はデフォルトでアクセスなしです。
         </p>
