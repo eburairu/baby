@@ -196,14 +196,14 @@ class FamilyUpdate(BaseModel):
 class FamilyMemberResponse(BaseModel):
     user_id: int
     username: str
-    role: str  # "admin" | "member"
+    display_name: Optional[str] = None
+    role: UserRole
     joined_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MemberRoleUpdate(BaseModel):
-    role: str  # "admin" | "member"
+    role: UserRole
 
 class PasswordResetResponse(BaseModel):
     temporary_password: str  # バックエンドが生成した平文仮パスワード（1度だけ返す）
