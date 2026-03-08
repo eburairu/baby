@@ -21,7 +21,7 @@ if [ -z "$STAGED_FILES" ]; then
   ONLY_SPECS=false
 else
   for file in $STAGED_FILES; do
-    if [[ ! "$file" =~ ^\.specify/specs/ ]] && [[ ! "$file" =~ ^\.planning/ ]] && [[ ! "$file" =~ ^scripts/ ]] && [[ "$file" != "GEMINI.md" ]]; then
+    if [[ ! "$file" =~ ^\.specify/specs/ ]] && [[ ! "$file" =~ ^\.planning/ ]] && [[ ! "$file" =~ ^scripts/ ]] && [[ ! "$file" =~ ^\.gemini/ ]] && [[ "$file" != "GEMINI.md" ]] && [[ "$file" != "CLAUDE.md" ]]; then
       ONLY_SPECS=false
       break
     fi
