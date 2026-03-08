@@ -8,13 +8,15 @@ import { AppIcons } from "@/constants/icons"
 import { Hexagon } from "@/components/ui/hexagon"
 import { cn } from "@/lib/utils"
 
+/**
+ * ダッシュボードのアクティビティフィードに表示される個々の記録項目コンポーネント
+ */
 interface ActivityItemProps {
     record: BabyRecord
     onClick: (record: BabyRecord) => void
-    tick: number
 }
 
-export const ActivityItem = React.memo(function ActivityItem({ record, onClick, tick: _tick }: ActivityItemProps) {
+export const ActivityItem = React.memo(function ActivityItem({ record, onClick }: ActivityItemProps) {
     const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
     const colorClass = RECORD_TYPE_COLORS[recordType as keyof typeof RECORD_TYPE_COLORS] || 'text-muted-foreground'

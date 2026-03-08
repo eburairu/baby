@@ -13,7 +13,7 @@ export function useDiapers(babyId: string | number | null) {
         update,
         remove,
         refresh,
-    } = useBaseRecord<Diaper, DiaperCreate, DiaperUpdate>(babyId, 'diapers', 'diaper_id');
+    } = useBaseRecord<Diaper, DiaperCreate, DiaperUpdate>(babyId, 'diapers');
 
     return {
         diapers,

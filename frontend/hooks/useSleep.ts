@@ -13,7 +13,7 @@ export function useSleeps(babyId: string | number | null) {
         update,
         remove,
         refresh,
-    } = useBaseRecord<Sleep, SleepCreate, SleepUpdate>(babyId, 'sleeps', 'sleep_id');
+    } = useBaseRecord<Sleep, SleepCreate, SleepUpdate>(babyId, 'sleeps');
 
     return {
         sleeps,

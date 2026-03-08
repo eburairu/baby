@@ -15,7 +15,7 @@ export function useFeeding(babyId: string | number | null) {
         update,
         remove,
         refresh,
-    } = useBaseRecord<Feeding, FeedingCreate, FeedingUpdate>(babyId, 'feedings', 'feeding_id');
+    } = useBaseRecord<Feeding, FeedingCreate, FeedingUpdate>(babyId, 'feedings');
 
     const summary: FeedingStatsResult = useMemo(() => {
         const normalizedFeedings = feedings?.map(normalizeFeedingFromEntity) ?? [];
