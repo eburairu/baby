@@ -77,8 +77,7 @@ class CommentResponse(CommentBase):
     is_ai_generated: bool = False
     ai_has_concern: Optional[bool] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 **AIフィードバック機能**:
 AIによる自動生成コメントについては、[AI記録フィードバック機能仕様書](../ai/ai_record_feedback.md) を参照のこと。
