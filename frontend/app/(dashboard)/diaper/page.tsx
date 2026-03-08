@@ -23,7 +23,13 @@ export default function DiaperPage() {
         commentRecordId,
     } = useRecordPage()
 
-    const { diapers, isLoading: diapersLoading, isError: diaperError, mutate } = useDiapers(babyId ?? null)
+    const { 
+        diapers, 
+        isLoading: diapersLoading, 
+        isError: diaperError, 
+        mutate,
+        deleteDiaper
+    } = useDiapers(babyId ?? null)
 
     const handleRefresh = async () => {
         await mutate()
@@ -58,7 +64,8 @@ export default function DiaperPage() {
 
             <DiaperHistory
                 diapers={diapers || []}
-                onDeleteSuccess={() => mutate()}
+                onDelete={deleteDiaper}
+                onRefresh={handleRefresh}
                 canWrite={canWrite}
                 initialCommentRecordId={commentRecordId ?? null}
             />
