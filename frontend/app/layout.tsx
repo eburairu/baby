@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SplashScreen } from "@/components/ui/splash-screen";
 import Script from "next/script";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,6 +83,7 @@ export default function RootLayout({
               strategy="afterInteractive"
             />
           )}
+          <ServiceWorkerRegister />
           <SplashScreen />
           {children}
           <Toaster />
