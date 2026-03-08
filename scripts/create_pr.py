@@ -62,7 +62,7 @@ def create_pr(base, head, title, body, body_file=None, edit_id=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="GitHub PR を安全に作成・編集します。")
     parser.add_argument("--base", default="develop", help="ベースブランチ（デフォルト: develop）")
-    parser.add_argument("--head", help="ヘッドブランチ")
+    parser.add_argument("--head", help="ヘッドブランチ（省略時は現在のブランチ）")
     parser.add_argument("--title", help="PR タイトル")
     parser.add_argument("--body", help="PR 本文（マルチライン可）")
     parser.add_argument("--body-file", dest="body_file", help="PR 本文を含むファイルパス（処理後に自動削除される）")
@@ -70,11 +70,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # 作成（editなし）の場合は head と title が必須
+    # 作成（editなし）の場合は title が必須。head は省略時に現在のブランチを使用
     if not args.edit:
         if not args.head:
-            print("Error: --head is required for PR creation", file=sys.stderr)
-            sys.exit(1)
+            result = subprocess.run(
+                ["git", "branch", "--show-current"],
+                capture_output=True, text=True
+            )
+            args.head = result.stdout.strip()
+            if not args.head:
+                print("Error: --head is required (current branch could not be detected)", file=sys.stderr)
+                sys.exit(1)
         if not args.title:
             print("Error: --title is required for PR creation", file=sys.stderr)
             sys.exit(1)
