@@ -7,8 +7,15 @@ from app.models.vaccination import Vaccination, VaccinationStatus
 from app.models.baby import Baby
 from app.schemas.vaccination import VaccinationCreate, VaccinationUpdate, VaccinationResponse
 from app.services.vaccination_service import VaccinationService
+from app.utils.rate_limit import RateLimiter
 
 router = APIRouter(prefix="/api/vaccinations", tags=["vaccinations"])
+
+vaccination_generate_limiter = RateLimiter(
+    requests_limit=3,
+    time_window=60,
+    error_message="Too many generation requests. Please try again later.",
+)
 
 @router.get("/", response_model=List[VaccinationResponse])
 async def get_vaccinations(
@@ -79,6 +86,7 @@ async def generate_vaccinations(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    vaccination_generate_limiter.check(f"user_{current_user.id}")
     verify_baby_access(db, baby_id, current_user.id, require_write=True)
     baby = db.query(Baby).filter(Baby.id == baby_id).first()
     if not baby or not baby.birthday:

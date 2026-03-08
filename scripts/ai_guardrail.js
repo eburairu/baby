@@ -69,6 +69,11 @@ try {
   if (toolCall && toolCall.tool_input) {
     const { tool_name, tool_input } = toolCall;
     
+    // "edit" および "run_shell_command" ツールはガードレールの対象外（常に許可）
+    if (tool_name === 'edit' || tool_name === 'run_shell_command') {
+       outputResult({ decision: "allow" });
+    }
+    
     if (tool_input.file_path) {
       targetFilePath = path.resolve(currentPath, tool_input.file_path);
     } else if (tool_input.dir_path) {

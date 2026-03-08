@@ -239,6 +239,14 @@
 **学び:** `note` や `vaccination` のような新しい記録タイプが追加された際、仕様書（`baby_permissions.md`）には追加されていても、バックエンド側の `VALID_RECORD_TYPES` やルーター内の `valid_types`, `record_types` などの直接的な文字列リストに追加し忘れる実装漏れが発生しやすい。
 **アクション:** 新しい記録タイプを追加する際は、権限モデルやルーターの実装（`baby_permission.py`, `baby_permissions.py`）内のハードコードされたリストにも追加されているか必ず確認・同期する。
 
-## $(date +%Y-%m-%d) - baby_permissions.md の ValidRecordType 更新
+## 2026-03-08 - baby_permissions.md の ValidRecordType 更新
 **学び:** 新しい記録タイプ（今回は vaccination, note）が追加された場合、対応するスキーマ（`VALID_RECORD_TYPES`）やルーターでリストが更新されても、関連する仕様書（`baby_permissions.md` など）の型定義やサンプルJSONへの追記が漏れやすい。
 **アクション:** 新たな機能や列挙型（定数）を追加・更新した際には、`.specify/specs/` 配下の関連ドキュメントの型定義やJSONレスポンス例の記載が追随しているか、必ず確認するようにする。
+
+## 2024-03-05 - 家族メンバー設定スキーマのPydantic V2/拡張対応漏れ
+**学び:** `app/schemas/family.py` で `FamilyMemberResponse` に `display_name` が追加され、Pydantic V2 に合わせて `model_config = ConfigDict(from_attributes=True)` へ移行されたにもかかわらず、対応する `.specify/specs/settings/family_settings.md` の仕様書が V1 構文および古いフィールド構成のままになっていた。モデル拡張やPydanticメジャーアップデート時は、仕様書側も同様にアップデートする必要がある。
+**アクション:** 今後の仕様書更新では、各ドメインの `Response` モデルにフィールドが追加されていないか、Pydantic v2 の `model_config` 表記に移行されていないかを優先的に確認する。
+
+## 2026-03-08 - [Pydantic v2形式(ConfigDict)への仕様書の追随漏れ]
+**学び:** `app/schemas/` 以下の多くのモデルが Pydantic v2 の `model_config = ConfigDict(from_attributes=True)` 構文に移行されているが、仕様書（`profile_settings.md` や `record_comments.md`）では依然として v1 時代の `class Config:\n    from_attributes = True` が残存している。ライブラリのメジャーバージョンアップに伴う記法変更は、ドキュメントに一括で反映されずドリフトしやすい。
+**アクション:** 今後の仕様書の更新やレビューでは、モデルのフィールド追加や削除だけでなく、ライブラリの構文（Pydantic v2 `ConfigDict` 等）が最新のバックエンド実装と一致しているかを定期的に確認し、古くなっている場合は同期を行う。

@@ -1,5 +1,10 @@
+import type { Metadata } from "next"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaperTips } from "@/lib/tips-data"
+
+export const metadata: Metadata = {
+    robots: { index: false, follow: false },
+}
 
 export default function TestPage() {
   return (

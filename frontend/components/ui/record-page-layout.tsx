@@ -68,7 +68,7 @@ export function RecordPageLayout({
     }
 
     const content = (
-        <main className="max-w-2xl mx-auto p-4 space-y-6 pb-24">
+        <main className="max-w-3xl mx-auto p-4 space-y-6 pb-24">
             {renderContent()}
         </main>
     )
@@ -77,7 +77,7 @@ export function RecordPageLayout({
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
             {/* 共通ヘッダー */}
             <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
+                <div className="flex items-center justify-center h-14 px-4 max-w-3xl mx-auto">
                     <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
                         <Icon className={`h-4 w-4 ${iconColorClass}`} />
                         {title}

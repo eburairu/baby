@@ -39,6 +39,7 @@ cat > "$HOOK_FILE" <<EOF
 # pre-commit hook: ステージング済みファイルの自動チェック
 sh "$CHECK_SCRIPT"
 sh "$CHECK_OPENAPI_SCRIPT"
+# lint は CI (validate-frontend-build) で実施 → pre-commit からは除外
 EOF
 
 chmod +x "$HOOK_FILE"
