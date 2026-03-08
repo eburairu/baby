@@ -67,6 +67,13 @@ EOF
 - **例外**: **仕様書（`.specify/specs/`）または設計ドキュメント（`.planning/`）の更新のみを行う場合**は、ルートリポジトリの `develop` ブランチで直接編集・コミットを行ってもよい。
 - **目的**: 常に `develop` の最新状態をメインディレクトリに維持し、並行開発を円滑にするため。
 
+### TypeScript で `any` 型を使用しない
+
+- `any` 型の使用は**絶対禁止**。型が不明な場合は `unknown` を使い、型ガードで絞り込む
+- `as any` キャストも禁止。型エラーは根本原因を修正して解消する
+- どうしても型が付けられない場合は `// @ts-expect-error` + 理由コメントを付ける（`@ts-ignore` は禁止）
+- `eslint-disable @typescript-eslint/no-explicit-any` によるサプレスも禁止
+
 ### バックエンド変更後は openapi.json を必ず更新する
 
 `app/models/`・`app/schemas/`・`app/routers/` を変更したら**コミット前に実行**:
@@ -85,6 +92,7 @@ CI が `frontend/openapi.json is out of date` で落ちる原因になる。
 sh scripts/verify_all.sh
 
 # ステージング前の禁止ファイルチェック（自動的に pre-commit hook でも実行される）
+# ※ 現在、frontend/ 配下の変更が含まれる場合は pnpm lint も自動実行されます
 sh scripts/check_staged_files.sh
 ```
 
