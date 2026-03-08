@@ -27,14 +27,14 @@ export function useBaseRecord<T, TCreate, TUpdate>(
 
   // レコード更新
   const update = async (id: number, record: TUpdate): Promise<T | undefined> => {
-    const updatedRecord = await api.patch<T, TUpdate>(`/${endpoint}/${id}/`, record);
+    const updatedRecord = await api.patch<T, TUpdate>(`/${endpoint}/${id}`, record);
     mutate();
     return updatedRecord;
   };
 
   // レコード削除
   const remove = async (id: number) => {
-    await api.delete(`/${endpoint}/${id}/`);
+    await api.delete(`/${endpoint}/${id}`);
     mutate();
   };
 
