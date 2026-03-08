@@ -46,13 +46,32 @@ export function usePushNotification() {
     if (!("serviceWorker" in navigator)) return null;
 
     try {
-      // Service Worker が active になるまで最大 60 秒待機
-      const registration = await Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Service Worker の準備がタイムアウトしました。ページを再読み込みして再試行してください。")), 60000)
-        ),
-      ]);
+      // まず登録済み SW を確認する（ready より先に呼ぶことで「未登録」を即座に検出）
+      const existingReg = await navigator.serviceWorker.getRegistration("/");
+      if (!existingReg) {
+        throw new Error(
+          "Service Worker が登録されていません。ページを再読み込みして再試行してください。"
+        );
+      }
+
+      // active な SW が既にあればそのまま使う。インストール中の場合のみ ready を待機する
+      const registration = existingReg.active
+        ? existingReg
+        : await Promise.race([
+            navigator.serviceWorker.ready,
+            new Promise<never>((_, reject) =>
+              setTimeout(
+                () =>
+                  reject(
+                    new Error(
+                      "Service Worker の準備がタイムアウトしました。ページを再読み込みして再試行してください。"
+                    )
+                  ),
+                20000
+              )
+            ),
+          ]);
+
       if (!registration.pushManager) {
         throw new Error("プッシュ通知はこのブラウザ/環境では使用できません（PushManager が見つかりません）。");
       }
