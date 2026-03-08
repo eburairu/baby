@@ -23,7 +23,7 @@ export default function PrivacyPage() {
                         <p className="text-slate-600 leading-relaxed">
                             サービス名: Botoro<br />
                             運営者: Botoro 運営者<br />
-                            お問い合わせ: <a href="https://baby-app-next.onrender.com/" className="text-indigo-600 underline">サービストップページ</a>よりご確認ください。
+                            お問い合わせ: <a href="/contact" className="text-indigo-600 underline">お問い合わせページ</a>よりご連絡ください。
                         </p>
                     </section>
 

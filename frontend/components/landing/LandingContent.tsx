@@ -8,6 +8,7 @@ import { LandingHowTo } from "./LandingHowTo"
 import { LandingTrust } from "./LandingTrust"
 import { LandingFAQ } from "./LandingFAQ"
 import { LandingCTA } from "./LandingCTA"
+import { LandingColumnTeaser } from "./LandingColumnTeaser"
 import { LandingFooter } from "./LandingFooter"
 
 export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
@@ -21,6 +22,7 @@ export function LandingContent({ isLoggedIn = false }: { isLoggedIn?: boolean })
                 <LandingDetailedFeatures />
                 <LandingHowTo isLoggedIn={isLoggedIn} />
                 <LandingTrust />
+                <LandingColumnTeaser />
                 <LandingFAQ />
                 <LandingCTA isLoggedIn={isLoggedIn} />
             </main>
