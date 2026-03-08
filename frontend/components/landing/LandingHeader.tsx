@@ -20,6 +20,7 @@ export function LandingHeader({ isLoggedIn = false }: LandingHeaderProps) {
                     <a href="#details" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">機能</a>
                     <a href="#howto" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">使い方</a>
                     <a href="#faq" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">よくある質問</a>
+                    <Link href="/column" className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">コラム</Link>
                 </nav>
                 <div className="flex items-center gap-4">
                     <ThemeToggle />
