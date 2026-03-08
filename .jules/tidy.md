@@ -137,3 +137,6 @@ out` として共通化することで保守性が向上した。
 ## 2026-03-02 - [Tidy: リファクタリング - 編集ダイアログのUI共通化]
 学び: 各種フォーム（GrowthRecordForm, VaccinationForm, MilestoneForm, ContractionEditDialog）において、Dialogコンポーネントが個別に直接使用されており、共通のEditDialogBaseが活用されていないアンチパターンを発見しました。これにより、ダイアログのUIや挙動に一貫性が欠け、冗長なコードが存在していました。
 アクション: これらのフォームをEditDialogBaseを使用するようにリファクタリングし、UIの一貫性を確保しました。今後新しいダイアログを作成する際は、必ずEditDialogBaseを使用することを徹底します。
+## 2026-03-02 - [Tidy: リファクタリング - RecordIconの共通化とUI定数の統合]
+**学び:** `ActivityItem` コンポーネント内で、背景色やアイコンの表示ロジック（`Hexagon` の利用や色の出し分け）が手動で記述されており、これは既存の `RecordIcon` コンポーネントと責務が完全に重複していました。また、`RecordIcon` 内部でも独自の `styles` オブジェクトが定義されており、`frontend/constants/ui.ts` の定数と二重管理（アンチパターン）になっていました。
+**アクション:** `RecordIcon` を `ui.ts` の定数（`RECORD_TYPE_COLORS`, `RECORD_TYPE_BG_COLORS`）を利用するようにリファクタリングし、特定のアクション用アイコンを上書きできるように `icon` プロップを追加しました。そして `ActivityItem` から冗長なマークアップを削除し、`RecordIcon` を再利用するように修正しました。今後もUI要素の重複を見つけた際は、既存のコンポーネントを拡張して共通化できないか検討します。また、未使用に見える `tick` プロップに対して、再レンダリングをトリガーするハックである旨のJSDocコメントを追加し、将来の誤削除を防ぎました。

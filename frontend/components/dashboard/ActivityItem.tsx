@@ -3,22 +3,23 @@ import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
 import { MessageCircle, User, StickyNote } from "lucide-react"
-import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS, RECORD_TYPE_BG_COLORS } from "@/constants/ui"
+import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS } from "@/constants/ui"
 import { AppIcons } from "@/constants/icons"
-import { Hexagon } from "@/components/ui/hexagon"
-import { cn } from "@/lib/utils"
+import { RecordIcon, RecordType } from "@/components/records/RecordIcon"
 
 interface ActivityItemProps {
     record: BabyRecord
     onClick: (record: BabyRecord) => void
+    /**
+     * React.memoの再レンダリングをトリガーするためのダミープロップ。
+     * 時間経過（formatElapsed）を定期的に更新するために使用されます。
+     */
     tick: number
 }
 
-export const ActivityItem = React.memo(function ActivityItem({ record, onClick, tick: _tick }: ActivityItemProps) {
+export const ActivityItem = React.memo(function ActivityItem({ record, onClick }: ActivityItemProps) {
     const recordType = record.type as keyof typeof RECORD_TYPE_LABELS
     const label = RECORD_TYPE_LABELS[recordType] || record.type
-    const colorClass = RECORD_TYPE_COLORS[recordType as keyof typeof RECORD_TYPE_COLORS] || 'text-muted-foreground'
-    const bgColorClass = RECORD_TYPE_BG_COLORS[recordType] || 'text-gray-100 dark:text-zinc-800'
 
     let LucideIcon = RECORD_TYPE_LUCIDE_ICONS[recordType]
 
@@ -42,9 +43,7 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick, 
                 className="w-full flex items-center gap-3 text-left hover:bg-gray-50 dark:hover:bg-zinc-800 active:bg-gray-100 dark:active:bg-zinc-700 p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
                 onClick={() => onClick(record)}
             >
-                <Hexagon size={36} cornerRadius={6} className={cn("shrink-0", bgColorClass)}>
-                    <IconComponent className={cn("h-4 w-4", colorClass)} aria-hidden="true" />
-                </Hexagon>
+                <RecordIcon type={recordType as RecordType} icon={IconComponent} />
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                         {label}

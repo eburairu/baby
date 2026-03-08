@@ -1,25 +1,21 @@
 import { AppIcons } from "@/constants/icons";
+import { RECORD_TYPE_COLORS, RECORD_TYPE_BG_COLORS } from "@/constants/ui";
 import { cn } from "@/lib/utils";
 import { Hexagon } from "@/components/ui/hexagon";
+import { type LucideIcon } from "lucide-react";
 
-export type RecordType = 'feeding' | 'sleep' | 'diaper' | 'note' | 'growth';
+export type RecordType = 'feeding' | 'sleep' | 'diaper' | 'note' | 'growth' | 'contraction';
 
 interface RecordIconProps {
   type: RecordType;
   className?: string;
+  icon?: LucideIcon;
 }
 
-const styles: Record<RecordType, { bg: string, icon: string }> = {
-  feeding: { bg: "text-orange-100 dark:text-orange-950/40", icon: "text-orange-500 dark:text-orange-400" },
-  sleep: { bg: "text-indigo-100 dark:text-indigo-950/40", icon: "text-indigo-500 dark:text-indigo-400" },
-  diaper: { bg: "text-amber-100 dark:text-amber-950/40", icon: "text-amber-500 dark:text-amber-400" },
-  note: { bg: "text-amber-100 dark:text-amber-950/40", icon: "text-amber-500 dark:text-amber-400" },
-  growth: { bg: "text-green-100 dark:text-green-950/40", icon: "text-green-500 dark:text-green-400" },
-};
-
-export function RecordIcon({ type, className }: RecordIconProps) {
-  const Icon = AppIcons[type];
-  const style = styles[type];
+export function RecordIcon({ type, className, icon: OverrideIcon }: RecordIconProps) {
+  const Icon = OverrideIcon ?? AppIcons[type];
+  const bg = RECORD_TYPE_BG_COLORS[type] || 'text-gray-100 dark:text-zinc-800';
+  const iconColor = RECORD_TYPE_COLORS[type as keyof typeof RECORD_TYPE_COLORS] || 'text-muted-foreground';
 
   if (!Icon) return null;
 
@@ -27,9 +23,9 @@ export function RecordIcon({ type, className }: RecordIconProps) {
     <Hexagon
       size={36}
       cornerRadius={6}
-      className={cn("shrink-0", style.bg, className)}
+      className={cn("shrink-0", bg, className)}
     >
-      <Icon className={cn("w-4 h-4", style.icon)} />
+      <Icon className={cn("w-4 h-4", iconColor)} />
     </Hexagon>
   );
 }
