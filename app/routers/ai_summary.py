@@ -4,6 +4,7 @@ from typing import List
 from datetime import date, datetime
 import openai
 
+from app.core.exceptions import AIGenerationError
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.ai_summary import DailySummary
@@ -64,7 +65,7 @@ def create_or_get_daily_summary(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except RuntimeError as e:
+    except AIGenerationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except openai.RateLimitError:
         raise HTTPException(

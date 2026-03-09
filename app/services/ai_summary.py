@@ -9,6 +9,7 @@ from app.models.baby import Baby
 from app.services.baby import get_baby_age_in_days
 from app.utils.timezone import JST
 from app.core.constants import AI_SUMMARY_CHARS_MIN, AI_SUMMARY_CHARS_MAX, AI_MAX_TOKENS, AI_TEMPERATURE
+from app.core.exceptions import AIGenerationError
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -260,12 +261,12 @@ def generate_daily_summary(
 ) -> Tuple[str, str]:
     """(generated_content, model_name) を返す。
     記録が0件の場合は ValueError を raise。
-    AI 機能が無効な場合は RuntimeError を raise。
+    AI 機能が無効な場合は AIGenerationError を raise。
     API障害時は openai.APIError を伝播。
     """
     config = get_ai_config(db)
     if not config.get("ai_enabled_summary", True):
-        raise RuntimeError("AI 日誌生成機能は現在無効化されています。")
+        raise AIGenerationError("AI 日誌生成機能は現在無効化されています。")
 
     prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby, target_date)
 
