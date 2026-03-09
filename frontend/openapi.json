@@ -3267,6 +3267,179 @@
         "title": "SuperAdminToggleRequest",
         "type": "object"
       },
+      "TemperatureCreate": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "measured_at": {
+            "format": "date-time",
+            "title": "Measured At",
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/TemperatureMethod",
+            "default": "AXILLARY"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "temperature": {
+            "maximum": 42.0,
+            "minimum": 34.0,
+            "title": "Temperature",
+            "type": "number"
+          }
+        },
+        "required": [
+          "baby_id",
+          "measured_at",
+          "temperature"
+        ],
+        "title": "TemperatureCreate",
+        "type": "object"
+      },
+      "TemperatureMethod": {
+        "enum": [
+          "AXILLARY",
+          "EAR",
+          "FOREHEAD",
+          "RECTAL"
+        ],
+        "title": "TemperatureMethod",
+        "type": "string"
+      },
+      "TemperatureResponse": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "measured_at": {
+            "format": "date-time",
+            "title": "Measured At",
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/TemperatureMethod",
+            "default": "AXILLARY"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "recorded_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorded By Display Name"
+          },
+          "temperature": {
+            "maximum": 42.0,
+            "minimum": 34.0,
+            "title": "Temperature",
+            "type": "number"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "baby_id",
+          "measured_at",
+          "temperature",
+          "id",
+          "user_id"
+        ],
+        "title": "TemperatureResponse",
+        "type": "object"
+      },
+      "TemperatureUpdate": {
+        "properties": {
+          "measured_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measured At"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TemperatureMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "maximum": 42.0,
+                "minimum": 34.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          }
+        },
+        "title": "TemperatureUpdate",
+        "type": "object"
+      },
       "UnifiedRecord": {
         "properties": {
           "comment_count": {
@@ -7508,6 +7681,204 @@
         "summary": "Update Sleep",
         "tags": [
           "sleeps"
+        ]
+      }
+    },
+    "/api/temperatures/": {
+      "get": {
+        "operationId": "get_temperatures_api_temperatures__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TemperatureResponse"
+                  },
+                  "title": "Response Get Temperatures Api Temperatures  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Temperatures",
+        "tags": [
+          "temperatures"
+        ]
+      },
+      "post": {
+        "operationId": "create_temperature_api_temperatures__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemperatureCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemperatureResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Temperature",
+        "tags": [
+          "temperatures"
+        ]
+      }
+    },
+    "/api/temperatures/{record_id}": {
+      "delete": {
+        "operationId": "delete_temperature_api_temperatures__record_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "title": "Record Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Temperature",
+        "tags": [
+          "temperatures"
+        ]
+      },
+      "put": {
+        "operationId": "update_temperature_api_temperatures__record_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "title": "Record Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemperatureUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemperatureResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Temperature",
+        "tags": [
+          "temperatures"
         ]
       }
     },

@@ -48,6 +48,7 @@ from app.routers import auth, family, baby, notifications, admin
 from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments, ai_feedback, ai_settings
 from app.routers import version, vaccinations, milestones
 from app.routers import timer
+from app.routers import temperatures
 
 app.include_router(version.router)
 app.include_router(auth.router)
@@ -71,6 +72,7 @@ app.include_router(ai_settings.router)
 app.include_router(upload.router)
 app.include_router(comments.router)
 app.include_router(timer.router)
+app.include_router(temperatures.router)
 
 frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/out")
 
