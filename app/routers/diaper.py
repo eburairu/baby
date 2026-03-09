@@ -91,11 +91,14 @@ def delete_diaper(diaper_id: int, db: Session = Depends(get_db), current_user: U
     if not diaper:
         raise HTTPException(status_code=404, detail="Diaper record not found")
     verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "diaper",
         RecordComment.record_id == diaper_id
-    ).delete()
-    db.delete(diaper)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    diaper.is_deleted = True
     db.commit()
     return {"message": "Deleted"}
 

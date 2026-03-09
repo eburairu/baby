@@ -156,7 +156,9 @@ def test_delete_temperature(client: TestClient, auth_client, db):
 
     response = client.delete(f"/api/temperatures/{record_id}")
     assert response.status_code == 200
-    assert db.query(TemperatureRecord).filter(TemperatureRecord.id == record_id).first() is None
+    record = db.query(TemperatureRecord).filter(TemperatureRecord.id == record_id).execution_options(include_deleted=True).first()
+    assert record is not None
+    assert record.is_deleted is True
 
 
 def test_temperature_access_control(client: TestClient, auth_client):

@@ -96,7 +96,7 @@ def verify_baby_access(
                 detail="Read-only users cannot perform this action"
             )
 
-    baby_query = db.query(Baby).filter(Baby.id == baby_id)
+    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
     if not is_superadmin:
         # 通常ユーザーは自身のファミリーの赤ちゃんのみ閲覧可能
         baby_query = baby_query.filter(Baby.family_id == family_user.family_id)

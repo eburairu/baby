@@ -44,7 +44,7 @@ def get_record_baby_id(db: Session, record_type: str, record_id: int) -> int:
     if not model:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid record type: {record_type}")
     
-    record = db.query(model).filter(model.id == record_id).first()
+    record = db.query(model).filter(model.id == record_id, model.is_deleted == False).first()
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Record not found: {record_type} {record_id}")
     
@@ -66,7 +66,8 @@ def get_record_comments(
         joinedload(RecordComment.user)
     ).filter(
         RecordComment.record_type == record_type,
-        RecordComment.record_id == record_id
+        RecordComment.record_id == record_id,
+        RecordComment.is_deleted == False
     ).order_by(RecordComment.created_at.asc()).all()
 
     # ⚡ Bolt: Fetch-then-batch strategy for FamilyUser roles to eliminate N+1 queries.
@@ -175,5 +176,5 @@ def delete_comment(
     if comment.user_id != current_user.id and (family_user is None or family_user.role != UserRole.ADMIN):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
 
-    db.delete(comment)
+    comment.is_deleted = True
     db.commit()

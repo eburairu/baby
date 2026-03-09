@@ -165,10 +165,13 @@ def delete_contraction(contraction_id: int, db: Session = Depends(get_db), curre
     if not contraction:
         raise HTTPException(status_code=404, detail="Contraction record not found")
     verify_baby_access(db, contraction.baby_id, current_user.id, record_type="contraction", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "contraction",
         RecordComment.record_id == contraction_id
-    ).delete()
-    db.delete(contraction)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    contraction.is_deleted = True
     db.commit()
     return {"message": "Deleted"}
