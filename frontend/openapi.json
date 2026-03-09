@@ -368,18 +368,12 @@
           "gender": {
             "anyOf": [
               {
-                "enum": [
-                  "boy",
-                  "girl",
-                  "unknown"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/Gender"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Gender"
+            ]
           },
           "name": {
             "maxLength": 100,
@@ -528,18 +522,12 @@
           "gender": {
             "anyOf": [
               {
-                "enum": [
-                  "boy",
-                  "girl",
-                  "unknown"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/Gender"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Gender"
+            ]
           },
           "id": {
             "title": "Id",
@@ -623,18 +611,12 @@
           "gender": {
             "anyOf": [
               {
-                "enum": [
-                  "boy",
-                  "girl",
-                  "unknown"
-                ],
-                "type": "string"
+                "$ref": "#/components/schemas/Gender"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Gender"
+            ]
           },
           "name": {
             "anyOf": [
@@ -2084,6 +2066,15 @@
         },
         "title": "FeedingUpdate",
         "type": "object"
+      },
+      "Gender": {
+        "enum": [
+          "boy",
+          "girl",
+          "unknown"
+        ],
+        "title": "Gender",
+        "type": "string"
       },
       "GrowthCreate": {
         "properties": {

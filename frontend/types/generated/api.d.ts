@@ -1312,8 +1312,7 @@ export interface components {
             due_date?: string | null;
             /** Feeding Threshold Minutes */
             feeding_threshold_minutes?: number | null;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
+            gender?: components["schemas"]["Gender"] | null;
             /** Name */
             name: string;
         };
@@ -1366,8 +1365,7 @@ export interface components {
             family_id: number;
             /** Feeding Threshold Minutes */
             feeding_threshold_minutes?: number | null;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
+            gender?: components["schemas"]["Gender"] | null;
             /** Id */
             id: number;
             /** Name */
@@ -1385,8 +1383,7 @@ export interface components {
             due_date?: string | null;
             /** Feeding Threshold Minutes */
             feeding_threshold_minutes?: number | null;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
+            gender?: components["schemas"]["Gender"] | null;
             /** Name */
             name?: string | null;
         };
@@ -1827,6 +1824,11 @@ export interface components {
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
         };
+        /**
+         * Gender
+         * @enum {string}
+         */
+        Gender: "boy" | "girl" | "unknown";
         /** GrowthCreate */
         GrowthCreate: {
             /** Baby Id */

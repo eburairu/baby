@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func, Index
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func, Index, Enum
 from sqlalchemy.orm import relationship
 from .base import Base, SoftDeleteMixin
-
+from .enums import Gender
 
 class Baby(Base, SoftDeleteMixin):
     __tablename__ = "babies"
@@ -12,7 +12,7 @@ class Baby(Base, SoftDeleteMixin):
     birthday = Column(Date, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     due_date = Column(Date, nullable=True)
-    gender = Column(String, nullable=True)  # 'boy', 'girl', 'unknown'
+    gender = Column(Enum(Gender, name="gender"), nullable=True)
     characteristics = Column(String, nullable=True)  # AIが生成・更新する「赤ちゃんの特徴・傾向」
     feeding_threshold_minutes = Column(Integer, nullable=True)
     diaper_threshold_minutes = Column(Integer, nullable=True)
