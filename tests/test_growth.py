@@ -91,8 +91,9 @@ def test_delete_growth(client: TestClient, auth_client, db):
     assert response.status_code == 200
     
     # DB確認
-    record = db.query(Growth).filter(Growth.id == growth_id).first()
-    assert record is None
+    record = db.query(Growth).filter(Growth.id == growth_id).execution_options(include_deleted=True).first()
+    assert record is not None
+    assert record.is_deleted is True
 
 def test_access_other_family_baby(client: TestClient, auth_client):
     # 家族Aのユーザーで赤ちゃんAを作成

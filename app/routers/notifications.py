@@ -141,7 +141,7 @@ def unsubscribe(
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
 
-    db.delete(subscription)
+    subscription.is_deleted = True
     db.commit()
     return {"message": "Unsubscribed successfully"}
 

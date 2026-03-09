@@ -105,10 +105,13 @@ def delete_sleep(sleep_id: int, db: Session = Depends(get_db), current_user: Use
     if not sleep:
         raise HTTPException(status_code=404, detail="Sleep record not found")
     verify_baby_access(db, sleep.baby_id, current_user.id, record_type="sleep", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "sleep",
         RecordComment.record_id == sleep_id
-    ).delete()
-    db.delete(sleep)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    sleep.is_deleted = True
     db.commit()
     return {"message": "Deleted"}

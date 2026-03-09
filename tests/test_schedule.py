@@ -57,9 +57,21 @@ def test_delete_schedule(auth_client):
     assert response.status_code == 200
     assert response.json() == {"message": "Deleted"}
 
-    # Verify it's gone
+    # Verify it's gone from API
     response = client.get(f"/api/schedules/?baby_id={baby_id}")
     assert not any(s["id"] == schedule_id for s in response.json())
+    
+    # Verify it's still in DB (Soft Deleted)
+    from sqlalchemy.orm import Session
+    from app.database import SessionLocal
+    from app.models.schedule import Schedule
+    db = SessionLocal()
+    try:
+        record = db.query(Schedule).filter(Schedule.id == schedule_id).execution_options(include_deleted=True).first()
+        assert record is not None
+        assert record.is_deleted is True
+    finally:
+        db.close()
 
 def test_schedule_unauthorized_access(auth_client):
     # User A creates a baby and a schedule

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean, Enum as SQLEnum, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 import enum
 
 class VaccinationStatus(str, enum.Enum):
@@ -7,7 +7,7 @@ class VaccinationStatus(str, enum.Enum):
     COMPLETED = "completed"
     POSTPONED = "postponed"
 
-class Vaccination(Base):
+class Vaccination(Base, SoftDeleteMixin):
     __tablename__ = "vaccinations"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -28,4 +28,5 @@ class Vaccination(Base):
 
     __table_args__ = (
         Index("idx_vaccination_baby_status", "baby_id", "status"),
+        Index("ix_vaccinations_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

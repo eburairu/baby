@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, JSON, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
-class Milestone(Base):
+class Milestone(Base, SoftDeleteMixin):
     __tablename__ = "milestones"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -17,4 +17,5 @@ class Milestone(Base):
 
     __table_args__ = (
         Index("idx_milestone_baby_achieved", "baby_id", "achieved_date"),
+        Index("ix_milestones_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

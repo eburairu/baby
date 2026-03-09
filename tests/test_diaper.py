@@ -133,8 +133,10 @@ def test_delete_diaper(client: TestClient, auth_client, db):
     response = client.delete(f"/api/diapers/{diaper_id}")
     assert response.status_code == 200
     
-    # データベースに存在しないことを確認
-    assert db.query(Diaper).filter(Diaper.id == diaper_id).first() is None
+    # データベースに論理削除されていることを確認
+    record = db.query(Diaper).filter(Diaper.id == diaper_id).execution_options(include_deleted=True).first()
+    assert record is not None
+    assert record.is_deleted is True
 
 def test_diaper_access_control(client: TestClient, auth_client):
     # ユーザー1が赤ちゃんを登録

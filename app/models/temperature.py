@@ -1,6 +1,6 @@
 import enum
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
 class TemperatureMethod(str, enum.Enum):
@@ -10,7 +10,7 @@ class TemperatureMethod(str, enum.Enum):
     RECTAL = "RECTAL"       # 直腸
 
 
-class TemperatureRecord(Base):
+class TemperatureRecord(Base, SoftDeleteMixin):
     __tablename__ = "temperature_records"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -27,4 +27,5 @@ class TemperatureRecord(Base):
 
     __table_args__ = (
         Index("idx_temperature_baby_time", "baby_id", "measured_at"),
+        Index("ix_temperature_records_baby_id_is_deleted", "baby_id", "is_deleted"),
     )
