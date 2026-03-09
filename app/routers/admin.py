@@ -32,7 +32,7 @@ from app.schemas.admin import (
     FamilyCreateAdmin,
     FamilyCreateResponseAdmin
 )
-from app.utils.audit import log_event
+from app.utils.audit import log_event, get_client_ip
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -140,7 +140,7 @@ def create_admin_family(
             "family_name": new_family.name,
             "invite_code": invite_code
         },
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False
     )
 
@@ -242,7 +242,7 @@ def toggle_superadmin(
             "target_username": user.username,
             "new_status": request_data.is_superadmin
         },
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False
     )
     

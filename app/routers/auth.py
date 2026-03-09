@@ -16,7 +16,7 @@ from app.models.family import Family, FamilyUser, UserRole
 from app.services.auth import verify_password, get_password_hash, verify_password_async, get_password_hash_async
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
-from app.utils.audit import log_event
+from app.utils.audit import log_event, get_client_ip
 from app.core import constants
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -79,7 +79,7 @@ async def change_password(
         db, 
         "PASSWORD_CHANGE", 
         user_id=current_user.id, 
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False
     )
     
@@ -158,7 +158,7 @@ async def register_family(
         "REGISTER_FAMILY",
         user_id=new_user.id,
         details={"family_id": new_family.id, "family_name": new_family.name},
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False # Part of the same transaction
     )
     
@@ -220,7 +220,7 @@ async def join_family(
         "JOIN_FAMILY",
         user_id=new_user.id,
         details={"family_id": family.id, "family_name": family.name},
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False # Part of the same transaction
     )
     
@@ -273,7 +273,7 @@ async def login(
         db,
         "LOGIN",
         user_id=user.id,
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False # Part of the same transaction
     )
     
@@ -301,7 +301,7 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
                 db, 
                 "LOGOUT", 
                 user_id=session.user_id, 
-                ip_address=request.client.host if request.client else None,
+                ip_address=get_client_ip(request),
                 commit=False
             )
             db.delete(session)
