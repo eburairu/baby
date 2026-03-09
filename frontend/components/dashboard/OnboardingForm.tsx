@@ -89,10 +89,12 @@ export function OnboardingForm({ isAdmin, onSuccess }: OnboardingFormProps) {
                                 className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label className="dark:text-zinc-300">性別 <span className="text-red-500">*</span></Label>
+                        <fieldset className="space-y-2">
+                            <legend className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-zinc-300 mb-2">
+                                性別 <span className="text-red-500">*</span>
+                            </legend>
                             <div className="flex gap-4">
-                                <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-zinc-300">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                     <input
                                         type="radio"
                                         name="gender"
@@ -100,34 +102,34 @@ export function OnboardingForm({ isAdmin, onSuccess }: OnboardingFormProps) {
                                         checked={newBabyGender === "boy"}
                                         onChange={(e) => setNewBabyGender(e.target.value)}
                                         required
-                                        className="dark:bg-zinc-800 dark:border-zinc-700"
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400 focus-visible:ring-offset-2 transition-shadow"
                                     />
                                     男の子
                                 </label>
-                                <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-zinc-300">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                     <input
                                         type="radio"
                                         name="gender"
                                         value="girl"
                                         checked={newBabyGender === "girl"}
                                         onChange={(e) => setNewBabyGender(e.target.value)}
-                                        className="dark:bg-zinc-800 dark:border-zinc-700"
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400 focus-visible:ring-offset-2 transition-shadow"
                                     />
                                     女の子
                                 </label>
-                                <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-zinc-300">
+                                <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                                     <input
                                         type="radio"
                                         name="gender"
                                         value="unknown"
                                         checked={newBabyGender === "unknown"}
                                         onChange={(e) => setNewBabyGender(e.target.value)}
-                                        className="dark:bg-zinc-800 dark:border-zinc-700"
+                                        className="dark:bg-zinc-800 dark:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400 focus-visible:ring-offset-2 transition-shadow"
                                     />
                                     わからない
                                 </label>
                             </div>
-                        </div>
+                        </fieldset>
                         <Button
                             type="submit"
                             className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
