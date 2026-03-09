@@ -7,6 +7,7 @@ import { DialogTrigger, DialogTitle, DialogDescription, DialogFooter, DialogHead
 import { api, isApiError } from "@/lib/api"
 import { formatDateLocal } from "@/lib/dateUtils"
 import { PartyPopper } from "lucide-react"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     babyId: string
@@ -19,28 +20,30 @@ export function BirthRegistrationDialog({ babyId, babyName, onSuccess }: Props) 
     const [birthday, setBirthday] = useState(() => {
         return formatDateLocal(new Date())
     })
-    const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: submitting, execute } = useAsyncAction()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!birthday) return
-        setSubmitting(true)
         setError(null)
-        try {
-            await api.patch(`/babies/${babyId}`, { birthday })
-            setOpen(false)
-            onSuccess()
-        } catch (err: unknown) {
-            console.error("誕生日の登録に失敗しました", err)
-            setError(
-                isApiError(err)
-                    ? ((err.info as { detail?: string })?.detail || "誕生日の登録に失敗しました")
-                    : "誕生日の登録に失敗しました"
-            )
-        } finally {
-            setSubmitting(false)
-        }
+
+        await execute(
+            async () => {
+                await api.patch(`/babies/${babyId}`, { birthday })
+                setOpen(false)
+                onSuccess()
+            },
+            {
+                onError: (err) => {
+                    setError(
+                        isApiError(err)
+                            ? ((err.info as { detail?: string })?.detail || "誕生日の登録に失敗しました")
+                            : "誕生日の登録に失敗しました"
+                    )
+                }
+            }
+        )
     }
 
     return (

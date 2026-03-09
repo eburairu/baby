@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Heart } from "lucide-react"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface CommentFormProps {
   onSubmit: (content: string) => Promise<void>
@@ -9,23 +10,20 @@ interface CommentFormProps {
 
 export function CommentForm({ onSubmit }: CommentFormProps) {
   const [content, setContent] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { loading: isSubmitting, execute } = useAsyncAction()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const trimmed = content.trim()
     if (!trimmed || isSubmitting) return
 
-    setIsSubmitting(true)
     setContent("")
-    try {
-      await onSubmit(trimmed)
-    } catch (err) {
-      console.error(err)
-      setContent(trimmed)
-    } finally {
-      setIsSubmitting(false)
-    }
+    await execute(
+      () => onSubmit(trimmed),
+      {
+        onError: () => setContent(trimmed)
+      }
+    )
   }
 
   return (
