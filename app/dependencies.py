@@ -32,20 +32,23 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
     if not session:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
 
-    # Sliding session: extend expiration
-    session.expires_at = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS)
-    db.commit()
+    # Sliding session: extend expiration if remaining time is less than threshold
+    # (e.g., if SESSION_EXPIRE_DAYS is 7, update only if less than 6 days remaining)
+    threshold = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS - 1)
+    if session.expires_at < threshold:
+        session.expires_at = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS)
+        db.commit()
 
-    # Extend cookie in browser
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        samesite="lax",
-        secure=COOKIE_SECURE,
-        path="/",
-        max_age=SESSION_EXPIRE_DAYS * 24 * 3600
-    )
+        # Extend cookie in browser
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            secure=COOKIE_SECURE,
+            path="/",
+            max_age=SESSION_EXPIRE_DAYS * 24 * 3600
+        )
 
     user = db.query(User).filter(User.id == session.user_id).first()
     if user is None:

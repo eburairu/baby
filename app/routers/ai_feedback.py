@@ -5,6 +5,7 @@ import openai
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
+from app.core.exceptions import AIGenerationError
 from app.schemas.ai_feedback import RecordFeedbackRequest, RecordFeedbackResponse
 from app.services.ai_feedback import (
     _verify_record_ownership,
@@ -44,7 +45,7 @@ def create_record_feedback(
         feedback_text, has_concern, model_name = generate_record_feedback(
             db, baby_id, baby, body.record_type, body.record_id
         )
-    except RuntimeError as e:
+    except AIGenerationError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),

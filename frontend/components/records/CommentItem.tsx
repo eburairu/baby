@@ -108,6 +108,7 @@ export function CommentItem({ comment, currentUserId, onDelete, isDeleting }: Co
               size="icon"
               disabled={isDeleting}
               aria-label="コメントを削除"
+              title="コメントを削除"
               className="absolute top-2 right-2 h-6 w-6 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:bg-transparent"
             >
               <Trash2 className="w-3.5 h-3.5" />
