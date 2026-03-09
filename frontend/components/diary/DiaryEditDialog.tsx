@@ -130,7 +130,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                                 ) : (
                                     <ImagePlus className="h-3.5 w-3.5" />
                                 )}
-                                {isUploading ? "アップロード中..." : "写真を追加"}
+                                写真を追加
                             </Button>
                             <input
                                 ref={fileInputRef}

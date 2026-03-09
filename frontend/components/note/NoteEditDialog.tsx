@@ -133,8 +133,8 @@ export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEdit
                             loading={submitting}
                             data-sentry-unmask className="bg-indigo-600 hover:bg-indigo-700 text-white"
                         >
-                            {!submitting && <Save className="h-4 w-4 mr-2" />}
-                            {submitting ? "保存中..." : "保存する"}
+                            <Save className="h-4 w-4 mr-2" />
+                            保存する
                         </Button>
                     </div>
                 </form>

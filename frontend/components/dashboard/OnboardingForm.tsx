@@ -134,7 +134,7 @@ export function OnboardingForm({ isAdmin, onSuccess }: OnboardingFormProps) {
                             disabled={submitting}
                             loading={submitting}
                         >
-                            {submitting ? "登録中..." : "登録する"}
+                            登録する
                         </Button>
                     </form>
                 </CardContent>

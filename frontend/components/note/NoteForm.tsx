@@ -142,8 +142,8 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
                                 loading={submitting}
                                 data-sentry-unmask className={cn("flex-1 shadow-md shadow-indigo-500/20", UI_BUTTONS.primary)}
                             >
-                                {!submitting && <Save className="h-4 w-4 mr-2" />}
-                                {submitting ? "保存中..." : "保存する"}
+                                <Save className="h-4 w-4 mr-2" />
+                                保存する
                             </Button>
                         </div>
                     </form>

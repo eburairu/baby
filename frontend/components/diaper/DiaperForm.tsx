@@ -217,7 +217,7 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
                             loading={isSubmitting}
                             data-sentry-unmask
                         >
-                            {isSubmitting ? "保存中..." : isEditing ? "更新する" : "保存する"}
+                            {isEditing ? "更新する" : "保存する"}
                         </Button>
                     </form>
                 </Form>
