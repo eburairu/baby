@@ -1057,6 +1057,42 @@ export interface paths {
         patch: operations["update_sleep_api_sleeps__sleep_id__patch"];
         trace?: never;
     };
+    "/api/temperatures/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Temperatures */
+        get: operations["get_temperatures_api_temperatures__get"];
+        put?: never;
+        /** Create Temperature */
+        post: operations["create_temperature_api_temperatures__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/temperatures/{record_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Temperature */
+        put: operations["update_temperature_api_temperatures__record_id__put"];
+        post?: never;
+        /** Delete Temperature */
+        delete: operations["delete_temperature_api_temperatures__record_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/upload/image": {
         parameters: {
             query?: never;
@@ -2192,6 +2228,64 @@ export interface components {
         SuperAdminToggleRequest: {
             /** Is Superadmin */
             is_superadmin: boolean;
+        };
+        /** TemperatureCreate */
+        TemperatureCreate: {
+            /** Baby Id */
+            baby_id: number;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** @default AXILLARY */
+            method: components["schemas"]["TemperatureMethod"];
+            /** Notes */
+            notes?: string | null;
+            /** Temperature */
+            temperature: number;
+        };
+        /**
+         * TemperatureMethod
+         * @enum {string}
+         */
+        TemperatureMethod: "AXILLARY" | "EAR" | "FOREHEAD" | "RECTAL";
+        /** TemperatureResponse */
+        TemperatureResponse: {
+            /** Baby Id */
+            baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
+            /** Id */
+            id: number;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** @default AXILLARY */
+            method: components["schemas"]["TemperatureMethod"];
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
+            /** Temperature */
+            temperature: number;
+            /** User Id */
+            user_id: number;
+        };
+        /** TemperatureUpdate */
+        TemperatureUpdate: {
+            /** Measured At */
+            measured_at?: string | null;
+            method?: components["schemas"]["TemperatureMethod"] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Temperature */
+            temperature?: number | null;
         };
         /** UnifiedRecord */
         UnifiedRecord: {
@@ -5040,6 +5134,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SleepResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_temperatures_api_temperatures__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemperatureResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_temperature_api_temperatures__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemperatureCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemperatureResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_temperature_api_temperatures__record_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemperatureUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemperatureResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_temperature_api_temperatures__record_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
