@@ -376,7 +376,7 @@ export default function AdminFamilies() {
               <div className="py-6 flex flex-col items-center">
                 <div className="flex items-center gap-2 bg-gray-50 px-4 py-3 rounded-lg border font-mono text-lg font-bold tracking-wider select-all">
                   {createdFamily.invite_code}
-                  <Button variant="ghost" size="icon" onClick={copyInviteCode} className="h-8 w-8">
+                  <Button variant="ghost" size="icon" onClick={copyInviteCode} className="h-8 w-8" aria-label="招待コードをコピー" title="招待コードをコピー">
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
