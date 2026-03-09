@@ -219,8 +219,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={loading} data-sentry-unmask>キャンセル</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" loading={loading}>
               削除
             </AlertDialogAction>
           </AlertDialogFooter>
