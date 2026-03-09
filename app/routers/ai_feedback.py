@@ -12,10 +12,11 @@ from app.services.ai_feedback import (
     save_ai_comment,
 )
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 
 record_feedback_limiter = RateLimiter(
-    requests_limit=5,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_AI_FEEDBACK_REQUESTS,
+    time_window=constants.RATE_LIMIT_AI_FEEDBACK_WINDOW,
     error_message="Too many AI feedback requests. Please try again later.",
 )
 

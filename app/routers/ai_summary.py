@@ -11,10 +11,11 @@ from app.schemas.ai_summary import DailySummaryCreate, DailySummaryEdit, DailySu
 from app.services.ai_summary import generate_daily_summary
 from app.utils.notifications import notify_family_members
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 
 daily_summary_limiter = RateLimiter(
-    requests_limit=5,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_AI_SUMMARY_REQUESTS,
+    time_window=constants.RATE_LIMIT_AI_SUMMARY_WINDOW,
     error_message="Too many daily summary requests. Please try again later.",
 )
 

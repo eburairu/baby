@@ -17,27 +17,28 @@ from app.services.auth import verify_password, get_password_hash
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
 from app.utils.audit import log_event
+from app.core import constants
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # Limit login attempts to 5 per 60 seconds
 login_limiter = RateLimiter(
-    requests_limit=5,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_LOGIN_REQUESTS,
+    time_window=constants.RATE_LIMIT_LOGIN_WINDOW,
     error_message="Too many login attempts. Please try again later.",
 )
 
 # Limit password change attempts to 3 per 60 seconds
 change_password_limiter = RateLimiter(
-    requests_limit=3,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_CHANGE_PASSWORD_REQUESTS,
+    time_window=constants.RATE_LIMIT_CHANGE_PASSWORD_WINDOW,
     error_message="Too many password change attempts. Please try again later.",
 )
 
 # Limit registration attempts to 3 per 60 seconds to prevent spam
 register_limiter = RateLimiter(
-    requests_limit=3,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_REGISTER_REQUESTS,
+    time_window=constants.RATE_LIMIT_REGISTER_WINDOW,
     error_message="Too many registration attempts. Please try again later.",
 )
 
