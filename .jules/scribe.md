@@ -263,3 +263,7 @@
 ## 2024-03-09 - UnifiedRecordスキーマのPydantic V2対応漏れ
 **学び:** バックエンドのPydanticモデルがV2構文 (`model_config = ConfigDict(...)`) に更新されているにもかかわらず、`.specify/specs/` 内のマークダウンスキーマ定義が古いV1構文または設定自体が抜け落ちたまま放置される仕様ドリフトのパターンがある。
 **アクション:** 今後データモデルの仕様書を更新する際は、対応するバックエンド側の `model_config` 定義も合わせて確認・同期する。
+
+## 2026-03-09 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書の先行記載の修正]
+**学び:** 体温記録機能（`app/routers/temperatures.py`）が追加された際、仕様書 `.specify/specs/settings/baby_permissions.md` には `record_type` として `"temperature"` が記載されたが、実際の権限管理の実装（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` 内のバリデーションリスト、フロントエンドの `ALL_RECORD_TYPES`）には反映されておらず、仕様書が実装を先行する「嘘の仕様書」状態になっていた。
+**アクション:** `baby_permissions.md` から未実装の `"temperature"` を削除し、現在の実装コードと100%一致させた。今後仕様書を更新する際は、対応するバックエンド側のロジックやリストに実際に追加されているかを必ず確認・同期する。
