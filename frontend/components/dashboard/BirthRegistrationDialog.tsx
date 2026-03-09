@@ -89,7 +89,7 @@ export function BirthRegistrationDialog({ babyId, babyName, onSuccess }: Props) 
                             disabled={submitting || !birthday}
                             className="bg-pink-600 hover:bg-pink-700 dark:bg-pink-500 dark:hover:bg-pink-600 text-white"
                         >
-                            {submitting ? "登録中..." : "登録する"}
+                            登録する
                         </Button>
                     </DialogFooter>
                 </form>

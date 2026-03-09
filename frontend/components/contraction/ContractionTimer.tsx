@@ -101,7 +101,7 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
                                 : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 dark:shadow-red-900/40"
                             }`}
                     >
-                        {isSubmitting ? "保存中..." : (isTiming ? "陣痛が終わった" : "🤰 陣痛がきた！")}
+                        {isTiming ? "陣痛が終わった" : "🤰 陣痛がきた！"}
                     </Button>
 
                     {!isTiming && (
