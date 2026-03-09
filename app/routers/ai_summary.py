@@ -211,5 +211,5 @@ def delete_daily_summary(
     )
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily summary not found")
-    db.delete(summary)
+    summary.is_deleted = True
     db.commit()

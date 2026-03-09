@@ -19,7 +19,7 @@ async def get_milestones(
     current_user: User = Depends(get_current_user)
 ):
     verify_baby_access(db, baby_id, current_user.id, record_type="milestone")
-    return db.query(Milestone).filter(Milestone.baby_id == baby_id).order_by(Milestone.achieved_date.desc()).all()
+    return db.query(Milestone).filter(Milestone.baby_id == baby_id, Milestone.is_deleted == False).order_by(Milestone.achieved_date.desc()).all()
 
 @router.post("/", response_model=MilestoneResponse, status_code=status.HTTP_201_CREATED)
 async def create_milestone(
@@ -80,7 +80,13 @@ async def delete_milestone(
     
     verify_baby_access(db, db_milestone.baby_id, current_user.id, require_write=True)
     
-    db.delete(db_milestone)
+    from app.models.comment import RecordComment
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "milestone",
+        RecordComment.record_id == milestone_id
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    db_milestone.is_deleted = True
     db.commit()
 
 @router.get("/timeline", response_model=List[MilestoneTimelineGroup])
@@ -94,7 +100,7 @@ async def get_milestone_timeline(
     if not baby or not baby.birthday:
         raise HTTPException(status_code=400, detail="Baby not found or birthday not set")
     
-    milestones = db.query(Milestone).filter(Milestone.baby_id == baby_id).order_by(Milestone.achieved_date.asc()).all()
+    milestones = db.query(Milestone).filter(Milestone.baby_id == baby_id, Milestone.is_deleted == False).order_by(Milestone.achieved_date.asc()).all()
     
     # Group by month age
     groups = {}

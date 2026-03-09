@@ -1,7 +1,7 @@
 import enum
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Index
 from sqlalchemy.orm import relationship
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
 class UserRole(str, enum.Enum):
@@ -10,7 +10,7 @@ class UserRole(str, enum.Enum):
     VIEWER = "viewer"
 
 
-class Family(Base):
+class Family(Base, SoftDeleteMixin):
     __tablename__ = "families"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -19,6 +19,10 @@ class Family(Base):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     family_users = relationship("FamilyUser", back_populates="family")
+
+    __table_args__ = (
+        Index("ix_families_id_is_deleted", "id", "is_deleted"),
+    )
 
 
 class FamilyUser(Base):

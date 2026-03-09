@@ -73,4 +73,6 @@ def test_delete_note(client: TestClient, auth_client, db):
     assert response.status_code == 200
     
     # Verify
-    assert db.query(Note).filter(Note.id == note_id).first() is None
+    record = db.query(Note).filter(Note.id == note_id).execution_options(include_deleted=True).first()
+    assert record is not None
+    assert record.is_deleted is True
