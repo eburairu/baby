@@ -13,6 +13,7 @@ from app.utils.notifications import notify_family_members
 from app.utils.rate_limit import RateLimiter
 from app.utils.timezone import get_jst_today
 from app.core import constants
+from app.utils.s3 import extract_object_key
 
 daily_summary_limiter = RateLimiter(
     requests_limit=constants.RATE_LIMIT_AI_SUMMARY_REQUESTS,
@@ -185,7 +186,7 @@ def edit_daily_summary(
     summary.edited_content = body.edited_content
     summary.is_edited = body.edited_content is not None
     if body.image_urls is not None:
-        summary.image_urls = body.image_urls
+        summary.image_urls = [extract_object_key(url) for url in body.image_urls]
     db.commit()
     db.refresh(summary)
     return summary
