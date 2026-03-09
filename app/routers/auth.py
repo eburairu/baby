@@ -13,7 +13,7 @@ from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser, UserRole
-from app.services.auth import verify_password, get_password_hash
+from app.services.auth import verify_password, get_password_hash, verify_password_async, get_password_hash_async
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
 from app.utils.audit import log_event
@@ -60,15 +60,15 @@ def _create_session(db: Session, user_id: int) -> str:
 
 
 @router.post("/change-password", status_code=204, dependencies=[Depends(change_password_limiter)])
-def change_password(
+async def change_password(
     req: PasswordChangeRequest,
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> None:
-    if not verify_password(req.current_password, current_user.hashed_password):
+    if not await verify_password_async(req.current_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
-    current_user.hashed_password = get_password_hash(req.new_password)
+    current_user.hashed_password = await get_password_hash_async(req.new_password)
     current_token = request.cookies.get("access_token")
     db.query(UserSession).filter(
         UserSession.user_id == current_user.id,
@@ -109,7 +109,7 @@ def update_profile(
     response_model=FamilyResponse,
     dependencies=[Depends(register_limiter)],
 )
-def register_family(
+async def register_family(
     family_in: FamilyCreate,
     response: Response,
     request: Request,
@@ -129,7 +129,7 @@ def register_family(
 
     new_user = User(
         username=family_in.username.lower(),
-        hashed_password=get_password_hash(family_in.password),
+        hashed_password=await get_password_hash_async(family_in.password),
     )
     db.add(new_user)
     try:
@@ -172,7 +172,7 @@ def register_family(
     response_model=UserResponse,
     dependencies=[Depends(register_limiter)],
 )
-def join_family(
+async def join_family(
     user_in: UserCreate, 
     invite_code: str, 
     response: Response, 
@@ -191,7 +191,7 @@ def join_family(
 
     new_user = User(
         username=user_in.username.lower(),
-        hashed_password=get_password_hash(user_in.password),
+        hashed_password=await get_password_hash_async(user_in.password),
     )
     db.add(new_user)
     try:
@@ -238,7 +238,7 @@ def join_family(
 
 
 @router.post("/login", response_model=UserResponse, dependencies=[Depends(login_limiter)])
-def login(
+async def login(
     login_request: LoginRequest,
     response: Response,
     request: Request,
@@ -249,10 +249,10 @@ def login(
     # Timing Attack Mitigation:
     # Verify password against dummy hash if user not found to equalize response time
     if not user:
-        verify_password(login_request.password, DUMMY_HASH)
+        await verify_password_async(login_request.password, DUMMY_HASH)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
-    if not verify_password(login_request.password, user.hashed_password):
+    if not await verify_password_async(login_request.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user.id).first()
