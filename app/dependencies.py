@@ -82,10 +82,19 @@ def verify_baby_access(
     user = db.query(User).filter(User.id == user_id).first()
     is_superadmin = user and user.is_superadmin
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
+    # 先に赤ちゃんを取得して family_id を特定する
+    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False).first()
+    if not baby:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
+
+    # 赤ちゃんのファミリーに所属しているかを確認
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == user_id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
     
     if not family_user and not is_superadmin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in this baby's family")
 
     # 書き込み制限のチェック
     if require_write:
@@ -95,15 +104,6 @@ def verify_baby_access(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Read-only users cannot perform this action"
             )
-
-    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
-    if not is_superadmin:
-        # 通常ユーザーは自身のファミリーの赤ちゃんのみ閲覧可能
-        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
-        
-    baby = baby_query.first()
-    if not baby:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
 
     # admin / superadmin は常に許可
     if is_superadmin or (family_user and family_user.role == UserRole.ADMIN):

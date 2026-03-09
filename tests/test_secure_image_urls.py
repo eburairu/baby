@@ -6,6 +6,25 @@ from app.models.family import FamilyUser
 from app.models.milestone import Milestone
 from app.utils.s3 import extract_object_key
 
+
+def test_extract_object_key_from_r2_presigned_url():
+    """R2のpresigned URL（bucket名がパスに含まれる形式）からオブジェクトキーを正しく抽出できること。"""
+    # R2 presigned URLの形式: https://<account>.r2.cloudflarestorage.com/<bucket>/<key>?signature...
+    presigned = "https://abc123.r2.cloudflarestorage.com/baby-app-images/550e8400.jpg?X-Amz-Algorithm=AWS4"
+    assert extract_object_key(presigned) == "550e8400.jpg"
+
+
+def test_extract_object_key_from_public_domain_url():
+    """カスタムドメインのURL（bucket名がパスに含まれない形式）からオブジェクトキーを正しく抽出できること。"""
+    public = "https://pub.example.com/550e8400.jpg"
+    assert extract_object_key(public) == "550e8400.jpg"
+
+
+def test_extract_object_key_passthrough_for_plain_key():
+    """オブジェクトキーをそのまま渡した場合はそのまま返ること。"""
+    key = "550e8400.jpg"
+    assert extract_object_key(key) == "550e8400.jpg"
+
 def setup_test_data(auth_client, db):
     client = auth_client(username="secureuser", password="password123")
     response_me = client.get("/api/auth/me")
