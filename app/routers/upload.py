@@ -9,6 +9,7 @@ from botocore.exceptions import ClientError
 from app.dependencies import get_db, get_current_user, verify_write_access
 from app.models.user import User
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,8 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 # Limit upload attempts to 10 per 60 seconds per user
 upload_limiter = RateLimiter(
-    requests_limit=10,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_UPLOAD_REQUESTS,
+    time_window=constants.RATE_LIMIT_UPLOAD_WINDOW,
     error_message="Too many upload attempts. Please try again later.",
 )
 

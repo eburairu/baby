@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies import get_db, get_current_user
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser, UserRole
 from app.schemas.family import (
@@ -23,8 +24,8 @@ logger = logging.getLogger(__name__)
 
 # Limit password reset attempts to 3 per 60 seconds to prevent abuse/DoS
 reset_password_limiter = RateLimiter(
-    requests_limit=3,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_RESET_PASSWORD_REQUESTS,
+    time_window=constants.RATE_LIMIT_RESET_PASSWORD_WINDOW,
     error_message="Too many password reset attempts. Please try again later.",
 )
 

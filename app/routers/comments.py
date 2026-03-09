@@ -17,13 +17,14 @@ from app.schemas.comment import CommentCreate, CommentResponse
 from app.utils.notifications import notify_family_members
 from app.models.baby import Baby
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 
 router = APIRouter(prefix="/api", tags=["comments"])
 
 # Rate limit for comments: 10 comments per minute per user
 comment_limiter = RateLimiter(
-    requests_limit=10,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_COMMENT_REQUESTS,
+    time_window=constants.RATE_LIMIT_COMMENT_WINDOW,
     error_message="Too many comments. Please wait a moment.",
 )
 
