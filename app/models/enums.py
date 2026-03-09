@@ -27,3 +27,8 @@ class UserRole(str, Enum):
     ADMIN = "admin"
     MEMBER = "member"
     VIEWER = "viewer"
+
+class Gender(str, Enum):
+    BOY = "boy"
+    GIRL = "girl"
+    UNKNOWN = "unknown"
