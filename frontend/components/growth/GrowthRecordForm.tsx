@@ -203,7 +203,7 @@ export function GrowthRecordForm({
                             キャンセル
                         </Button>
                         <Button type="submit" loading={isSubmitting} data-sentry-unmask>
-                            {isSubmitting ? "保存中..." : (record ? "更新" : "保存")}
+                            {record ? "更新" : "保存"}
                         </Button>
                     </DialogFooter>
                 </form>

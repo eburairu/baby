@@ -28,10 +28,16 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                         その確認、もう不要です。<br />
                         <span className="text-indigo-600">夫婦で共有する育児記録</span>で、<br className="hidden lg:block" />毎日の不安と手間をゼロに。
                     </h1>
-                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-lg mx-auto lg:mx-0">
-                        授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
-                        AIアドバイスで、初めての育児も安心サポート。
-                    </p>
+                    <div className="space-y-4">
+                        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                            Botoroは、初めての育児に奮闘するパパ・ママのための「招待制・育児記録共有アプリ」です。
+                            授乳、睡眠、おむつ交換。スマホでタップするだけで、パートナーに即通知。
+                            すれ違いや確認の手間をなくし、家族全員で赤ちゃんの成長を見守る時間を増やします。
+                        </p>
+                        <p className="text-sm text-indigo-600 dark:text-indigo-400 font-bold max-w-lg mx-auto lg:mx-0">
+                            ✨ AIによる育児サマリー機能で、1日のリズムも自動分析。初めての育児も安心サポート。
+                        </p>
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center sm:items-start">
                         {isLoggedIn ? (
                             <Link href="/dashboard">

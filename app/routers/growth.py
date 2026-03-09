@@ -105,10 +105,13 @@ def delete_growth(growth_id: int, db: Session = Depends(get_db), current_user: U
     if not growth:
         raise HTTPException(status_code=404, detail="Growth record not found")
     verify_baby_access(db, growth.baby_id, current_user.id, record_type="growth", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "growth",
         RecordComment.record_id == growth_id
-    ).delete()
-    db.delete(growth)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    growth.is_deleted = True
     db.commit()
     return {"message": "Deleted"}

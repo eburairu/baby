@@ -13,6 +13,7 @@ import {
   Biohazard,
   HandHeart,
   Bed,
+  Thermometer,
   type LucideIcon,
 } from "lucide-react";
 import { RECORD_TYPES } from "@/types/enums";
@@ -34,6 +35,7 @@ export const AppIcons = {
   diary: BookOpen, // 日誌
   vaccination: Syringe, // 予防接種
   milestone: Trophy, // マイルストーン
+  temperature: Thermometer, // 体温
 
   // 状態やサブアクションのアイコン
   baby: Baby, // 赤ちゃん（プロフィール等）

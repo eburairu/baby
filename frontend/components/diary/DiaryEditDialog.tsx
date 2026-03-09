@@ -130,7 +130,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                                 ) : (
                                     <ImagePlus className="h-3.5 w-3.5" />
                                 )}
-                                {isUploading ? "アップロード中..." : "写真を追加"}
+                                写真を追加
                             </Button>
                             <input
                                 ref={fileInputRef}
@@ -184,10 +184,10 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                     </Button>
                     <Button
                         data-sentry-unmask onClick={handleSave}
-                        disabled={saving || isUploading}
+                        disabled={isUploading}
+                        loading={saving}
                         className="rounded-xl"
                     >
-                        {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                         保存
                     </Button>
                 </div>

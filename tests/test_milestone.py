@@ -51,6 +51,12 @@ def test_milestone_crud(auth_client, db):
     # Check deleted
     response = client.get(f"/api/milestones/?baby_id={baby.id}")
     assert not any(m["id"] == m_id for m in response.json())
+    
+    # DB確認
+    from app.models.milestone import Milestone
+    record = db.query(Milestone).filter(Milestone.id == m_id).execution_options(include_deleted=True).first()
+    assert record is not None
+    assert record.is_deleted is True
 
 def test_milestone_timeline(auth_client, db):
     client, baby, _ = setup_test_data(auth_client, db)

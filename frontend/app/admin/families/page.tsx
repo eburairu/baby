@@ -416,8 +416,8 @@ export default function AdminFamilies() {
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" disabled={isCreating || !newFamilyName.trim()}>
-                  {isCreating ? "作成中..." : "作成する"}
+                <Button type="submit" disabled={!newFamilyName.trim()} loading={isCreating}>
+                  作成する
                 </Button>
               </DialogFooter>
             </form>

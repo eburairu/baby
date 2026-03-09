@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { useSWRConfig } from "swr";
 import { API_TIMEOUT_MS } from "@/constants";
 
-export type RecordType = typeof RECORD_TYPES.FEEDING | "diaper" | "growth" | "note";
+export type RecordType = typeof RECORD_TYPES.FEEDING | "diaper" | "growth" | "note" | "temperature";
 
 interface FeedbackResponse {
   feedback: string;

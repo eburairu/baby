@@ -95,6 +95,8 @@ class UnifiedRecord(BaseModel):
     details: dict
     comment_count: int = 0  # 追加
     recorded_by_display_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 ```
 
 ### API エンドポイント

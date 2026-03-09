@@ -1,12 +1,13 @@
 from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Index
 from sqlalchemy.sql import func
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
-class Note(Base):
+class Note(Base, SoftDeleteMixin):
     __tablename__ = "notes"
 
     __table_args__ = (
         Index("idx_note_baby_time", "baby_id", "note_time"),
+        Index("ix_notes_baby_id_is_deleted", "baby_id", "is_deleted"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index, JSON
 from sqlalchemy.sql import func
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
-class DailySummary(Base):
+class DailySummary(Base, SoftDeleteMixin):
     __tablename__ = "daily_summaries"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -20,5 +20,5 @@ class DailySummary(Base):
 
     __table_args__ = (
         UniqueConstraint("baby_id", "summary_date", name="uix_daily_summary_baby_date"),
-        Index("idx_daily_summary_baby_date", "baby_id", "summary_date"),
+        Index("ix_daily_summaries_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

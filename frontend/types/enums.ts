@@ -9,6 +9,7 @@ export const RECORD_TYPES = {
   GROWTH: 'growth',
   NOTE: 'note',
   CONTRACTION: 'contraction',
+  TEMPERATURE: 'temperature',
 } as const;
 
 export type RecordType = typeof RECORD_TYPES[keyof typeof RECORD_TYPES];

@@ -1,6 +1,6 @@
 import enum
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
 class FeedingType(str, enum.Enum):
@@ -26,7 +26,7 @@ class FeedingCompletion(str, enum.Enum):
     PARTIAL = "PARTIAL"
 
 
-class Feeding(Base):
+class Feeding(Base, SoftDeleteMixin):
     __tablename__ = "feedings"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -52,4 +52,5 @@ class Feeding(Base):
 
     __table_args__ = (
         Index("idx_feeding_baby_time", "baby_id", "feeding_time"),
+        Index("ix_feedings_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

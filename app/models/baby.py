@@ -1,9 +1,9 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean, UniqueConstraint, func, Index
 from sqlalchemy.orm import relationship
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
-class Baby(Base):
+class Baby(Base, SoftDeleteMixin):
     __tablename__ = "babies"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -18,6 +18,10 @@ class Baby(Base):
     diaper_threshold_minutes = Column(Integer, nullable=True)
 
     family = relationship("Family", backref="babies")
+
+    __table_args__ = (
+        Index("ix_babies_baby_id_is_deleted", "id", "is_deleted"),
+    )
 
 
 class BabyPermission(Base):

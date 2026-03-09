@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
 from collections import defaultdict
 from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 import logging
@@ -21,13 +21,12 @@ from app.models.schedule import Schedule
 from app.models.note import Note
 from app.models.comment import RecordComment
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
+from app.utils.timezone import JST
 from app.core.constants import DEFAULT_PAGINATION_LIMIT, MAX_PAGINATION_LIMIT
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
 
 logger = logging.getLogger(__name__)
-
-JST = timezone(timedelta(hours=9))
 
 
 class UnifiedRecord(BaseModel):
@@ -49,13 +48,16 @@ class RecordCreate(BaseModel):
 @router.get("/", response_model=List[BabyResponse])
 def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if current_user.is_superadmin:
-        return db.query(Baby).all()
+        return db.query(Baby).filter(Baby.is_deleted == False).all()
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         return []
 
-    babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
+    babies = db.query(Baby).filter(
+        Baby.family_id == family_user.family_id,
+        Baby.is_deleted == False
+    ).all()
 
     # admin / superadmin は全件返す
     if family_user.role == UserRole.ADMIN or current_user.is_superadmin:
@@ -109,7 +111,7 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
         if family_user.role != UserRole.ADMIN:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
 
-    baby_query = db.query(Baby).filter(Baby.id == baby_id)
+    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
     if not is_superadmin:
         baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
     
@@ -136,7 +138,7 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
         if family_user.role != UserRole.ADMIN:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
 
-    baby_query = db.query(Baby).filter(Baby.id == baby_id)
+    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
     if not is_superadmin:
         baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
 
@@ -144,22 +146,15 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
-    db.query(Feeding).filter(Feeding.baby_id == baby_id).delete()
-    db.query(Sleep).filter(Sleep.baby_id == baby_id).delete()
-    db.query(Diaper).filter(Diaper.baby_id == baby_id).delete()
-    db.query(Growth).filter(Growth.baby_id == baby_id).delete()
-    db.query(Contraction).filter(Contraction.baby_id == baby_id).delete()
-    db.query(Schedule).filter(Schedule.baby_id == baby_id).delete()
-    db.query(Note).filter(Note.baby_id == baby_id).delete()
-    db.query(RecordComment).filter(RecordComment.baby_id == baby_id).delete()
-
+    from app.services.baby import soft_delete_baby
+    
     deleted_baby_id = baby.id
     deleted_baby_family_id = baby.family_id
 
-    db.delete(baby)
-    db.commit()
+    soft_delete_baby(db, baby)
 
     logger.info("Baby deleted: baby_id=%s, family_id=%s, by user_id=%s", deleted_baby_id, deleted_baby_family_id, current_user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
@@ -201,7 +196,10 @@ def get_records(
         for feeding in db.query(
             Feeding.id, Feeding.user_id, Feeding.feeding_time,
             Feeding.feeding_type, Feeding.amount_ml, Feeding.duration_minutes, Feeding.notes
-        ).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        ).filter(
+            Feeding.baby_id == baby_id,
+            Feeding.is_deleted == False
+        ).order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -216,7 +214,10 @@ def get_records(
     if can_view_type("sleep"):
         for sleep in db.query(
             Sleep.id, Sleep.user_id, Sleep.start_time, Sleep.end_time, Sleep.notes
-        ).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        ).filter(
+            Sleep.baby_id == baby_id,
+            Sleep.is_deleted == False
+        ).order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
@@ -229,7 +230,10 @@ def get_records(
     if can_view_type("diaper"):
         for diaper in db.query(
             Diaper.id, Diaper.user_id, Diaper.change_time, Diaper.diaper_type, Diaper.notes
-        ).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        ).filter(
+            Diaper.baby_id == baby_id,
+            Diaper.is_deleted == False
+        ).order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
@@ -243,7 +247,10 @@ def get_records(
         for growth in db.query(
             Growth.id, Growth.user_id, Growth.date,
             Growth.weight, Growth.height, Growth.head_circumference, Growth.notes
-        ).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        ).filter(
+            Growth.baby_id == baby_id,
+            Growth.is_deleted == False
+        ).order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -259,7 +266,10 @@ def get_records(
     if can_view_type("note"):
         for note in db.query(
             Note.id, Note.user_id, Note.note_time, Note.content
-        ).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        ).filter(
+            Note.baby_id == baby_id,
+            Note.is_deleted == False
+        ).order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
@@ -272,7 +282,10 @@ def get_records(
         for c in db.query(
             Contraction.id, Contraction.user_id, Contraction.start_time,
             Contraction.end_time, Contraction.duration_seconds, Contraction.notes
-        ).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        ).filter(
+            Contraction.baby_id == baby_id,
+            Contraction.is_deleted == False
+        ).order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {

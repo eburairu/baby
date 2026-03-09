@@ -46,6 +46,7 @@ const ALL_NAV_ITEMS: {
     { label: "成長",         href: "/growth",      Icon: AppIcons.growth,      color: "text-emerald-500", prenatal: false, postnatal: true  },
     { label: "予防接種",     href: "/vaccinations",Icon: AppIcons.vaccination,    color: "text-sky-500",     prenatal: false, postnatal: true  },
     { label: "発育発達マイルストーン",href: "/milestones",  Icon: AppIcons.milestone,     color: "text-yellow-500",  prenatal: false, postnatal: true  },
+    { label: "体温",         href: "/temperature", Icon: AppIcons.temperature,   color: "text-orange-500",  prenatal: false, postnatal: true  },
     { label: "メモ",         href: "/note",        Icon: AppIcons.note, color: "text-blue-500",  prenatal: false, postnatal: true  },
     { label: "日誌",         href: "/diary",       Icon: AppIcons.diary,   color: "text-purple-500",  prenatal: false, postnatal: true  },
     { label: "陣痛タイマー", href: "/contraction", Icon: AppIcons.contraction,      color: "text-red-500",     prenatal: true,  postnatal: false },

@@ -7,7 +7,8 @@ Gemini モデルへの API 呼び出し時のパラメータ構築テスト。
 """
 import pytest
 from unittest.mock import MagicMock, patch, call
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone
+from app.utils.timezone import JST
 
 from app.services.ai_feedback import generate_record_feedback
 from app.services.ai_summary import generate_daily_summary, update_baby_characteristics
@@ -49,7 +50,6 @@ def test_feedback_no_extra_body_when_reasoning_effort_none(mock_config, mock_get
     family = Family(name="Param Test Family", invite_code="PARAM1")
     db.add(family)
     db.commit()
-    JST = timezone(timedelta(hours=9))
     baby = Baby(name="テスト児", family_id=family.id, birthday=date(2025, 1, 1))
     db.add(baby)
     db.commit()
@@ -93,7 +93,6 @@ def test_feedback_extra_body_and_temperature_when_thinking(mock_config, mock_get
     family = Family(name="Param Test Family2", invite_code="PARAM2")
     db.add(family)
     db.commit()
-    JST = timezone(timedelta(hours=9))
     baby = Baby(name="テスト児2", family_id=family.id, birthday=date(2025, 1, 1))
     db.add(baby)
     db.commit()
