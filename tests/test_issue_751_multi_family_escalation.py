@@ -7,6 +7,7 @@ from app.models.base import Base
 from app.models.user import User
 from app.models.family import Family, FamilyUser, UserRole
 from app.models.baby import Baby, BabyPermission
+from app.models.comment import RecordComment
 from app.dependencies import get_current_user, get_db
 import uuid
 
@@ -152,3 +153,116 @@ def test_multi_family_legitimate_admin(db: Session):
 
     assert response.status_code == 200
     assert response.json()["baby_id"] == baby_a.id
+
+def test_multi_family_comment_delete_escalation(db: Session):
+    """
+    複数家族所属時に、他家の ADMIN 権限を使って無関係な家族のコメントを削除できてしまう脆弱性を検証する。
+    家族A: Viewer
+    家族B: Admin
+    期待される挙動: 家族Aのコメントを管理者として削除できないはず。
+    """
+    global _mock_user
+    
+    suffix = str(uuid.uuid4())[:8]
+    user = User(id=753, username=f"user-{suffix}", hashed_password="hashed")
+    db.add(user)
+    db.flush()
+
+    # 家族A作成 (UserはVIEWER)
+    family_a = Family(name="Family A", invite_code=f"A-{suffix}")
+    db.add(family_a)
+    db.flush()
+    baby_a = Baby(name="Baby A", family_id=family_a.id)
+    db.add(baby_a)
+    db.flush()
+    
+    # コメント作成者（別人）
+    other_user = User(id=754, username=f"other-{suffix}", hashed_password="hashed")
+    db.add(other_user)
+    db.flush()
+    db.add(FamilyUser(family_id=family_a.id, user_id=other_user.id, role=UserRole.MEMBER))
+    
+    comment_a = RecordComment(
+        baby_id=baby_a.id,
+        user_id=other_user.id,
+        record_type="note",
+        record_id=1,
+        content="Sensitive comment"
+    )
+    db.add(comment_a)
+    db.flush()
+
+    # 家族Aの閲覧権限を追加 (これで verify_baby_access がパスするようになる)
+    db.add(BabyPermission(baby_id=baby_a.id, user_id=user.id, record_type="baby", can_view=True))
+    db.add(BabyPermission(baby_id=baby_a.id, user_id=user.id, record_type="note", can_view=True))
+
+    # 家族B作成 (UserはADMIN)
+    family_b = Family(name="Family B", invite_code=f"B-{suffix}")
+    db.add(family_b)
+    db.flush()
+
+    # 家族A (VIEWER) と 家族B (ADMIN) に所属
+    # 家族Bを先に挿入して .first() で拾われやすくする
+    db.add(FamilyUser(family_id=family_b.id, user_id=user.id, role=UserRole.ADMIN))
+    db.add(FamilyUser(family_id=family_a.id, user_id=user.id, role=UserRole.VIEWER))
+    db.flush()
+    db.commit()
+
+    _mock_user = user
+    client = TestClient(app)
+
+    # 家族Aのコメント削除を試みる
+    # 本来は ADMIN ではない（家族Aでは VIEWER）ので 403 になるべき
+    response = client.delete(f"/api/comments/{comment_a.id}")
+
+    if response.status_code == 204:
+        pytest.fail("Security Vulnerability: User was able to delete a comment in a family where they are only a VIEWER, by leveraging ADMIN role from another family.")
+    
+    assert response.status_code == 403
+
+def test_multi_family_baby_listing(db: Session):
+    """
+    複数家族所属時に、全ての家族の赤ちゃんが正しく一覧に表示されることを検証する。
+    期待される挙動: 所属する全家族の赤ちゃんが表示されるべき。
+    """
+    global _mock_user
+    
+    suffix = str(uuid.uuid4())[:8]
+    user = User(id=755, username=f"user-{suffix}", hashed_password="hashed")
+    db.add(user)
+    db.flush()
+
+    # 家族A作成
+    family_a = Family(name="Family A", invite_code=f"A-{suffix}")
+    db.add(family_a)
+    db.flush()
+    baby_a = Baby(id=7551, name="Baby A", family_id=family_a.id)
+    db.add(baby_a)
+    
+    # 家族B作成
+    family_b = Family(name="Family B", invite_code=f"B-{suffix}")
+    db.add(family_b)
+    db.flush()
+    baby_b = Baby(id=7552, name="Baby B", family_id=family_b.id)
+    db.add(baby_b)
+
+    db.add(FamilyUser(family_id=family_a.id, user_id=user.id, role=UserRole.MEMBER))
+    db.add(FamilyUser(family_id=family_b.id, user_id=user.id, role=UserRole.MEMBER))
+    
+    # 権限追加 (閲覧許可)
+    db.add(BabyPermission(baby_id=baby_a.id, user_id=user.id, record_type="baby", can_view=True))
+    db.add(BabyPermission(baby_id=baby_b.id, user_id=user.id, record_type="baby", can_view=True))
+    
+    db.flush()
+    db.commit()
+
+    _mock_user = user
+    client = TestClient(app)
+
+    # 赤ちゃん一覧取得
+    response = client.get("/api/babies/")
+    assert response.status_code == 200
+    
+    baby_ids = [b["id"] for b in response.json()]
+    assert baby_a.id in baby_ids
+    assert baby_b.id in baby_ids, f"Baby B is missing from listing. Found: {baby_ids}"

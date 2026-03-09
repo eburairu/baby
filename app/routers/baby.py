@@ -50,28 +50,40 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
     if current_user.is_superadmin:
         return db.query(Baby).filter(Baby.is_deleted == False).all()
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
+    # 所属している全ての家族の情報を取得
+    family_users = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).all()
+    if not family_users:
         return []
 
-    babies = db.query(Baby).filter(
-        Baby.family_id == family_user.family_id,
+    family_ids = [fu.family_id for fu in family_users]
+    admin_family_ids = [fu.family_id for fu in family_users if fu.role == UserRole.ADMIN]
+
+    # 全ての所属家族の赤ちゃんを取得
+    all_babies = db.query(Baby).filter(
+        Baby.family_id.in_(family_ids),
         Baby.is_deleted == False
     ).all()
 
-    # admin / superadmin は全件返す
-    if family_user.role == UserRole.ADMIN or current_user.is_superadmin:
-        return babies
+    # admin ロールの家族の赤ちゃんは無条件で許可
+    # それ以外は BabyPermission (record_type="baby", can_view=True) が必要
+    allowed_baby_ids = set()
+    
+    # admin 特権を付与
+    for b in all_babies:
+        if b.family_id in admin_family_ids:
+            allowed_baby_ids.add(b.id)
 
-    # member/viewer: can_view=true の BabyPermission が存在する赤ちゃんのみ返す（デフォルト拒否）
-    allowed_baby_ids = set(
-        perm.baby_id for perm in db.query(BabyPermission).filter(
-            BabyPermission.user_id == current_user.id,
-            BabyPermission.record_type == "baby",
-            BabyPermission.can_view == True,
-        ).all()
-    )
-    return [b for b in babies if b.id in allowed_baby_ids]
+    # BabyPermission による明示的な許可を取得（全ての家族分を一括取得）
+    perms = db.query(BabyPermission).filter(
+        BabyPermission.user_id == current_user.id,
+        BabyPermission.record_type == "baby",
+        BabyPermission.can_view == True
+    ).all()
+    
+    for p in perms:
+        allowed_baby_ids.add(p.baby_id)
+
+    return [b for b in all_babies if b.id in allowed_baby_ids]
 
 
 @router.post("/", response_model=BabyResponse)
@@ -104,20 +116,20 @@ def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db)
     is_superadmin = current_user.is_superadmin
     family_user = None
 
-    if not is_superadmin:
-        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-        if not family_user:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-        if family_user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
-
-    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
-    if not is_superadmin:
-        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
-    
-    baby = baby_query.first()
+    # Get the baby first to identify its family
+    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False).first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
+
+    if not is_superadmin:
+        family_user = db.query(FamilyUser).filter(
+            FamilyUser.user_id == current_user.id,
+            FamilyUser.family_id == baby.family_id
+        ).first()
+        if not family_user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in this baby's family")
+        if family_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
 
     from app.services.baby import update_baby as update_baby_service
     
@@ -131,20 +143,20 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
     is_superadmin = current_user.is_superadmin
     family_user = None
 
-    if not is_superadmin:
-        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-        if not family_user:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-        if family_user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
-
-    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
-    if not is_superadmin:
-        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
-
-    baby = baby_query.first()
+    # Get the baby first to identify its family
+    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False).first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
+
+    if not is_superadmin:
+        family_user = db.query(FamilyUser).filter(
+            FamilyUser.user_id == current_user.id,
+            FamilyUser.family_id == baby.family_id
+        ).first()
+        if not family_user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in this baby's family")
+        if family_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
 
     from app.services.baby import soft_delete_baby
     
@@ -165,9 +177,14 @@ def get_records(
     current_user: User = Depends(get_current_user)
 ):
     # "baby" レベルのアクセスチェック（record_type="baby" はデフォルトなので変更不要）
-    verify_baby_access(db, baby_id, current_user.id)
+    # verify_baby_access ensures the baby exists. Fetch baby for its family_id.
+    baby = verify_baby_access(db, baby_id, current_user.id)
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    # 対象の赤ちゃんの family_id に基づいて FamilyUser を取得し、その家族での権限をチェック
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
     is_admin = (family_user and family_user.role == UserRole.ADMIN) or current_user.is_superadmin
 
     # Pre-fetch permissions ONLY if not admin

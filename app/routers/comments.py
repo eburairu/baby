@@ -74,7 +74,14 @@ def get_record_comments(
     user_ids = list({c.user_id for c in comments if not c.is_ai_generated and c.user_id is not None})
     user_roles = {}
     if user_ids:
-        family_users = db.query(FamilyUser.user_id, FamilyUser.role).filter(FamilyUser.user_id.in_(user_ids)).all()
+        # Get baby_id from one of the comments or re-fetch (they should all belong to the same record/baby)
+        baby = db.query(Baby).filter(Baby.id == baby_id).first()
+        family_id = baby.family_id if baby else None
+        
+        query = db.query(FamilyUser.user_id, FamilyUser.role).filter(FamilyUser.user_id.in_(user_ids))
+        if family_id:
+            query = query.filter(FamilyUser.family_id == family_id)
+        family_users = query.all()
         user_roles = {fu.user_id: fu.role for fu in family_users}
 
     # Get roles for each commenter
@@ -146,7 +153,13 @@ def create_record_comment(
             category="comment",
         )
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    # get_record_baby_id ensures the baby exists. Fetch baby for its family_id.
+    baby = db.query(Baby).filter(Baby.id == baby_id).first()
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first() if baby else None
+
     return CommentResponse(
         id=new_comment.id,
         user_id=new_comment.user_id,
@@ -170,10 +183,15 @@ def delete_comment(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
 
     # コメントに紐づく baby へのアクセス権を検証（ファミリー間の分離を保証）
-    verify_baby_access(db, comment.baby_id, current_user.id)
+    baby = verify_baby_access(db, comment.baby_id, current_user.id)
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if comment.user_id != current_user.id and (family_user is None or family_user.role != UserRole.ADMIN):
+    # 対象の赤ちゃんの family_id に基づいて FamilyUser を取得し、その家族での権限をチェック
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
+    
+    if comment.user_id != current_user.id and (not family_user or family_user.role != UserRole.ADMIN):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
 
     comment.is_deleted = True
