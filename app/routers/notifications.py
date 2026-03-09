@@ -5,6 +5,7 @@ from app.dependencies import get_db, get_current_user
 from app.models.user import User
 from app.models.notification import PushSubscription, NotificationSetting, AppNotification
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 from app.schemas.notification import (
     AppNotificationResponse,
     UnreadCountResponse,
@@ -17,8 +18,8 @@ from app.schemas.notification import (
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 
 test_notification_limiter = RateLimiter(
-    requests_limit=3,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_NOTIFICATION_REQUESTS,
+    time_window=constants.RATE_LIMIT_NOTIFICATION_WINDOW,
     error_message="Too many test notifications requested. Please try again later.",
 )
 

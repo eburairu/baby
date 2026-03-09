@@ -3,7 +3,7 @@ from collections import defaultdict
 from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 import logging
@@ -21,13 +21,12 @@ from app.models.schedule import Schedule
 from app.models.note import Note
 from app.models.comment import RecordComment
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
+from app.utils.timezone import JST
 from app.core.constants import DEFAULT_PAGINATION_LIMIT, MAX_PAGINATION_LIMIT
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
 
 logger = logging.getLogger(__name__)
-
-JST = timezone(timedelta(hours=9))
 
 
 class UnifiedRecord(BaseModel):

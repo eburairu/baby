@@ -8,12 +8,13 @@ from app.models.baby import Baby
 from app.schemas.vaccination import VaccinationCreate, VaccinationUpdate, VaccinationResponse
 from app.services.vaccination_service import VaccinationService
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 
 router = APIRouter(prefix="/api/vaccinations", tags=["vaccinations"])
 
 vaccination_generate_limiter = RateLimiter(
-    requests_limit=3,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_VACCINATION_GENERATE_REQUESTS,
+    time_window=constants.RATE_LIMIT_VACCINATION_GENERATE_WINDOW,
     error_message="Too many generation requests. Please try again later.",
 )
 
