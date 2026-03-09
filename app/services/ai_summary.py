@@ -1,12 +1,13 @@
 import os
 import logging
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import Tuple, Type
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from app.services.ai_settings import get_ai_config
 from app.models.baby import Baby
 from app.services.baby import get_baby_age_in_days
+from app.utils.timezone import JST
 from app.core.constants import AI_SUMMARY_CHARS_MIN, AI_SUMMARY_CHARS_MAX, AI_MAX_TOKENS, AI_TEMPERATURE
 
 from app.models.feeding import Feeding
@@ -72,7 +73,6 @@ def build_daily_prompt(
 ) -> Tuple[str, int, str]:
     """プロンプト文字列、記録件数の合計、記録テキスト自体を返す。"""
     # JST の日付範囲を UTC に変換して DateTime フィルタ用に使用
-    JST = timezone(timedelta(hours=9))
     day_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=JST)
     day_end = datetime(target_date.year, target_date.month, target_date.day, 23, 59, 59, tzinfo=JST)
 

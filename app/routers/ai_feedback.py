@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 import openai
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -12,6 +12,7 @@ from app.services.ai_feedback import (
     save_ai_comment,
 )
 from app.utils.rate_limit import RateLimiter
+from app.utils.timezone import get_jst_now
 from app.core import constants
 
 record_feedback_limiter = RateLimiter(
@@ -68,12 +69,11 @@ def create_record_feedback(
         has_concern=has_concern,
     )
 
-    JST = timezone(timedelta(hours=9))
     return RecordFeedbackResponse(
         feedback=feedback_text,
         has_concern=has_concern,
         comment_id=comment.id,
         record_type=body.record_type,
-        analyzed_at=datetime.now(JST),
+        analyzed_at=get_jst_now(),
         model_name=model_name,
     )

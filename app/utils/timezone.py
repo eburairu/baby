@@ -1,6 +1,14 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 
 JST = timezone(timedelta(hours=9))
+
+def get_jst_now() -> datetime:
+    """現在時刻を JST で返す。"""
+    return datetime.now(JST)
+
+def get_jst_today() -> date:
+    """現在日付を JST で返す。"""
+    return get_jst_now().date()
 
 def to_jst_naive(dt: datetime) -> datetime:
     """

@@ -2,20 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
-from datetime import timezone, timedelta
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.contraction import Contraction
 from app.models.comment import RecordComment
 from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
-from app.utils.timezone import to_jst_naive
+from app.utils.timezone import to_jst_naive, JST
 from app.utils.notifications import notify_family_members
 from app.models.baby import Baby
 
 router = APIRouter(prefix="/api/contractions", tags=["contractions"])
 
-JST = timezone(timedelta(hours=9))
 _MAX_INTERVAL_SECONDS = 3600  # 1時間超は新セッションとして扱わない
 
 
