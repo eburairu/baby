@@ -47,11 +47,15 @@ def extract_object_key(url_or_key: str) -> str:
     """URLまたはキーからオブジェクトキー（ファイル名）を抽出する。"""
     if not url_or_key.startswith("http"):
         return url_or_key
-    
+
     parsed_url = urlparse(url_or_key)
-    # パスの最後の部分をキーとして扱う（ディレクトリ構造がある場合は要調整）
-    # 現状の実装ではフラットに保存されているため、path.lstrip('/') で十分
-    return parsed_url.path.lstrip('/')
+    path = parsed_url.path.lstrip('/')
+    # R2のpresigned URLはパスが <bucket_name>/<object_key> 形式になるため
+    # バケット名プレフィックスを除去する
+    bucket_name = os.getenv("R2_BUCKET_NAME", "baby-app-images")
+    if path.startswith(bucket_name + '/'):
+        return path[len(bucket_name) + 1:]
+    return path
 
 def sign_image_urls(image_urls: List[str]) -> List[str]:
     """画像URL（またはキー）のリストを署名付きURLのリストに変換する。"""
