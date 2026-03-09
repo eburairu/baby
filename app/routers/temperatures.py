@@ -138,10 +138,13 @@ def delete_temperature(
     if not record:
         raise HTTPException(status_code=404, detail="Temperature record not found")
     verify_baby_access(db, record.baby_id, current_user.id, record_type="temperature", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "temperature",
-        RecordComment.record_id == record_id,
-    ).delete()
-    db.delete(record)
+        RecordComment.record_id == record_id
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    record.is_deleted = True
     db.commit()
     return {"message": "Deleted"}

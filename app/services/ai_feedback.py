@@ -2,9 +2,10 @@ import re
 import json
 import logging
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Tuple
 from app.core.constants import AI_MAX_TOKENS
+from app.core.exceptions import AIGenerationError
 
 import openai
 from sqlalchemy.orm import Session
@@ -19,6 +20,7 @@ from app.models.baby import Baby
 from app.services.ai_summary import get_llm_client, _fetch_records_in_range
 from app.services.ai_settings import get_ai_config
 from app.services.baby import get_baby_age_in_days
+from app.utils.timezone import get_jst_now
 
 logger = logging.getLogger(__name__)
 
@@ -211,8 +213,7 @@ def build_feedback_prompt(
     record_id: int,
 ) -> str:
     """直近24時間の全記録を取得してプロンプトを組み立てる"""
-    JST = timezone(timedelta(hours=9))
-    now = datetime.now(JST)
+    now = get_jst_now()
 
     records_text = _build_records_text(db, baby_id, now)
 
@@ -248,12 +249,12 @@ def generate_record_feedback(
     """
     config = get_ai_config(db)
     if not config.get("ai_enabled_feedback", True):
-        raise RuntimeError("AI 記録フィードバック機能は現在無効化されています。")
+        raise AIGenerationError("AI 記録フィードバック機能は現在無効化されています。")
 
     prompt = build_feedback_prompt(db, baby_id, baby, record_type, record_id)
     client, model_name = get_llm_client(db)
 
-    last_error: Exception = RuntimeError("no attempts made")
+    last_error: Exception = AIGenerationError("no attempts made")
     for attempt in range(3):
         if attempt > 0:
             time.sleep(2 ** attempt)  # 2s, 4s

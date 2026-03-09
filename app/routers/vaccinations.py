@@ -8,12 +8,13 @@ from app.models.baby import Baby
 from app.schemas.vaccination import VaccinationCreate, VaccinationUpdate, VaccinationResponse
 from app.services.vaccination_service import VaccinationService
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
 
 router = APIRouter(prefix="/api/vaccinations", tags=["vaccinations"])
 
 vaccination_generate_limiter = RateLimiter(
-    requests_limit=3,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_VACCINATION_GENERATE_REQUESTS,
+    time_window=constants.RATE_LIMIT_VACCINATION_GENERATE_WINDOW,
     error_message="Too many generation requests. Please try again later.",
 )
 
@@ -77,7 +78,13 @@ async def delete_vaccination(
     
     verify_baby_access(db, db_vaccination.baby_id, current_user.id, require_write=True)
     
-    db.delete(db_vaccination)
+    from app.models.comment import RecordComment
+    db.query(RecordComment).filter(
+        RecordComment.record_type == "vaccination",
+        RecordComment.record_id == vaccination_id
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    db_vaccination.is_deleted = True
     db.commit()
 
 @router.post("/generate", response_model=List[VaccinationResponse])

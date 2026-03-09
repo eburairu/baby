@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, func, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
-class Schedule(Base):
+class Schedule(Base, SoftDeleteMixin):
     __tablename__ = "schedules"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -16,4 +16,5 @@ class Schedule(Base):
 
     __table_args__ = (
         Index("idx_schedule_baby_scheduled_time", "baby_id", "scheduled_time"),
+        Index("ix_schedules_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

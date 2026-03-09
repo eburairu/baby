@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Index, Boolean, func
 from sqlalchemy.orm import relationship
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
-class RecordComment(Base):
+class RecordComment(Base, SoftDeleteMixin):
     __tablename__ = "record_comments"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -22,4 +22,5 @@ class RecordComment(Base):
 
     __table_args__ = (
         Index("idx_comment_record", "record_type", "record_id"),
+        Index("ix_record_comments_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

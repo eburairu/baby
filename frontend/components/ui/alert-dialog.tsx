@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -121,12 +122,17 @@ function AlertDialogDescription({
 function AlertDialogAction({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action> & { loading?: boolean }) {
+    const { loading, children, ...rest } = props;
     return (
         <AlertDialogPrimitive.Action
             className={cn(buttonVariants(), className)}
-            {...props}
-        />
+            {...rest}
+            disabled={loading || rest.disabled}
+        >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {children}
+        </AlertDialogPrimitive.Action>
     )
 }
 

@@ -1,6 +1,7 @@
-from pydantic import BaseModel, computed_field, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, computed_field, ConfigDict, field_validator
+from typing import Optional, List
 from datetime import date, datetime
+from app.utils.s3 import sign_image_urls
 
 
 class DailySummaryCreate(BaseModel):
@@ -24,6 +25,11 @@ class DailySummaryResponse(BaseModel):
     image_urls: list[str] = []
     created_at: datetime
     updated_at: datetime
+
+    @field_validator("image_urls", mode="after")
+    @classmethod
+    def secure_image_urls(cls, v: List[str]) -> List[str]:
+        return sign_image_urls(v)
 
     @computed_field
     @property

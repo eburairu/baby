@@ -3,6 +3,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from datetime import datetime
 
+from app.core.exceptions import AIGenerationError
 from app.services.ai_feedback import _extract_json, generate_record_feedback
 from app.models.family import Family
 from app.models.user import User
@@ -80,3 +81,33 @@ def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
     assert feedback == "モックフィードバックです。"
     assert has_concern is False
     assert model == "gpt-test-model"
+
+
+@patch("app.services.ai_feedback.get_ai_config")
+def test_generate_record_feedback_disabled(mock_config, db):
+    # Setup
+    mock_config.return_value = {"ai_enabled_feedback": False}
+    
+    # テストデータ
+    user = User(username="test_user_ai_disabled", hashed_password="fake")
+    db.add(user)
+    db.commit()
+    family = Family(name="Test Family Disabled", invite_code="TEST-AI-DIS")
+    db.add(family)
+    db.commit()
+    baby = Baby(family_id=family.id, name="テストベビー", gender="BOY", birthday=datetime.now().date())
+    db.add(baby)
+    db.commit()
+    feeding = Feeding(
+        baby_id=baby.id, 
+        user_id=user.id,
+        feeding_time=datetime.now(), 
+        feeding_type="BREAST"
+    )
+    db.add(feeding)
+    db.commit()
+
+    # 実行して例外を検証
+    with pytest.raises(AIGenerationError, match="AI 記録フィードバック機能は現在無効化されています。"):
+        generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
+

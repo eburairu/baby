@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, Text, func, Index
 from sqlalchemy.orm import relationship
-from app.models.base import Base
+from app.models.base import Base, SoftDeleteMixin
 
 
-class AppNotification(Base):
+class AppNotification(Base, SoftDeleteMixin):
     """アプリ内通知センター用テーブル"""
     __tablename__ = "app_notifications"
 
@@ -25,10 +25,11 @@ class AppNotification(Base):
         Index("idx_app_notifications_user_created", "user_id", "created_at"),
         # Optimize count unread notifications (existing index from 0332ddd5a74c)
         Index("idx_app_notifications_user_unread", "user_id", "is_read", "created_at"),
+        Index("ix_app_notifications_user_id_is_deleted", "user_id", "is_deleted"),
     )
 
 
-class PushSubscription(Base):
+class PushSubscription(Base, SoftDeleteMixin):
     __tablename__ = "push_subscriptions"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -40,6 +41,10 @@ class PushSubscription(Base):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="push_subscriptions")
+
+    __table_args__ = (
+        Index("ix_push_subscriptions_user_id_is_deleted", "user_id", "is_deleted"),
+    )
 
 class NotificationSetting(Base):
     __tablename__ = "notification_settings"
