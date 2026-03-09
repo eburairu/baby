@@ -257,3 +257,6 @@
 ## 2024-05-19 - [Pydantic V2構文への移行]
 **学び:** バックエンドのPydanticモデルがV2構文（`model_config = ConfigDict(...)`）にアップデートされても、Markdown仕様書（`.specify/specs/`）内のコードブロックが古いV1構文（`class Config:`）のまま放置されやすい。
 **アクション:** 仕様書内のPythonコードブロックにV1構文が残っていないか定期的にgrepして確認し、実装と同期させる。
+## 2024-03-09 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書への追加漏れ]
+**学び:** 体温記録機能（`app/routers/temperatures.py`）が追加され、API側で `verify_baby_access(..., record_type="temperature")` を呼び出す実装がされているにもかかわらず、権限管理のリスト（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` 内のバリデーションリスト、フロントエンドの `ALL_RECORD_TYPES`）および仕様書 `.specify/specs/settings/baby_permissions.md` への追記が漏れていました。
+**アクション:** 新しい機能・記録タイプを追加した際は、API実装だけでなく、権限管理APIのバリデーションや設定画面の表示ロジック、および対応する仕様書（UIモデルやTypeScriptインターフェース）すべてにその `record_type` が追加されているかを検証します。
