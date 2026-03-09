@@ -137,7 +137,8 @@ def delete_feeding(feeding_id: int, db: Session = Depends(get_db), current_user:
     db.query(RecordComment).filter(
         RecordComment.record_type == "feeding",
         RecordComment.record_id == feeding_id
-    ).delete()
-    db.delete(feeding)
+    ).update({"is_deleted": True}, synchronize_session=False)
+    
+    feeding.is_deleted = True
     db.commit()
     return {"message": "Deleted"}

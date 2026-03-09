@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, Loader2 } from "lucide-react"
+import { Heart } from "lucide-react"
 
 interface CommentFormProps {
   onSubmit: (content: string) => Promise<void>
@@ -42,12 +42,13 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
         <Button
           type="submit"
           size="sm"
-          disabled={!content.trim() || isSubmitting}
+          disabled={!content.trim()}
+          loading={isSubmitting}
+          hideContentOnLoading
           className="bg-orange-500 hover:bg-orange-600 text-white"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
               送信中...
             </>
           ) : (

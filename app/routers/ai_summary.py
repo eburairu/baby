@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime
 import openai
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
@@ -11,10 +11,13 @@ from app.schemas.ai_summary import DailySummaryCreate, DailySummaryEdit, DailySu
 from app.services.ai_summary import generate_daily_summary
 from app.utils.notifications import notify_family_members
 from app.utils.rate_limit import RateLimiter
+from app.utils.timezone import get_jst_today
+from app.core import constants
+from app.utils.s3 import extract_object_key
 
 daily_summary_limiter = RateLimiter(
-    requests_limit=5,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_AI_SUMMARY_REQUESTS,
+    time_window=constants.RATE_LIMIT_AI_SUMMARY_WINDOW,
     error_message="Too many daily summary requests. Please try again later.",
 )
 
@@ -35,7 +38,7 @@ def create_or_get_daily_summary(
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=True)
 
     # 未来日付チェック（JST基準）
-    today_jst = datetime.now(timezone(timedelta(hours=9))).date()
+    today_jst = get_jst_today()
     if body.summary_date > today_jst:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -183,7 +186,7 @@ def edit_daily_summary(
     summary.edited_content = body.edited_content
     summary.is_edited = body.edited_content is not None
     if body.image_urls is not None:
-        summary.image_urls = body.image_urls
+        summary.image_urls = [extract_object_key(url) for url in body.image_urls]
     db.commit()
     db.refresh(summary)
     return summary
@@ -208,5 +211,5 @@ def delete_daily_summary(
     )
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily summary not found")
-    db.delete(summary)
+    summary.is_deleted = True
     db.commit()

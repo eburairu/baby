@@ -141,11 +141,13 @@ def delete_note(
         raise HTTPException(status_code=404, detail="Note not found")
     
     verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note", require_write=True)
-
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "note",
         RecordComment.record_id == note_id
-    ).delete()
-    db.delete(db_note)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    db_note.is_deleted = True
     db.commit()
     return {"message": "Deleted"}

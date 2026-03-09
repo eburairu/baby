@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
-class Sleep(Base):
+class Sleep(Base, SoftDeleteMixin):
     __tablename__ = "sleeps"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -14,4 +14,5 @@ class Sleep(Base):
 
     __table_args__ = (
         Index("idx_sleep_baby_start_time", "baby_id", "start_time"),
+        Index("ix_sleeps_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

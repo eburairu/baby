@@ -1,6 +1,6 @@
 import enum
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Index
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
 class DiaperType(str, enum.Enum):
@@ -9,7 +9,7 @@ class DiaperType(str, enum.Enum):
     BOTH = "BOTH"
 
 
-class Diaper(Base):
+class Diaper(Base, SoftDeleteMixin):
     __tablename__ = "diapers"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -21,4 +21,5 @@ class Diaper(Base):
 
     __table_args__ = (
         Index("idx_diaper_baby_time", "baby_id", "change_time"),
+        Index("ix_diapers_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

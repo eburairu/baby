@@ -9,6 +9,8 @@ from botocore.exceptions import ClientError
 from app.dependencies import get_db, get_current_user, verify_write_access
 from app.models.user import User
 from app.utils.rate_limit import RateLimiter
+from app.core import constants
+from app.utils.s3 import generate_presigned_url
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -19,14 +21,14 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 # Limit upload attempts to 10 per 60 seconds per user
 upload_limiter = RateLimiter(
-    requests_limit=10,
-    time_window=60,
+    requests_limit=constants.RATE_LIMIT_UPLOAD_REQUESTS,
+    time_window=constants.RATE_LIMIT_UPLOAD_WINDOW,
     error_message="Too many upload attempts. Please try again later.",
 )
 
 
 class UploadResponse(BaseModel):
-    public_url: str
+    public_url: str  # 署名付きURLを返す（名前は互換性のために保持）
     filename: str
 
 
@@ -118,6 +120,11 @@ async def upload_image(
             detail="画像のアップロードに失敗しました。",
         )
 
-    public_url = f"{public_endpoint.rstrip('/')}/{object_key}"
+    # 署名付きURLを生成（デフォルト1時間）
+    signed_url = generate_presigned_url(object_key)
+    if not signed_url:
+        # フォールバック（通常は起こらないはずだが、設定ミスなどの場合）
+        public_endpoint = os.getenv("R2_PUBLIC_ENDPOINT", "")
+        signed_url = f"{public_endpoint.rstrip('/')}/{object_key}"
 
-    return UploadResponse(public_url=public_url, filename=object_key)
+    return UploadResponse(public_url=signed_url, filename=object_key)
