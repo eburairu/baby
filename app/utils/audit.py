@@ -1,10 +1,30 @@
 from sqlalchemy.orm import Session
+from fastapi import Request
 from app.models.audit_log import AuditLog
 from typing import Optional, Any
 import json
 import logging
 
 logger = logging.getLogger(__name__)
+
+def get_client_ip(request: Request) -> Optional[str]:
+    """
+    Safely extract the client IP address from the request.
+    Handles X-Forwarded-For headers from proxies like Render.
+    """
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    if x_forwarded_for:
+        # X-Forwarded-For can be a comma-separated list of IPs.
+        # The first one is typically the original client IP.
+        client_ip = x_forwarded_for.split(",")[0].strip()
+        if client_ip:
+            return client_ip
+            
+    # Fallback to standard client host
+    if request.client and request.client.host:
+        return request.client.host
+        
+    return None
 
 def log_event(
     db: Session,
