@@ -18,15 +18,22 @@ export default function AboutPage() {
                     </div>
 
                     {/* コンセプト紹介 */}
-                    <section className="space-y-4">
+                    <section className="space-y-6">
                         <h2 className="text-xl font-bold border-b border-slate-100 pb-2">サービスの想い</h2>
-                        <p className="text-slate-600 leading-relaxed">
-                            赤ちゃんが生まれると、育児は24時間365日の連続した仕事になります。授乳のタイミング、最後のおむつ交換から何時間が経ったか、今日はどれだけ眠れたか——これらを一人で把握し続けることは、とても大変なことです。
-                        </p>
-                        <p className="text-slate-600 leading-relaxed">
-                            Botoroは、「育児を一人で抱え込まず、家族全員で分かち合える」ようにするために作られました。
-                            パパが記録すれば、ママが確認できる。おじいちゃん・おばあちゃんも一緒に成長を見守れる。そんな「つながりのある育児」を実現するのが、Botoroのミッションです。
-                        </p>
+                        <div className="space-y-4 text-slate-600 leading-relaxed">
+                            <p>
+                                赤ちゃんが生まれると、生活は一変します。授乳、おむつ、睡眠。これらを24時間休むことなく管理し続けることは、想像以上に孤独で大変な作業です。
+                                特に初めての育児では、不安から「さっきおむつ替えたのいつだっけ？」「ミルクはどのくらい飲ませればいいの？」といった疑問が絶えません。
+                            </p>
+                            <p>
+                                Botoroは、「育児を一人で抱え込まず、家族全員がワンチームとして分かち合える」場所を作るために生まれました。
+                                パパが記録すればママに通知が届き、お互いに労い合える。遠くに住むおじいちゃん・おばあちゃんも、孫の成長をリアルタイムに感じることができる。
+                                私たちが目指しているのは、単なる記録ツールではなく、家族の絆を深める「コミュニケーションの起点」となるアプリです。
+                            </p>
+                            <p>
+                                また、Botoroは完全無料で提供されています。これは、経済的な負担を増やすことなく、すべての育児世帯が安心してテクノロジーの恩恵を受けられるようにしたいという、私たちの強い願いからきています。
+                            </p>
+                        </div>
                     </section>
 
                     {/* 特徴 */}
@@ -95,28 +102,37 @@ export default function AboutPage() {
                     </section>
 
                     {/* サービス情報 */}
-                    <section className="space-y-4">
-                        <h2 className="text-xl font-bold border-b border-slate-100 pb-2">サービス情報</h2>
-                        <div className="space-y-3 text-slate-600">
-                            <div className="flex flex-col sm:flex-row sm:gap-4">
-                                <span className="font-medium text-slate-800 w-32 shrink-0">サービス名</span>
-                                <span>Botoro</span>
+                    <section className="space-y-6">
+                        <h2 className="text-xl font-bold border-b border-slate-100 pb-2">運営者情報</h2>
+                        <div className="bg-slate-50 rounded-2xl p-6 space-y-4">
+                            <div className="space-y-2">
+                                <h3 className="font-bold text-slate-800">Botoro 開発・運営プロジェクト</h3>
+                                <p className="text-sm text-slate-600 leading-relaxed">
+                                    私たちBotoroプロジェクトは、自身も子育てに奮闘するパパ・ママエンジニア、デザイナーが集まって立ち上げた有志のチームです。
+                                    「自分たちが本当に欲しかった育児アプリ」を形にするため、ユーザーの皆様の声を大切にしながら、日々機能の改善と運用を行っています。
+                                </p>
                             </div>
-                            <div className="flex flex-col sm:flex-row sm:gap-4">
-                                <span className="font-medium text-slate-800 w-32 shrink-0">運営者</span>
-                                <span>Botoro 運営者</span>
-                            </div>
-                            <div className="flex flex-col sm:flex-row sm:gap-4">
-                                <span className="font-medium text-slate-800 w-32 shrink-0">サービス開始</span>
-                                <span>2026年</span>
-                            </div>
-                            <div className="flex flex-col sm:flex-row sm:gap-4">
-                                <span className="font-medium text-slate-800 w-32 shrink-0">対応環境</span>
-                                <span>モダンブラウザ（Chrome, Safari, Firefox）/ iOS・Android（PWA対応）</span>
-                            </div>
-                            <div className="flex flex-col sm:flex-row sm:gap-4">
-                                <span className="font-medium text-slate-800 w-32 shrink-0">利用料金</span>
-                                <span>完全無料（クレジットカード登録不要）</span>
+                            <div className="space-y-3 text-slate-600 border-t border-slate-200 pt-4 text-sm">
+                                <div className="flex flex-col sm:flex-row sm:gap-4">
+                                    <span className="font-bold text-slate-800 w-32 shrink-0">サービス名</span>
+                                    <span>Botoro (ボトロ)</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:gap-4">
+                                    <span className="font-bold text-slate-800 w-32 shrink-0">主な活動拠点</span>
+                                    <span>日本</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:gap-4">
+                                    <span className="font-bold text-slate-800 w-32 shrink-0">開発・運営</span>
+                                    <span>Botoro Project Team</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:gap-4">
+                                    <span className="font-bold text-slate-800 w-32 shrink-0">お問い合わせ</span>
+                                    <span>お問い合わせフォームより承っております</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:gap-4">
+                                    <span className="font-bold text-slate-800 w-32 shrink-0">利用条件</span>
+                                    <span>完全無料、広告表示あり、PWA対応</span>
+                                </div>
                             </div>
                         </div>
                     </section>
