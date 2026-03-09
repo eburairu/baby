@@ -4,9 +4,8 @@ import logging
 from pywebpush import webpush, WebPushException
 from sqlalchemy.orm import Session
 from app.models.notification import AppNotification, PushSubscription, NotificationSetting
-from datetime import datetime, time, timezone, timedelta
-
-JST = timezone(timedelta(hours=9))
+from datetime import datetime, time
+from app.utils.timezone import get_jst_now, JST
 from fastapi import BackgroundTasks
 from app.database import SessionLocal
 
@@ -21,7 +20,7 @@ def is_within_dnd(settings: NotificationSetting) -> bool:
     if not settings.dnd_start_time or not settings.dnd_end_time:
         return False
 
-    now = datetime.now(JST).time()
+    now = get_jst_now().time()
     start = settings.dnd_start_time
     end = settings.dnd_end_time
 
