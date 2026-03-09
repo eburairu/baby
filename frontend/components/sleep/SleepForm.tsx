@@ -115,7 +115,7 @@ export function SleepForm({ babyId, initialData, onSuccess }: SleepFormProps) {
                     )}
                 />
                 <Button type="submit" className={cn("w-full shadow-none", UI_BUTTONS.primary)} loading={isSubmitting} data-sentry-unmask>
-                    {isSubmitting ? "保存中..." : isEditing ? "保存する" : "記録する"}
+                    {isEditing ? "保存する" : "記録する"}
                 </Button>
             </form>
         </Form>

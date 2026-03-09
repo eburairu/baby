@@ -282,8 +282,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                                 loading={isSubmitting}
                                 data-sentry-unmask
                             >
-                                {!isSubmitting && <Save className="w-4 h-4 mr-2" />}
-                                {isSubmitting ? "保存中..." : isEditing ? "更新する" : "記録する"}
+                                <Save className="w-4 h-4 mr-2" />
+                                {isEditing ? "更新する" : "記録する"}
                             </Button>
                         </form>
                     </Form>

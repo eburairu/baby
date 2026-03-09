@@ -250,3 +250,10 @@
 ## 2026-03-08 - [Pydantic v2形式(ConfigDict)への仕様書の追随漏れ]
 **学び:** `app/schemas/` 以下の多くのモデルが Pydantic v2 の `model_config = ConfigDict(from_attributes=True)` 構文に移行されているが、仕様書（`profile_settings.md` や `record_comments.md`）では依然として v1 時代の `class Config:\n    from_attributes = True` が残存している。ライブラリのメジャーバージョンアップに伴う記法変更は、ドキュメントに一括で反映されずドリフトしやすい。
 **アクション:** 今後の仕様書の更新やレビューでは、モデルのフィールド追加や削除だけでなく、ライブラリの構文（Pydantic v2 `ConfigDict` 等）が最新のバックエンド実装と一致しているかを定期的に確認し、古くなっている場合は同期を行う。
+
+## 2026-03-08 - [新しい記録タイプ 'milestone' のアクセス権限設定・仕様書への追加漏れ]
+**学び:** マイルストーン機能（`app/routers/milestones.py`）などの新しい記録タイプを追加し、API側で `verify_baby_access(..., record_type="milestone")` を呼び出す実装がされても、権限管理のリスト（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` 内のバリデーションリスト、フロントエンドの `ALL_RECORD_TYPES`）および仕様書 `.specify/specs/settings/baby_permissions.md` に追記することが漏れやすい。
+**アクション:** 新しい機能・記録タイプを追加した際は、API実装だけでなく、権限管理APIのバリデーションや設定画面の表示ロジック、および対応する仕様書（UIモデルやTypeScriptインターフェース）すべてにその `record_type` が追加されているかを検証する。
+## 2024-05-19 - [Pydantic V2構文への移行]
+**学び:** バックエンドのPydanticモデルがV2構文（`model_config = ConfigDict(...)`）にアップデートされても、Markdown仕様書（`.specify/specs/`）内のコードブロックが古いV1構文（`class Config:`）のまま放置されやすい。
+**アクション:** 仕様書内のPythonコードブロックにV1構文が残っていないか定期的にgrepして確認し、実装と同期させる。

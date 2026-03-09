@@ -59,12 +59,11 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                         <Button
                             size="sm"
                             onClick={handleSave}
-                            disabled={saving}
                             loading={saving}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"
                         >
-                            {!saving && <Check className="h-4 w-4 mr-1" />}
-                            {saving ? "保存中" : "保存"}
+                            <Check className="h-4 w-4 mr-1" />
+                            保存
                         </Button>
                         <Button size="sm" variant="outline" onClick={handleCancel} disabled={saving}>
                             <X className="h-4 w-4 mr-1" />

@@ -4,18 +4,12 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BabyBottleLoading } from "./baby-bottle-loading"
 import { useUser } from "@/hooks/useAuth"
+import { useMounted } from "@/hooks/useMounted"
 
 export function SplashScreen() {
     const { isLoading } = useUser()
     const [isVisible, setIsVisible] = useState(true)
-    const [isMounted, setIsMounted] = useState(false)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsMounted(true)
-        }, 0)
-        return () => clearTimeout(timer)
-    }, [])
+    const isMounted = useMounted(0, true)
 
     useEffect(() => {
         // マウントとバックグラウンドのローディング完了を待ってフェードアウト

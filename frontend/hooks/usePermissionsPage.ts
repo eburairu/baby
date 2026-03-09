@@ -40,7 +40,9 @@ const ALL_RECORD_TYPES = [
   "growth",
   "contraction",
   "schedule",
+  "vaccination",
   "note",
+  "milestone",
 ]
 
 export function usePermissionsPage() {

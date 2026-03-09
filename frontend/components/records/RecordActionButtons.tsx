@@ -26,6 +26,7 @@ export function RecordActionButtons({
                 className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-transparent"
                 onClick={onEdit}
                 aria-label={editLabel}
+                title={editLabel}
             >
                 <Pencil className="w-4 h-4" />
             </Button>
@@ -35,6 +36,7 @@ export function RecordActionButtons({
                 className="h-8 w-8 text-gray-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-transparent"
                 onClick={onDelete}
                 aria-label={deleteLabel}
+                title={deleteLabel}
             >
                 <Trash2 className="w-4 h-4" />
             </Button>
