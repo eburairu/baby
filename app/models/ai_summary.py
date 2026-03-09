@@ -20,5 +20,4 @@ class DailySummary(Base):
 
     __table_args__ = (
         UniqueConstraint("baby_id", "summary_date", name="uix_daily_summary_baby_date"),
-        Index("idx_daily_summary_baby_date", "baby_id", "summary_date"),
     )
