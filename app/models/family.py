@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Index
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Index, Enum
 from sqlalchemy.orm import relationship
 from .base import Base, SoftDeleteMixin
 from app.models.enums import UserRole
@@ -24,7 +24,7 @@ class FamilyUser(Base):
 
     family_id = Column(Integer, ForeignKey("families.id"), primary_key=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True, nullable=False, index=True)
-    role = Column(String, nullable=False)
+    role = Column(Enum(UserRole, name="userrole", values_callable=lambda x: [e.value for e in x]), nullable=False)
     joined_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     family = relationship("Family", back_populates="family_users")
