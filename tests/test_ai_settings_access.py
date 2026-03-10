@@ -1,4 +1,3 @@
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -78,3 +77,60 @@ def test_superadmin_update_ai_settings(client: TestClient, db: Session):
     assert response.status_code == 200
     assert response.json()["message"].startswith("Updated")
 
+def test_family_admin_cannot_access_ai_settings(client: TestClient, db: Session):
+    # Family Admin
+    family = Family(name="Test Family 3", invite_code="TESTCODE3")
+    db.add(family)
+    db.commit()
+    
+    family_admin = User(
+        username="family_admin_test",
+        hashed_password=get_password_hash("password123"),
+        is_superadmin=False
+    )
+    db.add(family_admin)
+    db.commit()
+    
+    family_user = FamilyUser(family_id=family.id, user_id=family_admin.id, role=UserRole.ADMIN)
+    db.add(family_user)
+    db.commit()
+    
+    client.post(
+        "/api/auth/login",
+        json={"username": "family_admin_test", "password": "password123"}
+    )
+    
+    response = client.get("/api/ai/settings")
+    # This should fail with 403 Forbidden since family admins shouldn't have access
+    assert response.status_code == 403, f"Expected 403 Forbidden, got {response.status_code}"
+
+def test_family_admin_cannot_update_ai_settings(client: TestClient, db: Session):
+    # Family Admin
+    family = Family(name="Test Family 4", invite_code="TESTCODE4")
+    db.add(family)
+    db.commit()
+    
+    family_admin = User(
+        username="family_admin_update",
+        hashed_password=get_password_hash("password123"),
+        is_superadmin=False
+    )
+    db.add(family_admin)
+    db.commit()
+    
+    family_user = FamilyUser(family_id=family.id, user_id=family_admin.id, role=UserRole.ADMIN)
+    db.add(family_user)
+    db.commit()
+    
+    client.post(
+        "/api/auth/login",
+        json={"username": "family_admin_update", "password": "password123"}
+    )
+    
+    payload = {
+        "settings": {
+            "llm_temperature": "0.9"
+        }
+    }
+    response = client.patch("/api/ai/settings", json=payload)
+    assert response.status_code == 403, f"Expected 403 Forbidden, got {response.status_code}"
