@@ -1,8 +1,9 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 from app.models.diaper import DiaperType
 from app.core.constants import NOTE_MAX_LENGTH
+from app.utils.timezone import localize_naive_as_jst
 
 
 class DiaperCreate(BaseModel):
@@ -11,12 +12,21 @@ class DiaperCreate(BaseModel):
     diaper_type: DiaperType
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
+    @field_validator('change_time', mode='before')
+    @classmethod
+    def localize_change_time(cls, v):
+        return localize_naive_as_jst(v) if isinstance(v, datetime) else v
+
 
 class DiaperUpdate(BaseModel):
     change_time: Optional[datetime] = None
     diaper_type: Optional[DiaperType] = None
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
+    @field_validator('change_time', mode='before')
+    @classmethod
+    def localize_change_time(cls, v):
+        return localize_naive_as_jst(v) if isinstance(v, datetime) else v
 
 
 class DiaperResponse(DiaperCreate):

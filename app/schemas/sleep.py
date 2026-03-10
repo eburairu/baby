@@ -1,7 +1,8 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 from app.core.constants import NOTE_MAX_LENGTH
+from app.utils.timezone import localize_naive_as_jst
 
 
 class SleepCreate(BaseModel):
@@ -10,11 +11,21 @@ class SleepCreate(BaseModel):
     end_time: Optional[datetime] = None
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
+    @field_validator('start_time', 'end_time', mode='before')
+    @classmethod
+    def localize_times(cls, v):
+        return localize_naive_as_jst(v) if isinstance(v, datetime) else v
+
 
 class SleepUpdate(BaseModel):
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
+
+    @field_validator('start_time', 'end_time', mode='before')
+    @classmethod
+    def localize_times(cls, v):
+        return localize_naive_as_jst(v) if isinstance(v, datetime) else v
 
 
 class SleepResponse(SleepCreate):
