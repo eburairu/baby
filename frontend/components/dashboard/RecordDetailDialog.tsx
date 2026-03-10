@@ -15,21 +15,13 @@ import { api } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Loader2 } from "lucide-react"
+import { RECORD_TYPE_LABELS } from "@/constants/ui"
 
 interface Props {
   record: BabyRecord | null
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  feeding: "授乳",
-  sleep: "睡眠",
-  diaper: "おむつ",
-  growth: "成長",
-  note: "メモ",
-  contraction: "陣痛",
 }
 
 export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
@@ -132,7 +124,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
       <EditDialogBase
         open={open}
         onOpenChange={onOpenChange}
-        title={<span>{TYPE_LABELS[record.type] || record.type}の記録</span>}
+        title={<span>{RECORD_TYPE_LABELS[record.type as keyof typeof RECORD_TYPE_LABELS] || record.type}の記録</span>}
       >
         <div className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -7,17 +7,7 @@ import { Button } from "@/components/ui/button"
 import type { BabyAccess } from "@/hooks/usePermissionsPage"
 import { updateBabyPermissions } from "@/hooks/useBabyPermissions"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
-
-const RECORD_TYPE_LABELS: Record<string, string> = {
-  baby: "赤ちゃん情報",
-  feeding: "授乳",
-  sleep: "睡眠",
-  diaper: "おむつ",
-  growth: "成長",
-  contraction: "陣痛",
-  schedule: "スケジュール",
-  note: "メモ",
-}
+import { RECORD_TYPE_LABELS } from "@/constants/ui"
 
 interface Props {
   userId: number
@@ -111,7 +101,7 @@ export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
                 className="flex items-center justify-between bg-white dark:bg-zinc-900 px-3 py-2 rounded-lg"
               >
                 <span className="text-xs text-gray-600 dark:text-zinc-400">
-                  {RECORD_TYPE_LABELS[rt] ?? rt}
+                  {rt === "baby" ? "赤ちゃん情報" : rt === "schedule" ? "スケジュール" : RECORD_TYPE_LABELS[rt as keyof typeof RECORD_TYPE_LABELS] ?? rt}
                 </span>
                 <Switch
                   checked={canView}
