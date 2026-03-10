@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface OnboardingFormProps {
     isAdmin: boolean
@@ -17,27 +18,30 @@ export function OnboardingForm({ isAdmin, onSuccess }: OnboardingFormProps) {
     const [newBabyBirthday, setNewBabyBirthday] = useState("")
     const [newBabyGender, setNewBabyGender] = useState("unknown")
     const [error, setError] = useState<string | null>(null)
-    const [submitting, setSubmitting] = useState(false)
+    const { loading: submitting, execute } = useAsyncAction()
 
     const handleAddBaby = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!newBabyName) return
-        setSubmitting(true)
-        try {
-            setError(null)
-            const body: Record<string, string> = { name: newBabyName, gender: newBabyGender }
-            if (newBabyBirthday) body.birthday = newBabyBirthday
-            await api.post("/babies/", body)
-            setNewBabyName("")
-            setNewBabyBirthday("")
-            setNewBabyGender("unknown")
-            onSuccess()
-        } catch (err: unknown) {
-            console.error("赤ちゃんの追加に失敗しました", err)
-            setError(isApiError(err) ? ((err.info as { detail?: string })?.detail || "赤ちゃんの追加に失敗しました") : "赤ちゃんの追加に失敗しました")
-        } finally {
-            setSubmitting(false)
-        }
+        setError(null)
+
+        await execute(
+            async () => {
+                const body: Record<string, string> = { name: newBabyName, gender: newBabyGender }
+                if (newBabyBirthday) body.birthday = newBabyBirthday
+                await api.post("/babies/", body)
+                setNewBabyName("")
+                setNewBabyBirthday("")
+                setNewBabyGender("unknown")
+                onSuccess()
+            },
+            {
+                onError: (err) => {
+                    console.error("赤ちゃんの追加に失敗しました", err)
+                    setError(getErrorMessage(err, "赤ちゃんの追加に失敗しました"))
+                }
+            }
+        )
     }
 
     if (!isAdmin) {
