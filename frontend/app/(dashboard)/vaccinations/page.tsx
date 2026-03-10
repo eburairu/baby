@@ -9,7 +9,7 @@ import { Plus, RefreshCcw, CheckCircle2, Clock, AlertCircle } from "lucide-react
 import { Card, CardContent } from "@/components/ui/card"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { formatDateWithWeekday } from "@/lib/dateUtils"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { VaccinationForm } from "@/components/vaccination/VaccinationForm"
 import { Vaccination } from "@/types/vaccination"
 
@@ -42,11 +42,7 @@ export default function VaccinationsPage() {
             await api.post(`/vaccinations/generate?baby_id=${babyId}`, {})
             await mutate()
         } catch (e) {
-            if (isApiError(e)) {
-                alert((e.info as { detail?: string })?.detail || "スケジュールの生成に失敗しました")
-            } else {
-                alert("エラーが発生しました")
-            }
+            alert(getErrorMessage(e, "スケジュールの生成に失敗しました"))
         } finally {
             setIsGenerating(false)
         }
