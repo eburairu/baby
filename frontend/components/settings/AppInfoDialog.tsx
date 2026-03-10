@@ -1,14 +1,8 @@
 "use client"
 import { ExternalLink } from "lucide-react"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { formatJapaneseDate } from "@/lib/dateUtils"
 import ReactMarkdown from "react-markdown"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
 import { useAppVersion } from "@/hooks/useAppVersion"
 
@@ -21,16 +15,18 @@ export function AppInfoDialog({ open, onOpenChange }: AppInfoDialogProps) {
     const { appVersion, isLoading } = useAppVersion()
 
     const publishedDate = appVersion?.published_at
-        ? format(new Date(appVersion.published_at), "yyyy年M月d日", { locale: ja })
+        ? formatJapaneseDate(new Date(appVersion.published_at))
         : null
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="dark:bg-zinc-900 dark:border-zinc-800 max-w-lg max-h-[80vh] flex flex-col">
-                <DialogHeader>
-                    <DialogTitle className="dark:text-zinc-100">バージョン情報</DialogTitle>
-                </DialogHeader>
-
+        <EditDialogBase
+            open={open}
+            onOpenChange={onOpenChange}
+            title="バージョン情報"
+            dialogClassName="max-w-lg max-h-[80vh] flex flex-col"
+            contentClassName="flex-1 flex flex-col min-h-0 p-0"
+        >
+            <div className="flex flex-col h-full p-4">
                 {isLoading ? (
                     <div className="space-y-2 py-4">
                         <div className="h-4 w-24 bg-gray-100 dark:bg-zinc-800 rounded animate-pulse" />
@@ -72,7 +68,7 @@ export function AppInfoDialog({ open, onOpenChange }: AppInfoDialogProps) {
                         )}
                     </div>
                 )}
-            </DialogContent>
-        </Dialog>
+            </div>
+        </EditDialogBase>
     )
 }

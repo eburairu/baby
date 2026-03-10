@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models.note import Note
 from app.models.baby import Baby
 
@@ -14,7 +14,7 @@ def test_create_note(client: TestClient, auth_client):
     
     response = client.post(
         f"/api/babies/{baby_id}/notes",
-        json={"content": "はじめての笑い！", "note_time": datetime.now().isoformat()}
+        json={"content": "はじめての笑い！", "note_time": datetime.now(timezone.utc).isoformat()}
     )
     assert response.status_code == 201
     data = response.json()
@@ -29,7 +29,7 @@ def test_get_notes(client: TestClient, auth_client):
     # Create a note
     client.post(
         f"/api/babies/{baby_id}/notes",
-        json={"content": "Note 1", "note_time": datetime.now().isoformat()}
+        json={"content": "Note 1", "note_time": datetime.now(timezone.utc).isoformat()}
     )
     
     response = client.get(f"/api/babies/{baby_id}/notes")
@@ -44,7 +44,7 @@ def test_update_note(client: TestClient, auth_client):
     # Create
     resp = client.post(
         f"/api/babies/{baby_id}/notes",
-        json={"content": "Old Content", "note_time": datetime.now().isoformat()}
+        json={"content": "Old Content", "note_time": datetime.now(timezone.utc).isoformat()}
     )
     note_id = resp.json()["id"]
     
@@ -64,7 +64,7 @@ def test_delete_note(client: TestClient, auth_client, db):
     # Create
     resp = client.post(
         f"/api/babies/{baby_id}/notes",
-        json={"content": "Delete Me", "note_time": datetime.now().isoformat()}
+        json={"content": "Delete Me", "note_time": datetime.now(timezone.utc).isoformat()}
     )
     note_id = resp.json()["id"]
     
@@ -73,4 +73,6 @@ def test_delete_note(client: TestClient, auth_client, db):
     assert response.status_code == 200
     
     # Verify
-    assert db.query(Note).filter(Note.id == note_id).first() is None
+    record = db.query(Note).filter(Note.id == note_id).execution_options(include_deleted=True).first()
+    assert record is not None
+    assert record.is_deleted is True

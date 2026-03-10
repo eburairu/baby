@@ -4,28 +4,40 @@ services:
     runtime: python
     autoDeploy: false
     plan: free
-    buildCommand: pip install -r requirements.txt && cd frontend && corepack enable pnpm && pnpm install --frozen-lockfile && pnpm build
-    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # NOTE: pip を使用している理由
+    # uv pip install に切り替えたところ、Render の Python native runtime が
+    # ビルド時に有効化する virtualenv を uv が認識できず、alembic/uvicorn が
+    # 起動時の PATH に含まれず exit 127 でクラッシュした（2026-03-07）。
+    # uv --system オプションも同様に失敗。pip はこの問題が発生しないため pip を維持する。
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      cd frontend &&
+      corepack enable pnpm &&
+      pnpm install --frozen-lockfile --store-dir /opt/render/.pnpm-store &&
+      pnpm build
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
     envVars:
       - key: DATABASE_URL
-        sync: false  # Neon の接続文字列を Render Dashboard で手動設定
+        sync: false  # Neon の接続文字列を Render Dashboard で設定
       - key: SECRET_KEY
         generateValue: true
       - key: COOKIE_SECURE
         value: "true"
-      - key: CORS_ORIGINS
-        value: "https://baby-app-next.onrender.com"
       - key: TZ
         value: "Asia/Tokyo"
       - key: LLM_PROVIDER
-        value: "google"  # "openai" または "google"
+        value: "google"
       - key: LLM_API_KEY
-        sync: false  # APIキーを Render Dashboard で手動設定
+        sync: false
       - key: LLM_MODEL
-        value: "gemini-2.0-flash"  # 未設定時は provider に応じて自動選択（gpt-4o-mini / gemini-2.0-flash）
+        value: "gemini-2.0-flash"
       - key: PYTHON_VERSION
         value: "3.10.12"
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
         value: "1"

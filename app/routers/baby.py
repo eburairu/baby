@@ -1,14 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
+from collections import defaultdict
+from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
+import logging
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
 from app.models.baby import Baby, BabyPermission
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -19,10 +22,12 @@ from app.models.schedule import Schedule
 from app.models.note import Note
 from app.models.comment import RecordComment
 from app.schemas.baby import BabyCreate, BabyUpdate, BabyResponse
+from app.utils.timezone import JST
+from app.core.constants import DEFAULT_PAGINATION_LIMIT, MAX_PAGINATION_LIMIT
 
 router = APIRouter(prefix="/api/babies", tags=["babies"])
 
-JST = timezone(timedelta(hours=9))
+logger = logging.getLogger(__name__)
 
 
 class UnifiedRecord(BaseModel):
@@ -42,16 +47,31 @@ class RecordCreate(BaseModel):
 
 
 @router.get("/", response_model=List[BabyResponse])
-def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
+def get_babies(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: Optional[int] = Query(None, description="Maximum number of items to return (SuperAdmin only)", ge=1, le=1000),
+    offset: Optional[int] = Query(None, description="Number of items to skip (SuperAdmin only)", ge=0)
+):
+    if current_user.is_superadmin:
+        query = db.query(Baby).filter(Baby.is_deleted == False)
+        if limit is not None:
+            query = query.limit(limit)
+        if offset is not None:
+            query = query.offset(offset)
+        return query.all()
+
+    family_users = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).all()
+    if not family_users:
         return []
 
-    babies = db.query(Baby).filter(Baby.family_id == family_user.family_id).all()
+    family_ids = [fu.family_id for fu in family_users]
+    babies = db.query(Baby).filter(
+        Baby.family_id.in_(family_ids),
+        Baby.is_deleted == False
+    ).all()
 
-    # admin は全件返す
-    if family_user.role == UserRole.ADMIN:
-        return babies
+    family_roles = {fu.family_id: fu.role for fu in family_users}
 
     # member/viewer: can_view=true の BabyPermission が存在する赤ちゃんのみ返す（デフォルト拒否）
     allowed_baby_ids = set(
@@ -61,7 +81,13 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
             BabyPermission.can_view == True,
         ).all()
     )
-    return [b for b in babies if b.id in allowed_baby_ids]
+    
+    result = []
+    for b in babies:
+        if family_roles.get(b.family_id) == UserRole.ADMIN or b.id in allowed_baby_ids:
+            result.append(b)
+            
+    return result
 
 
 @router.post("/", response_model=BabyResponse)
@@ -69,7 +95,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN:
+    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can add babies")
 
     new_baby = Baby(
@@ -79,59 +105,78 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         due_date=baby_in.due_date,
         gender=baby_in.gender,
         characteristics=baby_in.characteristics,
+        feeding_threshold_minutes=baby_in.feeding_threshold_minutes,
+        diaper_threshold_minutes=baby_in.diaper_threshold_minutes,
     )
     db.add(new_baby)
     db.commit()
     db.refresh(new_baby)
+    logger.info("Baby created: baby_id=%s, family_id=%s, by user_id=%s", new_baby.id, new_baby.family_id, current_user.id)
     return new_baby
 
 
 @router.patch("/{baby_id}", response_model=BabyResponse)
 def update_baby(baby_id: int, baby_in: BabyUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
+    is_superadmin = current_user.is_superadmin
+    family_user = None
 
-    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
+    if not is_superadmin:
+        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+        if not family_user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+        if family_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit babies")
+
+    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
+    if not is_superadmin:
+        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
+    
+    baby = baby_query.first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
     from app.services.baby import update_baby as update_baby_service
     
     updated_baby = update_baby_service(db, baby, baby_in)
+    logger.info("Baby updated: baby_id=%s, by user_id=%s", updated_baby.id, current_user.id)
     return updated_baby
 
 
 @router.delete("/{baby_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
-    if family_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
+    is_superadmin = current_user.is_superadmin
+    family_user = None
 
-    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.family_id == family_user.family_id).first()
+    if not is_superadmin:
+        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+        if not family_user:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+        if family_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can delete babies")
+
+    baby_query = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False)
+    if not is_superadmin:
+        baby_query = baby_query.filter(Baby.family_id == family_user.family_id)
+
+    baby = baby_query.first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
-    db.query(Feeding).filter(Feeding.baby_id == baby_id).delete()
-    db.query(Sleep).filter(Sleep.baby_id == baby_id).delete()
-    db.query(Diaper).filter(Diaper.baby_id == baby_id).delete()
-    db.query(Growth).filter(Growth.baby_id == baby_id).delete()
-    db.query(Contraction).filter(Contraction.baby_id == baby_id).delete()
-    db.query(Schedule).filter(Schedule.baby_id == baby_id).delete()
-    db.query(Note).filter(Note.baby_id == baby_id).delete()
-    db.query(RecordComment).filter(RecordComment.baby_id == baby_id).delete()
-    db.delete(baby)
-    db.commit()
+    from app.services.baby import soft_delete_baby
+    
+    deleted_baby_id = baby.id
+    deleted_baby_family_id = baby.family_id
+
+    soft_delete_baby(db, baby)
+
+    logger.info("Baby deleted: baby_id=%s, family_id=%s, by user_id=%s", deleted_baby_id, deleted_baby_family_id, current_user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{baby_id}/records", response_model=List[UnifiedRecord])
 def get_records(
     baby_id: int,
-    limit: int = Query(50, ge=1, le=1000),
+    limit: int = Query(DEFAULT_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -139,7 +184,7 @@ def get_records(
     verify_baby_access(db, baby_id, current_user.id)
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    is_admin = family_user and family_user.role == UserRole.ADMIN
+    is_admin = (family_user and family_user.role == UserRole.ADMIN) or current_user.is_superadmin
 
     # Pre-fetch permissions ONLY if not admin
     permissions = {}
@@ -158,29 +203,19 @@ def get_records(
         # If permission record exists, use its value. Otherwise default to False (default deny).
         return permissions.get(rt, False)
 
-    # Pre-fetch comment counts for all records of this baby
-    comment_counts = {}
-    try:
-        counts = db.query(
-            RecordComment.record_type,
-            RecordComment.record_id,
-            func.count(RecordComment.id)
-        ).filter(RecordComment.baby_id == baby_id).group_by(
-            RecordComment.record_type,
-            RecordComment.record_id
-        ).all()
-        for rt, rid, count in counts:
-            comment_counts[(rt, rid)] = count
-    except Exception as e:
-        print(f"Error fetching comment counts: {e}")
-        # Table might not exist yet, fallback to empty counts
-        pass
-
     # 各記録と紐付く user_id を収集するためのリスト（後でまとめてUser取得）
-    raw_records: list[tuple] = []  # (model_instance, type, timestamp, details_builder)
+    # (id, type, user_id, timestamp, details, comment_count_placeholder)
+    raw_records: list[tuple] = []
 
     if can_view_type("feeding"):
-        for feeding in db.query(Feeding).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).limit(limit).all():
+        # Select only necessary columns to avoid overhead of full ORM object creation
+        for feeding in db.query(
+            Feeding.id, Feeding.user_id, Feeding.feeding_time,
+            Feeding.feeding_type, Feeding.amount_ml, Feeding.duration_minutes, Feeding.notes
+        ).filter(
+            Feeding.baby_id == baby_id,
+            Feeding.is_deleted == False
+        ).order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -189,33 +224,49 @@ def get_records(
                     "duration_minutes": feeding.duration_minutes,
                     "notes": feeding.notes,
                 },
-                comment_counts.get(("feeding", feeding.id), 0)
+                0
             ))
 
     if can_view_type("sleep"):
-        for sleep in db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).limit(limit).all():
+        for sleep in db.query(
+            Sleep.id, Sleep.user_id, Sleep.start_time, Sleep.end_time, Sleep.notes
+        ).filter(
+            Sleep.baby_id == baby_id,
+            Sleep.is_deleted == False
+        ).order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
                     "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
                     "notes": sleep.notes,
                 },
-                comment_counts.get(("sleep", sleep.id), 0)
+                0
             ))
 
     if can_view_type("diaper"):
-        for diaper in db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).limit(limit).all():
+        for diaper in db.query(
+            Diaper.id, Diaper.user_id, Diaper.change_time, Diaper.diaper_type, Diaper.notes
+        ).filter(
+            Diaper.baby_id == baby_id,
+            Diaper.is_deleted == False
+        ).order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
                     "diaper_type": diaper.diaper_type,
                     "notes": diaper.notes,
                 },
-                comment_counts.get(("diaper", diaper.id), 0)
+                0
             ))
 
     if can_view_type("growth"):
-        for growth in db.query(Growth).filter(Growth.baby_id == baby_id).order_by(Growth.date.desc()).limit(limit).all():
+        for growth in db.query(
+            Growth.id, Growth.user_id, Growth.date,
+            Growth.weight, Growth.height, Growth.head_circumference, Growth.notes
+        ).filter(
+            Growth.baby_id == baby_id,
+            Growth.is_deleted == False
+        ).order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -225,21 +276,32 @@ def get_records(
                     "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
                 },
-                comment_counts.get(("growth", growth.id), 0)
+                0
             ))
 
     if can_view_type("note"):
-        for note in db.query(Note).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).limit(limit).all():
+        for note in db.query(
+            Note.id, Note.user_id, Note.note_time, Note.content
+        ).filter(
+            Note.baby_id == baby_id,
+            Note.is_deleted == False
+        ).order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
                     "notes": note.content,
                 },
-                comment_counts.get(("note", note.id), 0)
+                0
             ))
 
     if can_view_type("contraction"):
-        for c in db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).limit(limit).all():
+        for c in db.query(
+            Contraction.id, Contraction.user_id, Contraction.start_time,
+            Contraction.end_time, Contraction.duration_seconds, Contraction.notes
+        ).filter(
+            Contraction.baby_id == baby_id,
+            Contraction.is_deleted == False
+        ).order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {
@@ -247,11 +309,60 @@ def get_records(
                     "duration_seconds": c.duration_seconds,
                     "notes": c.notes,
                 },
-                comment_counts.get(("contraction", c.id), 0)
+                0
             ))
 
-    # User を一括取得してマップを作成
-    user_ids = {r[2] for r in raw_records if r[2] is not None}
+    # ⚡ Bolt: Fetch, Sort, Truncate, THEN Enrich
+    # メモリ上でソートし、要求されたlimitまで先に切り詰めることで、以降のコメントカウント取得やUser取得のクエリ発行対象を数千件から数十件（limit数）に削減する
+
+    # 全ての記録のタイムゾーンを比較可能なように統一（JSTとして明示）
+    processed_raw_records = []
+    for r in raw_records:
+        ts = r[3]
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=JST)
+        processed_raw_records.append((r[0], r[1], r[2], ts, r[4], r[5]))
+
+    # タイムスタンプ降順でソートし、limitで切り詰める
+    processed_raw_records.sort(key=lambda r: r[3], reverse=True)
+    truncated_records = processed_raw_records[:limit]
+
+    # Fetch comment counts ONLY for the truncated records
+    comment_counts = {}
+    record_ids_by_type = defaultdict(list)
+    for r in truncated_records:
+        rec_id, rec_type = r[0], r[1]
+        record_ids_by_type[rec_type].append(rec_id)
+
+    if record_ids_by_type:
+        conditions = []
+        for r_type, r_ids in record_ids_by_type.items():
+            conditions.append(
+                and_(RecordComment.record_type == r_type, RecordComment.record_id.in_(r_ids))
+            )
+
+        if conditions:
+            try:
+                counts = db.query(
+                    RecordComment.record_type,
+                    RecordComment.record_id,
+                    func.count(RecordComment.id)
+                ).filter(
+                    RecordComment.baby_id == baby_id,
+                    or_(*conditions)
+                ).group_by(
+                    RecordComment.record_type,
+                    RecordComment.record_id
+                ).all()
+
+                for rt, rid, count in counts:
+                    comment_counts[(rt, rid)] = count
+            except Exception as e:
+                # In case table doesn't exist or query fails
+                pass
+
+    # User を一括取得してマップを作成（truncatedされたレコード群のみ）
+    user_ids = {r[2] for r in truncated_records if r[2] is not None}
     users = db.query(User).filter(User.id.in_(user_ids)).all() if user_ids else []
     user_map = {u.id: u.display_name or u.username for u in users}
 
@@ -261,19 +372,13 @@ def get_records(
             type=rec_type,
             timestamp=ts,
             details=details,
-            comment_count=cc,
+            comment_count=comment_counts.get((rec_type, rec_id), 0),
             recorded_by_display_name=user_map.get(user_id),
         )
-        for rec_id, rec_type, user_id, ts, details, cc in raw_records
+        for rec_id, rec_type, user_id, ts, details, _ in truncated_records
     ]
 
-    # 全ての記録のタイムゾーンをJSTとして明示する
-    for r in records:
-        if r.timestamp.tzinfo is None:
-            r.timestamp = r.timestamp.replace(tzinfo=JST)
-
-    records.sort(key=lambda r: r.timestamp, reverse=True)
-    return records[:limit]
+    return records
 
 
 @router.post("/{baby_id}/records", response_model=UnifiedRecord)
@@ -284,7 +389,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
     timestamp = record_in.timestamp
 
     if record_type == "feeding":
-        from app.models.feeding import FeedingType
+        from app.models.enums import FeedingType
         new_record = Feeding(
             user_id=current_user.id,
             baby_id=baby_id,
@@ -318,7 +423,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
         )
 
     elif record_type == "diaper":
-        from app.models.diaper import DiaperType
+        from app.models.enums import DiaperType
         new_record = Diaper(
             user_id=current_user.id,
             baby_id=baby_id,

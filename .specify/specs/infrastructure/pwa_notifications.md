@@ -1,8 +1,8 @@
-# PWA プッシュ通知機能 仕様書 (PWA Push Notifications Specification)
+# PWA プッシュ通知機能仕様書 (PWA Push Notifications Specification)
 
 ## 1. 概要
 
-本ドキュメントは、Baby App における PWA プッシュ通知機能の仕様を定義します。
+本ドキュメントは、Botoro における PWA プッシュ通知機能の仕様を定義します。
 Web Push API を使用して、ユーザーのデバイス（スマートフォン、PC）にタイムリーな通知を届けます。
 また、ユーザーが通知の種類ごとに受信設定を行えるようにします。
 

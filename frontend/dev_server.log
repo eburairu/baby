@@ -1,0 +1,59 @@
+
+> frontend@0.1.0 dev /app/frontend
+> next dev
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /app/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles:
+   * /app/frontend/pnpm-lock.yaml
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+✓ Ready in 5.9s
+○ Compiling /test-tips ...
+⨯ ./frontend/app/test-tips/page.tsx:2:1
+Export TIPS_DATA doesn't exist in target module
+[0m [90m 1 |[39m [36mimport[39m { [33mTipsCard[39m } [36mfrom[39m [32m"@/components/ui/tips-card"[39m
+[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { [33mTIPS_DATA[39m } [36mfrom[39m [32m"@/lib/tips-data"[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 3 |[39m
+ [90m 4 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mTestPage[39m() {
+ [90m 5 |[39m   [36mreturn[39m ([0m
+
+The export TIPS_DATA was not found in module [project]/frontend/lib/tips-data.ts [app-rsc] (ecmascript).
+Did you mean to import noteTips?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET /test-tips 500 in 11.8s (compile: 11.5s, render: 309ms)
+⨯ ./frontend/app/test-tips/page.tsx:2:1
+Export TIPS_DATA doesn't exist in target module
+[0m [90m 1 |[39m [36mimport[39m { [33mTipsCard[39m } [36mfrom[39m [32m"@/components/ui/tips-card"[39m
+[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { [33mTIPS_DATA[39m } [36mfrom[39m [32m"@/lib/tips-data"[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 3 |[39m
+ [90m 4 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mTestPage[39m() {
+ [90m 5 |[39m   [36mreturn[39m ([0m
+
+The export TIPS_DATA was not found in module [project]/frontend/lib/tips-data.ts [app-rsc] (ecmascript).
+Did you mean to import noteTips?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+ GET /test-tips 500 in 43ms (compile: 13ms, render: 30ms)
+✓ Compiled in 118ms
+ GET /test-tips 200 in 1125ms (compile: 273ms, render: 852ms)
+ GET /api/auth/me 404 in 1842ms (compile: 1757ms, render: 84ms)

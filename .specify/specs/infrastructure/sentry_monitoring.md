@@ -1,8 +1,8 @@
-# Sentry エラー監視 仕様書 (Sentry Error Monitoring Specification)
+# Sentry エラー監視仕様書 (Sentry Error Monitoring Specification)
 
 ## 1. 概要
 
-本ドキュメントは、Baby App フロントエンド（Next.js）における Sentry によるエラー監視機能の仕様を定義します。
+本ドキュメントは、Botoro フロントエンド（Next.js）における Sentry によるエラー監視機能の仕様を定義します。
 クライアントサイドの JavaScript エラー・未処理例外・パフォーマンス情報を自動収集し、
 問題の早期発見・迅速な修正を支援します。
 
@@ -156,7 +156,7 @@ export default withSentryConfig(withPWA(nextConfig), {
 | :--- | :--- | :--- |
 | ナビゲーションラベル | ホーム、授乳、おむつ、睡眠、成長、陣痛、日記、設定 | **アンマスク** |
 | ボタン・アクションラベル | 保存、キャンセル、削除、編集、記録する、メモを追加する | **アンマスク** |
-| 静的ページ見出し | "Baby App"、"授乳記録"、"おむつ記録"、"メモの編集" など | **アンマスク** |
+| 静的ページ見出し | "Botoro"、"授乳記録"、"おむつ記録"、"メモの編集" など | **アンマスク** |
 | 記録タイプラベル | 授乳、睡眠、おむつ、成長、メモ | **アンマスク** |
 | フォームラベル | 日時、内容、開始日時、終了日時、メモ | **アンマスク** |
 | ユーザー入力フィールド | ユーザー名、パスワード、表示名、家族名 | **マスク（デフォルト）** |
@@ -220,7 +220,7 @@ Sentry.init({
 | `frontend/app/(dashboard)/layout.tsx` | ナビゲーションラベル（ホーム、授乳、おむつ…） |
 | `frontend/components/dashboard/*Widget.tsx` | ウィジェットのタイトル（🍼 授乳、💤 睡眠…） |
 | `frontend/components/*/RecordForm.tsx` | ボタン（保存、キャンセル、記録する） |
-| `frontend/app/(auth)/login/page.tsx` | ページ見出し（"Baby App にログイン"） |
+| `frontend/app/(auth)/login/page.tsx` | ページ見出し（"Botoro にログイン"） |
 | `frontend/app/(auth)/register/page.tsx` | ページ見出し（"家族を新規作成"、"家族に参加"） |
 | `frontend/components/note/NoteForm.tsx` | ボタン（追加、キャンセル、保存）、ラベル（日時、内容） |
 | `frontend/components/settings/SettingsHeader.tsx` | ページタイトル |

@@ -1,10 +1,11 @@
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
+from app.core.constants import USERNAME_MIN_LENGTH
 
 
 class UserCreate(BaseModel):
-    username: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
+    username: str = Field(..., min_length=USERNAME_MIN_LENGTH, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
     password: str = Field(..., min_length=8, max_length=128)
 
     @field_validator('password')
@@ -40,6 +41,11 @@ class UserResponse(BaseModel):
     username: str
     display_name: Optional[str] = None
     role: Optional[str] = None
+    is_superadmin: bool = False
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class SuperAdminToggleRequest(BaseModel):
+    is_superadmin: bool

@@ -1,70 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { useSleeps } from "@/hooks/useData"
-import { api } from "@/lib/api"
-import { formatElapsed } from "@/lib/ageUtils"
 import { Moon, Sun } from "lucide-react"
+import { useSleepTimer } from "@/hooks/useSleepTimer"
 
 interface Props {
     babyId: string
 }
 
 export function SleepTimer({ babyId }: Props) {
-    const { sleeps, mutate } = useSleeps(babyId)
-    const [loading, setLoading] = useState(false)
-    const [elapsed, setElapsed] = useState<string | null>(null)
-
-    const activeSleep = sleeps?.find((s) => !s.end_time) ?? null
-    const isSleeping = !!activeSleep
-
-    useEffect(() => {
-        if (!activeSleep) {
-            setElapsed(null)
-            return
-        }
-
-        const updateElapsed = () => {
-            setElapsed(formatElapsed(activeSleep.start_time))
-        }
-
-        updateElapsed()
-        const interval = setInterval(updateElapsed, 1000 * 60) // Update every minute
-
-        return () => clearInterval(interval)
-    }, [activeSleep])
-
-    const handleStart = async () => {
-        setLoading(true)
-        try {
-            await api.post("/sleeps/", {
-                baby_id: Number(babyId),
-                start_time: new Date().toISOString(),
-            })
-            mutate()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handleEnd = async () => {
-        if (!activeSleep) return
-        setLoading(true)
-        try {
-            await api.patch(`/sleeps/${activeSleep.id}`, {
-                end_time: new Date().toISOString(),
-            })
-            mutate()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
+    const { isSleeping, elapsed, loading, startSleep, endSleep } = useSleepTimer(babyId)
 
     return (
         <Card className="rounded-2xl shadow-sm border-0 overflow-hidden transition-colors">
@@ -90,8 +36,8 @@ export function SleepTimer({ babyId }: Props) {
 
                 <Button
                     size="lg"
-                    disabled={loading}
-                    onClick={isSleeping ? handleEnd : handleStart}
+                    loading={loading}
+                    onClick={isSleeping ? endSleep : startSleep}
                     className={`w-full max-w-xs h-12 rounded-xl text-base font-semibold transition-all duration-300 shadow-md ${isSleeping
                             ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 dark:shadow-none"
                             : "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-200 dark:shadow-none"

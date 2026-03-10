@@ -4,6 +4,190 @@
  */
 
 export interface paths {
+    "/api/achievements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Achievements */
+        get: operations["get_achievements_api_achievements__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Audit Logs */
+        get: operations["get_audit_logs_api_admin_audit_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/audit-logs/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Audit Log Cleanup
+         * @description Manually trigger deletion of old audit logs.
+         */
+        post: operations["trigger_audit_log_cleanup_api_admin_audit_logs_cleanup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/families": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Families */
+        get: operations["get_admin_families_api_admin_families_get"];
+        put?: never;
+        /** Create Admin Family */
+        post: operations["create_admin_family_api_admin_families_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/families/{family_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Family Detail */
+        get: operations["get_admin_family_detail_api_admin_families__family_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Stats */
+        get: operations["get_admin_stats_api_admin_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Users */
+        get: operations["get_admin_users_api_admin_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{user_id}/superadmin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggle Superadmin */
+        patch: operations["toggle_superadmin_api_admin_users__user_id__superadmin_patch"];
+        trace?: never;
+    };
+    "/api/ai/available-models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Available Models
+         * @description 利用可能な LLM モデルを外部 API から取得する。
+         */
+        get: operations["list_available_models_api_ai_available_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ai Settings
+         * @description 現在の AI 設定と利用可能なモデルリストを取得する。
+         */
+        get: operations["get_ai_settings_api_ai_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Ai Settings
+         * @description AI 設定を更新する。
+         */
+        patch: operations["update_ai_settings_api_ai_settings_patch"];
+        trace?: never;
+    };
     "/api/auth/change-password": {
         parameters: {
             query?: never;
@@ -237,6 +421,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/babies/{baby_id}/record-feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Record Feedback
+         * @description 直近24時間の記録をAIが分析し、コメントとして保存する
+         */
+        post: operations["create_record_feedback_api_babies__baby_id__record_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/babies/{baby_id}/records": {
         parameters: {
             query?: never;
@@ -249,6 +453,42 @@ export interface paths {
         put?: never;
         /** Create Record */
         post: operations["create_record_api_babies__baby_id__records_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/timer/contraction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Contraction Timer */
+        get: operations["get_contraction_timer_api_babies__baby_id__timer_contraction_get"];
+        /** Put Contraction Timer */
+        put: operations["put_contraction_timer_api_babies__baby_id__timer_contraction_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/timer/feeding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Feeding Timer */
+        get: operations["get_feeding_timer_api_babies__baby_id__timer_feeding_get"];
+        /** Put Feeding Timer */
+        put: operations["put_feeding_timer_api_babies__baby_id__timer_feeding_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -536,6 +776,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/milestones/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Milestones */
+        get: operations["get_milestones_api_milestones__get"];
+        put?: never;
+        /** Create Milestone */
+        post: operations["create_milestone_api_milestones__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/milestones/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Milestone Timeline */
+        get: operations["get_milestone_timeline_api_milestones_timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/milestones/{milestone_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Milestone */
+        delete: operations["delete_milestone_api_milestones__milestone_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Milestone */
+        patch: operations["update_milestone_api_milestones__milestone_id__patch"];
+        trace?: never;
+    };
     "/api/notes/{note_id}": {
         parameters: {
             query?: never;
@@ -801,6 +1094,42 @@ export interface paths {
         patch: operations["update_sleep_api_sleeps__sleep_id__patch"];
         trace?: never;
     };
+    "/api/temperatures/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Temperatures */
+        get: operations["get_temperatures_api_temperatures__get"];
+        put?: never;
+        /** Create Temperature */
+        post: operations["create_temperature_api_temperatures__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/temperatures/{record_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update Temperature */
+        put: operations["update_temperature_api_temperatures__record_id__put"];
+        post?: never;
+        /** Delete Temperature */
+        delete: operations["delete_temperature_api_temperatures__record_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/upload/image": {
         parameters: {
             query?: never;
@@ -819,6 +1148,59 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/vaccinations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Vaccinations */
+        get: operations["get_vaccinations_api_vaccinations__get"];
+        put?: never;
+        /** Create Vaccination */
+        post: operations["create_vaccination_api_vaccinations__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/vaccinations/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Vaccinations */
+        post: operations["generate_vaccinations_api_vaccinations_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/vaccinations/{vaccination_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Vaccination */
+        delete: operations["delete_vaccination_api_vaccinations__vaccination_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Vaccination */
+        patch: operations["update_vaccination_api_vaccinations__vaccination_id__patch"];
         trace?: never;
     };
     "/api/version": {
@@ -842,6 +1224,64 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AIModel */
+        AIModel: {
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * AISettingsPatch
+         * @description PATCH /api/ai/settings リクエストボディ
+         */
+        AISettingsPatch: {
+            /** Settings */
+            settings: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * AISettingsSummary
+         * @description GET /api/ai/settings レスポンス
+         */
+        AISettingsSummary: {
+            /** Available Models */
+            available_models: components["schemas"]["AIModel"][];
+            /** Settings */
+            settings: {
+                [key: string]: unknown;
+            };
+        };
+        /** AdminFamilyMemberResponse */
+        AdminFamilyMemberResponse: {
+            /** Display Name */
+            display_name?: string | null;
+            /**
+             * Joined At
+             * Format: date-time
+             */
+            joined_at: string;
+            /** Role */
+            role: string;
+            /** User Id */
+            user_id: number;
+            /** Username */
+            username: string;
+        };
+        /** AdminStats */
+        AdminStats: {
+            /** Active Users Last 24H */
+            active_users_last_24h: number;
+            /** Total Families */
+            total_families: number;
+            /** Total Records */
+            total_records: number;
+            /** Total Users */
+            total_users: number;
+        };
         /** AppNotificationResponse */
         AppNotificationResponse: {
             /** Body */
@@ -861,16 +1301,84 @@ export interface components {
             /** Url */
             url?: string | null;
         };
+        /** AuditLogResponse */
+        AuditLogResponse: {
+            /** Action */
+            action: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Details */
+            details: string | null;
+            /** Id */
+            id: number;
+            /** Ip Address */
+            ip_address: string | null;
+            /** User Id */
+            user_id: number | null;
+            /** Username */
+            username: string | null;
+        };
+        /**
+         * BabyAchievementResponse
+         * @description 実績一覧APIのレスポンス
+         */
+        BabyAchievementResponse: {
+            /**
+             * Achieved At
+             * Format: date-time
+             */
+            achieved_at: string;
+            /** Achievement Id */
+            achievement_id: string;
+            /** Baby Id */
+            baby_id: number;
+            /** Category */
+            category: string;
+            /** Description */
+            description: string;
+            /** Icon */
+            icon: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Rarity */
+            rarity: string;
+            /** Triggered By Display Name */
+            triggered_by_display_name?: string | null;
+        };
+        /** BabyAdminResponse */
+        BabyAdminResponse: {
+            /** Birthday */
+            birthday?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Gender */
+            gender?: string | null;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+        };
         /** BabyCreate */
         BabyCreate: {
             /** Birthday */
             birthday?: string | null;
             /** Characteristics */
             characteristics?: string | null;
+            /** Diaper Threshold Minutes */
+            diaper_threshold_minutes?: number | null;
             /** Due Date */
             due_date?: string | null;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
+            /** Feeding Threshold Minutes */
+            feeding_threshold_minutes?: number | null;
+            gender?: components["schemas"]["Gender"] | null;
             /** Name */
             name: string;
         };
@@ -915,12 +1423,15 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Diaper Threshold Minutes */
+            diaper_threshold_minutes?: number | null;
             /** Due Date */
             due_date?: string | null;
             /** Family Id */
             family_id: number;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
+            /** Feeding Threshold Minutes */
+            feeding_threshold_minutes?: number | null;
+            gender?: components["schemas"]["Gender"] | null;
             /** Id */
             id: number;
             /** Name */
@@ -932,19 +1443,19 @@ export interface components {
             birthday?: string | null;
             /** Characteristics */
             characteristics?: string | null;
+            /** Diaper Threshold Minutes */
+            diaper_threshold_minutes?: number | null;
             /** Due Date */
             due_date?: string | null;
-            /** Gender */
-            gender?: ("boy" | "girl" | "unknown") | null;
+            /** Feeding Threshold Minutes */
+            feeding_threshold_minutes?: number | null;
+            gender?: components["schemas"]["Gender"] | null;
             /** Name */
             name?: string | null;
         };
         /** Body_upload_image_api_upload_image_post */
         Body_upload_image_api_upload_image_post: {
-            /**
-             * File
-             * Format: binary
-             */
+            /** File */
             file: string;
         };
         /**
@@ -964,6 +1475,8 @@ export interface components {
         };
         /** CommentResponse */
         CommentResponse: {
+            /** Ai Has Concern */
+            ai_has_concern?: boolean | null;
             /** Content */
             content: string;
             /**
@@ -973,10 +1486,15 @@ export interface components {
             created_at: string;
             /** Id */
             id: number;
+            /**
+             * Is Ai Generated
+             * @default false
+             */
+            is_ai_generated: boolean;
             /** User Display Name */
             user_display_name: string | null;
             /** User Id */
-            user_id: number;
+            user_id: number | null;
             /** User Role */
             user_role: string;
         };
@@ -1026,6 +1544,26 @@ export interface components {
             start_time: string;
             /** User Id */
             user_id: number;
+        };
+        /** ContractionTimerResponse */
+        ContractionTimerResponse: {
+            /** Start Time */
+            start_time: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "idle" | "timing";
+        };
+        /** ContractionTimerUpdate */
+        ContractionTimerUpdate: {
+            /** Start Time */
+            start_time?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "idle" | "timing";
         };
         /** ContractionUpdate */
         ContractionUpdate: {
@@ -1126,6 +1664,11 @@ export interface components {
             notes?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
         };
@@ -1142,6 +1685,20 @@ export interface components {
             /** Notes */
             notes?: string | null;
         };
+        /** FamilyAdminResponse */
+        FamilyAdminResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Member Count */
+            member_count: number;
+            /** Name */
+            name: string;
+        };
         /** FamilyCreate */
         FamilyCreate: {
             /** Name */
@@ -1150,6 +1707,43 @@ export interface components {
             password: string;
             /** Username */
             username: string;
+        };
+        /** FamilyCreateAdmin */
+        FamilyCreateAdmin: {
+            /** Name */
+            name: string;
+        };
+        /** FamilyCreateResponseAdmin */
+        FamilyCreateResponseAdmin: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Invite Code */
+            invite_code: string;
+            /** Name */
+            name: string;
+        };
+        /** FamilyDetailResponse */
+        FamilyDetailResponse: {
+            /** Babies */
+            babies: components["schemas"]["BabyAdminResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Member Count */
+            member_count: number;
+            /** Members */
+            members: components["schemas"]["AdminFamilyMemberResponse"][];
+            /** Name */
+            name: string;
         };
         /** FamilyMemberResponse */
         FamilyMemberResponse: {
@@ -1197,6 +1791,8 @@ export interface components {
             /** Baby Id */
             baby_id: number;
             bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /** Burped */
+            burped?: boolean | null;
             /** Duration Minutes */
             duration_minutes?: number | null;
             feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
@@ -1221,6 +1817,8 @@ export interface components {
             /** Baby Id */
             baby_id: number;
             bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /** Burped */
+            burped?: boolean | null;
             /**
              * Comment Count
              * @default 0
@@ -1246,8 +1844,35 @@ export interface components {
             recorded_by_display_name?: string | null;
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
+        };
+        /** FeedingTimerResponse */
+        FeedingTimerResponse: {
+            /** Active Side */
+            active_side: ("LEFT" | "RIGHT") | null;
+            /** Left Elapsed Seconds */
+            left_elapsed_seconds: number;
+            /** Right Elapsed Seconds */
+            right_elapsed_seconds: number;
+            /** Segment Start Time */
+            segment_start_time: string | null;
+        };
+        /** FeedingTimerUpdate */
+        FeedingTimerUpdate: {
+            /** Active Side */
+            active_side?: ("LEFT" | "RIGHT") | null;
+            /** Left Elapsed Seconds */
+            left_elapsed_seconds?: number | null;
+            /** Right Elapsed Seconds */
+            right_elapsed_seconds?: number | null;
+            /** Segment Start Time */
+            segment_start_time?: string | null;
         };
         /**
          * FeedingType
@@ -1259,6 +1884,8 @@ export interface components {
             /** Amount Ml */
             amount_ml?: number | null;
             bottle_content_type?: components["schemas"]["BottleContentType"] | null;
+            /** Burped */
+            burped?: boolean | null;
             /** Duration Minutes */
             duration_minutes?: number | null;
             feeding_completion?: components["schemas"]["FeedingCompletion"] | null;
@@ -1273,6 +1900,11 @@ export interface components {
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
         };
+        /**
+         * Gender
+         * @enum {string}
+         */
+        Gender: "boy" | "girl" | "unknown";
         /** GrowthCreate */
         GrowthCreate: {
             /** Baby Id */
@@ -1315,6 +1947,11 @@ export interface components {
             notes?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
             /** Weight */
@@ -1348,6 +1985,75 @@ export interface components {
         /** MemberRoleUpdate */
         MemberRoleUpdate: {
             role: components["schemas"]["UserRole"];
+        };
+        /** MilestoneCreate */
+        MilestoneCreate: {
+            /**
+             * Achieved Date
+             * Format: date
+             */
+            achieved_date: string;
+            /**
+             * Image Urls
+             * @default []
+             */
+            image_urls: string[];
+            /** Milestone Type */
+            milestone_type: string;
+            /** Notes */
+            notes?: string | null;
+            /** Title */
+            title: string;
+        };
+        /** MilestoneResponse */
+        MilestoneResponse: {
+            /**
+             * Achieved Date
+             * Format: date
+             */
+            achieved_date: string;
+            /** Baby Id */
+            baby_id: number;
+            /** Id */
+            id: number;
+            /**
+             * Image Urls
+             * @default []
+             */
+            image_urls: string[];
+            /** Milestone Type */
+            milestone_type: string;
+            /** Notes */
+            notes?: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
+            /** User Id */
+            user_id: number | null;
+        };
+        /** MilestoneTimelineGroup */
+        MilestoneTimelineGroup: {
+            /** Milestones */
+            milestones: components["schemas"]["MilestoneResponse"][];
+            /** Month Age */
+            month_age: number;
+        };
+        /** MilestoneUpdate */
+        MilestoneUpdate: {
+            /** Achieved Date */
+            achieved_date?: string | null;
+            /** Image Urls */
+            image_urls?: string[] | null;
+            /** Milestone Type */
+            milestone_type?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Title */
+            title?: string | null;
         };
         /** NoteCreate */
         NoteCreate: {
@@ -1437,7 +2143,7 @@ export interface components {
          * NotificationType
          * @enum {string}
          */
-        NotificationType: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system";
+        NotificationType: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system" | "achievement";
         /** PasswordChangeRequest */
         PasswordChangeRequest: {
             /** Current Password */
@@ -1482,6 +2188,34 @@ export interface components {
             timestamp: string;
             /** Type */
             type: string;
+        };
+        /** RecordFeedbackRequest */
+        RecordFeedbackRequest: {
+            /** Record Id */
+            record_id: number;
+            /**
+             * Record Type
+             * @enum {string}
+             */
+            record_type: "feeding" | "diaper" | "growth" | "note";
+        };
+        /** RecordFeedbackResponse */
+        RecordFeedbackResponse: {
+            /**
+             * Analyzed At
+             * Format: date-time
+             */
+            analyzed_at: string;
+            /** Comment Id */
+            comment_id: number;
+            /** Feedback */
+            feedback: string;
+            /** Has Concern */
+            has_concern: boolean;
+            /** Model Name */
+            model_name: string;
+            /** Record Type */
+            record_type: string;
         };
         /** ScheduleCreate */
         ScheduleCreate: {
@@ -1566,6 +2300,11 @@ export interface components {
              * Format: date-time
              */
             start_time: string;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
         };
@@ -1577,6 +2316,74 @@ export interface components {
             notes?: string | null;
             /** Start Time */
             start_time?: string | null;
+        };
+        /** SuperAdminToggleRequest */
+        SuperAdminToggleRequest: {
+            /** Is Superadmin */
+            is_superadmin: boolean;
+        };
+        /** TemperatureCreate */
+        TemperatureCreate: {
+            /** Baby Id */
+            baby_id: number;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** @default AXILLARY */
+            method: components["schemas"]["TemperatureMethod"];
+            /** Notes */
+            notes?: string | null;
+            /** Temperature */
+            temperature: number;
+        };
+        /**
+         * TemperatureMethod
+         * @enum {string}
+         */
+        TemperatureMethod: "AXILLARY" | "EAR" | "FOREHEAD" | "RECTAL";
+        /** TemperatureResponse */
+        TemperatureResponse: {
+            /** Baby Id */
+            baby_id: number;
+            /**
+             * Comment Count
+             * @default 0
+             */
+            comment_count: number;
+            /** Id */
+            id: number;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** @default AXILLARY */
+            method: components["schemas"]["TemperatureMethod"];
+            /** Notes */
+            notes?: string | null;
+            /** Recorded By Display Name */
+            recorded_by_display_name?: string | null;
+            /** Temperature */
+            temperature: number;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
+            /** User Id */
+            user_id: number;
+        };
+        /** TemperatureUpdate */
+        TemperatureUpdate: {
+            /** Measured At */
+            measured_at?: string | null;
+            method?: components["schemas"]["TemperatureMethod"] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Temperature */
+            temperature?: number | null;
         };
         /** UnifiedRecord */
         UnifiedRecord: {
@@ -1600,6 +2407,24 @@ export interface components {
             timestamp: string;
             /** Type */
             type: string;
+        };
+        /**
+         * UnlockedAchievementInfo
+         * @description 記録APIレスポンスに含める実績解除情報
+         */
+        UnlockedAchievementInfo: {
+            /** Achievement Id */
+            achievement_id: string;
+            /** Category */
+            category: string;
+            /** Description */
+            description: string;
+            /** Icon */
+            icon: string;
+            /** Name */
+            name: string;
+            /** Rarity */
+            rarity: string;
         };
         /** UnreadCountResponse */
         UnreadCountResponse: {
@@ -1660,6 +2485,11 @@ export interface components {
             display_name?: string | null;
             /** Id */
             id: number;
+            /**
+             * Is Superadmin
+             * @default false
+             */
+            is_superadmin: boolean;
             /** Role */
             role?: string | null;
             /** Username */
@@ -1670,6 +2500,87 @@ export interface components {
          * @enum {string}
          */
         UserRole: "admin" | "member" | "viewer";
+        /** VaccinationCreate */
+        VaccinationCreate: {
+            /** Completed Date */
+            completed_date?: string | null;
+            /** Dose Number */
+            dose_number: number;
+            /**
+             * Has Side Effect
+             * @default false
+             */
+            has_side_effect: boolean;
+            /** Hospital Name */
+            hospital_name?: string | null;
+            /** Lot Number */
+            lot_number?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Scheduled Date
+             * Format: date
+             */
+            scheduled_date: string;
+            /** @default scheduled */
+            status: components["schemas"]["VaccinationStatus"];
+            /** Vaccine Name */
+            vaccine_name: string;
+        };
+        /** VaccinationResponse */
+        VaccinationResponse: {
+            /** Baby Id */
+            baby_id: number;
+            /** Completed Date */
+            completed_date?: string | null;
+            /** Dose Number */
+            dose_number: number;
+            /**
+             * Has Side Effect
+             * @default false
+             */
+            has_side_effect: boolean;
+            /** Hospital Name */
+            hospital_name?: string | null;
+            /** Id */
+            id: number;
+            /** Lot Number */
+            lot_number?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Scheduled Date
+             * Format: date
+             */
+            scheduled_date: string;
+            /** @default scheduled */
+            status: components["schemas"]["VaccinationStatus"];
+            /** User Id */
+            user_id: number | null;
+            /** Vaccine Name */
+            vaccine_name: string;
+        };
+        /**
+         * VaccinationStatus
+         * @enum {string}
+         */
+        VaccinationStatus: "scheduled" | "completed" | "postponed";
+        /** VaccinationUpdate */
+        VaccinationUpdate: {
+            /** Completed Date */
+            completed_date?: string | null;
+            /** Has Side Effect */
+            has_side_effect?: boolean | null;
+            /** Hospital Name */
+            hospital_name?: string | null;
+            /** Lot Number */
+            lot_number?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Scheduled Date */
+            scheduled_date?: string | null;
+            status?: components["schemas"]["VaccinationStatus"] | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1703,6 +2614,359 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_achievements_api_achievements__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BabyAchievementResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_audit_logs_api_admin_audit_logs_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_audit_log_cleanup_api_admin_audit_logs_cleanup_post: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_families_api_admin_families_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyAdminResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_admin_family_api_admin_families_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyCreateAdmin"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyCreateResponseAdmin"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_family_detail_api_admin_families__family_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                family_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_stats_api_admin_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStats"];
+                };
+            };
+        };
+    };
+    get_admin_users_api_admin_users_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    toggle_superadmin_api_admin_users__user_id__superadmin_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuperAdminToggleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_available_models_api_ai_available_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AIModel"][];
+                };
+            };
+        };
+    };
+    get_ai_settings_api_ai_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AISettingsSummary"];
+                };
+            };
+        };
+    };
+    update_ai_settings_api_ai_settings_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AISettingsPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     change_password_api_auth_change_password_post: {
         parameters: {
             query?: never;
@@ -1910,7 +3174,12 @@ export interface operations {
     };
     get_babies_api_babies__get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Maximum number of items to return (SuperAdmin only) */
+                limit?: number | null;
+                /** @description Number of items to skip (SuperAdmin only) */
+                offset?: number | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1924,6 +3193,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BabyResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2321,6 +3599,41 @@ export interface operations {
             };
         };
     };
+    create_record_feedback_api_babies__baby_id__record_feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecordFeedbackResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_records_api_babies__baby_id__records_get: {
         parameters: {
             query?: {
@@ -2376,6 +3689,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnifiedRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_contraction_timer_api_babies__baby_id__timer_contraction_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionTimerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_contraction_timer_api_babies__baby_id__timer_contraction_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractionTimerUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContractionTimerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_feeding_timer_api_babies__baby_id__timer_feeding_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingTimerResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_feeding_timer_api_babies__baby_id__timer_feeding_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedingTimerUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedingTimerResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3148,6 +4593,167 @@ export interface operations {
             };
         };
     };
+    get_milestones_api_milestones__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_milestone_api_milestones__post: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MilestoneCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_milestone_timeline_api_milestones_timeline_get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneTimelineGroup"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_milestone_api_milestones__milestone_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                milestone_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_milestone_api_milestones__milestone_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                milestone_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MilestoneUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MilestoneResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     delete_note_api_notes__note_id__delete: {
         parameters: {
             query?: never;
@@ -3731,6 +5337,138 @@ export interface operations {
             };
         };
     };
+    get_temperatures_api_temperatures__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemperatureResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_temperature_api_temperatures__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemperatureCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemperatureResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_temperature_api_temperatures__record_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemperatureUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemperatureResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_temperature_api_temperatures__record_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                record_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     upload_image_api_upload_image_post: {
         parameters: {
             query?: never;
@@ -3751,6 +5489,167 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UploadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_vaccinations_api_vaccinations__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VaccinationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_vaccination_api_vaccinations__post: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VaccinationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VaccinationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_vaccinations_api_vaccinations_generate_post: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VaccinationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_vaccination_api_vaccinations__vaccination_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vaccination_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_vaccination_api_vaccinations__vaccination_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vaccination_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VaccinationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VaccinationResponse"];
                 };
             };
             /** @description Validation Error */

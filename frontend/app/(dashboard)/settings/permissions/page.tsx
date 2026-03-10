@@ -1,12 +1,36 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { ShieldCheck, Loader2 } from "lucide-react"
 import { usePermissionsPage } from "@/hooks/usePermissionsPage"
 import { MemberPermissionCard } from "@/components/settings/MemberPermissionCard"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
+import { usePermissions } from "@/hooks/usePermissions"
+import { useUser } from "@/hooks/useAuth"
 
 export default function PermissionsPage() {
+  const { isAdmin } = usePermissions()
+  const { user, isLoading: userLoading } = useUser()
+  const router = useRouter()
   const { memberPermissions, isLoading, mutate } = usePermissionsPage()
+
+  const canManage = isAdmin || user?.is_superadmin
+
+  // 管理者以外はリダイレクト
+  useEffect(() => {
+    if (!userLoading && !canManage) {
+      router.push("/dashboard")
+    }
+  }, [userLoading, canManage, router])
+
+  if (userLoading || isLoading || !canManage) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+      </div>
+    )
+  }
 
   const handleSaved = () => {
     mutate()
@@ -16,7 +40,7 @@ export default function PermissionsPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
       <SettingsHeader title="権限管理" icon={ShieldCheck} />
 
-      <div className="max-w-2xl mx-auto p-4 space-y-4 pb-20">
+      <div className="max-w-5xl mx-auto p-4 space-y-4 pb-20">
         <p className="text-xs text-gray-500 dark:text-zinc-500">
           メンバーがどの赤ちゃんの情報を閲覧できるか管理します。新規参加者はデフォルトでアクセスなしです。
         </p>

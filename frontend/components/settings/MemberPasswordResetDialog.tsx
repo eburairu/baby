@@ -11,25 +11,17 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
+import { DialogFooter } from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
-
-interface Member {
-    user_id: number
-    username: string
-    display_name: string | null
-}
+import { FamilyMember } from "@/types/family"
+import { useClipboard } from "@/hooks/useClipboard"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
-    member: Member | null
+    member: FamilyMember | null
     open: boolean
     onClose: () => void
 }
@@ -37,56 +29,53 @@ interface Props {
 export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
     const [step, setStep] = useState<"confirm" | "result">("confirm")
     const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null)
-    const [resetting, setResetting] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [copied, setCopied] = useState(false)
+    const { copied, copyToClipboard } = useClipboard()
+    const { loading: resetting, execute } = useAsyncAction()
 
     const handleClose = () => {
         setStep("confirm")
         setTemporaryPassword(null)
         setError(null)
-        setCopied(false)
         onClose()
     }
 
     const handleReset = async () => {
         if (!member) return
-        setResetting(true)
         setError(null)
-        try {
-            const res = await api.post<{ temporary_password: string }>(
-                `/family/members/${member.user_id}/reset-password`,
-                {}
-            )
-            setTemporaryPassword(res.temporary_password)
-            setStep("result")
-        } catch (e: unknown) {
-            if (isApiError(e)) {
-                setError((e.info as { detail?: string })?.detail || "パスワード再発行に失敗しました")
-            } else {
-                setError("パスワード再発行に失敗しました")
+
+        await execute(
+            async () => {
+                const res = await api.post<{ temporary_password: string }>(
+                    `/family/members/${member.user_id}/reset-password`,
+                    {}
+                )
+                setTemporaryPassword(res.temporary_password)
+                setStep("result")
+            },
+            {
+                onError: (err) => {
+                    setError(getErrorMessage(err, "パスワード再発行に失敗しました"))
+                }
             }
-        } finally {
-            setResetting(false)
-        }
+        )
     }
 
-    const handleCopy = () => {
+    const handleCopy = async () => {
         if (!temporaryPassword) return
-        navigator.clipboard.writeText(temporaryPassword)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        await copyToClipboard(temporaryPassword)
     }
 
     const displayName = member ? getDisplayName(member) : ""
 
     if (step === "result" && temporaryPassword) {
         return (
-            <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>🔑 仮パスワードが発行されました</DialogTitle>
-                    </DialogHeader>
+            <EditDialogBase
+                open={open}
+                onOpenChange={(v) => { if (!v) handleClose() }}
+                title="🔑 仮パスワードが発行されました"
+            >
+                <div className="flex flex-col gap-4">
                     <div className="space-y-4 py-2">
                         <p className="text-sm text-gray-600 dark:text-zinc-400">
                             <span className="font-medium">{displayName}</span> さんの仮パスワード:
@@ -109,13 +98,13 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                             <p>本人に安全な方法で伝えてください。</p>
                         </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="border-t dark:border-zinc-800 pt-4 mt-2">
                         <Button onClick={handleClose} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                             閉じる
                         </Button>
                     </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                </div>
+            </EditDialogBase>
         )
     }
 

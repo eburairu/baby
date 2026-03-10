@@ -1,10 +1,15 @@
 from typing import Generator, Annotated
 from fastapi import Depends, HTTPException, status, Request, Response
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.database import SessionLocal
 from app.models.baby import Baby, BabyPermission
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
+from app.models.user import User, UserSession
+from app.utils.timezone import ensure_aware
+from app.utils.session import hash_token
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 
@@ -20,33 +25,36 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 def get_current_user(request: Request, response: Response, db: db_dependency):
-    from app.models.user import User, UserSession
-
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
     session = db.query(UserSession).filter(
-        UserSession.token == token,
-        UserSession.expires_at > datetime.now()
+        UserSession.token == hash_token(token),
+        UserSession.expires_at > func.now()
     ).first()
     if not session:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
 
-    # Sliding session: extend expiration
-    session.expires_at = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS)
-    db.commit()
+    # Sliding session: extend expiration if remaining time is less than threshold
+    # (e.g., if SESSION_EXPIRE_DAYS is 7, update only if less than 6 days remaining)
+    expires_at = ensure_aware(session.expires_at)
+    
+    threshold = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS - 1)
+    if expires_at < threshold:
+        session.expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS)
+        db.commit()
 
-    # Extend cookie in browser
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        samesite="lax",
-        secure=COOKIE_SECURE,
-        path="/",
-        max_age=SESSION_EXPIRE_DAYS * 24 * 3600
-    )
+        # Extend cookie in browser
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            secure=COOKIE_SECURE,
+            path="/",
+            max_age=SESSION_EXPIRE_DAYS * 24 * 3600
+        )
 
     user = db.query(User).filter(User.id == session.user_id).first()
     if user is None:
@@ -54,7 +62,17 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
     return user
 
 
+def get_current_superadmin(current_user=Depends(get_current_user)):
+    if not current_user.is_superadmin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="SuperAdmin privileges required"
+        )
+    return current_user
+
+
 user_dependency = Annotated[object, Depends(get_current_user)]
+superadmin_dependency = Annotated[object, Depends(get_current_superadmin)]
 
 
 def verify_baby_access(
@@ -70,26 +88,40 @@ def verify_baby_access(
     require_write=True の場合、viewer ロールを拒否する。
     失敗時 403 を raise。
     """
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
-    if not family_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
+    user = db.query(User).filter(User.id == user_id).first()
+    is_superadmin = user and user.is_superadmin
 
-    # 書き込み制限のチェック
-    if require_write and family_user.role == UserRole.VIEWER:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Read-only users cannot perform this action"
-        )
-
-    baby = db.query(Baby).filter(
-        Baby.id == baby_id,
-        Baby.family_id == family_user.family_id,
-    ).first()
+    # 先に赤ちゃんを取得して family_id を特定する
+    baby = db.query(Baby).filter(Baby.id == baby_id, Baby.is_deleted == False).first()
     if not baby:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied to this baby")
 
-    # admin は常に許可
-    if family_user.role == UserRole.ADMIN:
+    # 赤ちゃんのファミリーに所属しているかを確認
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == user_id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
+    
+    if not family_user and not is_superadmin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in this baby's family")
+
+    # 書き込み制限のチェック
+    if require_write:
+        can_write = (family_user and family_user.role != UserRole.VIEWER) or is_superadmin
+        if not can_write:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Read-only users cannot perform this action"
+            )
+
+    # admin / superadmin は常に許可
+    if is_superadmin or (family_user and family_user.role == UserRole.ADMIN):
+        return baby
+
+    # 書き込み操作の場合、BabyPermission の can_view チェックをスキップ
+    # BabyPermission は閲覧アクセス制御のみ担当（書き込み権限はロールで制御）
+    # MEMBER は BabyPermission 未設定でも記録を作成・編集・削除できる
+    if require_write:
         return baby
 
     # "baby" レベルの可視性チェック（デフォルト拒否）
@@ -122,11 +154,15 @@ def verify_write_access(db: Session, user_id: int) -> FamilyUser:
     ユーザーが書き込み権限（admin または member）を持っているか検証する。
     viewer の場合は 403 を raise。
     """
+    user = db.query(User).filter(User.id == user_id).first()
+    is_superadmin = user and user.is_superadmin
+
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
-    if not family_user:
+    if not family_user and not is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not in a family")
 
-    if family_user.role == UserRole.VIEWER:
+    can_write = (family_user and family_user.role != UserRole.VIEWER) or is_superadmin
+    if not can_write:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Read-only users cannot perform this action"

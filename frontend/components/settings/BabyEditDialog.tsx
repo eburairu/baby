@@ -1,14 +1,10 @@
 "use client"
 import { useState } from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import { api } from "@/lib/api"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
+import { api, getErrorMessage } from "@/lib/api"
 import { BabyForm, BabyFormData } from "./BabyForm"
 import { Baby } from "@/types/baby"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     baby: Baby | null
@@ -18,8 +14,8 @@ interface Props {
 }
 
 export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: isSubmitting, execute } = useAsyncAction()
 
     const handleClose = () => {
         setError(null)
@@ -28,23 +24,28 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
 
     const onSubmit = async (data: BabyFormData) => {
         if (!baby) return
-        setIsSubmitting(true)
         setError(null)
-        try {
-            await api.patch(`/babies/${baby.id}`, {
-                name: data.name,
-                birthday: data.birthday || null,
-                due_date: data.due_date || null,
-                gender: data.gender || "unknown",
-                characteristics: data.characteristics || null,
-            })
-            onUpdated()
-            handleClose()
-        } catch {
-            setError("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
-        }
+
+        await execute(
+            async () => {
+                await api.patch(`/babies/${baby.id}`, {
+                    name: data.name,
+                    birthday: data.birthday || null,
+                    due_date: data.due_date || null,
+                    gender: data.gender || "unknown",
+                    characteristics: data.characteristics || null,
+                    feeding_threshold_minutes: data.feeding_threshold_minutes,
+                    diaper_threshold_minutes: data.diaper_threshold_minutes,
+                })
+                onUpdated()
+                handleClose()
+            },
+            {
+                onError: (err) => {
+                    setError(getErrorMessage(err, "保存に失敗しました"))
+                }
+            }
+        )
     }
 
     const defaultValues: Partial<BabyFormData> | undefined = baby ? {
@@ -53,14 +54,19 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
         birthday: baby.birthday ?? "",
         due_date: baby.due_date ?? "",
         characteristics: baby.characteristics ?? "",
+        feeding_threshold_minutes: baby.feeding_threshold_minutes ?? null,
+        diaper_threshold_minutes: baby.diaper_threshold_minutes ?? null,
     } : undefined
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>赤ちゃんの情報を編集</DialogTitle>
-                </DialogHeader>
+        <EditDialogBase
+            open={open}
+            onOpenChange={(v) => { if (!v) handleClose() }}
+            title="赤ちゃんの情報を編集"
+            dialogClassName="max-h-[90vh] flex flex-col"
+            contentClassName="flex-1 overflow-y-auto"
+        >
+            <div className="pt-2">
                 <BabyForm
                     defaultValues={defaultValues}
                     onSubmit={onSubmit}
@@ -69,7 +75,7 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
                     isSubmitting={isSubmitting}
                     error={error}
                 />
-            </DialogContent>
-        </Dialog>
+            </div>
+        </EditDialogBase>
     )
 }

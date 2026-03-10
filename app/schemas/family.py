@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
-from app.models.family import UserRole
+from app.models.enums import UserRole
+from app.core.constants import USERNAME_MIN_LENGTH
 
 
 class FamilyCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    username: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
+    username: str = Field(..., min_length=USERNAME_MIN_LENGTH, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
     password: str = Field(..., min_length=8, max_length=128)
 
     @field_validator('password')

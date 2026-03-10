@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
-import { Bell } from "lucide-react"
+import { Bell, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useUnreadCount, useNotifications, markAllAsRead } from "@/hooks/useNotifications"
@@ -8,20 +8,34 @@ import { NotificationItem } from "./NotificationItem"
 
 export function NotificationBell() {
     const [open, setOpen] = useState(false)
+    const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false)
     const { count, mutate: mutateCount } = useUnreadCount()
     const { notifications, mutate: mutateList, isLoading } = useNotifications()
     const panelRef = useRef<HTMLDivElement>(null)
 
-    // パネル外クリックで閉じる
+    // パネル外クリックまたはEscapeキーで閉じる
     useEffect(() => {
         if (!open) return
-        const handler = (e: MouseEvent) => {
+
+        const clickHandler = (e: MouseEvent) => {
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
                 setOpen(false)
             }
         }
-        document.addEventListener("mousedown", handler)
-        return () => document.removeEventListener("mousedown", handler)
+
+        const keyHandler = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                setOpen(false)
+            }
+        }
+
+        document.addEventListener("mousedown", clickHandler)
+        document.addEventListener("keydown", keyHandler)
+
+        return () => {
+            document.removeEventListener("mousedown", clickHandler)
+            document.removeEventListener("keydown", keyHandler)
+        }
     }, [open])
 
     const handleOpen = () => {
@@ -37,9 +51,14 @@ export function NotificationBell() {
     }
 
     const handleReadAll = async () => {
-        await markAllAsRead()
-        mutateList()
-        mutateCount()
+        if (isMarkingAllAsRead) return
+        setIsMarkingAllAsRead(true)
+        try {
+            await markAllAsRead()
+            await Promise.all([mutateList(), mutateCount()])
+        } finally {
+            setIsMarkingAllAsRead(false)
+        }
     }
 
     const displayCount = count > 99 ? "99+" : count > 0 ? String(count) : null
@@ -50,7 +69,10 @@ export function NotificationBell() {
                 variant="ghost"
                 size="icon"
                 onClick={handleOpen}
-                aria-label="通知"
+                aria-label={count > 0 ? `通知、${count}件の未読` : "通知"}
+                title={count > 0 ? `通知、${count}件の未読` : "通知"}
+                aria-expanded={open}
+                aria-haspopup="dialog"
                 className="relative text-gray-500 dark:text-zinc-400"
             >
                 <Bell className="h-5 w-5" />
@@ -62,18 +84,28 @@ export function NotificationBell() {
             </Button>
 
             {open && (
-                <div className={cn(
-                    "absolute right-0 top-10 z-[100] w-80 rounded-xl border border-gray-100 dark:border-zinc-800",
-                    "bg-white dark:bg-zinc-900 shadow-lg overflow-hidden"
-                )}>
+                <div
+                    className={cn(
+                        "absolute right-0 top-10 z-[100] w-80 rounded-xl border border-gray-100 dark:border-zinc-800",
+                        "bg-white dark:bg-zinc-900 shadow-lg overflow-hidden"
+                    )}
+                    role="dialog"
+                    aria-label="通知一覧"
+                    aria-modal="false"
+                >
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-zinc-800">
                         <span className="text-sm font-semibold text-gray-800 dark:text-zinc-100">通知</span>
                         {count > 0 && (
                             <button
                                 onClick={handleReadAll}
-                                className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                                disabled={isMarkingAllAsRead}
+                                className={cn(
+                                    "text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1",
+                                    isMarkingAllAsRead && "opacity-70 cursor-wait"
+                                )}
                             >
+                                {isMarkingAllAsRead && <Loader2 className="h-3 w-3 animate-spin" />}
                                 すべて既読にする
                             </button>
                         )}
@@ -86,8 +118,9 @@ export function NotificationBell() {
                                 読み込み中...
                             </div>
                         ) : notifications.length === 0 ? (
-                            <div className="px-4 py-8 text-center text-sm text-gray-400 dark:text-zinc-500">
-                                通知はありません
+                            <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center text-sm text-gray-400 dark:text-zinc-500">
+                                <Bell className="h-8 w-8 opacity-20" aria-hidden="true" />
+                                <p>通知はありません</p>
                             </div>
                         ) : (
                             notifications.map((n) => (
@@ -95,6 +128,7 @@ export function NotificationBell() {
                                     key={n.id}
                                     notification={n}
                                     onRead={handleRead}
+                                    onClick={() => setOpen(false)}
                                 />
                             ))
                         )}

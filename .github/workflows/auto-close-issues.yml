@@ -1,0 +1,74 @@
+name: Auto Close Issues on Release PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+permissions:
+  pull-requests: write
+
+jobs:
+  append-closes:
+    name: Append Closes keywords to PR body
+    runs-on: ubuntu-latest
+    # develop → main の PR のみ対象
+    if: github.head_ref == 'develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect issue references from commits
+        id: collect
+        run: |
+          # develop に含まれて main に含まれないコミットメッセージを取得
+          COMMITS=$(git log origin/main..origin/develop --pretty=format:"%s %b")
+
+          # Closes / Fixes / Resolves + #NNN を抽出して重複排除
+          ISSUES=$(echo "$COMMITS" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | \
+            sed 's/[Ff][Ii][Xx][Ee][Ss]/Closes/g; s/[Rr][Ee][Ss][Oo][Ll][Vv][Ee][Ss]/Closes/g; s/[Cc][Ll][Oo][Ss][Ee][Ss]/Closes/g' | \
+            sort -u)
+
+          if [ -z "$ISSUES" ]; then
+            echo "No issue references found."
+            echo "has_issues=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found: $ISSUES"
+            echo "has_issues=true" >> $GITHUB_OUTPUT
+            # 改行区切りで保存
+            {
+              echo "issues<<EOF"
+              echo "$ISSUES"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update PR body
+        if: steps.collect.outputs.has_issues == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NEW_ISSUES: ${{ steps.collect.outputs.issues }}
+        run: |
+          CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body -q '.body')
+
+          # すでに存在するものを除外して追記分を組み立てる
+          APPEND=""
+          while IFS= read -r line; do
+            ISSUE_NUM=$(echo "$line" | grep -oE '#[0-9]+')
+            if ! echo "$CURRENT_BODY" | grep -q "$ISSUE_NUM"; then
+              APPEND="${APPEND}${line}"$'\n'
+            fi
+          done <<< "$NEW_ISSUES"
+
+          if [ -z "$APPEND" ]; then
+            echo "All issue references already present in PR body."
+            exit 0
+          fi
+
+          NEW_BODY="${CURRENT_BODY}"$'\n\n'"${APPEND%$'\n'}"
+          gh pr edit "$PR_NUMBER" --body "$NEW_BODY"
+          echo "PR body updated."

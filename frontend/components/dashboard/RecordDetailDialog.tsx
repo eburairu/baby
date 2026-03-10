@@ -1,33 +1,27 @@
 "use client"
+import { RECORD_TYPES } from '@/types/enums';
+
 
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { BabyRecord } from "@/hooks/useData"
+import { BabyRecord } from "@/types/record"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useUser } from "@/hooks/useAuth"
 import { CommentSection } from "@/components/records/CommentSection"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api } from "@/lib/api"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
+import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Loader2 } from "lucide-react"
+import { RECORD_TYPE_LABELS } from "@/constants/ui"
 
 interface Props {
   record: BabyRecord | null
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
-}
-
-const TYPE_LABELS: Record<string, string> = {
-  feeding: "授乳",
-  sleep: "睡眠",
-  diaper: "おむつ",
-  growth: "成長",
-  note: "メモ",
-  contraction: "陣痛",
 }
 
 export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
@@ -53,7 +47,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
       const body: Record<string, string | null> = { notes }
 
       switch (record.type) {
-        case "feeding":
+        case RECORD_TYPES.FEEDING:
           endpoint = `/feedings/${record.id}`
           body.feeding_time = isoTimestamp
           await api.patch(endpoint, body)
@@ -71,7 +65,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         case "growth":
           endpoint = `/growths/${record.id}`
           // Use format to get YYYY-MM-DD in local time
-          body.date = format(new Date(record.timestamp), "yyyy-MM-dd")
+          body.date = formatDateLocal(new Date(record.timestamp))
           await api.put(endpoint, body)
           break
         case "note":
@@ -95,14 +89,16 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     }
   }
 
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+
   const handleDelete = async () => {
-    if (!record || !confirm("この記録を削除してもよろしいですか？")) return
+    if (!record) return
 
     setLoading(true)
     try {
       let endpoint = ""
       switch (record.type) {
-        case "feeding": endpoint = `/feedings/${record.id}`; break
+        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
         case "sleep": endpoint = `/sleeps/${record.id}`; break
         case "diaper": endpoint = `/diapers/${record.id}`; break
         case "growth": endpoint = `/growths/${record.id}`; break
@@ -110,6 +106,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         case "contraction": endpoint = `/contractions/${record.id}`; break
       }
       await api.delete(endpoint)
+      setDeleteConfirmOpen(false)
       onSuccess()
       onOpenChange(false)
     } catch (error) {
@@ -123,20 +120,18 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
   if (!record) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span>{TYPE_LABELS[record.type] || record.type}の記録</span>
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
+    <>
+      <EditDialogBase
+        open={open}
+        onOpenChange={onOpenChange}
+        title={<span>{RECORD_TYPE_LABELS[record.type as keyof typeof RECORD_TYPE_LABELS] || record.type}の記録</span>}
+      >
+        <div className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-zinc-300">日時</Label>
               <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                {record.timestamp ? format(new Date(record.timestamp), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
+                {record.timestamp ? formatJapaneseDateTime(new Date(record.timestamp)) : "-"}
               </div>
             </div>
 
@@ -162,12 +157,12 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
               />
             </div>
 
-            <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-4 pt-4 border-t dark:border-zinc-800">
               {canWrite && (
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={handleDelete}
+                  onClick={() => setDeleteConfirmOpen(true)}
                   disabled={loading}
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 sm:mr-auto"
                 >
@@ -186,14 +181,14 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 {canWrite && (
                   <Button 
                     type="submit" 
-                    disabled={loading}
+                    loading={loading}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
-                    {loading ? "保存中..." : "保存する"}
+                    保存する
                   </Button>
                 )}
               </div>
-            </DialogFooter>
+            </div>
           </form>
 
           {/* コメントセクションの追加 */}
@@ -204,7 +199,24 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
             onCommentChange={onSuccess}
           />
         </div>
-      </DialogContent>
-    </Dialog>
+      </EditDialogBase>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
+            <AlertDialogDescription data-sentry-unmask>
+              この記録を削除しますか？この操作は取り消せません。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={loading} data-sentry-unmask>キャンセル</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" loading={loading}>
+              削除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }

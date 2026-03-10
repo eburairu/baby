@@ -3,18 +3,12 @@
 import { useState, useEffect, useRef } from "react"
 import { Loader2, ImagePlus, X } from "lucide-react"
 import Image from "next/image"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { DailySummary } from "@/types/dailySummary"
 import { compressImage, ImageTooLargeError } from "@/lib/imageCompression"
 import { uploadImage } from "@/lib/uploadImage"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 
 const MAX_IMAGES = 10
 
@@ -101,20 +95,22 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-lg rounded-2xl">
-                <DialogHeader>
-                    <DialogTitle className="text-base" data-sentry-unmask>育児日誌を編集</DialogTitle>
-                </DialogHeader>
-
-                <Textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={8}
-                    className="resize-none rounded-xl text-sm"
-                    placeholder="育児日誌の内容を入力..."
-                />
-                <p className="text-xs text-gray-400" data-sentry-unmask>空欄で保存すると AI 生成文に戻ります。</p>
+        <EditDialogBase
+            open={open}
+            onOpenChange={onOpenChange}
+            title={<span data-sentry-unmask>育児日誌を編集</span>}
+        >
+            <div className="space-y-4">
+                <div>
+                    <Textarea
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        rows={8}
+                        className="resize-none rounded-xl text-sm"
+                        placeholder="育児日誌の内容を入力..."
+                    />
+                    <p className="text-xs text-gray-400 mt-2" data-sentry-unmask>空欄で保存すると AI 生成文に戻ります。</p>
+                </div>
 
                 {/* 画像セクション */}
                 {canWrite && (
@@ -134,7 +130,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                                 ) : (
                                     <ImagePlus className="h-3.5 w-3.5" />
                                 )}
-                                {isUploading ? "アップロード中..." : "写真を追加"}
+                                写真を追加
                             </Button>
                             <input
                                 ref={fileInputRef}
@@ -164,8 +160,9 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                                         <button
                                             type="button"
                                             onClick={() => handleRemoveImage(url)}
-                                            className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                                            className="absolute -top-1.5 -right-1.5 bg-gray-700 active:bg-gray-600 text-white rounded-full w-5 h-5 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
                                             aria-label="写真を削除"
+                                            title="写真を削除"
                                         >
                                             <X className="h-3 w-3" />
                                         </button>
@@ -176,7 +173,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                     </div>
                 )}
 
-                <DialogFooter className="gap-2">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
                     <Button
                         variant="outline"
                         data-sentry-unmask onClick={() => onOpenChange(false)}
@@ -187,14 +184,14 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
                     </Button>
                     <Button
                         data-sentry-unmask onClick={handleSave}
-                        disabled={saving || isUploading}
+                        disabled={isUploading}
+                        loading={saving}
                         className="rounded-xl"
                     >
-                        {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                         保存
                     </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </div>
+            </div>
+        </EditDialogBase>
     )
 }

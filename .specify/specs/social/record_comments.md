@@ -1,4 +1,4 @@
-# 記録へのコメント機能 仕様書 (Comments on Records Specification)
+# 記録へのコメント機能仕様書 (Comments on Records Specification)
 
 ## 概要
 
@@ -34,11 +34,13 @@
 |---------|---|-----|-----|
 | `id` | Integer | Primary Key, autoincrement | コメント ID |
 | `baby_id` | Integer | ForeignKey("babies.id"), nullable=False | フィルタリング用の赤ちゃん ID |
-| `user_id` | Integer | ForeignKey("users.id"), nullable=False | 投稿者 ID |
+| `user_id` | Integer | ForeignKey("users.id"), nullable=True | 投稿者 ID（AIの場合はNULL） |
 | `record_type` | String | nullable=False | 記録の種類（`feeding` 等） |
 | `record_id` | Integer | nullable=False | 対象記録の ID |
 | `content` | String | nullable=False | コメント内容 |
 | `created_at` | DateTime | nullable=False, default=now() | 投稿日時 |
+| `is_ai_generated` | Boolean | nullable=False, default=False | AIによる生成か |
+| `ai_has_concern` | Boolean | nullable=True | AIが懸念を示しているか（AI生成時のみ） |
 
 **注意**: 本モデルはポリモーフィックな関連（複数のテーブルを横断して参照）であるため、`record_id` に対して DB レベルの外部キー制約を貼ることができない。
 
@@ -68,13 +70,17 @@ class CommentCreate(CommentBase):
 
 class CommentResponse(CommentBase):
     id: int
-    user_id: int
+    user_id: Optional[int]
     user_display_name: Optional[str]
-    user_role: str  # "admin", "member", "viewer" (フロントエンドでの強調表示用)
+    user_role: str  # "admin", "member", "viewer", "ai" (フロントエンドでの強調表示用)
     created_at: datetime
+    is_ai_generated: bool = False
+    ai_has_concern: Optional[bool] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+**AIフィードバック機能**:
+AIによる自動生成コメントについては、[AI記録フィードバック機能仕様書](../ai/ai_record_feedback.md) を参照のこと。
 ```
 
 ### 既存スキーマの拡張
@@ -88,6 +94,9 @@ class UnifiedRecord(BaseModel):
     timestamp: datetime
     details: dict
     comment_count: int = 0  # 追加
+    recorded_by_display_name: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 ```
 
 ### API エンドポイント
@@ -223,6 +232,28 @@ class UnifiedRecord(BaseModel):
 - [ ] スマホ画面でコメント入力がスムーズに行えるか。
 - [ ] viewer（祖父母役のアカウント）でログインし、応援メッセージが投稿できるか。
 - [ ] 投稿したコメントが即座に画面に反映されるか（SWR の mutate）。
+
+---
+
+## 既知のバグ・改善事項
+
+### モバイルでキーボード表示時に入力テキストが隠れる問題
+
+**現象**: モバイルでコメント入力欄をタップしてキーボードが表示されると、`RecordCommentDialog` 内の `Textarea` がキーボードの下に隠れて入力中のテキストが見えなくなる。
+
+**原因**: `RecordCommentDialog` が shadcn/ui の `Dialog` コンポーネントを使用しており、バーチャルキーボード表示時のビューポート縮小（`window.innerHeight` 減少）に対応していない。`DialogContent` はキーボード高さを考慮しないため、コンテンツが下にはみ出す。
+
+**修正方針**:
+
+1. **Drawer パターンの採用（モバイル）**: モバイルでは `Dialog` の代わりに `vaul` ベースの `Drawer`（shadcn/ui の `drawer` コンポーネント）を使用する。`Drawer` はスクリーン下部からスライドアップするシートとして表示されるため、キーボード表示時に自然にスクロール可能になる。
+
+2. **Responsive 切り替え**: `useMediaQuery` や `useIsMobile` フックを使って、モバイルでは `Drawer`、デスクトップでは `Dialog` を出し分ける。
+
+3. **`DialogContent` の改善（暫定案）**: `max-h-[var(--dialog-content-height,85dvh)]` + `overflow-y-auto` を付与し、`dvh`（dynamic viewport height）でキーボード表示時の高さ変化に追従させる。
+
+**対象ファイル**:
+- `frontend/components/records/RecordCommentDialog.tsx`: Drawer 対応に変更
+- `frontend/components/records/CommentSection.tsx`: 入力欄の `Textarea` にフォーカス時の `scrollIntoView` を追加（補助的）
 
 ---
 

@@ -1,15 +1,40 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from app.middleware.security import SecurityHeadersMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
+import logging
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
+from app.utils.scheduler import setup_scheduler
 
 load_dotenv()
 
-app = FastAPI(title="Baby App API")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start the background scheduler for periodic tasks
+    scheduler = setup_scheduler()
+    yield
+    # Shutdown: Stop the background scheduler
+    scheduler.shutdown()
+
+app = FastAPI(title="Botoro API", lifespan=lifespan)
+
+# Global Exception Handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"},
+    )
 
 # Trigger reload
 
@@ -29,15 +54,19 @@ app.add_middleware(SecurityHeadersMiddleware)
 allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-from app.routers import auth, family, baby, notifications
-from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments
-from app.routers import version
+from app.routers import auth, family, baby, notifications, admin
+from app.routers import feeding, sleep, diaper, growth, contraction, schedule, note, baby_permissions, ai_summary, upload, comments, ai_feedback, ai_settings
+from app.routers import version, vaccinations, milestones
+from app.routers import timer
+from app.routers import temperatures
+from app.routers import achievements
 
 app.include_router(version.router)
 app.include_router(auth.router)
 app.include_router(family.router)
 app.include_router(baby.router)
 app.include_router(notifications.router)
+app.include_router(admin.router)
 app.include_router(feeding.router)
 app.include_router(sleep.router)
 app.include_router(diaper.router)
@@ -45,10 +74,17 @@ app.include_router(growth.router)
 app.include_router(contraction.router)
 app.include_router(schedule.router)
 app.include_router(note.router)
+app.include_router(vaccinations.router)
+app.include_router(milestones.router)
 app.include_router(baby_permissions.router)
 app.include_router(ai_summary.router)
+app.include_router(ai_feedback.router)
+app.include_router(ai_settings.router)
 app.include_router(upload.router)
 app.include_router(comments.router)
+app.include_router(timer.router)
+app.include_router(temperatures.router)
+app.include_router(achievements.router)
 
 frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/out")
 
@@ -61,6 +97,14 @@ if os.path.exists(frontend_build_path):
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok"}
+
+
+@app.get("/ads.txt", include_in_schema=False)
+async def serve_ads_txt():
+    ads_txt_path = os.path.join(frontend_build_path, "ads.txt")
+    if os.path.exists(ads_txt_path):
+        return FileResponse(ads_txt_path)
+    return {"error": "ads.txt not found"}
 
 
 @app.get("/{full_path:path}", include_in_schema=False)

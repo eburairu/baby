@@ -2,8 +2,9 @@
 
 ## 概要
 
-Baby App 全ページに適用する統一 UI/UX ガイドライン。
-現状の各ページで生じているデザイン・実装の不統一を解消し、ユーザーが画面遷移しても違和感のない一貫した体験を提供する。
+Botoro 全ページに適用する統一 UI/UX ガイドライン。
+本アプリは**「六角形（Hexagon）」をデザインの基調（メインモチーフ）**とし、アイコンラッパーやボタン、ウィジェットなどの主要なUI要素において六角形を前提としたコンポーネント設計を行う。
+これにより、現状の各ページで生じているデザイン・実装の不統一を解消し、ユーザーが画面遷移しても違和感のない一貫した体験を提供する。
 
 ## 背景・現状の課題
 
@@ -81,9 +82,18 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
 | ボタン（大） | `rounded-xl`（`h-12` 以上） |
 | ボタン（小・インライン） | shadcn デフォルト（`rounded-md`） |
 | ウィジェット内クイックボタン | `rounded-lg h-8` |
-| アイコンラッパー | `rounded-full` |
+| アイコンラッパー・主要アクション | `Hexagon` (六角形) |
 
-### 1.4 Z-Index 階層
+### 1.4 六角形（Hexagon）基調のUI方針
+
+本アプリケーションでは「六角形（Hexagon）」を統一的なデザインモチーフとして採用する。今後のUI開発においても、以下のルールを前提として機能追加やリファクタリングを行う。
+
+1. **アクションの強調**: ダッシュボードの主要な記録アクションや、ページ内で特に目立たせたい機能のボタン等には、単なる角丸四角形ではなく `HexagonButton` や `Hexagon` コンポーネントを積極的に採用する。
+2. **アイコンとの組み合わせ**: 単独のアイコンを表示する際、無背景ではなく背景色つきの六角形ラッパー（`Hexagon`）を使用することで、Botoroらしさを演出する。
+3. **動的な角丸**: `Hexagon` コンポーネントの `cornerRadius` は、明示的に指定されない場合は `size` の 12% をデフォルト値とする。これにより、サイズが小さい場合に「ほぼ丸」に見えてしまう問題を回避し、一貫した六角形の形状を維持する。
+4. **一貫性の維持**: 新しいコンポーネントを追加する際も「この要素は六角形を取り入れることでUX/UIの統一感が高まるか」を常に検討すること。
+
+### 1.5 Z-Index 階層
 
 重なり順の不整合を防ぐため、以下の階層を厳守する。
 
@@ -193,9 +203,9 @@ Baby App 全ページに適用する統一 UI/UX ガイドライン。
     <div className="grid grid-cols-2 gap-4">
       {/* 個々の統計ミニカード */}
       <div className="bg-{category}-50 rounded-xl p-4 flex items-center gap-3">
-        <div className="bg-white rounded-full p-2 shadow-sm">
+        <Hexagon size={32} cornerRadius={4} className="text-white dark:text-zinc-800 shadow-sm transition-colors shrink-0 mt-0.5">
           <Icon className="h-4 w-4 text-{category}-500" />
-        </div>
+        </Hexagon>
         <div>
           <p className="text-xs text-gray-500">ラベル</p>
           <p className="text-lg font-bold text-gray-800">値</p>
@@ -283,15 +293,59 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 
 ### 3.4 ウィジェット内クイックボタン（ダッシュボード）
 
+ダッシュボードの各ウィジェット内で使用するアクションボタン。`WidgetQuickButton` コンポーネントとして実装されている。
+内部で `HexagonButton` コンポーネントを使用し、ダッシュボードのデザインに合わせた六角形の形状を提供する。
+
 ```tsx
-// 現状の実装（すでに統一されているため基本的に変更なし）
-<Button
-  variant="outline"
-  size="sm"
-  className="flex-1 bg-{category}-50 text-{category}-600 hover:bg-{category}-100 border-0 text-xs h-8 rounded-lg"
+// frontend/components/dashboard/WidgetQuickButton.tsx
+interface WidgetQuickButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+    color: "rose" | "amber" | "indigo";
+    isActive?: boolean;
+    loading?: boolean;
+    size?: number;   // デフォルト: 48
+    pointy?: boolean; // デフォルト: true
+}
+
+<WidgetQuickButton
+  color="rose"
+  onClick={handleClick}
+  loading={isLoading}
+  size={48}
 >
-  ボタンラベル
-</Button>
+  <Icon className="w-5 h-5" />
+</WidgetQuickButton>
+```
+
+**特徴・ルール**:
+1.  **カラーバリアント**: `color` プロップ (`rose`, `amber`, `indigo`) により、背景色とテキスト色が自動的に決定される（`HexagonButton` の `variant` に渡される）。
+2.  **アクティブ状態**: `isActive` プロップにより、選択状態（濃い背景色 + 白文字 + グロー効果）のスタイルが適用される。
+3.  **ローディング時の挙動**:
+    - `loading={true}` の場合、ボタン内のコンテンツ（アイコンなど）が自動的に哺乳瓶のアニメーション (`BabyBottleLoading`) に置き換わる。
+    - ボタンのサイズは `size` プロップによって固定されているため、アニメーション表示時もレイアウトシフトは発生しない。
+
+```tsx
+// 内部実装 (HexagonButton ラッパー)
+export function WidgetQuickButton({
+    color,
+    isActive = false,
+    loading = false,
+    size = 48,
+    pointy = true,
+    ...props
+}: WidgetQuickButtonProps) {
+    return (
+        <HexagonButton
+            variant={color}
+            active={isActive}
+            loading={loading}
+            size={size}
+            pointy={pointy}
+            {...props}
+        >
+            {children}
+        </HexagonButton>
+    )
+}
 ```
 
 ### 3.5 タイマー・トグルボタン（大型フルWidth）
@@ -301,6 +355,7 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
 <Button
   type="button"
   onClick={handleToggle}
+  disabled={isLoading} // 処理中は無効化
   className={cn(
     "h-16 w-full text-base font-bold rounded-xl transition-all duration-200",
     isActive
@@ -308,9 +363,23 @@ DiaperForm の「おしっこ / うんち / 両方」ボタンのような、複
       : "bg-{category}-500 hover:bg-{category}-600 text-white shadow-md shadow-{category}-200"
   )}
 >
-  {isActive ? "停止" : "開始"}
+  {isLoading ? (
+    <Loader2 className="h-6 w-6 animate-spin" />
+  ) : (
+    isActive ? "停止" : "開始"
+  )}
 </Button>
 ```
+
+### 3.6 処理中フィードバック（Loading Feedback）の共通規定
+
+ユーザーがボタン（記録ボタン、タイマーボタン、クイックボタン等）を押した際、システムが処理中であることを示すため、以下のルールを全ボタンに適用する。
+
+1. **ボタンの無効化（Disabled）**: APIリクエスト中や状態遷移中は、連打による重複登録を防ぐため、必ず `disabled` 属性を付与する。
+2. **視覚的フィードバック**:
+    - **テキスト置換**: 「保存」を「保存中...」のように変更する。
+    - **スピナー表示**: 文字列の代わりに、または文字列の隣に `Loader2`（Lucide React）などのスピナーを `animate-spin` で表示する。ダッシュボードのウィジェットやクイックアクションボタンなどの「育児」に関連する主要なローディング表示には、`BabyBottleLoading`（哺乳瓶のアニメーション）を優先的に使用する。
+    - **透明度**: `disabled` 時のスタイルとして `opacity-50` 等を適用し、クリック不可であることを示す（shadcn/ui のデフォルト挙動を推奨）。
 
 ---
 
@@ -496,18 +565,31 @@ export function SettingsHeader({
 
 ### 6.3 送信ボタン
 
+全フォームで `isSubmitting` を利用して処理中のフィードバックを必須とする。
+
 ```tsx
 // 全フォーム共通
 <Button
   type="submit"
   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
-  disabled={isSubmitting}
+  disabled={isSubmitting} // 重複送信の完全防止
 >
-  {isSubmitting ? "保存中..." : "保存する"}
+  {isSubmitting ? (
+    <>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      保存中...
+    </>
+  ) : (
+    "保存する"
+  )}
 </Button>
 ```
 
-> **注**: 送信ボタンは `indigo` で統一する（カテゴリーカラーに依存しない）。これは「保存」という普遍的なアクションのため、カテゴリーカラーに染めず中立的に扱う。
+**適用ルール**:
+- `isSubmitting` または `isLoading` の boolean ステートを導入する。
+- 処理中は `disabled` とし、連打を防ぐ。
+- 文字列の置換（「保存」→「保存中...」）とスピナー（`Loader2`）の併用。
+- ページ遷移後もローディング状態が不要な場合は、即座にリセットする。
 
 ---
 
@@ -519,7 +601,7 @@ export function SettingsHeader({
 
 **廃止の理由**:
 
-1. **グローバルヘッダーの存在**: 全ページ共通の `DashboardLayout` にハンバーガーメニューと「Baby App」タイトル（ルートへのリンク）が既に存在するため。
+1. **グローバルヘッダーの存在**: 全ページ共通の `DashboardLayout` にハンバーガーメニューと「Botoro」タイトル（ルートへのリンク）が既に存在するため。
 2. **UI の整理**: 二重ヘッダーによる視覚的な複雑さを軽減し、モバイルでの表示領域を確保するため。
 
 今後、詳細ページからダッシュボードに戻る際は、画面最上部のグローバルヘッダー内のタイトルをクリックするか、ハンバーガーメニューを利用する。
@@ -630,6 +712,6 @@ export function SettingsHeader({
 
 ### 設定画面
 
-- [ ] `SettingsHeader` コンポーネント新規作成
-- [ ] Profile, Notification, Family, Babies, Permissions 各ページで `SettingsHeader` を適用
-- [ ] 各ページの個別実装ヘッダーを削除
+- [x] `SettingsHeader` コンポーネント新規作成
+- [x] Profile, Notification, Family, Babies, Permissions 各ページで `SettingsHeader` を適用
+- [x] 各ページの個別実装ヘッダーを削除

@@ -16,44 +16,35 @@ import { MemberRoleDialog } from "./MemberRoleDialog"
 import { MemberPasswordResetDialog } from "./MemberPasswordResetDialog"
 import { api } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
+import { formatDate } from "@/lib/dateUtils"
 import { UserRole } from "@/lib/constants"
-
-interface Member {
-    user_id: number
-    username: string
-    display_name: string | null
-    role: string
-    joined_at: string
-}
+import { FamilyMember } from "@/types/family"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
-    members: Member[]
+    members: FamilyMember[]
     currentUserId: number
     isAdmin: boolean
     onUpdated: () => void
 }
 
-function formatDate(iso: string) {
-    const d = new Date(iso)
-    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`
-}
-
 export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props) {
-    const [roleDialogTarget, setRoleDialogTarget] = useState<Member | null>(null)
-    const [deleteTarget, setDeleteTarget] = useState<Member | null>(null)
-    const [passwordResetTarget, setPasswordResetTarget] = useState<Member | null>(null)
-    const [deleting, setDeleting] = useState(false)
+    const [roleDialogTarget, setRoleDialogTarget] = useState<FamilyMember | null>(null)
+    const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null)
+    const [passwordResetTarget, setPasswordResetTarget] = useState<FamilyMember | null>(null)
+    const { loading: deleting, execute } = useAsyncAction()
 
     const handleDelete = async () => {
         if (!deleteTarget) return
-        setDeleting(true)
+
         try {
-            await api.delete(`/family/members/${deleteTarget.user_id}`)
-            onUpdated()
-        } catch {
-            // エラー処理（省略）
+            await execute(
+                async () => {
+                    await api.delete(`/family/members/${deleteTarget.user_id}`)
+                    onUpdated()
+                }
+            )
         } finally {
-            setDeleting(false)
             setDeleteTarget(null)
         }
     }

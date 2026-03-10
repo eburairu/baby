@@ -4,6 +4,7 @@ import { Pencil, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     name: string
@@ -14,25 +15,26 @@ interface Props {
 export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
     const [editing, setEditing] = useState(false)
     const [value, setValue] = useState(name)
-    const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: saving, execute } = useAsyncAction()
 
     const handleSave = async () => {
         if (!value.trim()) {
             setError("家族名を入力してください")
             return
         }
-        setSaving(true)
         setError(null)
-        try {
-            await api.patch("/family/", { name: value.trim() })
-            setEditing(false)
-            onUpdated()
-        } catch {
-            setError("保存に失敗しました")
-        } finally {
-            setSaving(false)
-        }
+
+        await execute(
+            async () => {
+                await api.patch("/family/", { name: value.trim() })
+                setEditing(false)
+                onUpdated()
+            },
+            {
+                onError: () => setError("保存に失敗しました")
+            }
+        )
     }
 
     const handleCancel = () => {
@@ -59,7 +61,7 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                         <Button
                             size="sm"
                             onClick={handleSave}
-                            disabled={saving}
+                            loading={saving}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"
                         >
                             <Check className="h-4 w-4 mr-1" />
@@ -75,7 +77,7 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                 <div className="flex items-center justify-between">
                     <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">{name}</p>
                     {isAdmin && (
-                        <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }}>
+                        <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }} aria-label="家族名を編集" title="家族名を編集">
                             <Pencil className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                         </Button>
                     )}

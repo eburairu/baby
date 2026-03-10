@@ -1,134 +1,52 @@
 "use client"
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { usePermissions } from "@/hooks/usePermissions"
-import { api, isApiError } from "@/lib/api"
-import { formatElapsed, isToday } from "@/lib/ageUtils"
+
+import { useMemo, memo } from "react"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
+import { HexagonWidgetCard } from "./HexagonWidgetCard"
+import { BaseWidgetProps } from "@/types/widget"
+import { normalizeFeedingFromRecord, calculateFeedingStats, NormalizedFeeding } from "@/lib/feedingUtils"
+import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
+import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
-import { ArrowRight, ShieldOff } from "lucide-react"
-import { BabyRecord } from "@/hooks/useData"
-import { FeedingType } from "@/types/feeding"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
+import { useTick } from "@/hooks/useTick"
 
-interface Props {
-    babyId: string
-    records?: BabyRecord[]
-    isError?: unknown
-    mutate?: () => void
-    isLoading?: boolean
-}
+export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
+    const tick = useTick()
 
-export function FeedingWidget({ babyId, records, isError, mutate, isLoading }: Props) {
-    const { canWrite } = usePermissions()
-    const [loading, setLoading] = useState(false)
+    const { todayCount, lastElapsed, lastFeedingTime } = useMemo(() => {
+        // tick に依存させることで1分ごとの更新を保証する
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        tick;
+        const feedingRecords = records
+            ?.map(normalizeFeedingFromRecord)
+            .filter((f): f is NormalizedFeeding => f !== null) ?? []
+        return calculateFeedingStats(feedingRecords)
+    }, [records, tick])
 
-    const isAccessDenied = isApiError(isError) && isError.status === 403
-
-    const { todayCount, elapsed } = useMemo(() => {
-        const feedingRecords = records?.filter(r => r.type === 'feeding') ?? []
-        return {
-            todayCount: feedingRecords.filter((f) => isToday(f.timestamp)).length,
-            elapsed: feedingRecords[0] ? formatElapsed(feedingRecords[0].timestamp) : null,
-        }
-    }, [records])
-
-    if (isAccessDenied) {
-        return (
-            <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1" data-sentry-unmask>
-                        🍼 授乳
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center py-6">
-                    <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-600" data-sentry-unmask>閲覧制限中</p>
-                </CardContent>
-            </Card>
-        )
-    }
-
-
-
-    const handleQuickRecord = async (feedingType: string, e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setLoading(true)
-        try {
-            await api.post("/feedings/", {
-                baby_id: Number(babyId),
-                feeding_type: feedingType.toUpperCase(),
-                feeding_time: new Date().toISOString(),
-            })
-            if (mutate) mutate()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
+    // tick は再レンダリングを促すために state として持つが、計算自体には含める必要がない
+    // (再レンダリング時に calcProgress が新しい時刻で再計算されるため)
+    const progress = thresholdMinutes != null
+        ? calcProgress(lastFeedingTime, thresholdMinutes)
+        : 0
+    const isOver = isOverThreshold(progress)
 
     return (
-        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium text-rose-500 dark:text-rose-400 flex items-center gap-1" data-sentry-unmask>
-                    🍼 授乳
-                </CardTitle>
-                <Link href={`/feeding?baby_id=${babyId}`}>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 -mr-2 text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 dark:text-zinc-600"
-                        aria-label="授乳詳細"
-                        title="詳細を見る"
-                    >
-                        <ArrowRight className="h-4 w-4" />
-                    </Button>
-                </Link>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                <div>
-                    {isLoading ? (
-                        <div className="flex justify-center py-4">
-                            <BabyBottleLoading className="w-8 h-8 text-rose-400" />
-                        </div>
-                    ) : (
-                        <>
-                            {elapsed ? (
-                                <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">{elapsed}</p>
-                            ) : (
-                                <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
-                            )}
-                            <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">今日: {todayCount}回</p>
-                        </>
-                    )}
+        <Link href={`/feeding?baby_id=${babyId}`} className="block">
+            <HexagonWidgetCard
+                title="授乳"
+                icon={<AppIcons.feeding className="w-5 h-5 text-pink-500" />}
+                isError={isError}
+                isLoading={isLoading}
+                size={size}
+                className="hover:shadow-pink-100 dark:hover:shadow-pink-900/20"
+                indicatorProgress={thresholdMinutes != null ? progress : undefined}
+                isOverThreshold={isOver}
+            >
+                <div className="flex flex-col items-center">
+                    <span className="font-bold text-gray-800 dark:text-zinc-200">{lastElapsed}</span>
+                    <span className="text-[10px] text-gray-500 dark:text-zinc-500 mt-0.5">今日 {todayCount}回</span>
                 </div>
-                {canWrite ? (
-                    <div className="flex gap-2">
-                        <Button
-                            size="sm"
-                            loading={loading}
-                            onClick={(e) => handleQuickRecord("bottle", e)}
-                            className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
-                            variant="outline"
-                            data-sentry-unmask
-                        >
-                            ミルク
-                        </Button>
-                        <Button
-                            size="sm"
-                            loading={loading}
-                            onClick={(e) => handleQuickRecord("breast", e)}
-                            className="flex-1 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 border-0 text-xs h-8"
-                            variant="outline"
-                            data-sentry-unmask
-                        >
-                            母乳
-                        </Button>
-                    </div>
-                ) : null}
-            </CardContent>
-        </Card>
+            </HexagonWidgetCard>
+        </Link>
     )
-}
+}, createWidgetMemoComparison('feeding'))

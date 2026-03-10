@@ -1,4 +1,4 @@
-# アプリ情報・バージョン表示機能 仕様書
+# アプリ情報・バージョン表示機能仕様書
 
 ## 概要
 
@@ -36,7 +36,7 @@
 - キャッシュ: インメモリ、TTL 30 分
 - 失敗時の挙動: エラーを握りつぶし、`release_notes: null` でフォールバック
 
-#### レスポンス スキーマ
+#### レスポンススキーマ
 
 ```json
 {
@@ -69,7 +69,7 @@
 
 **ファイル**: `frontend/app/(dashboard)/layout.tsx`
 
-- アプリ名 "Baby App" の右隣にバッジを表示
+- アプリ名 "Botoro" の右隣にバッジを表示
 - バッジ内容: `v{version}` 形式（例: `v1.19.1`）
 - shadcn/ui `Badge variant="outline"` を使用
 - レスポンシブ: `hidden sm:inline-flex`（モバイルでは非表示）
@@ -80,8 +80,13 @@
 **ファイル**: `frontend/app/(dashboard)/settings/page.tsx`
 
 - 既存セクション（一般・アカウント・管理・ログアウト）の末尾に第3セクション「アプリ情報」を追加
+- **Botoro について**:
+  - アイコン: `Heart` (Lucide React, Indigo)
+  - タイトル: 「Botoro について」
+  - 説明テキスト: 「アプリの紹介を見る」
+  - クリックで `/about` ページへ遷移
 - **バージョン情報カード**:
-  - アイコン: `Info`（Lucide React）
+  - アイコン: `Info`（Lucide React, Slate）
   - タイトル: 「バージョン情報」
   - 説明テキスト: `v{バージョン番号}`（例: `v1.19.1`）
   - クリックで `AppInfoDialog` を開く

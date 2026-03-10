@@ -4,6 +4,8 @@ from typing import List, Optional
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
 from app.models.notification import PushSubscription, NotificationSetting, AppNotification
+from app.utils.rate_limit import RateLimiter
+from app.core import constants
 from app.schemas.notification import (
     AppNotificationResponse,
     UnreadCountResponse,
@@ -14,6 +16,12 @@ from app.schemas.notification import (
 )
 
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
+
+test_notification_limiter = RateLimiter(
+    requests_limit=constants.RATE_LIMIT_NOTIFICATION_REQUESTS,
+    time_window=constants.RATE_LIMIT_NOTIFICATION_WINDOW,
+    error_message="Too many test notifications requested. Please try again later.",
+)
 
 
 # ---- アプリ内通知センター ----
@@ -131,7 +139,7 @@ def unsubscribe(
     if not subscription:
         raise HTTPException(status_code=404, detail="Subscription not found")
 
-    db.delete(subscription)
+    subscription.is_deleted = True
     db.commit()
     return {"message": "Unsubscribed successfully"}
 
@@ -184,6 +192,7 @@ def send_test_notification(
     current_user: User = Depends(get_current_user)
 ):
     """テスト通知を自分自身に送信する"""
+    test_notification_limiter.check(f"user_{current_user.id}")
     from app.utils.notifications import send_push_notification
 
     subscriptions = db.query(PushSubscription).filter(
@@ -200,7 +209,7 @@ def send_test_notification(
 
     results = []
     for sub in subscriptions:
-        success = send_push_notification(
+        result = send_push_notification(
             sub,
             title="テスト通知 🔔",
             body="プッシュ通知が正常に動作しています！",
@@ -210,7 +219,9 @@ def send_test_notification(
         results.append({
             "subscription_id": sub.id,
             "endpoint_preview": sub.endpoint[:60] + "...",
-            "success": success
+            "success": result["success"],
+            "status_code": result.get("status_code"),
+            "error": result.get("error"),
         })
 
     all_success = all(r["success"] for r in results)

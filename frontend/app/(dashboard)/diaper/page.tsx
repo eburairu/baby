@@ -1,83 +1,74 @@
 "use client"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { useBabies, useDiapers } from "@/hooks/useData"
-import { usePermissions } from "@/hooks/usePermissions"
-import { useBabyStore } from "@/stores/babyStore"
+import { AppIcons } from "@/constants/icons"
+
+import { useDiapers } from "@/hooks/useDiaper"
+import { useRecordPage } from "@/hooks/useRecordPage"
 import { DiaperStats } from "@/components/diaper/DiaperStats"
+import { DiaperChart } from "@/components/diaper/DiaperChart"
 import { DiaperForm } from "@/components/diaper/DiaperForm"
 import { DiaperHistory } from "@/components/diaper/DiaperHistory"
-import { Diaper } from "@/types/diaper"
-import { PageLoading } from "@/components/ui/page-loading"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
-import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaperTips } from "@/lib/tips-data"
-import { Smile, Droplets } from "lucide-react"
-import Link from "next/link"
-import { isApiError } from "@/lib/api"
+import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
+/**
+ * おむつ記録ページ
+ */
 export default function DiaperPage() {
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const paramBabyId = searchParams.get("baby_id")
-    const commentRecordId = searchParams.get("comment")
-    const { canWrite } = usePermissions()
+    const {
+        babyId,
+        isLoading: babiesLoading,
+        canWrite,
+        triggerFeedback,
+        commentRecordId,
+    } = useRecordPage()
 
-    const { babies, isLoading: babiesLoading } = useBabies()
-    const { selectedBabyId } = useBabyStore()
+    const { 
+        diapers, 
+        isLoading: diapersLoading, 
+        isError: diaperError, 
+        mutate,
+        deleteDiaper
+    } = useDiapers(babyId ?? null)
 
-    // Determine effective baby ID
-    // Priority: URL param > store selection > first baby
-    const effectiveBabyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-
-    const { diapers, isLoading: diapersLoading, isError: diaperError, mutate } = useDiapers(effectiveBabyId)
-
-    if (babiesLoading) return <PageLoading />
-    if (!effectiveBabyId) return <div className="p-4 text-center mt-10">赤ちゃんが登録されていません</div>
-
-    const isAccessDenied = isApiError(diaperError) && diaperError.status === 403
+    const handleRefresh = async () => {
+        await mutate()
+    }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20 transition-colors">
-            <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
-                    <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
-                        <Smile className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                        おむつ記録
-                    </h1>
-                </div>
-            </header>
+        <RecordPageLayout
+            title="おむつ記録"
+            icon={AppIcons.diaper}
+            iconColorClass="text-amber-500 dark:text-amber-400"
+            isLoading={babiesLoading}
+            isDataLoading={diapersLoading}
+            apiError={diaperError}
+            babyId={babyId}
+            onRefresh={handleRefresh}
+        >
+            <DiaperStats diapers={diapers || []} />
 
-            <main className="p-4 max-w-2xl mx-auto space-y-6">
-                {isAccessDenied ? (
-                    <AccessDenied />
-                ) : diapersLoading ? (
-                    <div className="flex justify-center py-12">
-                        <BabyBottleLoading className="w-12 h-12 text-amber-400" />
-                    </div>
-                ) : (
-                    <>
-                        <DiaperStats diapers={diapers || []} />
+            <DiaperChart diapers={diapers || []} />
 
-                        <TipsCard {...diaperTips} />
+            <TipsCard {...diaperTips} />
 
-                        {canWrite && (
-                            <DiaperForm
-                                babyId={effectiveBabyId}
-                                onSuccess={() => mutate()}
-                            />
-                        )}
+            {canWrite && babyId && (
+                <DiaperForm
+                    babyId={babyId}
+                    onSuccess={(recordId) => {
+                        mutate()
+                        if (recordId) triggerFeedback("diaper", recordId)
+                    }}
+                />
+            )}
 
-                        <DiaperHistory
-                            diapers={diapers || []}
-                            onDeleteSuccess={() => mutate()}
-                            canWrite={canWrite}
-                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
-                        />
-                    </>
-                )}
-            </main>
-        </div>
+            <DiaperHistory
+                diapers={diapers || []}
+                onDelete={deleteDiaper}
+                onRefresh={handleRefresh}
+                canWrite={canWrite}
+                initialCommentRecordId={commentRecordId ?? null}
+            />
+        </RecordPageLayout>
     )
 }

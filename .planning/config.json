@@ -1,0 +1,15 @@
+{
+  "project_name": "ダッシュボードUIのハニカム構造化",
+  "version": "1.0.0",
+  "workflow": {
+    "research": false,
+    "requirements": true,
+    "roadmap": true
+  },
+  "tech_stack": [
+    "Next.js (App Router)",
+    "TypeScript",
+    "Tailwind CSS v4",
+    "shadcn/ui"
+  ]
+}

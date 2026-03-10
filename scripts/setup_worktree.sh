@@ -12,7 +12,8 @@ if [ -z "$BRANCH_NAME" ]; then
   exit 1
 fi
 
-WORKTREE_DIR="worktrees/$BRANCH_NAME"
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+WORKTREE_DIR="$ROOT_DIR/worktrees/$BRANCH_NAME"
 
 # 0. 最新のコードをフェッチ
 echo "Fetching latest changes from origin..."
@@ -63,14 +64,6 @@ ln -sf "$ROOT_DIR/node_modules" "$WORKTREE_DIR/node_modules"
 # .env (Database settings)
 ln -sf "$ROOT_DIR/.env" "$WORKTREE_DIR/.env"
 
-# ワークツリー専用の .gitignore を作成して誤入力を防ぐ
-cat <<EOF > "$WORKTREE_DIR/.gitignore"
-# Shared dependencies symlinks (Must not be committed)
-.venv
-node_modules
-.env
-EOF
-echo "Created $WORKTREE_DIR/.gitignore for safety."
 
 # Frontend node_modules（絶対パスで作成して Turbopack のシンボリックリンク問題を回避）
 if [ -d "$WORKTREE_DIR/frontend" ]; then
@@ -91,9 +84,10 @@ fi
 
 echo ""
 echo "Worktree setup complete!"
-echo "To start working, run: cd $WORKTREE_DIR"
 echo ""
 echo "📋 作業中の develop 同期リマインダー:"
 echo "  - 長時間作業時は定期的に: git merge origin/${BASE_BRANCH}"
 echo "  - PR 作成前に必ず: git fetch origin ${BASE_BRANCH} && git merge origin/${BASE_BRANCH}"
 echo "  - PR 作成前の全チェック: sh scripts/verify_all.sh"
+echo ""
+echo "To start working, run: cd $WORKTREE_DIR"

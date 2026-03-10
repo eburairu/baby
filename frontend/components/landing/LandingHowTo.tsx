@@ -1,0 +1,74 @@
+"use client"
+
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { UserPlus, Users, Smartphone } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
+const HOW_TO_STEPS = [
+    {
+        step: "01",
+        title: "アカウントを作成",
+        description: "メールアドレスとパスワードだけで、わずか1分で登録完了。クレジットカードの登録は一切不要で、今日からすべての機能を完全無料で使い始めることができます。",
+        icon: UserPlus,
+    },
+    {
+        step: "02",
+        title: "家族を招待",
+        description: "発行された独自の招待コードを、パートナーや祖父母に送るだけ。招待された家族はコードを入力するだけで、同じ赤ちゃんの記録にアクセスできるようになります。",
+        icon: Users,
+    },
+    {
+        step: "03",
+        title: "一緒に記録・共有",
+        description: "授乳や睡眠の記録を付ければ、家族全員にリアルタイムで通知。誰がいつ何をしたかがすぐにわかるので、すれ違いがなくなり、チームでの育児がもっとスムーズになります。",
+        icon: Smartphone,
+    },
+]
+
+interface LandingHowToProps {
+    isLoggedIn?: boolean
+}
+
+export function LandingHowTo({ isLoggedIn = false }: LandingHowToProps) {
+    return (
+        <section id="howto" className="px-4 py-24 bg-slate-50 dark:bg-zinc-900/50 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto space-y-16">
+                <div className="text-center space-y-4">
+                    <h2 className="text-3xl font-bold tracking-tight">3ステップで始められる</h2>
+                    <p className="text-slate-500 dark:text-slate-400">難しい設定は不要。すぐに家族と育児を共有できます。</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                    {HOW_TO_STEPS.map((step, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.15 }}
+                            className="relative text-center space-y-4"
+                        >
+                            <div className="relative mx-auto w-20 h-20 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+                                <step.icon className="h-8 w-8 text-indigo-500 dark:text-indigo-400" />
+                                <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center">
+                                    {step.step}
+                                </span>
+                            </div>
+                            <h3 className="text-lg font-bold">{step.title}</h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{step.description}</p>
+                        </motion.div>
+                    ))}
+                </div>
+                {!isLoggedIn && (
+                    <div className="text-center">
+                        <Link href="/register">
+                            <Button className="h-14 px-12 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 transition-all hover:shadow-indigo-200 dark:hover:shadow-indigo-900/30">
+                                今すぐ無料で始める
+                            </Button>
+                        </Link>
+                    </div>
+                )}
+            </div>
+        </section>
+    )
+}

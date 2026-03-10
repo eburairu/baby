@@ -1,9 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index, JSON
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.sql import func
-from .base import Base
+from .base import Base, SoftDeleteMixin
 
 
-class DailySummary(Base):
+class DailySummary(Base, SoftDeleteMixin):
     __tablename__ = "daily_summaries"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -14,11 +16,11 @@ class DailySummary(Base):
     edited_content = Column(Text, nullable=True)
     is_edited = Column(Boolean, nullable=False, default=False)
     model_name = Column(String, nullable=True)
-    image_urls = Column(JSON, nullable=True, default=[])
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    image_urls = Column(MutableList.as_mutable(JSON().with_variant(JSONB, 'postgresql')), nullable=True, default=[])
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
         UniqueConstraint("baby_id", "summary_date", name="uix_daily_summary_baby_date"),
-        Index("idx_daily_summary_baby_date", "baby_id", "summary_date"),
+        Index("ix_daily_summaries_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

@@ -37,6 +37,10 @@ FastAPI が自動生成する OpenAPI スキーマを `openapi-typescript` で T
 - **特徴**: ランタイムゼロ。型定義ファイル（`.d.ts`）のみを生成し、バンドルサイズに影響しない
 - **公式**: <https://openapi-ts.dev/>
 
+- **パッケージ**: `openapi-fetch`
+- **特徴**: TypeScript の型定義を直接利用する超軽量フェッチクライアント
+- **公式**: <https://openapi-ts.dev/openapi-fetch/>
+
 ---
 
 ## ファイル構成（移行後）
@@ -53,6 +57,9 @@ baby-app/
 │   │   ├── feeding.ts             # フロントエンド固有の手動型（徐々に削減）
 │   │   ├── sleep.ts
 │   │   └── ...
+│   ├── lib/
+│   │   ├── api-client.ts          # openapi-fetch インスタンス（新規追加）
+│   │   ├── api.ts                 # 既存の API ユーティリティ（段階的に移行）
 │   └── package.json               # types:generate スクリプトを追加
 └── package.json                   # schema:generate / types:generate を追加
 ```
@@ -162,7 +169,12 @@ export type Feeding = components["schemas"]["FeedingResponse"];
 ### Phase 1: ツール導入
 
 1. `scripts/export_openapi.py` 作成
-2. `frontend/package.json` に `openapi-typescript` 追加
+2. `frontend/package.json` に `openapi-typescript` と `openapi-fetch` を追加
+   ```bash
+   cd frontend
+   pnpm add openapi-fetch
+   pnpm add -D openapi-typescript
+   ```
 3. `frontend/package.json` に `types:generate` スクリプト追加
 4. ルート `package.json` に以下のスクリプト追加
    - `schema:generate`: `export_openapi.py` を実行
@@ -178,34 +190,70 @@ export type Feeding = components["schemas"]["FeedingResponse"];
 3. **`frontend/types/contraction.ts`, `dailySummary.ts`** → 同様に移行
 4. **`frontend/lib/types.ts` の `User`** → `components["schemas"]["UserResponse"]` に移行
 
-### Phase 3: CI 統合
+### Phase 4: 型安全な API クライアントの導入
 
-`.github/workflows/release.yml` に `validate-schema` ジョブを追加する：
+`openapi-fetch` を導入し、パス文字列のハードコードを排除する。
 
-```yaml
-validate-schema:
-  name: Validate OpenAPI Schema
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Generate schema
-      run: python scripts/export_openapi.py
-    - name: Check for schema drift
-      run: |
-        if ! git diff --quiet frontend/openapi.json; then
-          echo "::error::frontend/openapi.json is out of date. Run 'python scripts/export_openapi.py' and commit the result."
-          git diff frontend/openapi.json
-          exit 1
-        fi
-```
+#### ⚠️ URL 構築の注意点
 
-このジョブにより、バックエンドのスキーマ変更時に `frontend/openapi.json` の更新漏れを自動検出できる。
+`openapi-fetch` は URL を **`${baseUrl}${pathname}` で単純文字列結合** する。
+FastAPI のルーターは `/api` プレフィックス付き（例: `prefix="/api/feedings"`）のため、
+OpenAPI スキーマのパスは `/api/feedings/` のように `/api/` で始まる。
+
+したがって **`baseUrl` に `/api` を含めてはいけない**。含めると二重パス（`/api/api/feedings/`）になってリクエストが失敗する。
+
+| 設定 | baseUrl | pathname | 結果 |
+|---|---|---|---|
+| 誤り | `"/api"` | `"/api/feedings/"` | `"/api/api/feedings/"` ❌ |
+| 正しい | `""` | `"/api/feedings/"` | `"/api/feedings/"` ✅ |
+| 本番（正しい） | `"https://example.com"` | `"/api/feedings/"` | `"https://example.com/api/feedings/"` ✅ |
+
+1. **`frontend/lib/api-client.ts` の作成**:
+   ```typescript
+   import createClient from "openapi-fetch";
+   import type { paths } from "@/types/generated/api";
+
+   // ⚠️ "/api" を付加しない。OpenAPI スキーマのパスが既に /api/ で始まるため。
+   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+
+   export const client = createClient<paths>({
+     baseUrl: API_BASE,
+     credentials: "include", // 認証クッキーを送信
+   });
+
+   /**
+    * SWR 等で使用するための、エラー時に throw する標準 fetcher
+    */
+   export async function throwOnError<T>(promise: Promise<{ data?: T; error?: unknown }>) {
+     const { data, error } = await promise;
+     if (error) {
+       throw error;
+     }
+     return data as T;
+   }
+   ```
+
+2. **`useSWR` との統合例**:
+   ```typescript
+   import { client, throwOnError } from "@/lib/api-client";
+   import useSWR from "swr";
+
+   export function useFeeding(babyId: number | null) {
+     const { data, error, mutate } = useSWR(
+       babyId ? ["/api/feedings/", babyId] : null,
+       ([_, id]) => throwOnError(client.GET("/api/feedings/", {
+         params: { query: { baby_id: id } },
+       }))
+     );
+     // ...
+   }
+   ```
+
+   > パス文字列は OpenAPI スキーマのパスをそのまま使う（`/api/feedings/`）。
+   > 型チェックにより、スキーマに存在しないパスはコンパイルエラーになる。
+
+3. **段階的移行**:
+   既存の `frontend/lib/api.ts` を使用している箇所を、順次 `openapi-fetch` に置き換えていく。
 
 ---
 

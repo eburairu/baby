@@ -1,7 +1,8 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
 import { useState } from "react"
-import { BookOpen, Loader2, CalendarDays } from "lucide-react"
+import { Loader2, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -14,19 +15,18 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useBabies } from "@/hooks/useData"
+import { useBabies } from "@/hooks/useBabies"
 import { useBabyStore } from "@/stores/babyStore"
 import { useDailySummaries, generateDailySummary, editDailySummary, deleteDailySummary } from "@/hooks/useDailySummary"
 import { usePermissions } from "@/hooks/usePermissions"
 import { DiarySummaryCard } from "@/components/diary/DiarySummaryCard"
 import { DiaryEditDialog } from "@/components/diary/DiaryEditDialog"
 import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
-import { PageLoading } from "@/components/ui/page-loading"
-import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaryTips } from "@/lib/tips-data"
 import { DailySummary } from "@/types/dailySummary"
-import { isApiError } from "@/lib/api"
+import { getErrorMessage } from "@/lib/api"
+import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
 function getTodayJST(): string {
     return new Intl.DateTimeFormat("ja-JP", {
@@ -64,6 +64,10 @@ export default function DiaryPage() {
     const hasSelectedSummary = selectedSummary !== null
     const isSelectedEdited = selectedSummary?.is_edited ?? false
 
+    const handleRefresh = async () => {
+        await mutate()
+    }
+
     const doGenerate = async (forceRegen = false) => {
         if (!babyId) return
         setIsGenerating(true)
@@ -78,8 +82,7 @@ export default function DiaryPage() {
             await generateDailySummary(babyId, selectedDate)
             await mutate()
         } catch (err: unknown) {
-            const detail = isApiError(err) ? ((err.info as { detail?: string })?.detail || "日誌の生成に失敗しました。") : "日誌の生成に失敗しました。"
-            setGenerateError(detail)
+            setGenerateError(getErrorMessage(err, "日誌の生成に失敗しました。"))
         } finally {
             setIsGenerating(false)
         }
@@ -115,99 +118,77 @@ export default function DiaryPage() {
         await mutate()
     }
 
-    if (babiesLoading) return <PageLoading />
-
-    if (!babyId) {
-        return (
-            <div className="p-4 text-center">
-                <p>赤ちゃんが登録されていません。</p>
-            </div>
-        )
-    }
-
-    const isAccessDenied = isApiError(summariesError) && summariesError.status === 403
-
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20 transition-colors">
-            <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
-                    <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
-                        <BookOpen className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                        育児日誌
-                    </h1>
+        <RecordPageLayout
+            title="育児日誌"
+            icon={AppIcons.diary}
+            iconColorClass="text-amber-500 dark:text-amber-400"
+            isLoading={babiesLoading}
+            isDataLoading={summariesLoading}
+            apiError={summariesError}
+            babyId={effectiveBabyIdStr ?? undefined}
+            onRefresh={handleRefresh}
+        >
+            <TipsCard {...diaryTips} />
+
+            {/* 日付指定生成パネル */}
+            {canWrite && (
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 p-4 space-y-3">
+                    <p className="text-sm font-medium text-gray-700 dark:text-zinc-300 flex items-center gap-1.5">
+                        <CalendarDays className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+                        日付を指定して日誌を生成
+                    </p>
+                    <div className="flex gap-2">
+                        <Input
+                            type="date"
+                            value={selectedDate}
+                            max={todayStr}
+                            onChange={(e) => {
+                                setSelectedDate(e.target.value)
+                                setGenerateError(null)
+                            }}
+                            className="flex-1 rounded-xl border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                        <Button
+                            onClick={handleGenerate}
+                            disabled={isGenerating || !selectedDate}
+                            className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium px-5"
+                        >
+                            {isGenerating ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : hasSelectedSummary ? (
+                                "再生成"
+                            ) : (
+                                "生成"
+                            )}
+                        </Button>
+                    </div>
+                    {generateError && (
+                        <p className="text-sm text-red-500 dark:text-red-400">{generateError}</p>
+                    )}
                 </div>
-            </header>
+            )}
 
-            <div className="max-w-2xl mx-auto p-4 space-y-4">
-                {isAccessDenied ? (
-                    <AccessDenied />
-                ) : (
-                    <>
-                        <TipsCard {...diaryTips} />
-
-                        {/* 日付指定生成パネル */}
-                        {canWrite && (
-                            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 p-4 space-y-3">
-                                <p className="text-sm font-medium text-gray-700 dark:text-zinc-300 flex items-center gap-1.5">
-                                    <CalendarDays className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                                    日付を指定して日誌を生成
-                                </p>
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="date"
-                                        value={selectedDate}
-                                        max={todayStr}
-                                        onChange={(e) => {
-                                            setSelectedDate(e.target.value)
-                                            setGenerateError(null)
-                                        }}
-                                        className="flex-1 rounded-xl border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                                    />
-                                    <Button
-                                        onClick={handleGenerate}
-                                        disabled={isGenerating || !selectedDate}
-                                        className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium px-5"
-                                    >
-                                        {isGenerating ? (
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : hasSelectedSummary ? (
-                                            "再生成"
-                                        ) : (
-                                            "生成"
-                                        )}
-                                    </Button>
-                                </div>
-                                {generateError && (
-                                    <p className="text-sm text-red-500 dark:text-red-400">{generateError}</p>
-                                )}
-                            </div>
-                        )}
-
-                        {/* 日誌一覧 */}
-                        {summariesLoading ? (
-                            <PageLoading />
-                        ) : !summaries || summaries.length === 0 ? (
-                            <div className="text-center text-gray-400 dark:text-zinc-500 py-12">
-                                <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                                <p className="text-sm">まだ育児日誌がありません。</p>
-                                <p className="text-xs mt-1">育児記録がある日の日付を選んで「生成」を押してください。</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {summaries.map((summary) => (
-                                    <DiarySummaryCard
-                                        key={summary.id}
-                                        summary={summary}
-                                        onEdit={handleEditOpen}
-                                        onDelete={handleDeleteOpen}
-                                        canWrite={canWrite}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+            {/* 日誌一覧 */}
+            {!summaries || summaries.length === 0 ? (
+                <div className="text-center text-gray-400 dark:text-zinc-500 py-12">
+                    <AppIcons.diary className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                    <p className="text-sm">まだ育児日誌がありません。</p>
+                    <p className="text-xs mt-1">育児記録がある日の日付を選んで「生成」を押してください。</p>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {summaries.map((summary) => (
+                        <DiarySummaryCard
+                            key={summary.id}
+                            summary={summary}
+                            onEdit={handleEditOpen}
+                            onDelete={handleDeleteOpen}
+                            canWrite={canWrite}
+                        />
+                    ))}
+                </div>
+            )}
 
             <DiaryEditDialog
                 summary={editTarget}
@@ -246,6 +227,6 @@ export default function DiaryPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </RecordPageLayout>
     )
 }

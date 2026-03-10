@@ -2,6 +2,10 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.30.0",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +13,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "types:generate": "openapi-typescript openapi.json -o types/generated/api.d.ts"
+    "types:generate": "openapi-typescript openapi.json -o types/generated/api.d.ts",
+    "postbuild": "node -e \"const{existsSync:e,copyFileSync:c,readdirSync:r}=require('fs'),{join:j}=require('path');if(e(j('public','sw.js'))){c(j('public','sw.js'),j('out','sw.js'));r('public').filter(f=>f.startsWith('workbox-')).forEach(f=>c(j('public',f),j('out',f)));console.log('SW files copied to out/')}else{console.warn('sw.js not found in public/')}\""
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
@@ -25,6 +30,7 @@
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
+    "openapi-fetch": "^0.17.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -34,18 +40,24 @@
     "sonner": "^2.0.7",
     "swr": "^2.4.0",
     "tailwind-merge": "^3.4.0",
+    "vaul": "^1.1.2",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
     "@vitest/ui": "^4.0.18",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "jsdom": "^28.1.0",
     "openapi-typescript": "^7.x",
     "shadcn": "^3.8.5",
     "tailwindcss": "^4",

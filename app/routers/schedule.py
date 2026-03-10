@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/schedules", tags=["schedules"])
 @router.get("/", response_model=List[ScheduleResponse])
 def get_schedules(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="schedule")
-    return db.query(Schedule).filter(Schedule.baby_id == baby_id).order_by(Schedule.scheduled_time).all()
+    return db.query(Schedule).filter(Schedule.baby_id == baby_id, Schedule.is_deleted == False).order_by(Schedule.scheduled_time).all()
 
 
 @router.post("/", response_model=ScheduleResponse)
@@ -40,10 +40,13 @@ def delete_schedule(schedule_id: int, db: Session = Depends(get_db), current_use
     if not schedule:
         raise HTTPException(status_code=404, detail="Schedule not found")
     verify_baby_access(db, schedule.baby_id, current_user.id, record_type="schedule", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "schedule",
         RecordComment.record_id == schedule_id
-    ).delete()
-    db.delete(schedule)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    schedule.is_deleted = True
     db.commit()
     return {"message": "Deleted"}

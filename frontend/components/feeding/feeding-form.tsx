@@ -1,12 +1,16 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useFeedingTimer } from "@/hooks/useFeedingTimer"
+import { useFeedingTimerSync } from "@/hooks/useFeedingTimerSync"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { format } from "date-fns"
-import { Play, Pause, RotateCcw, Save } from "lucide-react"
+import { feedingSchema, FeedingFormValues } from "@/schemas/feeding"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
+import { Save, Heart, Milk } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+import { UI_BUTTONS } from "@/constants/ui-colors"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -19,180 +23,176 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FeedingCreate, FeedingType, BreastSide, BottleContentType, FeedingCompletion } from "@/types/feeding"
-
-const feedingSchema = z.object({
-    feeding_time: z.string(),
-    feeding_type: z.enum(["BREAST", "BOTTLE"]),
-    left_breast_minutes: z.coerce.number().min(0).optional(),
-    right_breast_minutes: z.coerce.number().min(0).optional(),
-    amount_ml: z.coerce.number().optional(),
-    notes: z.string().optional(),
-})
-
-type FeedingFormValues = z.infer<typeof feedingSchema>
+import { Feeding, FeedingCreate, FeedingUpdate, FeedingType, BottleContentType, FeedingCompletion } from "@/types/feeding"
+import { buildFeedingPayload } from "@/lib/feedingUtils"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
+import { FeedingTimerSection } from "./FeedingTimerSection"
+import { BreastFeedingFields } from "./BreastFeedingFields"
+import { BottleFeedingFields } from "./BottleFeedingFields"
+import { FeedingCompletionSelector } from "./FeedingCompletionSelector"
 
 interface FeedingFormProps {
     babyId: number
-    onAdd: (data: FeedingCreate) => Promise<void>
+    onAdd?: (data: FeedingCreate) => Promise<Feeding | undefined>
+    onUpdate?: (id: number, data: FeedingUpdate) => Promise<Feeding | undefined>
+    initialData?: Feeding
+    onSuccess?: () => void
+    lastMilkAmount?: number | null
+    lastBottleContentType?: BottleContentType | null
+    defaultFeedingType?: FeedingType
 }
 
-type ActiveBreastSide = "LEFT" | "RIGHT" | null
+export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, lastMilkAmount, lastBottleContentType, defaultFeedingType }: FeedingFormProps) {
+    const isEditing = !!initialData
+    const [activeTab, setActiveTab] = useState<FeedingType>(initialData?.feeding_type ?? defaultFeedingType ?? "BREAST")
 
-export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
-    const [activeTab, setActiveTab] = useState<FeedingType>("BREAST")
+    // 授乳タイマーの同期
+    useFeedingTimerSync(isEditing ? null : babyId)
 
-    // 左右独立タイマー
-    const [leftSeconds, setLeftSeconds] = useState(0)
-    const [rightSeconds, setRightSeconds] = useState(0)
-    const [activeBreastSide, setActiveBreastSide] = useState<ActiveBreastSide>(null)
-    const leftBaseRef = useRef<number | null>(null)
-    const rightBaseRef = useRef<number | null>(null)
+    // 左右独立タイマー (Hooks)
+    const {
+        leftSeconds,
+        rightSeconds,
+        setLeftSeconds,
+        setRightSeconds,
+        activeBreastSide,
+        toggleTimer,
+        resetAllTimers,
+        formatTimer,
+        totalSeconds
+    } = useFeedingTimer({
+        babyId: isEditing ? null : babyId
+    })
 
     // Phase 2: ボトルコンテンツタイプ・授乳完全度
-    const [bottleContentType, setBottleContentType] = useState<BottleContentType | null>(null)
-    const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(null)
+    const [feedingCompletion, setFeedingCompletion] = useState<FeedingCompletion | null>(initialData?.feeding_completion ?? null)
+    const [burped, setBurped] = useState<boolean | null>(initialData?.burped ?? null)
 
     const form = useForm<FeedingFormValues>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(feedingSchema) as any,
         defaultValues: {
-            feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            feeding_type: "BREAST",
-            left_breast_minutes: 0,
-            right_breast_minutes: 0,
-            amount_ml: 120,
-            notes: "",
+            feeding_time: initialData 
+                ? formatDateTimeLocal(initialData.feeding_time)
+                : formatDateTimeLocal(new Date()),
+            feeding_type: initialData?.feeding_type ?? "BREAST",
+            left_breast_minutes: initialData?.left_breast_minutes ?? 0,
+            right_breast_minutes: initialData?.right_breast_minutes ?? 0,
+            amount_ml: initialData?.amount_ml ?? lastMilkAmount ?? 120,
+            bottle_content_type: initialData?.bottle_content_type ?? lastBottleContentType ?? null,
+            notes: initialData?.notes ?? "",
         },
     })
 
-    // タイマーインターバル
+    // タイマーの値をフォームと同期
     useEffect(() => {
-        if (activeBreastSide === null) return
-        const interval = setInterval(() => {
-            const now = Date.now()
-            if (activeBreastSide === "LEFT" && leftBaseRef.current !== null) {
-                const diff = Math.floor((now - leftBaseRef.current) / 1000)
-                setLeftSeconds(diff)
-                form.setValue("left_breast_minutes", Math.ceil(diff / 60))
-            } else if (activeBreastSide === "RIGHT" && rightBaseRef.current !== null) {
-                const diff = Math.floor((now - rightBaseRef.current) / 1000)
-                setRightSeconds(diff)
-                form.setValue("right_breast_minutes", Math.ceil(diff / 60))
+        form.setValue("left_breast_minutes", Math.ceil(leftSeconds / 60))
+    }, [leftSeconds, form])
+
+    useEffect(() => {
+        form.setValue("right_breast_minutes", Math.ceil(rightSeconds / 60))
+    }, [rightSeconds, form])
+
+    // 前回のミルク量・種類をデフォルトとしてセット (SWRで後から読み込まれた場合)
+    useEffect(() => {
+        if (!isEditing) {
+            if (lastMilkAmount && form.getValues("amount_ml") === 120) {
+                form.setValue("amount_ml", lastMilkAmount)
             }
-        }, 1000)
-        return () => clearInterval(interval)
-    }, [activeBreastSide, form])
-
-    const startTimer = (side: "LEFT" | "RIGHT") => {
-        // 反対側が動いていれば停止
-        if (side === "LEFT" && activeBreastSide === "RIGHT") {
-            rightBaseRef.current = null
-        } else if (side === "RIGHT" && activeBreastSide === "LEFT") {
-            leftBaseRef.current = null
+            if (lastBottleContentType && !form.getValues("bottle_content_type")) {
+                form.setValue("bottle_content_type", lastBottleContentType)
+            }
         }
+    }, [lastMilkAmount, lastBottleContentType, isEditing, form])
 
-        if (side === "LEFT") {
-            leftBaseRef.current = Date.now() - leftSeconds * 1000
-        } else {
-            rightBaseRef.current = Date.now() - rightSeconds * 1000
-        }
-        setActiveBreastSide(side)
-    }
-
-    const stopTimer = () => {
-        setActiveBreastSide(null)
-    }
-
-    const toggleTimer = (side: "LEFT" | "RIGHT") => {
-        if (activeBreastSide === side) {
-            stopTimer()
-        } else {
-            startTimer(side)
-        }
-    }
-
-    const resetAllTimers = useCallback(() => {
-        setActiveBreastSide(null)
-        leftBaseRef.current = null
-        rightBaseRef.current = null
-        setLeftSeconds(0)
-        setRightSeconds(0)
-        form.setValue("left_breast_minutes", 0)
-        form.setValue("right_breast_minutes", 0)
-    }, [form])
-
-    const formatTimer = (seconds: number) => {
-        const mins = Math.floor(seconds / 60)
-        const secs = seconds % 60
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-
-    const totalSeconds = leftSeconds + rightSeconds
+    const { submitRecord, isSubmitting } = useBaseRecordForm<FeedingFormValues>({
+        endpoint: "/feedings/", // Note: This endpoint is actually not used directly when onAdd/onUpdate are provided, but required by type
+        babyId,
+        onSuccess: (data) => {
+            // Reset for new entry only
+            if (!isEditing) {
+                const res = data as Feeding
+                const nextAmount = res?.amount_ml ?? lastMilkAmount ?? 120
+                const nextBottleType = res?.bottle_content_type ?? lastBottleContentType ?? null
+                
+                form.reset({
+                    feeding_time: formatDateTimeLocal(new Date()),
+                    feeding_type: activeTab as "BREAST" | "BOTTLE",
+                    left_breast_minutes: 0,
+                    right_breast_minutes: 0,
+                    amount_ml: nextAmount,
+                    bottle_content_type: nextBottleType,
+                    notes: "",
+                })
+                resetAllTimers()
+                setFeedingCompletion(null)
+                setBurped(null)
+            }
+            if (onSuccess) onSuccess()
+        },
+        successMessage: isEditing ? "更新しました" : "記録しました"
+    })
 
     const onSubmit = useCallback(async (values: FeedingFormValues) => {
-        const leftMin = values.left_breast_minutes || 0
-        const rightMin = values.right_breast_minutes || 0
-
-        // 最終授乳側を判定
-        let lastBreastSide: BreastSide | undefined
-        if (activeTab === "BREAST") {
-            if (leftMin > 0 && rightMin > 0) lastBreastSide = "BOTH"
-            else if (leftMin > 0) lastBreastSide = "LEFT"
-            else if (rightMin > 0) lastBreastSide = "RIGHT"
-        }
-
-        const data: FeedingCreate = {
-            baby_id: babyId,
-            feeding_time: values.feeding_time,
-            feeding_type: activeTab,
-            notes: values.notes || undefined,
-            feeding_completion: feedingCompletion ?? undefined,
-        }
-
-        if (activeTab === "BREAST") {
-            data.left_breast_minutes = leftMin || undefined
-            data.right_breast_minutes = rightMin || undefined
-            data.last_breast_side = lastBreastSide
-            // duration_minutesはバックエンドが自動計算（両方指定時）
-            // 片方のみの場合はフロント側で設定
-            if (leftMin > 0 && rightMin > 0) {
-                // バックエンドが自動計算
+        try {
+            if (isEditing && initialData && onUpdate) {
+                // Update case
+                await submitRecord(
+                    values,
+                    (vals) => buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType: vals.bottle_content_type ?? null,
+                        burped
+                    }),
+                    (payload) => onUpdate(initialData.id, payload)
+                )
+            } else if (onAdd) {
+                // Create case with custom onAdd (needed for triggerFeedback etc)
+                await submitRecord(
+                    values,
+                    (vals) => buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType: vals.bottle_content_type ?? null,
+                        burped
+                    }),
+                    onAdd
+                )
             } else {
-                data.duration_minutes = leftMin + rightMin || undefined
+                // Default create case (standard POST)
+                await submitRecord(values, (vals) => {
+                    return buildFeedingPayload({
+                        babyId,
+                        values: vals,
+                        activeTab,
+                        feedingCompletion,
+                        bottleContentType: vals.bottle_content_type ?? null,
+                        burped
+                    })
+                })
             }
-        } else {
-            data.amount_ml = values.amount_ml
-            data.bottle_content_type = bottleContentType ?? undefined
+        } catch (error) {
+            console.error(error)
+            // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
         }
+    }, [activeTab, babyId, burped, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
-        await onAdd(data)
-
-        // Reset
-        form.reset({
-            feeding_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            feeding_type: activeTab as "BREAST" | "BOTTLE",
-            left_breast_minutes: 0,
-            right_breast_minutes: 0,
-            amount_ml: 120,
-            notes: "",
-        })
-        resetAllTimers()
-        setFeedingCompletion(null)
-        setBottleContentType(null)
-    }, [activeTab, babyId, bottleContentType, feedingCompletion, form, onAdd, resetAllTimers])
-
-    // eslint-disable-next-line react-hooks/refs
     const handleFormSubmit = form.handleSubmit(onSubmit)
 
     return (
-        <Card>
-            <CardContent className="pt-6">
+        <Card className={isEditing ? "border-0 shadow-none" : ""}>
+            <CardContent className={isEditing ? "p-0" : "pt-6"}>
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FeedingType)} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 mb-4">
-                        <TabsTrigger value="BREAST" data-sentry-unmask>🤱 母乳</TabsTrigger>
-                        <TabsTrigger value="BOTTLE" data-sentry-unmask>🍼 ミルク</TabsTrigger>
+                        <TabsTrigger value="BREAST" data-sentry-unmask><Heart className="w-4 h-4 mr-1" /> 母乳</TabsTrigger>
+                        <TabsTrigger value="BOTTLE" data-sentry-unmask><Milk className="w-4 h-4 mr-1" /> ミルク</TabsTrigger>
                     </TabsList>
 
                     <Form {...form}>
@@ -204,7 +204,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                 name="feeding_time"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>日時</FormLabel>
+                                        <FormLabel required> 日時</FormLabel>
                                         <FormControl>
                                             <Input type="datetime-local" {...field} />
                                         </FormControl>
@@ -214,168 +214,52 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                             />
 
                             <TabsContent value="BREAST" className="space-y-4 mt-0">
-                                {/* 左右タイマーセクション */}
-                                <div className="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-lg space-y-3 transition-colors">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {/* 左乳タイマー */}
-                                        <div className="text-center space-y-2">
-                                            <p className="text-xs font-medium text-rose-700 dark:text-rose-300">左乳</p>
-                                            <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
-                                                {formatTimer(leftSeconds)}
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant={activeBreastSide === "LEFT" ? "outline" : "default"}
-                                                className={activeBreastSide === "LEFT"
-                                                    ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                                                    : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
-                                                onClick={() => toggleTimer("LEFT")}
-                                            >
-                                                {activeBreastSide === "LEFT"
-                                                    ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
-                                                    : <><Play className="mr-1 h-3 w-3" />開始</>
-                                                }
-                                            </Button>
-                                        </div>
-                                        {/* 右乳タイマー */}
-                                        <div className="text-center space-y-2">
-                                            <p className="text-xs font-medium text-rose-700 dark:text-rose-300">右乳</p>
-                                            <div className="text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
-                                                {formatTimer(rightSeconds)}
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                size="sm"
-                                                variant={activeBreastSide === "RIGHT" ? "outline" : "default"}
-                                                className={activeBreastSide === "RIGHT"
-                                                    ? "w-full bg-white dark:bg-zinc-900 border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                                                    : "w-full bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700 text-white"}
-                                                onClick={() => toggleTimer("RIGHT")}
-                                            >
-                                                {activeBreastSide === "RIGHT"
-                                                    ? <><Pause className="mr-1 h-3 w-3" />一時停止</>
-                                                    : <><Play className="mr-1 h-3 w-3" />開始</>
-                                                }
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    {/* 合計表示 & リセット */}
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
-                                            合計: {formatTimer(totalSeconds)}
-                                        </p>
-                                        <Button type="button" variant="ghost" size="sm" onClick={resetAllTimers} className="h-7 text-xs">
-                                            <RotateCcw className="h-3 w-3 mr-1 text-gray-500 dark:text-zinc-400" />
-                                            リセット
-                                        </Button>
-                                    </div>
-                                </div>
+                                {/* 左右タイマーセクション (新規作成時のみ表示) */}
+                                {!isEditing && (
+                                    <FeedingTimerSection
+                                        leftSeconds={leftSeconds}
+                                        rightSeconds={rightSeconds}
+                                        activeBreastSide={activeBreastSide}
+                                        totalSeconds={totalSeconds}
+                                        formatTimer={formatTimer}
+                                        toggleTimer={toggleTimer}
+                                        resetAllTimers={resetAllTimers}
+                                    />
+                                )}
 
                                 {/* 左右手動入力 */}
-                                <div className="grid grid-cols-2 gap-3">
-                                    <FormField
-                                        control={form.control}
-                                        name="left_breast_minutes"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-xs">左 (分)</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" min="0" {...field} onChange={e => {
-                                                        field.onChange(e)
-                                                        const val = parseInt(e.target.value) || 0
-                                                        setLeftSeconds(val * 60)
-                                                    }} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="right_breast_minutes"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-xs">右 (分)</FormLabel>
-                                                <FormControl>
-                                                    <Input type="number" min="0" {...field} onChange={e => {
-                                                        field.onChange(e)
-                                                        const val = parseInt(e.target.value) || 0
-                                                        setRightSeconds(val * 60)
-                                                    }} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
+                                <BreastFeedingFields
+                                    form={form}
+                                    setLeftSeconds={setLeftSeconds}
+                                    setRightSeconds={setRightSeconds}
+                                />
                             </TabsContent>
 
                             <TabsContent value="BOTTLE" className="space-y-4 mt-0">
-                                {/* ボトルコンテンツタイプ */}
-                                <div>
-                                    <p className="text-sm font-medium mb-2">種類</p>
-                                    <div className="flex gap-2">
-                                        {([
-                                            { value: "FORMULA" as BottleContentType, label: "粉ミルク" },
-                                            { value: "EXPRESSED_MILK" as BottleContentType, label: "搾母乳" },
-                                            { value: "MIXED" as BottleContentType, label: "混合" },
-                                        ] as const).map(({ value, label }) => (
-                                            <button
-                                                key={value}
-                                                type="button"
-                                                onClick={() => setBottleContentType(prev => prev === value ? null : value)}
-                                                className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-colors
-                                                    ${bottleContentType === value
-                                                        ? "bg-blue-500 text-white border-blue-500"
-                                                        : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-blue-300"
-                                                    }`}
-                                            >
-                                                {label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <FormField
-                                    control={form.control}
-                                    name="amount_ml"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>ミルク量 (ml)</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" step="10" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
+                                <BottleFeedingFields
+                                    form={form}
                                 />
                             </TabsContent>
 
                             {/* 共通: 授乳完全度 */}
-                            <div>
-                                <p className="text-sm font-medium mb-2">授乳完全度</p>
-                                <div className="flex gap-2">
-                                    {([
-                                        { value: "FULL" as FeedingCompletion, label: "しっかり飲んだ" },
-                                        { value: "PARTIAL" as FeedingCompletion, label: "途中でやめた" },
-                                    ] as const).map(({ value, label }) => (
-                                        <button
-                                            key={value}
-                                            type="button"
-                                            onClick={() => setFeedingCompletion(prev => prev === value ? null : value)}
-                                            className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-colors
-                                                ${feedingCompletion === value
-                                                    ? value === "FULL"
-                                                        ? "bg-green-500 text-white border-green-500"
-                                                        : "bg-amber-500 text-white border-amber-500"
-                                                    : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:border-gray-300"
-                                                }`}
-                                        >
-                                            {label}
-                                        </button>
-                                    ))}
-                                </div>
+                            <FeedingCompletionSelector
+                                value={feedingCompletion}
+                                onChange={setFeedingCompletion}
+                            />
+
+                            {/* 共通: ゲップ */}
+                            <div className="flex items-center gap-3 py-1">
+                                <Checkbox
+                                    id="burped"
+                                    checked={burped === true}
+                                    onCheckedChange={(checked) => setBurped(checked === true ? true : checked === false ? false : null)}
+                                />
+                                <label
+                                    htmlFor="burped"
+                                    className="text-sm font-medium leading-none cursor-pointer select-none"
+                                >
+                                    ゲップできた
+                                </label>
                             </div>
 
                             <FormField
@@ -383,7 +267,7 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                 name="notes"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>メモ</FormLabel>
+                                        <FormLabel> メモ</FormLabel>
                                         <FormControl>
                                             <Textarea placeholder="例: 飲みむらあり" {...field} />
                                         </FormControl>
@@ -392,9 +276,14 @@ export function FeedingForm({ babyId, onAdd }: FeedingFormProps) {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" data-sentry-unmask>
+                            <Button
+                                type="submit"
+                                className={cn("w-full rounded-xl h-11", UI_BUTTONS.primary)}
+                                loading={isSubmitting}
+                                data-sentry-unmask
+                            >
                                 <Save className="w-4 h-4 mr-2" />
-                                記録する
+                                {isEditing ? "更新する" : "記録する"}
                             </Button>
                         </form>
                     </Form>

@@ -1,0 +1,99 @@
+"use client"
+
+import { ReactNode } from "react"
+import { LucideIcon } from "lucide-react"
+import { AccessDenied } from "@/components/ui/access-denied"
+import { isApiError } from "@/lib/api"
+import { PullToRefresh } from "@/components/ui/pull-to-refresh"
+import { RecordPageSkeleton } from "@/components/ui/record-page-skeleton"
+
+interface RecordPageLayoutProps {
+    /** ページタイトル */
+    title: string
+    /** ページアイコン */
+    icon: LucideIcon
+    /** アイコンの色 (CSS class) */
+    iconColorClass: string
+    /** ページ全体の初期ロード中フラグ (赤ちゃん情報の取得など) */
+    isLoading?: boolean
+    /** 機能固有のデータ読み込み中フラグ (履歴や統計の取得など) */
+    isDataLoading?: boolean
+    /** APIエラー (403判定に使用) */
+    apiError?: unknown
+    /** 対象の赤ちゃんID (未選択時のチェックに使用) */
+    babyId?: string
+    /** 子要素 (メインコンテンツ) */
+    children: ReactNode
+    /** 下に引っ張って更新する際のコールバック */
+    onRefresh?: () => Promise<unknown>
+}
+
+/**
+ * 育児記録ページ共通のレイアウト・エラーハンドリング・ローディング表示コンポーネント
+ */
+export function RecordPageLayout({
+    title,
+    icon: Icon,
+    iconColorClass,
+    isLoading,
+    isDataLoading,
+    apiError,
+    babyId,
+    children,
+    onRefresh,
+}: RecordPageLayoutProps) {
+    // 権限エラー (403 Forbidden)
+    const isAccessDenied = isApiError(apiError) && apiError.status === 403
+
+    const renderContent = () => {
+        // 赤ちゃん情報や権限の初期ロード中、またはデータロード中 (初回のみ)
+        if (isLoading || (isDataLoading && !children)) {
+            return <RecordPageSkeleton />
+        }
+
+        // 対象の赤ちゃんが特定できない場合
+        if (!babyId) {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 text-center">
+                    <p className="text-muted-foreground">赤ちゃんが登録されていないか、選択されていません。</p>
+                </div>
+            )
+        }
+
+        if (isAccessDenied) {
+            return <AccessDenied />
+        }
+
+        return children
+    }
+
+    const content = (
+        <main className="max-w-5xl mx-auto p-4 space-y-6 pb-24">
+            {renderContent()}
+        </main>
+    )
+
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
+            {/* 共通ヘッダー */}
+            <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
+                <div className="flex items-center justify-center h-14 px-4 max-w-5xl mx-auto">
+                    <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
+                        <Icon className={`h-4 w-4 ${iconColorClass}`} />
+                        {title}
+                    </h1>
+                </div>
+            </header>
+
+            {/* メインコンテンツ */}
+            {onRefresh ? (
+                <PullToRefresh onRefresh={onRefresh}>
+                    {content}
+                </PullToRefresh>
+            ) : (
+                content
+            )}
+        </div>
+    )
+}
+

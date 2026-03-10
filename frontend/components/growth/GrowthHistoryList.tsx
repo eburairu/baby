@@ -1,22 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Edit2, Trash2, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { MessageCircle } from "lucide-react"
 import { api } from "@/lib/api"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import type { Growth } from "@/types/growth"
+import { useRecordComments } from "@/hooks/useRecordComments"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
 
 interface GrowthHistoryListProps {
     records: Growth[]
@@ -33,35 +22,21 @@ export function GrowthHistoryList({
     canWrite = true,
     initialCommentRecordId,
 }: GrowthHistoryListProps) {
-    const { user } = useUser()
-    const [deleteId, setDeleteId] = useState<number | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
+    const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
+        onDelete: async (id) => {
+            await api.delete(`/growths/${id}`)
+        },
+        onSuccess: onDeleteSuccess,
+        resourceName: "成長記録"
+    });
 
-    useEffect(() => {
-        if (initialCommentRecordId && records.length > 0 && !initializedRef.current) {
-            const target = records.find(r => r.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `成長記録 ${target.date}` })
-            }
-        }
-    }, [initialCommentRecordId, records])
-
-    const handleDelete = async () => {
-        if (!deleteId) return
-        setIsDeleting(true)
-        try {
-            await api.delete(`/growths/${deleteId}`)
-            onDeleteSuccess()
-        } catch (error) {
-            console.error("Failed to delete growth record:", error)
-        } finally {
-            setIsDeleting(false)
-            setDeleteId(null)
-        }
-    }
+    const { openComment, CommentDialog } = useRecordComments({
+        records: records,
+        recordType: "growth",
+        initialCommentRecordId,
+        getTitle: (record) => `成長記録 ${record.date}`,
+        onCommentChange: onDeleteSuccess
+    });
 
     if (records.length === 0) {
         return (
@@ -103,9 +78,10 @@ export function GrowthHistoryList({
                                     {record.recorded_by_display_name ?? "-"}
                                 </td>
                                 <td className="py-2 px-4">
-                                    <button
-                                        onClick={() => setCommentTarget({ id: record.id, title: `成長記録 ${record.date}` })}
-                                        className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+                                <button
+                                    aria-label={`${record.date} の成長記録へのコメント${(record.comment_count ?? 0) > 0 ? ` (${record.comment_count}件)` : ""}`}
+                                        onClick={() => openComment(record)}
+                                    className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
                                     >
                                         <MessageCircle className="w-3.5 h-3.5" />
                                         {(record.comment_count ?? 0) > 0 && <span>{record.comment_count}</span>}
@@ -113,23 +89,13 @@ export function GrowthHistoryList({
                                 </td>
                                 {canWrite && (
                                     <td className="py-2 px-4">
-                                        <div className="flex gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-xs"
-                                                onClick={() => onEdit(record)}
-                                            >
-                                                <Edit2 className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-xs"
-                                                className="text-destructive hover:text-destructive"
-                                                onClick={() => setDeleteId(record.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
+                                        <RecordActionButtons
+                                            canWrite={canWrite}
+                                            onEdit={() => onEdit(record)}
+                                            onDelete={() => setDeleteTargetId(record.id)}
+                                            editLabel={`${record.date} の成長記録を編集`}
+                                            deleteLabel={`${record.date} の成長記録を削除`}
+                                        />
                                     </td>
                                 )}
                             </tr>
@@ -139,38 +105,10 @@ export function GrowthHistoryList({
             </div>
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="growth"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onDeleteSuccess}
-                />
-            )}
+            <CommentDialog />
 
-            <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle data-sentry-unmask>記録を削除しますか？</AlertDialogTitle>
-                        <AlertDialogDescription data-sentry-unmask>
-                            この操作は取り消せません。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction
-                            data-sentry-unmask className="bg-destructive text-white hover:bg-destructive/90"
-                            onClick={handleDelete}
-                            disabled={isDeleting}
-                        >
-                            削除する
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            {/* 削除確認ダイアログ */}
+            <ConfirmDeleteDialog />
         </>
     )
 }

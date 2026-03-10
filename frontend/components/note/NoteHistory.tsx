@@ -1,46 +1,17 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Note, deleteNote, updateNote } from "@/hooks/useNotes"
-import { Button } from "@/components/ui/button"
-import { Trash2, Pencil, Calendar, Save, User, MessageCircle } from "lucide-react"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { ErrorMessage } from "@/components/ui/error-message"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
+import { useState } from "react"
+import { Note, deleteNote } from "@/hooks/useNotes"
+import { RecordMetaItems } from "@/components/records/RecordMetaItems"
+import { formatFullDateTime } from "@/lib/dateUtils"
+import { Calendar } from "lucide-react"
 
-const noteSchema = z.object({
-    note_time: z.string().min(1, "日時は必須です"),
-    content: z.string().min(1, "内容は必須です").max(2000, "2000文字以内で入力してください"),
-})
-
-type NoteFormValues = z.infer<typeof noteSchema>
+import { HistoryCard } from "@/components/records/HistoryCard"
+import { RecordListItem } from "@/components/records/RecordListItem"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
+import { useRecordComments } from "@/hooks/useRecordComments"
+import { NoteEditDialog } from "./NoteEditDialog"
 
 interface Props {
     notes: Note[]
@@ -50,249 +21,80 @@ interface Props {
 }
 
 export function NoteHistory({ notes, onRefresh, canWrite = true, initialCommentRecordId }: Props) {
-    const { user } = useUser()
     const [editingNote, setEditingNote] = useState<Note | null>(null)
     const [isEditing, setIsEditing] = useState(false)
-    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [submitting, setSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
 
-    useEffect(() => {
-        if (initialCommentRecordId && notes.length > 0 && !initializedRef.current) {
-            const target = notes.find(n => n.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `メモ ${format(new Date(target.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })
-            }
-        }
-    }, [initialCommentRecordId, notes])
-
-    const form = useForm<NoteFormValues>({
-        resolver: zodResolver(noteSchema),
-        defaultValues: {
-            note_time: "",
-            content: "",
+    const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
+        onDelete: async (id) => {
+            await deleteNote(id)
         },
-    })
+        onSuccess: onRefresh,
+        resourceName: "メモ"
+    });
+
+    const { openComment, CommentDialog } = useRecordComments({
+        records: notes,
+        recordType: "note",
+        initialCommentRecordId,
+        getTitle: (n) => `メモ ${formatFullDateTime(n.note_time)}`,
+        onCommentChange: onRefresh
+    });
 
     const handleEditStart = (note: Note) => {
         setEditingNote(note)
-        
-        const date = new Date(note.note_time)
-        const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16)
-        
-        form.reset({
-            content: note.content,
-            note_time: localIso,
-        })
-        
-        setError(null)
         setIsEditing(true)
     }
 
-    const handleUpdate = async (values: NoteFormValues) => {
-        if (!editingNote) return
-        setSubmitting(true)
-        setError(null)
-        try {
-            await updateNote(editingNote.id, {
-                content: values.content,
-                note_time: new Date(values.note_time).toISOString()
-            })
-            onRefresh()
-            setIsEditing(false)
-        } catch (e) {
-            console.error(e)
-            setError("更新に失敗しました。時間をおいて再度お試しください。")
-        } finally {
-            setSubmitting(false)
-        }
-    }
-
-    const handleDelete = async () => {
-        if (deleteTargetId === null) return
-        setIsDeleting(true)
-        try {
-            await deleteNote(deleteTargetId)
-            onRefresh()
-        } catch (e) {
-            console.error(e)
-            alert("削除に失敗しました")
-        } finally {
-            setIsDeleting(false)
-            setDeleteTargetId(null)
-        }
-    }
+    const isEmpty = !notes || notes.length === 0;
 
     return (
         <>
-            <Card className="rounded-2xl shadow-sm border-0 transition-colors">
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-500 dark:text-zinc-500">履歴</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {notes.length === 0 && (
-                        <p className="text-sm text-gray-400 dark:text-zinc-500 text-center py-8">
-                            メモがまだありません
-                        </p>
-                    )}
-
-                    {notes.map((note) => (
-                        <div
-                            key={note.id}
-                            className="p-4 rounded-xl border border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm space-y-2"
-                        >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-400 font-medium">
-                                    <span className="flex items-center gap-1.5">
-                                        <Calendar className="h-3.5 w-3.5" />
-                                        {format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}
-                                    </span>
-                                    {note.recorded_by_display_name && (
-                                        <span className="flex items-center gap-1 text-gray-400 dark:text-zinc-500">
-                                            <User className="h-3 w-3" />
-                                            {note.recorded_by_display_name}
-                                        </span>
-                                    )}
-                                    <button
-                                        onClick={() => setCommentTarget({ id: note.id, title: `メモ ${format(new Date(note.note_time), "yyyy/MM/dd HH:mm", { locale: ja })}` })}
-                                        className="flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
-                                    >
-                                        <MessageCircle className="h-3 w-3" />
-                                        {(note.comment_count ?? 0) > 0 && <span>{note.comment_count}</span>}
-                                    </button>
-                                </div>
-                                {canWrite && (
-                                    <div className="flex gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
-                                            onClick={() => handleEditStart(note)}
-                                            aria-label="メモを編集"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                                            onClick={() => setDeleteTargetId(note.id)}
-                                            aria-label="メモを削除"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
-                            <p className="text-sm text-gray-700 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed">
-                                {note.content}
-                            </p>
+            <HistoryCard title="履歴" isEmpty={isEmpty} emptyMessage="メモがまだありません">
+                {(notes || []).map((note) => (
+                    <RecordListItem
+                        key={note.id}
+                        className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800"
+                        actions={
+                            <RecordActionButtons
+                                canWrite={canWrite}
+                                onEdit={() => handleEditStart(note)}
+                                onDelete={() => setDeleteTargetId(note.id)}
+                                editLabel="メモを編集"
+                                deleteLabel="メモを削除"
+                            />
+                        }
+                    >
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-zinc-400 font-medium mb-2">
+                            <span className="flex items-center gap-1.5">
+                                <Calendar className="h-3.5 w-3.5" />
+                                {formatFullDateTime(note.note_time)}
+                            </span>
+                            <RecordMetaItems
+                                displayName={note.recorded_by_display_name}
+                                commentCount={note.comment_count}
+                                onCommentClick={() => openComment(note)}
+                                className="contents"
+                            />
                         </div>
-                    ))}
-                </CardContent>
-            </Card>
+                        <p className="text-sm text-gray-700 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed">
+                            {note.content}
+                        </p>
+                    </RecordListItem>
+                ))}
+            </HistoryCard>
+
+            <ConfirmDeleteDialog />
 
             {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="note"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={onRefresh}
-                />
-            )}
+            <CommentDialog />
 
             {/* 編集ダイアログ */}
-            <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                <DialogContent className="sm:max-w-md dark:bg-zinc-900 dark:border-zinc-800">
-                    <DialogHeader>
-                        <DialogTitle data-sentry-unmask>メモの編集</DialogTitle>
-                    </DialogHeader>
-                    
-                    {error && <ErrorMessage message={error} className="mb-2" />}
-
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleUpdate)} className="space-y-4 py-2">
-                            <FormField
-                                control={form.control}
-                                name="note_time"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel data-sentry-unmask>日時</FormLabel>
-                                        <FormControl>
-                                            <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                                                {field.value ? format(new Date(field.value), "yyyy年MM月dd日 HH:mm", { locale: ja }) : "-"}
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="content"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel data-sentry-unmask>内容</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                rows={5}
-                                                {...field}
-                                                className="dark:bg-zinc-800 dark:border-zinc-700 resize-none leading-relaxed"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            
-                            <DialogFooter className="gap-2">
-                                <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    data-sentry-unmask onClick={() => setIsEditing(false)}
-                                    disabled={submitting}
-                                >
-                                    キャンセル
-                                </Button>
-                                <Button 
-                                    type="submit" 
-                                    disabled={submitting}
-                                    data-sentry-unmask className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                                >
-                                    <Save className="h-4 w-4 mr-2" />
-                                    {submitting ? "保存中..." : "保存する"}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-                    </Form>
-                </DialogContent>
-            </Dialog>
-
-            {/* 削除確認 */}
-            <AlertDialog open={deleteTargetId !== null} onOpenChange={(o) => !o && setDeleteTargetId(null)}>
-                <AlertDialogContent className="dark:bg-zinc-900 dark:border-zinc-800">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle data-sentry-unmask>メモの削除</AlertDialogTitle>
-                        <AlertDialogDescription data-sentry-unmask>
-                            このメモを削除しますか？この操作は取り消せません。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
-                            削除
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <NoteEditDialog
+                note={editingNote}
+                open={isEditing}
+                onOpenChange={setIsEditing}
+                onSuccess={onRefresh}
+            />
         </>
     )
 }

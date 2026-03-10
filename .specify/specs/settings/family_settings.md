@@ -1,8 +1,8 @@
-# 家族管理画面 仕様書 (Family Settings Specification)
+# 家族管理画面仕様書 (Family Settings Specification)
 
 ## 概要
 
-Baby App の家族設定画面（`/settings/family`）の仕様。
+Botoro の家族設定画面（`/settings/family`）の仕様。
 家族名の編集、招待コードの管理、メンバーの一覧・ロール変更・削除を行う管理画面。
 エントリポイントはダッシュボードヘッダーの Settings アイコン。
 
@@ -196,14 +196,14 @@ class FamilyUpdate(BaseModel):
 class FamilyMemberResponse(BaseModel):
     user_id: int
     username: str
-    role: str  # "admin" | "member"
+    display_name: Optional[str] = None
+    role: UserRole
     joined_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MemberRoleUpdate(BaseModel):
-    role: str  # "admin" | "member"
+    role: UserRole
 
 class PasswordResetResponse(BaseModel):
     temporary_password: str  # バックエンドが生成した平文仮パスワード（1度だけ返す）

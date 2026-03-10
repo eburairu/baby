@@ -1,4 +1,4 @@
-# 睡眠記録機能 仕様書 (Sleep Tracker Specification)
+# 睡眠記録機能仕様書 (Sleep Tracker Specification)
 
 ## 概要
 
@@ -27,7 +27,11 @@
     - 開始日時 (Start Time): 必須。
     - 終了日時 (End Time): 任意（進行中の場合は未設定）。
     - メモ: 自由記述（例: 「抱っこで寝落ち」「夜泣きあり」など）。
-- **保存**: API に POST/PUT して保存する。
+- **保存**: API に POST/PATCH して保存する。
+    - **処理中フィードバック（新規・HIGH）**: 保存ボタン（および開始/停止ボタン）が押された後、API レスポンスが返るまでの間、ボタンを無効化（Disabled）し、テキスト置換（「保存」→「保存中...」）およびスピナーを表示して処理中であることを示す。二重送信を完全に防止する。
+    - **家族への通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Webプッシュ/アプリ内通知）が送信される。
+        - タイトル: "睡眠の記録"
+        - 本文: "{記録者名}さんが{赤ちゃん名}の睡眠を記録しました。"
 
 ### F2: 睡眠記録一覧 (タイムライン)
 
@@ -41,13 +45,19 @@
     - 削除確認ダイアログを表示し、誤操作を防ぐ。
     - 削除処理中は確認ダイアログの「削除」「キャンセル」ボタンを無効化し、二重送信を防ぐ。
 
+### F4: 生活リズムチャート
+
+統計サマリーと履歴リストの間に、過去7日の睡眠開始時刻を可視化するリズムチャートを表示する。
+（終了時刻ではなく開始時刻をプロットすることで「いつ眠くなるか」のリズムを把握できる）
+
+- 詳細仕様: [daily_rhythm_chart.md](./daily_rhythm_chart.md) を参照。
+
 ### F3: 統計サマリー (Daily)
 
 - **今日の合計**:
     - 睡眠回数
     - 合計睡眠時間
-- **視覚化 (Optional/Future)**:
-    - 24時間のバーチャート表示（タイムライン）。
+- **視覚化**: 生活リズムチャート（F4）として別セクションに分離。
 
 ## 画面構成
 
@@ -100,24 +110,25 @@
 
 - `GET /api/sleeps/?baby_id={id}`: 指定した赤ちゃんの睡眠記録一覧を取得
 - `POST /api/sleeps/`: 新しい睡眠記録を作成（開始）
-- `PUT /api/sleeps/{id}`: 既存の睡眠記録を更新（終了時間の記録、修正）
+    - **通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Push/In-App）が送信される。
+- `PATCH /api/sleeps/{id}`: 既存の睡眠記録を更新（終了時間の記録、修正）
 - `DELETE /api/sleeps/{id}`: 削除
 
 ### リクエストスキーマ (`SleepCreate` / `SleepUpdate`)
 
 ```typescript
 // Create (Start)
-{
-  baby_id: number,
-  start_time: string, // ISO 8601
-  end_time?: string,  // Optional (for manual entry)
+interface SleepCreate {
+  baby_id: number
+  start_time: string // ISO 8601
+  end_time?: string  // Optional (for manual entry)
   notes?: string
 }
 
 // Update (End / Edit)
-{
-  start_time?: string,
-  end_time?: string,  // Set this to stop the timer
+interface SleepUpdate {
+  start_time?: string
+  end_time?: string  // Set this to stop the timer
   notes?: string
 }
 ```
@@ -125,14 +136,11 @@
 ### レスポンススキーマ (`SleepResponse`)
 
 ```typescript
-interface SleepResponse {
+interface SleepResponse extends SleepCreate {
   id: number
-  baby_id: number
   user_id: number
-  start_time: string
-  end_time: string | null
-  notes: string | null
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number
 }
 ```
 

@@ -1,4 +1,4 @@
-# Baby App Frontend
+# Botoro Frontend
 
 Next.js 16 (App Router, Static Export) によるフロントエンド。
 

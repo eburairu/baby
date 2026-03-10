@@ -20,9 +20,11 @@ interface NotificationSettings {
 }
 
 export default function NotificationsPage() {
-  const { permission, requestPermission, subscribeUser, sendSubscriptionToBackend } = usePushNotification();
+  const { permission, subscription, requestPermission, subscribeUser, unsubscribeUser, sendSubscriptionToBackend } = usePushNotification();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dndInputsVisible, setDndInputsVisible] = useState(false);
+  const dndEnabled = !!(settings?.dnd_start_time && settings?.dnd_end_time);
 
   useEffect(() => {
     fetchSettings();
@@ -34,11 +36,49 @@ export default function NotificationsPage() {
       if (response.ok) {
         const data = await response.json();
         setSettings(data);
+        setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
       }
     } catch (error) {
       console.error("Failed to fetch settings:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDndToggle = async (enabled: boolean) => {
+    setDndInputsVisible(enabled);
+    if (!enabled) {
+      const newSettings = { ...settings!, dnd_start_time: null, dnd_end_time: null };
+      setSettings(newSettings);
+      try {
+        const res = await fetch("/api/notifications/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dnd_start_time: null, dnd_end_time: null }),
+        });
+        if (!res.ok) throw new Error();
+        toast.success("おやすみモードを無効にしました");
+      } catch {
+        toast.error("設定の更新に失敗しました");
+        fetchSettings();
+      }
+    } else {
+      const defaultStart = "21:00";
+      const defaultEnd = "08:00";
+      const newSettings = { ...settings!, dnd_start_time: defaultStart, dnd_end_time: defaultEnd };
+      setSettings(newSettings);
+      try {
+        const res = await fetch("/api/notifications/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dnd_start_time: defaultStart, dnd_end_time: defaultEnd }),
+        });
+        if (!res.ok) throw new Error();
+        toast.success("おやすみモードを有効にしました");
+      } catch {
+        toast.error("設定の更新に失敗しました");
+        fetchSettings();
+      }
     }
   };
 
@@ -114,7 +154,7 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
       <SettingsHeader title="通知設定" />
 
-      <div className="max-w-2xl mx-auto p-4 space-y-6 pb-20">
+      <div className="max-w-5xl mx-auto p-4 space-y-6 pb-20">
         <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -137,7 +177,7 @@ export default function NotificationsPage() {
                 </Button>
               )}
             </div>
-            {permission === "granted" && (
+            {permission === "granted" && subscription && (
               <div className="flex items-center justify-between pt-2 border-t">
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">テスト通知を送信</p>
@@ -150,10 +190,23 @@ export default function NotificationsPage() {
                     try {
                       const res = await fetch("/api/notifications/test", { method: "POST" });
                       const data = await res.json();
-                      if (data.success) {
-                        toast.success("テスト通知を送信しました");
+                      if (data.subscription_count === 0) {
+                        toast.error(data.message);
                       } else {
-                        toast.error(data.message || "テスト通知の送信に失敗しました");
+                        const failures = data.results?.filter((r: { success: boolean }) => !r.success) || [];
+                        if (failures.length > 0) {
+                          const groups: Record<string, string[]> = {};
+                          (failures as { subscription_id: number; error: string | null }[]).forEach((f) => {
+                            const msg = f.error || "不明なエラー";
+                            groups[msg] = [...(groups[msg] || []), `sub#${f.subscription_id}`];
+                          });
+                          const errorDetails = Object.entries(groups)
+                            .map(([msg, subs]) => `${msg} (${subs.join(", ")})`)
+                            .join(", ");
+                          toast.error(`送信失敗: ${errorDetails}`);
+                        } else {
+                          toast.success("テスト通知を送信しました");
+                        }
                       }
                     } catch {
                       toast.error("テスト通知の送信に失敗しました");
@@ -161,6 +214,40 @@ export default function NotificationsPage() {
                   }}
                 >
                   送信
+                </Button>
+              </div>
+            )}
+            {permission === "granted" && subscription && (
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">このデバイスの通知を無効にする</p>
+                  <p className="text-xs text-muted-foreground">このデバイスへのプッシュ通知を停止します</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={async () => {
+                    try {
+                      await unsubscribeUser(subscription);
+                      toast.success("このデバイスの通知を無効にしました");
+                    } catch {
+                      toast.error("通知の無効化に失敗しました");
+                    }
+                  }}
+                >
+                  無効にする
+                </Button>
+              </div>
+            )}
+            {permission === "granted" && !subscription && (
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">このデバイスで通知を受け取る</p>
+                  <p className="text-xs text-muted-foreground">プッシュ通知の購読を登録します</p>
+                </div>
+                <Button size="sm" onClick={handleEnableNotifications}>
+                  購読する
                 </Button>
               </div>
             )}
@@ -235,34 +322,42 @@ export default function NotificationsPage() {
 
         <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-indigo-500" />
-              おやすみモード
-            </CardTitle>
-            <CardDescription>指定した時間帯は通知を送信しません</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">開始時間</label>
-                <input
-                  type="time"
-                  className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
-                  value={settings?.dnd_start_time || ""}
-                  onChange={(e) => updateSetting("dnd_start_time", e.target.value || null)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">終了時間</label>
-                <input
-                  type="time"
-                  className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
-                  value={settings?.dnd_end_time || ""}
-                  onChange={(e) => updateSetting("dnd_end_time", e.target.value || null)}
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Clock className="h-5 w-5 text-indigo-500" />
+                おやすみモード
+              </CardTitle>
+              <Switch
+                checked={dndEnabled}
+                onCheckedChange={handleDndToggle}
+              />
             </div>
-          </CardContent>
+            <CardDescription>指定した時間帯はプッシュ通知を送信しません</CardDescription>
+          </CardHeader>
+          {dndInputsVisible && (
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">開始時間</label>
+                  <input
+                    type="time"
+                    className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
+                    value={settings?.dnd_start_time || ""}
+                    onChange={(e) => updateSetting("dnd_start_time", e.target.value || null)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-muted-foreground">終了時間</label>
+                  <input
+                    type="time"
+                    className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
+                    value={settings?.dnd_end_time || ""}
+                    onChange={(e) => updateSetting("dnd_end_time", e.target.value || null)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          )}
         </Card>
       </div>
     </div>

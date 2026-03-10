@@ -1,6 +1,137 @@
 {
   "components": {
     "schemas": {
+      "AIModel": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "title": "AIModel",
+        "type": "object"
+      },
+      "AISettingsPatch": {
+        "description": "PATCH /api/ai/settings リクエストボディ",
+        "properties": {
+          "settings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Settings",
+            "type": "object"
+          }
+        },
+        "required": [
+          "settings"
+        ],
+        "title": "AISettingsPatch",
+        "type": "object"
+      },
+      "AISettingsSummary": {
+        "description": "GET /api/ai/settings レスポンス",
+        "properties": {
+          "available_models": {
+            "items": {
+              "$ref": "#/components/schemas/AIModel"
+            },
+            "title": "Available Models",
+            "type": "array"
+          },
+          "settings": {
+            "additionalProperties": true,
+            "title": "Settings",
+            "type": "object"
+          }
+        },
+        "required": [
+          "settings",
+          "available_models"
+        ],
+        "title": "AISettingsSummary",
+        "type": "object"
+      },
+      "AdminFamilyMemberResponse": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "role",
+          "joined_at"
+        ],
+        "title": "AdminFamilyMemberResponse",
+        "type": "object"
+      },
+      "AdminStats": {
+        "properties": {
+          "active_users_last_24h": {
+            "title": "Active Users Last 24H",
+            "type": "integer"
+          },
+          "total_families": {
+            "title": "Total Families",
+            "type": "integer"
+          },
+          "total_records": {
+            "title": "Total Records",
+            "type": "integer"
+          },
+          "total_users": {
+            "title": "Total Users",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_users",
+          "total_families",
+          "total_records",
+          "active_users_last_24h"
+        ],
+        "title": "AdminStats",
+        "type": "object"
+      },
       "AppNotificationResponse": {
         "properties": {
           "body": {
@@ -56,6 +187,190 @@
         "title": "AppNotificationResponse",
         "type": "object"
       },
+      "AuditLogResponse": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "ip_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip Address"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Username"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "username",
+          "action",
+          "details",
+          "ip_address",
+          "created_at"
+        ],
+        "title": "AuditLogResponse",
+        "type": "object"
+      },
+      "BabyAchievementResponse": {
+        "description": "実績一覧APIのレスポンス",
+        "properties": {
+          "achieved_at": {
+            "format": "date-time",
+            "title": "Achieved At",
+            "type": "string"
+          },
+          "achievement_id": {
+            "title": "Achievement Id",
+            "type": "string"
+          },
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "icon": {
+            "title": "Icon",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rarity": {
+            "title": "Rarity",
+            "type": "string"
+          },
+          "triggered_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Triggered By Display Name"
+          }
+        },
+        "required": [
+          "id",
+          "baby_id",
+          "achievement_id",
+          "achieved_at",
+          "name",
+          "icon",
+          "category",
+          "rarity",
+          "description"
+        ],
+        "title": "BabyAchievementResponse",
+        "type": "object"
+      },
+      "BabyAdminResponse": {
+        "properties": {
+          "birthday": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthday"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "created_at"
+        ],
+        "title": "BabyAdminResponse",
+        "type": "object"
+      },
       "BabyCreate": {
         "properties": {
           "birthday": {
@@ -73,6 +388,7 @@
           "characteristics": {
             "anyOf": [
               {
+                "maxLength": 1000,
                 "type": "string"
               },
               {
@@ -80,6 +396,17 @@
               }
             ],
             "title": "Characteristics"
+          },
+          "diaper_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diaper Threshold Minutes"
           },
           "due_date": {
             "anyOf": [
@@ -93,23 +420,29 @@
             ],
             "title": "Due Date"
           },
-          "gender": {
+          "feeding_threshold_minutes": {
             "anyOf": [
               {
-                "enum": [
-                  "boy",
-                  "girl",
-                  "unknown"
-                ],
-                "type": "string"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Gender"
+            "title": "Feeding Threshold Minutes"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Gender"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
+            "maxLength": 100,
             "title": "Name",
             "type": "string"
           }
@@ -200,6 +533,7 @@
           "characteristics": {
             "anyOf": [
               {
+                "maxLength": 1000,
                 "type": "string"
               },
               {
@@ -212,6 +546,17 @@
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "diaper_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diaper Threshold Minutes"
           },
           "due_date": {
             "anyOf": [
@@ -229,27 +574,33 @@
             "title": "Family Id",
             "type": "integer"
           },
-          "gender": {
+          "feeding_threshold_minutes": {
             "anyOf": [
               {
-                "enum": [
-                  "boy",
-                  "girl",
-                  "unknown"
-                ],
-                "type": "string"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Gender"
+            "title": "Feeding Threshold Minutes"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Gender"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "id": {
             "title": "Id",
             "type": "integer"
           },
           "name": {
+            "maxLength": 100,
             "title": "Name",
             "type": "string"
           }
@@ -280,6 +631,7 @@
           "characteristics": {
             "anyOf": [
               {
+                "maxLength": 1000,
                 "type": "string"
               },
               {
@@ -287,6 +639,17 @@
               }
             ],
             "title": "Characteristics"
+          },
+          "diaper_threshold_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diaper Threshold Minutes"
           },
           "due_date": {
             "anyOf": [
@@ -300,25 +663,31 @@
             ],
             "title": "Due Date"
           },
-          "gender": {
+          "feeding_threshold_minutes": {
             "anyOf": [
               {
-                "enum": [
-                  "boy",
-                  "girl",
-                  "unknown"
-                ],
-                "type": "string"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Gender"
+            "title": "Feeding Threshold Minutes"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Gender"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
             "anyOf": [
               {
+                "maxLength": 100,
                 "type": "string"
               },
               {
@@ -334,7 +703,7 @@
       "Body_upload_image_api_upload_image_post": {
         "properties": {
           "file": {
-            "format": "binary",
+            "contentMediaType": "application/octet-stream",
             "title": "File",
             "type": "string"
           }
@@ -366,6 +735,7 @@
       "CommentCreate": {
         "properties": {
           "content": {
+            "maxLength": 2000,
             "title": "Content",
             "type": "string"
           }
@@ -378,7 +748,19 @@
       },
       "CommentResponse": {
         "properties": {
+          "ai_has_concern": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Has Concern"
+          },
           "content": {
+            "maxLength": 2000,
             "title": "Content",
             "type": "string"
           },
@@ -390,6 +772,11 @@
           "id": {
             "title": "Id",
             "type": "integer"
+          },
+          "is_ai_generated": {
+            "default": false,
+            "title": "Is Ai Generated",
+            "type": "boolean"
           },
           "user_display_name": {
             "anyOf": [
@@ -403,8 +790,15 @@
             "title": "User Display Name"
           },
           "user_id": {
-            "title": "User Id",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
           },
           "user_role": {
             "title": "User Role",
@@ -465,6 +859,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -538,6 +933,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -576,6 +972,65 @@
         "title": "ContractionResponse",
         "type": "object"
       },
+      "ContractionTimerResponse": {
+        "properties": {
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "status": {
+            "enum": [
+              "idle",
+              "timing"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "start_time"
+        ],
+        "title": "ContractionTimerResponse",
+        "type": "object"
+      },
+      "ContractionTimerUpdate": {
+        "properties": {
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "status": {
+            "enum": [
+              "idle",
+              "timing"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ContractionTimerUpdate",
+        "type": "object"
+      },
       "ContractionUpdate": {
         "properties": {
           "duration_seconds": {
@@ -604,6 +1059,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -786,6 +1242,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -829,6 +1286,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -847,6 +1305,14 @@
               }
             ],
             "title": "Recorded By Display Name"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
           },
           "user_id": {
             "title": "User Id",
@@ -899,6 +1365,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -909,6 +1376,35 @@
           }
         },
         "title": "DiaperUpdate",
+        "type": "object"
+      },
+      "FamilyAdminResponse": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "member_count": {
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "member_count",
+          "created_at"
+        ],
+        "title": "FamilyAdminResponse",
         "type": "object"
       },
       "FamilyCreate": {
@@ -939,6 +1435,93 @@
           "password"
         ],
         "title": "FamilyCreate",
+        "type": "object"
+      },
+      "FamilyCreateAdmin": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "FamilyCreateAdmin",
+        "type": "object"
+      },
+      "FamilyCreateResponseAdmin": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "invite_code": {
+            "title": "Invite Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "invite_code",
+          "created_at"
+        ],
+        "title": "FamilyCreateResponseAdmin",
+        "type": "object"
+      },
+      "FamilyDetailResponse": {
+        "properties": {
+          "babies": {
+            "items": {
+              "$ref": "#/components/schemas/BabyAdminResponse"
+            },
+            "title": "Babies",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "member_count": {
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/AdminFamilyMemberResponse"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "member_count",
+          "created_at",
+          "members",
+          "babies"
+        ],
+        "title": "FamilyDetailResponse",
         "type": "object"
       },
       "FamilyMemberResponse": {
@@ -1037,6 +1620,8 @@
           "amount_ml": {
             "anyOf": [
               {
+                "maximum": 500.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -1059,9 +1644,22 @@
               }
             ]
           },
+          "burped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burped"
+          },
           "duration_minutes": {
             "anyOf": [
               {
+                "maximum": 300.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1101,6 +1699,8 @@
           "left_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1112,6 +1712,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1123,6 +1724,8 @@
           "right_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1145,6 +1748,8 @@
           "amount_ml": {
             "anyOf": [
               {
+                "maximum": 500.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -1167,6 +1772,17 @@
               }
             ]
           },
+          "burped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burped"
+          },
           "comment_count": {
             "default": 0,
             "title": "Comment Count",
@@ -1175,6 +1791,8 @@
           "duration_minutes": {
             "anyOf": [
               {
+                "maximum": 300.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1218,6 +1836,8 @@
           "left_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1229,6 +1849,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1251,6 +1872,8 @@
           "right_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1258,6 +1881,14 @@
               }
             ],
             "title": "Right Breast Minutes"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
           },
           "user_id": {
             "title": "User Id",
@@ -1274,6 +1905,108 @@
         "title": "FeedingResponse",
         "type": "object"
       },
+      "FeedingTimerResponse": {
+        "properties": {
+          "active_side": {
+            "anyOf": [
+              {
+                "enum": [
+                  "LEFT",
+                  "RIGHT"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Side"
+          },
+          "left_elapsed_seconds": {
+            "title": "Left Elapsed Seconds",
+            "type": "integer"
+          },
+          "right_elapsed_seconds": {
+            "title": "Right Elapsed Seconds",
+            "type": "integer"
+          },
+          "segment_start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment Start Time"
+          }
+        },
+        "required": [
+          "active_side",
+          "left_elapsed_seconds",
+          "right_elapsed_seconds",
+          "segment_start_time"
+        ],
+        "title": "FeedingTimerResponse",
+        "type": "object"
+      },
+      "FeedingTimerUpdate": {
+        "properties": {
+          "active_side": {
+            "anyOf": [
+              {
+                "enum": [
+                  "LEFT",
+                  "RIGHT"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Side"
+          },
+          "left_elapsed_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Elapsed Seconds"
+          },
+          "right_elapsed_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Elapsed Seconds"
+          },
+          "segment_start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment Start Time"
+          }
+        },
+        "title": "FeedingTimerUpdate",
+        "type": "object"
+      },
       "FeedingType": {
         "enum": [
           "BREAST",
@@ -1288,6 +2021,8 @@
           "amount_ml": {
             "anyOf": [
               {
+                "maximum": 500.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -1306,9 +2041,22 @@
               }
             ]
           },
+          "burped": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Burped"
+          },
           "duration_minutes": {
             "anyOf": [
               {
+                "maximum": 300.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1362,6 +2110,8 @@
           "left_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1373,6 +2123,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1384,6 +2135,8 @@
           "right_breast_minutes": {
             "anyOf": [
               {
+                "maximum": 120.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -1395,6 +2148,15 @@
         },
         "title": "FeedingUpdate",
         "type": "object"
+      },
+      "Gender": {
+        "enum": [
+          "boy",
+          "girl",
+          "unknown"
+        ],
+        "title": "Gender",
+        "type": "string"
       },
       "GrowthCreate": {
         "properties": {
@@ -1432,6 +2194,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1504,6 +2267,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1522,6 +2286,14 @@
               }
             ],
             "title": "Recorded By Display Name"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
           },
           "user_id": {
             "title": "User Id",
@@ -1587,6 +2359,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -1653,6 +2426,217 @@
           "role"
         ],
         "title": "MemberRoleUpdate",
+        "type": "object"
+      },
+      "MilestoneCreate": {
+        "properties": {
+          "achieved_date": {
+            "format": "date",
+            "title": "Achieved Date",
+            "type": "string"
+          },
+          "image_urls": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Urls",
+            "type": "array"
+          },
+          "milestone_type": {
+            "maxLength": 50,
+            "title": "Milestone Type",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "title": {
+            "maxLength": 100,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "milestone_type",
+          "title",
+          "achieved_date"
+        ],
+        "title": "MilestoneCreate",
+        "type": "object"
+      },
+      "MilestoneResponse": {
+        "properties": {
+          "achieved_date": {
+            "format": "date",
+            "title": "Achieved Date",
+            "type": "string"
+          },
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "image_urls": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Image Urls",
+            "type": "array"
+          },
+          "milestone_type": {
+            "maxLength": 50,
+            "title": "Milestone Type",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "title": {
+            "maxLength": 100,
+            "title": "Title",
+            "type": "string"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          }
+        },
+        "required": [
+          "milestone_type",
+          "title",
+          "achieved_date",
+          "id",
+          "baby_id",
+          "user_id"
+        ],
+        "title": "MilestoneResponse",
+        "type": "object"
+      },
+      "MilestoneTimelineGroup": {
+        "properties": {
+          "milestones": {
+            "items": {
+              "$ref": "#/components/schemas/MilestoneResponse"
+            },
+            "title": "Milestones",
+            "type": "array"
+          },
+          "month_age": {
+            "title": "Month Age",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "month_age",
+          "milestones"
+        ],
+        "title": "MilestoneTimelineGroup",
+        "type": "object"
+      },
+      "MilestoneUpdate": {
+        "properties": {
+          "achieved_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Achieved Date"
+          },
+          "image_urls": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Urls"
+          },
+          "milestone_type": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Milestone Type"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "MilestoneUpdate",
         "type": "object"
       },
       "NoteCreate": {
@@ -1927,7 +2911,8 @@
           "daily_summary",
           "feeding_reminder",
           "diaper_reminder",
-          "system"
+          "system",
+          "achievement"
         ],
         "title": "NotificationType",
         "type": "string"
@@ -2042,6 +3027,69 @@
         "title": "RecordCreate",
         "type": "object"
       },
+      "RecordFeedbackRequest": {
+        "properties": {
+          "record_id": {
+            "title": "Record Id",
+            "type": "integer"
+          },
+          "record_type": {
+            "enum": [
+              "feeding",
+              "diaper",
+              "growth",
+              "note"
+            ],
+            "title": "Record Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_type",
+          "record_id"
+        ],
+        "title": "RecordFeedbackRequest",
+        "type": "object"
+      },
+      "RecordFeedbackResponse": {
+        "properties": {
+          "analyzed_at": {
+            "format": "date-time",
+            "title": "Analyzed At",
+            "type": "string"
+          },
+          "comment_id": {
+            "title": "Comment Id",
+            "type": "integer"
+          },
+          "feedback": {
+            "title": "Feedback",
+            "type": "string"
+          },
+          "has_concern": {
+            "title": "Has Concern",
+            "type": "boolean"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "record_type": {
+            "title": "Record Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feedback",
+          "has_concern",
+          "comment_id",
+          "record_type",
+          "analyzed_at",
+          "model_name"
+        ],
+        "title": "RecordFeedbackResponse",
+        "type": "object"
+      },
       "ScheduleCreate": {
         "properties": {
           "baby_id": {
@@ -2051,6 +3099,7 @@
           "description": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2070,6 +3119,7 @@
             "type": "string"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           }
@@ -2096,6 +3146,7 @@
           "description": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2119,6 +3170,7 @@
             "type": "string"
           },
           "title": {
+            "maxLength": 100,
             "title": "Title",
             "type": "string"
           },
@@ -2159,6 +3211,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2210,6 +3263,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2233,6 +3287,14 @@
             "format": "date-time",
             "title": "Start Time",
             "type": "string"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
           },
           "user_id": {
             "title": "User Id",
@@ -2265,6 +3327,7 @@
           "notes": {
             "anyOf": [
               {
+                "maxLength": 2000,
                 "type": "string"
               },
               {
@@ -2287,6 +3350,200 @@
           }
         },
         "title": "SleepUpdate",
+        "type": "object"
+      },
+      "SuperAdminToggleRequest": {
+        "properties": {
+          "is_superadmin": {
+            "title": "Is Superadmin",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "is_superadmin"
+        ],
+        "title": "SuperAdminToggleRequest",
+        "type": "object"
+      },
+      "TemperatureCreate": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "measured_at": {
+            "format": "date-time",
+            "title": "Measured At",
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/TemperatureMethod",
+            "default": "AXILLARY"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "temperature": {
+            "maximum": 42.0,
+            "minimum": 34.0,
+            "title": "Temperature",
+            "type": "number"
+          }
+        },
+        "required": [
+          "baby_id",
+          "measured_at",
+          "temperature"
+        ],
+        "title": "TemperatureCreate",
+        "type": "object"
+      },
+      "TemperatureMethod": {
+        "enum": [
+          "AXILLARY",
+          "EAR",
+          "FOREHEAD",
+          "RECTAL"
+        ],
+        "title": "TemperatureMethod",
+        "type": "string"
+      },
+      "TemperatureResponse": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "measured_at": {
+            "format": "date-time",
+            "title": "Measured At",
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/TemperatureMethod",
+            "default": "AXILLARY"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "recorded_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorded By Display Name"
+          },
+          "temperature": {
+            "maximum": 42.0,
+            "minimum": 34.0,
+            "title": "Temperature",
+            "type": "number"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "baby_id",
+          "measured_at",
+          "temperature",
+          "id",
+          "user_id"
+        ],
+        "title": "TemperatureResponse",
+        "type": "object"
+      },
+      "TemperatureUpdate": {
+        "properties": {
+          "measured_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measured At"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TemperatureMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "maximum": 42.0,
+                "minimum": 34.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          }
+        },
+        "title": "TemperatureUpdate",
         "type": "object"
       },
       "UnifiedRecord": {
@@ -2333,6 +3590,45 @@
           "details"
         ],
         "title": "UnifiedRecord",
+        "type": "object"
+      },
+      "UnlockedAchievementInfo": {
+        "description": "記録APIレスポンスに含める実績解除情報",
+        "properties": {
+          "achievement_id": {
+            "title": "Achievement Id",
+            "type": "string"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "icon": {
+            "title": "Icon",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rarity": {
+            "title": "Rarity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "achievement_id",
+          "name",
+          "icon",
+          "category",
+          "rarity",
+          "description"
+        ],
+        "title": "UnlockedAchievementInfo",
         "type": "object"
       },
       "UnreadCountResponse": {
@@ -2480,6 +3776,11 @@
             "title": "Id",
             "type": "integer"
           },
+          "is_superadmin": {
+            "default": false,
+            "title": "Is Superadmin",
+            "type": "boolean"
+          },
           "role": {
             "anyOf": [
               {
@@ -2512,6 +3813,288 @@
         ],
         "title": "UserRole",
         "type": "string"
+      },
+      "VaccinationCreate": {
+        "properties": {
+          "completed_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Date"
+          },
+          "dose_number": {
+            "title": "Dose Number",
+            "type": "integer"
+          },
+          "has_side_effect": {
+            "default": false,
+            "title": "Has Side Effect",
+            "type": "boolean"
+          },
+          "hospital_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Name"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Number"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "scheduled_date": {
+            "format": "date",
+            "title": "Scheduled Date",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VaccinationStatus",
+            "default": "scheduled"
+          },
+          "vaccine_name": {
+            "maxLength": 100,
+            "title": "Vaccine Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "vaccine_name",
+          "dose_number",
+          "scheduled_date"
+        ],
+        "title": "VaccinationCreate",
+        "type": "object"
+      },
+      "VaccinationResponse": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "completed_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Date"
+          },
+          "dose_number": {
+            "title": "Dose Number",
+            "type": "integer"
+          },
+          "has_side_effect": {
+            "default": false,
+            "title": "Has Side Effect",
+            "type": "boolean"
+          },
+          "hospital_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Name"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Number"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "scheduled_date": {
+            "format": "date",
+            "title": "Scheduled Date",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VaccinationStatus",
+            "default": "scheduled"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "vaccine_name": {
+            "maxLength": 100,
+            "title": "Vaccine Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "vaccine_name",
+          "dose_number",
+          "scheduled_date",
+          "id",
+          "baby_id",
+          "user_id"
+        ],
+        "title": "VaccinationResponse",
+        "type": "object"
+      },
+      "VaccinationStatus": {
+        "enum": [
+          "scheduled",
+          "completed",
+          "postponed"
+        ],
+        "title": "VaccinationStatus",
+        "type": "string"
+      },
+      "VaccinationUpdate": {
+        "properties": {
+          "completed_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed Date"
+          },
+          "has_side_effect": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Side Effect"
+          },
+          "hospital_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Name"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Number"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "scheduled_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled Date"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VaccinationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "VaccinationUpdate",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {
@@ -2602,11 +4185,544 @@
     }
   },
   "info": {
-    "title": "Baby App API",
+    "title": "Botoro API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/achievements/": {
+      "get": {
+        "operationId": "get_achievements_api_achievements__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BabyAchievementResponse"
+                  },
+                  "title": "Response Get Achievements Api Achievements  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Achievements",
+        "tags": [
+          "achievements"
+        ]
+      }
+    },
+    "/api/admin/audit-logs": {
+      "get": {
+        "operationId": "get_audit_logs_api_admin_audit_logs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLogResponse"
+                  },
+                  "title": "Response Get Audit Logs Api Admin Audit Logs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Audit Logs",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/audit-logs/cleanup": {
+      "post": {
+        "description": "Manually trigger deletion of old audit logs.",
+        "operationId": "trigger_audit_log_cleanup_api_admin_audit_logs_cleanup_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 90,
+              "maximum": 3650,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Trigger Audit Log Cleanup",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/families": {
+      "get": {
+        "operationId": "get_admin_families_api_admin_families_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FamilyAdminResponse"
+                  },
+                  "title": "Response Get Admin Families Api Admin Families Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admin Families",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "operationId": "create_admin_family_api_admin_families_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FamilyCreateAdmin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyCreateResponseAdmin"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Admin Family",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/families/{family_id}": {
+      "get": {
+        "operationId": "get_admin_family_detail_api_admin_families__family_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "family_id",
+            "required": true,
+            "schema": {
+              "title": "Family Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admin Family Detail",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "operationId": "get_admin_stats_api_admin_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Admin Stats",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "operationId": "get_admin_users_api_admin_users_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  },
+                  "title": "Response Get Admin Users Api Admin Users Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admin Users",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/users/{user_id}/superadmin": {
+      "patch": {
+        "operationId": "toggle_superadmin_api_admin_users__user_id__superadmin_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuperAdminToggleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Toggle Superadmin",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/ai/available-models": {
+      "get": {
+        "description": "利用可能な LLM モデルを外部 API から取得する。",
+        "operationId": "list_available_models_api_ai_available_models_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AIModel"
+                  },
+                  "title": "Response List Available Models Api Ai Available Models Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Available Models",
+        "tags": [
+          "ai-settings"
+        ]
+      }
+    },
+    "/api/ai/settings": {
+      "get": {
+        "description": "現在の AI 設定と利用可能なモデルリストを取得する。",
+        "operationId": "get_ai_settings_api_ai_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AISettingsSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Ai Settings",
+        "tags": [
+          "ai-settings"
+        ]
+      },
+      "patch": {
+        "description": "AI 設定を更新する。",
+        "operationId": "update_ai_settings_api_ai_settings_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AISettingsPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Update Ai Settings Api Ai Settings Patch",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Ai Settings",
+        "tags": [
+          "ai-settings"
+        ]
+      }
+    },
     "/api/auth/change-password": {
       "post": {
         "operationId": "change_password_api_auth_change_password_post",
@@ -2857,6 +4973,47 @@
     "/api/babies/": {
       "get": {
         "operationId": "get_babies_api_babies__get",
+        "parameters": [
+          {
+            "description": "Maximum number of items to return (SuperAdmin only)",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of items to return (SuperAdmin only)",
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Number of items to skip (SuperAdmin only)",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items to skip (SuperAdmin only)",
+              "title": "Offset"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -2871,6 +5028,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Get Babies",
@@ -3449,6 +5616,59 @@
         ]
       }
     },
+    "/api/babies/{baby_id}/record-feedback": {
+      "post": {
+        "description": "直近24時間の記録をAIが分析し、コメントとして保存する",
+        "operationId": "create_record_feedback_api_babies__baby_id__record_feedback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordFeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordFeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Record Feedback",
+        "tags": [
+          "ai-feedback"
+        ]
+      }
+    },
     "/api/babies/{baby_id}/records": {
       "get": {
         "operationId": "get_records_api_babies__baby_id__records_get",
@@ -3467,8 +5687,8 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 50,
-              "maximum": 1000,
+              "default": 20,
+              "maximum": 100,
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
@@ -3554,6 +5774,190 @@
         "summary": "Create Record",
         "tags": [
           "babies"
+        ]
+      }
+    },
+    "/api/babies/{baby_id}/timer/contraction": {
+      "get": {
+        "operationId": "get_contraction_timer_api_babies__baby_id__timer_contraction_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractionTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Contraction Timer",
+        "tags": [
+          "timer"
+        ]
+      },
+      "put": {
+        "operationId": "put_contraction_timer_api_babies__baby_id__timer_contraction_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContractionTimerUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractionTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Contraction Timer",
+        "tags": [
+          "timer"
+        ]
+      }
+    },
+    "/api/babies/{baby_id}/timer/feeding": {
+      "get": {
+        "operationId": "get_feeding_timer_api_babies__baby_id__timer_feeding_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedingTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Feeding Timer",
+        "tags": [
+          "timer"
+        ]
+      },
+      "put": {
+        "operationId": "put_feeding_timer_api_babies__baby_id__timer_feeding_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedingTimerUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedingTimerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Feeding Timer",
+        "tags": [
+          "timer"
         ]
       }
     },
@@ -3786,6 +6190,7 @@
             "required": false,
             "schema": {
               "default": 0,
+              "minimum": 0,
               "title": "Skip",
               "type": "integer"
             }
@@ -3796,6 +6201,8 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 100,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }
@@ -4561,6 +6968,233 @@
           }
         },
         "summary": "Health Check"
+      }
+    },
+    "/api/milestones/": {
+      "get": {
+        "operationId": "get_milestones_api_milestones__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MilestoneResponse"
+                  },
+                  "title": "Response Get Milestones Api Milestones  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Milestones",
+        "tags": [
+          "milestones"
+        ]
+      },
+      "post": {
+        "operationId": "create_milestone_api_milestones__post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilestoneResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Milestone",
+        "tags": [
+          "milestones"
+        ]
+      }
+    },
+    "/api/milestones/timeline": {
+      "get": {
+        "operationId": "get_milestone_timeline_api_milestones_timeline_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MilestoneTimelineGroup"
+                  },
+                  "title": "Response Get Milestone Timeline Api Milestones Timeline Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Milestone Timeline",
+        "tags": [
+          "milestones"
+        ]
+      }
+    },
+    "/api/milestones/{milestone_id}": {
+      "delete": {
+        "operationId": "delete_milestone_api_milestones__milestone_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "milestone_id",
+            "required": true,
+            "schema": {
+              "title": "Milestone Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Milestone",
+        "tags": [
+          "milestones"
+        ]
+      },
+      "patch": {
+        "operationId": "update_milestone_api_milestones__milestone_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "milestone_id",
+            "required": true,
+            "schema": {
+              "title": "Milestone Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MilestoneUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MilestoneResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Milestone",
+        "tags": [
+          "milestones"
+        ]
       }
     },
     "/api/notes/{note_id}": {
@@ -5329,6 +7963,204 @@
         ]
       }
     },
+    "/api/temperatures/": {
+      "get": {
+        "operationId": "get_temperatures_api_temperatures__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TemperatureResponse"
+                  },
+                  "title": "Response Get Temperatures Api Temperatures  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Temperatures",
+        "tags": [
+          "temperatures"
+        ]
+      },
+      "post": {
+        "operationId": "create_temperature_api_temperatures__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemperatureCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemperatureResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Temperature",
+        "tags": [
+          "temperatures"
+        ]
+      }
+    },
+    "/api/temperatures/{record_id}": {
+      "delete": {
+        "operationId": "delete_temperature_api_temperatures__record_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "title": "Record Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Temperature",
+        "tags": [
+          "temperatures"
+        ]
+      },
+      "put": {
+        "operationId": "update_temperature_api_temperatures__record_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "record_id",
+            "required": true,
+            "schema": {
+              "title": "Record Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemperatureUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemperatureResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Temperature",
+        "tags": [
+          "temperatures"
+        ]
+      }
+    },
     "/api/upload/image": {
       "post": {
         "description": "画像をバックエンド経由で R2 にアップロードする。",
@@ -5368,6 +8200,233 @@
         "summary": "Upload Image",
         "tags": [
           "upload"
+        ]
+      }
+    },
+    "/api/vaccinations/": {
+      "get": {
+        "operationId": "get_vaccinations_api_vaccinations__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VaccinationResponse"
+                  },
+                  "title": "Response Get Vaccinations Api Vaccinations  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Vaccinations",
+        "tags": [
+          "vaccinations"
+        ]
+      },
+      "post": {
+        "operationId": "create_vaccination_api_vaccinations__post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VaccinationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VaccinationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Vaccination",
+        "tags": [
+          "vaccinations"
+        ]
+      }
+    },
+    "/api/vaccinations/generate": {
+      "post": {
+        "operationId": "generate_vaccinations_api_vaccinations_generate_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VaccinationResponse"
+                  },
+                  "title": "Response Generate Vaccinations Api Vaccinations Generate Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate Vaccinations",
+        "tags": [
+          "vaccinations"
+        ]
+      }
+    },
+    "/api/vaccinations/{vaccination_id}": {
+      "delete": {
+        "operationId": "delete_vaccination_api_vaccinations__vaccination_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vaccination_id",
+            "required": true,
+            "schema": {
+              "title": "Vaccination Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Vaccination",
+        "tags": [
+          "vaccinations"
+        ]
+      },
+      "patch": {
+        "operationId": "update_vaccination_api_vaccinations__vaccination_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vaccination_id",
+            "required": true,
+            "schema": {
+              "title": "Vaccination Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VaccinationUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VaccinationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Vaccination",
+        "tags": [
+          "vaccinations"
         ]
       }
     },

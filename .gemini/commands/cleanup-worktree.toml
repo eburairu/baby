@@ -1,0 +1,5 @@
+description = "Git worktree をクリーンアップします"
+prompt = """
+プロジェクト内の古い worktree をクリーンアップします。
+!{sh scripts/cleanup_worktrees.sh}
+"""

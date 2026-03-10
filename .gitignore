@@ -4,13 +4,13 @@
 # Python
 **/__pycache__/
 *.py[cod]
-**/.venv/
+**/.venv
 *.egg-info/
 
 # フロントエンドビルド成果物
 frontend/out/
 frontend/.next/
-**/node_modules/
+**/node_modules
 
 # SQLite（ローカルテスト用）
 *.db
@@ -26,3 +26,11 @@ frontend/.next/
 
 # Git Worktree
 worktrees/
+
+# PR body temporary files
+pr_body*.md
+
+# Playwright MCP
+.playwright-mcp/
+
+logs/daily_audit.log

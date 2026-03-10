@@ -1,7 +1,15 @@
-## 2026-02-14 - Button Accessibility and Feedback
-**Learning:** Icon-only buttons (like those using Lucide icons) are often missed by screen readers if they lack `aria-label`. Also, async actions in widgets often used `disabled={loading}` which lacks visual feedback compared to `loading={loading}` which shows a spinner.
-**Action:** Always verify icon-only buttons have `aria-label` or `title`. Prefer `loading={loading}` over `disabled={loading}` for `Button` components to provide immediate visual feedback.
+## 2024-03-08 - [アイコンのみのボタンのツールチップの欠落]
+**学び:** スクリーンリーダー用のaria-labelは付与されているものの、視覚的に意味を伝えるツールチップ(title属性)がないアイコンのみのボタンが存在し、マウスユーザーへの配慮が不足していた。
+**アクション:** 次回からアイコンのみのボタンには、aria-labelに加えてtitle属性を必ず付与し、ホバー時の視覚的なヒントを提供する。
 
-## 2026-02-14 - Navigation Context Awareness
-**Learning:** Users may have different mental models for "Back" vs "Menu" depending on the context. In deep hierarchies like Settings, a "Back" button is expected, while in flat feature areas (Dashboard, Feeding, etc.), a "Menu" button is preferred for lateral navigation.
-**Action:** Implement dynamic navigation headers that switch between "Back" and "Hamburger Menu" based on the current path depth and context, rather than forcing a single pattern globally.
+## 2024-03-09 - アイコンのみのボタンのアクセシビリティ改善
+**学び:** アイコンのみのボタン（Buttonコンポーネントやネイティブのbutton要素を含む）において、スクリーンリーダー向けの `aria-label` とマウスユーザー向けのネイティブツールチップ（`title` 属性）が不足しているケースが散見された。両方を適切に設定することで、全てのユーザーに対して操作の意図を明確に伝えることができる。
+**アクション:** 新規でアイコンのみのボタンを実装する際は、`aria-label` と `title` 属性の両方を必須で設定するよう心がける。
+## 2024-03-09 - フォームグループ（ラジオボタン）のアクセシビリティマークアップ
+**学び:** `Label` コンポーネントを単独で使用してラジオボタンのグループ名を表現すると、スクリーンリーダーでグループとしての関連付けが読み上げられずアクセシビリティが低下する。
+**アクション:** 複数のラジオボタンやチェックボックスで構成されるフォームグループには、`<fieldset>` で囲み、グループ名を `<legend>` でマークアップする。また各 `input` には `focus-visible` クラスを付与しキーボード操作時のフォーカスを見やすくする。
+
+## 2024-03-10 - インタラクティブ要素（トグル・選択ボタン等）のアクセシビリティ強化
+**学び:** `button` タグを使用して実装されたカスタムな選択UI（ミルクの種類、授乳の完全度、権限ロールの選択肢など）は、視覚的にはテキストやアイコンで意味が伝わるものの、スクリーンリーダー利用者に対しては、そのボタンが単なるアクションボタンではなく「何を選択するための要素か」という文脈が欠落しがちである（特にマップ処理で生成される汎用的なUIなど）。
+**アクション:** 状態を持つボタン（`aria-pressed` が設定されているもの）に対しては、その選択肢が属するグループの文脈（例: `aria-label="ミルクの種類: 母乳"` や `aria-label="権限: 管理者"`）を含めた `aria-label` を付与することで、音声読み上げ時の理解度を大幅に向上させる。
+## 2024-03-10 - [実績カードのキーボードアクセシビリティ向上] **学び:** リストアイテムとして機能する実績ボタンにフォーカスインジケーターとARIAラベルが欠落しており、スクリーンリーダーでの詳細確認が困難だった。また、絵文字アイコンが重複して読み上げられる可能性があった。 **アクション:** 今後も動的に生成されるカード要素には適切な aria-label と focus-visible を追加し、装飾的な内部要素は aria-hidden="true" で隠す。

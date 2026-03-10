@@ -1,5 +1,5 @@
 {
-  "name": "baby-app",
+  "name": "botoro",
   "version": "1.29.1",
   "scripts": {
     "test:backend": "./.venv/bin/python -m pytest",

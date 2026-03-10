@@ -1,85 +1,53 @@
 "use client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+
+import { memo, useMemo } from "react"
+import { createWidgetMemoComparison } from "@/lib/memoUtils"
+import { formatMonthDay } from "@/lib/dateUtils"
+import { HexagonWidgetCard } from "./HexagonWidgetCard"
+import { BaseWidgetProps } from "@/types/widget"
+import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
-import { ArrowRight, ShieldOff } from "lucide-react"
-import { isApiError } from "@/lib/api"
-import { BabyRecord } from "@/hooks/useData"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 
-interface Props {
-    babyId: string
-    records?: BabyRecord[]
-    isError?: unknown
-    isLoading?: boolean
-}
-
-export function GrowthWidget({ babyId, records, isError, isLoading }: Props) {
-    const isAccessDenied = isApiError(isError) && isError.status === 403
-
-    if (isAccessDenied) {
-        return (
-            <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 opacity-60 transition-colors">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                    <CardTitle className="text-sm font-medium text-gray-400 dark:text-zinc-500 flex items-center gap-1" data-sentry-unmask>
-                        📏 成長
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center py-6">
-                    <ShieldOff className="h-6 w-6 text-gray-300 dark:text-zinc-700 mb-1" />
-                    <p className="text-[10px] text-gray-400 dark:text-zinc-600" data-sentry-unmask>閲覧制限中</p>
-                </CardContent>
-            </Card>
-        )
-    }
-
-    const growthRecords = records?.filter(r => r.type === 'growth') ?? []
-    const latest = growthRecords[0] ?? null
-
-    const measureDate = latest?.timestamp
-        ? new Date(latest.timestamp).toLocaleDateString("ja-JP", { month: "long", day: "numeric" })
-        : null
-
-    const weight = latest?.details.weight_kg as number | undefined
-    const height = latest?.details.height_cm as number | undefined
+export const GrowthWidget = memo(function GrowthWidget({ babyId, records, isLoading, isError, size }: BaseWidgetProps) {
+    // パフォーマンス最適化: レコードのフィルタリングとパース処理をメモ化し、再レンダリング時の不要な計算を抑止
+    const { latest, dateStr, weight, height } = useMemo(() => {
+        const growthRecords = records?.filter(r => r.type === 'growth') ?? []
+        const latestRecord = growthRecords[0] ?? null
+        return {
+            latest: latestRecord,
+            dateStr: latestRecord?.timestamp
+                ? formatMonthDay(latestRecord.timestamp)
+                : null,
+            weight: latestRecord?.details.weight_kg as number | undefined,
+            height: latestRecord?.details.height_cm as number | undefined
+        }
+    }, [records])
 
     return (
-        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-                <CardTitle className="text-sm font-medium text-emerald-500 dark:text-emerald-400 flex items-center gap-1" data-sentry-unmask>
-                    📏 成長
-                </CardTitle>
-                <Link href={`/growth?baby_id=${babyId}`}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 text-gray-400 hover:text-emerald-500 dark:hover:text-emerald-400 dark:text-zinc-600">
-                        <ArrowRight className="h-4 w-4" />
-                    </Button>
-                </Link>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                {isLoading ? (
-                    <div className="flex justify-center py-4">
-                        <BabyBottleLoading className="w-8 h-8 text-emerald-400" />
-                    </div>
-                ) : latest ? (
-                    <div className="space-y-1">
-                        {weight != null && (
-                            <p className="text-2xl font-bold text-gray-800 dark:text-zinc-100">
-                                {weight * 1000} <span className="text-sm font-normal text-gray-500 dark:text-zinc-400">g</span>
-                            </p>
-                        )}
-                        {height != null && (
-                            <p className="text-sm text-gray-600 dark:text-zinc-300">
-                                身長 {height} cm
-                            </p>
-                        )}
-                        {measureDate && (
-                            <p className="text-xs text-gray-400 dark:text-zinc-500">{measureDate}測定</p>
-                        )}
-                    </div>
-                ) : (
-                    <p className="text-sm text-gray-400 dark:text-zinc-600" data-sentry-unmask>記録なし</p>
-                )}
-            </CardContent>
-        </Card>
+        <Link href={`/growth?baby_id=${babyId}`} className="block">
+            <HexagonWidgetCard
+                title="成長"
+                icon={<AppIcons.growth className="w-5 h-5 text-emerald-500" />}
+                isError={isError}
+                isLoading={isLoading} 
+                size={size}
+                className="hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20"
+            >
+                <div className="flex flex-col items-center">
+                    {latest ? (
+                        <>
+                            <span className="font-bold text-gray-800 dark:text-zinc-200">
+                                {weight != null ? `${weight * 1000}g` : height != null ? `${height}cm` : "-"}
+                            </span>
+                            <span className="text-[10px] text-gray-500 dark:text-zinc-500 mt-0.5">
+                                {dateStr}測定 {height != null && weight != null ? `/ ${height}cm` : ""}
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-[10px] text-gray-500 dark:text-zinc-600">記録なし</span>
+                    )}
+                </div>
+            </HexagonWidgetCard>
+        </Link>
     )
-}
+}, createWidgetMemoComparison('growth'))

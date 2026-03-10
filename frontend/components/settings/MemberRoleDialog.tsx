@@ -1,24 +1,15 @@
 "use client"
 import { useState } from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog"
+import { DialogFooter } from "@/components/ui/dialog"
+import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { UserRole } from "@/lib/constants"
-
-interface Member {
-    user_id: number
-    username: string
-    role: string
-}
+import { FamilyMember } from "@/types/family"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
-    member: Member | null
+    member: FamilyMember | null
     open: boolean
     onClose: () => void
     onUpdated: () => void
@@ -26,8 +17,8 @@ interface Props {
 
 export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
     const [selectedRole, setSelectedRole] = useState<string>(UserRole.MEMBER)
-    const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: saving, execute } = useAsyncAction()
 
     const handleOpen = () => {
         if (member) setSelectedRole(member.role)
@@ -36,21 +27,20 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
 
     const handleSave = async () => {
         if (!member) return
-        setSaving(true)
         setError(null)
-        try {
-            await api.patch(`/family/members/${member.user_id}/role`, { role: selectedRole })
-            onUpdated()
-            onClose()
-        } catch (e: unknown) {
-            if (isApiError(e)) {
-                setError((e.info as { detail?: string })?.detail || "ロール変更に失敗しました")
-            } else {
-                setError("ロール変更に失敗しました")
+
+        await execute(
+            async () => {
+                await api.patch(`/family/members/${member.user_id}/role`, { role: selectedRole })
+                onUpdated()
+                onClose()
+            },
+            {
+                onError: (e) => {
+                    setError(getErrorMessage(e, "ロール変更に失敗しました"))
+                }
             }
-        } finally {
-            setSaving(false)
-        }
+        )
     }
 
     const roles = [
@@ -60,18 +50,22 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
     ]
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }} >
-            <DialogContent onOpenAutoFocus={handleOpen}>
-                <DialogHeader>
-                    <DialogTitle>ロールを変更: {member?.username}</DialogTitle>
-                </DialogHeader>
+        <EditDialogBase
+            open={open}
+            onOpenChange={(v) => { if (!v) onClose() }}
+            onOpenAutoFocus={handleOpen}
+            title={`ロールを変更: ${member?.username}`}
+        >
+            <div className="flex flex-col gap-4">
                 <div className="space-y-2 py-2">
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     {roles.map((role) => (
                         <button
                             key={role.value}
                             onClick={() => setSelectedRole(role.value)}
-                            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors ${selectedRole === role.value
+                            aria-pressed={selectedRole === role.value}
+                            aria-label={`権限: ${role.label}`}
+                            className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400 ${selectedRole === role.value
                                 ? "border-indigo-600 bg-indigo-50"
                                 : "border-gray-200 hover:border-gray-300"
                                 }`}
@@ -81,7 +75,7 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                         </button>
                     ))}
                 </div>
-                <DialogFooter>
+                <DialogFooter className="border-t dark:border-zinc-800 pt-4 mt-2">
                     <Button variant="outline" onClick={onClose} disabled={saving}>キャンセル</Button>
                     <Button
                         onClick={handleSave}
@@ -91,7 +85,7 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                         変更する
                     </Button>
                 </DialogFooter>
-            </DialogContent>
-        </Dialog>
+            </div>
+        </EditDialogBase>
     )
 }

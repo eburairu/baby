@@ -1,243 +1,117 @@
 "use client"
 
-import { useState, useMemo, useEffect, useRef } from "react"
-import { useSleeps } from "@/hooks/useData"
+import { useState, useMemo } from "react"
+import { useSleeps } from "@/hooks/useSleep"
+
+
+import { RecordIcon } from "@/components/records/RecordIcon"
+import { RecordMetaItems } from "@/components/records/RecordMetaItems"
+import { formatDateTime, formatTime } from "@/lib/dateUtils"
 import { api } from "@/lib/api"
-import { format } from "date-fns"
-import { ja } from "date-fns/locale"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Pencil, Trash2, Moon, User, MessageCircle } from "lucide-react"
-import { formatDuration } from "@/lib/ageUtils"
+import { HistoryCard } from "@/components/records/HistoryCard"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { Sleep } from "@/types/sleep"
-import { useUser } from "@/hooks/useAuth"
-import { RecordCommentDialog } from "@/components/records/RecordCommentDialog"
+import { formatDuration } from "@/lib/ageUtils"
+import { RecordListItem } from "@/components/records/RecordListItem"
+import { RecordActionButtons } from "@/components/records/RecordActionButtons"
+import { SleepEditDialog } from "./SleepEditDialog"
+import { useRecordComments } from "@/hooks/useRecordComments"
 
 interface Props {
-    babyId: string
+    babyId: number | string
     canWrite?: boolean
     initialCommentRecordId?: number | null
 }
 
 export function SleepHistory({ babyId, canWrite = true, initialCommentRecordId }: Props) {
-    const { user } = useUser()
     const { sleeps, mutate } = useSleeps(babyId)
     const [editingSleep, setEditingSleep] = useState<Sleep | null>(null)
     const [isEditOpen, setIsEditOpen] = useState(false)
-    const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [commentTarget, setCommentTarget] = useState<{ id: number; title: string } | null>(null)
-    const initializedRef = useRef(false)
+
+    const { setDeleteTargetId, ConfirmDeleteDialog } = useRecordDelete({
+        onDelete: async (id) => {
+            await api.delete(`/sleeps/${id}`)
+        },
+        onSuccess: mutate,
+        resourceName: "睡眠記録"
+    });
 
     const history = useMemo(() => {
         return sleeps?.filter((s) => s.end_time).sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
     }, [sleeps])
 
-    useEffect(() => {
-        if (initialCommentRecordId && history && history.length > 0 && !initializedRef.current) {
-            const target = history.find(s => s.id === initialCommentRecordId)
-            if (target) {
-                initializedRef.current = true
-                setCommentTarget({ id: target.id, title: `睡眠 ${format(new Date(target.start_time), "M/d HH:mm", { locale: ja })}` })
-            }
-        }
-    }, [initialCommentRecordId, history])
+    const { openComment, CommentDialog } = useRecordComments({
+        records: history,
+        recordType: "sleep",
+        initialCommentRecordId,
+        getTitle: (s) => `睡眠 ${formatDateTime(s.start_time)}`,
+        onCommentChange: () => mutate()
+    });
 
-    const handleDelete = async () => {
-        if (deleteTargetId === null) return
-        setIsDeleting(true)
-        try {
-            await api.delete(`/sleeps/${deleteTargetId}`)
-            mutate()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setIsDeleting(false)
-            setDeleteTargetId(null)
-        }
-    }
-
-    const handleEditSave = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!editingSleep) return
-        try {
-            await api.patch(`/sleeps/${editingSleep.id}`, {
-                start_time: new Date(editingSleep.start_time).toISOString(),
-                end_time: editingSleep.end_time ? new Date(editingSleep.end_time).toISOString() : null,
-                notes: editingSleep.notes,
-            })
-            mutate()
-            setIsEditOpen(false)
-            setEditingSleep(null)
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
-    if (!history || history.length === 0) {
-        return (
-            <div className="text-center py-8 text-gray-400">
-                <p>記録はまだありません</p>
-            </div>
-        )
-    }
+    const isEmpty = !history || history.length === 0;
 
     return (
-        <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-zinc-300 px-1">最近の睡眠</h3>
-            <div className="space-y-3">
-                {history.map((sleep) => {
+        <>
+            <HistoryCard title="最近の睡眠" isEmpty={isEmpty} emptyMessage="記録はまだありません">
+                {(history || []).map((sleep) => {
                     const duration = sleep.end_time
                         ? formatDuration(sleep.start_time, sleep.end_time)
                         : "睡眠中"
 
                     return (
-                        <Card key={sleep.id} className="overflow-hidden border-0 shadow-sm bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
-                            <CardContent className="p-4 flex items-center justify-between">
-                                <div className="flex items-start gap-4">
-                                    <div className="mt-1 bg-indigo-100 dark:bg-indigo-950/40 p-2 rounded-full text-indigo-500 dark:text-indigo-400">
-                                        <Moon className="w-5 h-5" />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-medium text-gray-900 dark:text-zinc-100">
-                                                {format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}
-                                                <span className="text-gray-400 dark:text-zinc-500 mx-2">-</span>
-                                                {sleep.end_time ? format(new Date(sleep.end_time), "HH:mm", { locale: ja }) : "現在"}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-                                            <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium text-xs">
-                                                {duration}
-                                            </span>
-                                            {sleep.recorded_by_display_name && (
-                                                <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500">
-                                                    <User className="w-3 h-3" />
-                                                    {sleep.recorded_by_display_name}
-                                                </span>
-                                            )}
-                                            <button
-                                                onClick={() => setCommentTarget({ id: sleep.id, title: `睡眠 ${format(new Date(sleep.start_time), "M/d HH:mm", { locale: ja })}` })}
-                                                className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
-                                            >
-                                                <MessageCircle className="w-3 h-3" />
-                                                {(sleep.comment_count ?? 0) > 0 && <span>{sleep.comment_count}</span>}
-                                            </button>
-                                        </div>
-                                        {sleep.notes && (
-                                            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">
-                                                {sleep.notes}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                                {canWrite && (
-                                    <div className="flex items-center gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-indigo-600"
-                                            onClick={() => {
-                                                setEditingSleep(sleep)
-                                                setIsEditOpen(true)
-                                            }}
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-gray-400 hover:text-red-500"
-                                            onClick={() => setDeleteTargetId(sleep.id)}
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )
-                })}
-            </div>
+                        <RecordListItem
+                            key={sleep.id}
+                            icon={<RecordIcon type="sleep" />}
 
-            {/* 削除確認ダイアログ */}
-            <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
-                        <AlertDialogDescription data-sentry-unmask>
-                            この睡眠記録を削除しますか？この操作は取り消せません。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
-                            削除
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            {/* コメントダイアログ */}
-            {commentTarget && (
-                <RecordCommentDialog
-                    open={commentTarget !== null}
-                    onOpenChange={(open) => { if (!open) setCommentTarget(null) }}
-                    recordType="sleep"
-                    recordId={commentTarget.id}
-                    title={commentTarget.title}
-                    currentUserId={user?.id}
-                    onCommentChange={() => mutate()}
-                />
-            )}
-
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="dark:bg-zinc-900 dark:border-zinc-800">
-                    <DialogHeader>
-                        <DialogTitle data-sentry-unmask>睡眠記録の編集</DialogTitle>
-                    </DialogHeader>
-                    {editingSleep && (
-                        <form onSubmit={handleEditSave} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium dark:text-zinc-300" data-sentry-unmask>開始日時</label>
-                                    <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                                        {format(new Date(editingSleep.start_time), "yyyy/MM/dd HH:mm", { locale: ja })}
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium dark:text-zinc-300" data-sentry-unmask>終了日時</label>
-                                    <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                                        {editingSleep.end_time ? format(new Date(editingSleep.end_time), "yyyy/MM/dd HH:mm", { locale: ja }) : "現在"}
-                                    </div>
-                                </div>
+                            actions={
+                                <RecordActionButtons
+                                    canWrite={canWrite}
+                                    onEdit={() => {
+                                        setEditingSleep(sleep)
+                                        setIsEditOpen(true)
+                                    }}
+                                    onDelete={() => setDeleteTargetId(sleep.id)}
+                                />
+                            }
+                        >
+                            <div className="flex items-center gap-2">
+                                <p className="font-medium text-sm text-gray-900 dark:text-zinc-100">
+                                    {formatDateTime(sleep.start_time)}
+                                    <span className="text-gray-400 dark:text-zinc-500 mx-2">-</span>
+                                    {sleep.end_time ? formatTime(sleep.end_time) : "現在"}
+                                </p>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium dark:text-zinc-300" data-sentry-unmask>メモ</label>
-                                <Textarea
-                                    value={editingSleep.notes || ""}
-                                    onChange={(e) => setEditingSleep({ ...editingSleep, notes: e.target.value })}
-                                    className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                            <div className="flex items-center gap-2 text-[10px] text-gray-500 flex-wrap">
+                                <span className="px-2 py-0.5 bg-slate-100 dark:bg-zinc-800 rounded text-slate-600 dark:text-zinc-400 font-medium">
+                                    {duration}
+                                </span>
+                                <RecordMetaItems
+                                    displayName={sleep.recorded_by_display_name}
+                                    commentCount={sleep.comment_count}
+                                    onCommentClick={() => openComment(sleep)}
+                                    className="mt-0"
                                 />
                             </div>
-                            <Button type="submit" data-sentry-unmask className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-none">保存</Button>
-                        </form>
-                    )}
-                </DialogContent>
-            </Dialog>
-        </div>
+                            {sleep.notes && (
+                                <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 line-clamp-1">
+                                    {sleep.notes}
+                                </p>
+                            )}
+                        </RecordListItem>
+                    )
+                })}
+            </HistoryCard>
+
+            <ConfirmDeleteDialog />
+
+            <CommentDialog />
+
+            <SleepEditDialog
+                sleep={editingSleep}
+                open={isEditOpen}
+                onOpenChange={setIsEditOpen}
+                onSuccess={mutate}
+            />
+        </>
     )
 }

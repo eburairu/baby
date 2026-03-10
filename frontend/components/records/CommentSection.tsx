@@ -1,14 +1,10 @@
-"use client";
-
+"use client"
 import { useState } from "react";
 import { useComments } from "@/hooks/useComments";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Trash2, Heart, AlertCircle, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { ja } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { MessageCircle, AlertCircle, Loader2 } from "lucide-react";
+import { CommentItem, CommentData } from "./CommentItem";
+import { CommentForm } from "./CommentForm";
 
 interface CommentSectionProps {
   recordType: string;
@@ -19,33 +15,22 @@ interface CommentSectionProps {
 
 export function CommentSection({ recordType, recordId, currentUserId, onCommentChange }: CommentSectionProps) {
   const { comments, addComment, deleteComment, isLoading, error } = useComments(recordType, recordId);
-  const [content, setContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = content.trim();
-    if (!trimmed || isSubmitting) return;
-
-    setIsSubmitting(true);
-    setContent("");
-    try {
-      await addComment(trimmed);
-      onCommentChange?.();
-    } catch (err) {
-      console.error(err);
-      setContent(trimmed);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSubmit = async (content: string) => {
+    await addComment(content);
+    onCommentChange?.();
   };
 
   const handleDelete = async (commentId: number) => {
+    setDeletingId(commentId);
     try {
       await deleteComment(commentId);
       onCommentChange?.();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -68,7 +53,7 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
             <span className="text-xs">読み込み中...</span>
           </div>
         )}
-        
+
         {error && (
           <div className="flex items-center justify-center py-4 text-red-400 bg-red-50 dark:bg-red-950/20 rounded-lg">
             <AlertCircle className="w-4 h-4 mr-2" />
@@ -77,80 +62,24 @@ export function CommentSection({ recordType, recordId, currentUserId, onCommentC
         )}
 
         {!isLoading && !error ? comments?.map((comment) => (
-          <div
+          <CommentItem
             key={comment.id}
-            className={cn(
-              "p-3 rounded-lg text-sm relative group transition-colors",
-              comment.user_role === "viewer"
-                ? "bg-orange-50 border border-orange-100 dark:bg-orange-950/20 dark:border-orange-900"
-                : "bg-gray-50 border border-gray-100 dark:bg-gray-800 dark:border-gray-700"
-            )}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-800 dark:text-gray-200">
-                  {comment.user_display_name}
-                </span>
-                {comment.user_role === "viewer" && (
-                  <Badge className="bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200 border-none text-[10px] h-4 px-1">
-                    応援
-                  </Badge>
-                )}
-                {comment.user_role === "admin" && (
-                  <Badge variant="outline" className="text-[10px] h-4 px-1">
-                    管理者
-                  </Badge>
-                )}
-              </div>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                {format(new Date(comment.created_at), "M/d HH:mm", { locale: ja })}
-              </span>
-            </div>
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-              {comment.content}
-            </p>
-            
-            {(currentUserId === comment.user_id) && (
-              <button
-                onClick={() => handleDelete(comment.id)}
-                className="absolute top-2 right-2 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+            comment={comment as unknown as CommentData}
+            currentUserId={currentUserId}
+            onDelete={handleDelete}
+            isDeleting={deletingId === comment.id}
+          />
         )) : null}
 
         {comments?.length === 0 && !isLoading && !error ? (
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-2">
-            メッセージを送って育児を応援しましょう！
-          </p>
+          <div className="flex flex-col items-center justify-center py-6 text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-zinc-900/50 rounded-lg border border-dashed border-gray-200 dark:border-zinc-800">
+            <MessageCircle className="w-8 h-8 mb-2 opacity-50" />
+            <p className="text-xs">メッセージを送って育児を応援しましょう！</p>
+          </div>
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="お疲れ様！応援メッセージを送ろう"
-          className="text-sm min-h-[60px] resize-none"
-        />
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            size="sm"
-            disabled={!content.trim() || isSubmitting}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            {isSubmitting ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-            ) : (
-              <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
-            )}
-            応援を送る
-          </Button>
-        </div>
-      </form>
+      <CommentForm onSubmit={handleSubmit} />
     </div>
   );
 }

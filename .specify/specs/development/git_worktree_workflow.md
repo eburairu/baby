@@ -2,7 +2,7 @@
 
 ## 概要
 
-本ドキュメントは、Baby App プロジェクトにおける `git worktree` を活用した開発フローの仕様を規定する。このフローは、AI エージェント（Gemini CLI, Claude Code, Antigravity）および人間の開発者が、ブランチごとに独立したディレクトリで作業し、マルチタスクを円滑に進めることを目的とする。
+本ドキュメントは、Botoro プロジェクトにおける `git worktree` を活用した開発フローの仕様を規定する。このフローは、AI エージェント（Gemini CLI, Claude Code, Antigravity）および人間の開発者が、ブランチごとに独立したディレクトリで作業し、マルチタスクを円滑に進めることを目的とする。
 
 ## ディレクトリ構造
 
@@ -69,6 +69,39 @@ cd worktrees/<branch-name>/frontend
 pnpm install
 ```
 
+## Claude Code への開発指示（ユーザー向け）
+
+### 最初の一言で伝えること
+
+```
+feat/xxx を作業ブランチとして、〇〇を実装したい。
+```
+
+これだけで Claude Code が以下を自律実行する:
+1. `sh scripts/setup_worktree.sh feat/xxx` でワークツリーを作成
+2. `.specify/specs/` から仕様書を確認し、実装方針を提示
+3. TDD（テスト先行）で実装 → `verify_all.sh` で全チェック → PR 作成
+
+### 伝えると助かる追加情報
+
+| 情報 | 例 |
+|---|---|
+| 関連仕様書のパス | `.specify/specs/milestone.md` |
+| 影響範囲のヒント | 「フロントエンドのみ」「API 変更あり」 |
+| 実装上の制約 | 「破壊的変更は NG」「既存コンポーネントを再利用」 |
+
+### 自分でワークツリーを作成して作業する場合
+
+```bash
+# 1. ワークツリー作成
+sh scripts/setup_worktree.sh feat/xxx
+
+# 2. ワークツリーに移動して作業
+cd worktrees/feat/xxx
+```
+
+---
+
 ## 開発サイクル
 
 1. **開始**: 開発者はメインディレクトリ（`develop` ブランチ）で `scripts/setup_worktree.sh` を実行。
@@ -79,6 +112,15 @@ pnpm install
 ```bash
 git push -u origin <branch-name>
 gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
+
+### ⚠️ 重要: 安全な PR 作成方法
+シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
+
+4. **ルートディレクトリへの復帰 (Return to Root)**: 
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."` 
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop` 
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。 
+
 ```
 
 5. **最終レビューと待機**: PR作成後、`spec-checker` による最終レビューを受け、ユーザーのフィードバックやコードレビューに対応できるよう、環境を維持する。
@@ -120,17 +162,26 @@ AI エージェントは、特定のタスク（Directive）を受けた際、�
 3. **プルリクエストの作成**:
    - 作業が完了し、検証が成功したことを確認後、GitHub CLI (`gh`) を使用して `develop` ブランチに対する PR を作成する。
    - まず変更をリモートにプッシュする: `git push -u origin <branch-name>`
-   - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"`
+   - PR を作成する: `gh pr create --base develop --head <branch-name> --title "<type>: <description>" --body "<details>"
 
-4. **仕様との整合性確認 (Review)**:
+### ⚠️ 重要: 安全な PR 作成方法
+シェルコマンドの引数で直接マルチラインの `--body` を渡すと改行が崩れるため、**必ず `scripts/create_pr.py` を使用**するか、一時ファイルを作成して `--body-file` で指定すること。
+
+4. **ルートディレクトリへの復帰 (Return to Root)**:
+   - PR 作成後、直ちにルートディレクトリに移動する: `cd "$(git rev-parse --git-common-dir)/.."`
+   - メインリポジトリを `develop` ブランチに切り替え、最新化する: `git checkout develop && git pull origin develop`
+   - **重要**: これにより、メインディレクトリが常に最新の `develop` 状態を保ち、他の作業や調査が安全に行えるようにする。
+
+5. **仕様との整合性確認 (Review)**:
    - PR作成後、**ワークツリーを削除する前**に、必ず `spec-checker` サブエージェントを呼び出し、実装内容が仕様（`.specify/specs/`）と矛盾していないか、また実装プラン通りに完了しているかの最終レビューを受ける。
-   - レビューで指摘事項がある場合は、ワークツリー内で修正・追加コミットを行い、再度 PR を更新する。
+   - レビューで指摘事項がある場合は、ワークツリー内（`worktrees/<branch-name>`）に戻って修正・追加コミットを行い、再度 PR を更新する。
 
-5. **完了報告と待機**:
+6. **完了報告と待機**:
    - PR の URL をユーザーに報告し、タスクの完了を伝える。
+   - メインディレクトリ（ルート）が `develop` ブランチであることを確認してから完了報告を行うこと。
    - **この時点ではワークツリーを削除しない。** ユーザーからのフィードバックやコードレビューによる指摘、修正依頼に即座に対応できるよう、環境を維持する。
 
-6. **事後処理 (Cleanup)**:
+7. **事後処理 (Cleanup)**:
    - PR がマージされた、またはユーザーから「完了（クリーンアップしてよい）」の最終承認を得た場合にのみ、以下のクリーンアップを実行する。
    - メインディレクトリ（`develop` ブランチ）に戻る。
    - ワークツリーを削除する: `git worktree remove --force worktrees/<branch-name>`

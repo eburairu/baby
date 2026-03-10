@@ -5,6 +5,9 @@ from pywebpush import webpush, WebPushException
 from sqlalchemy.orm import Session
 from app.models.notification import AppNotification, PushSubscription, NotificationSetting
 from datetime import datetime, time
+from app.utils.timezone import get_jst_now, JST
+from fastapi import BackgroundTasks
+from app.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +20,7 @@ def is_within_dnd(settings: NotificationSetting) -> bool:
     if not settings.dnd_start_time or not settings.dnd_end_time:
         return False
 
-    now = datetime.now().time()
+    now = get_jst_now().time()
     start = settings.dnd_start_time
     end = settings.dnd_end_time
 
@@ -26,11 +29,11 @@ def is_within_dnd(settings: NotificationSetting) -> bool:
     else: # 日を跨ぐ場合 (例: 22:00 - 07:00)
         return now >= start or now <= end
 
-def send_push_notification(subscription: PushSubscription, title: str, body: str, url: str = "/", db: Session | None = None):
+def send_push_notification(subscription: PushSubscription, title: str, body: str, url: str = "/", db: Session | None = None) -> dict:
     """特定の購読に対してプッシュ通知を送信する"""
     if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
         logger.warning("VAPID keys not configured. Skipping push notification.")
-        return False
+        return {"success": False, "status_code": None, "error": "VAPID keys not configured"}
 
     try:
         payload = {
@@ -56,7 +59,7 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             }
         )
         logger.info(f"Push notification sent successfully to subscription id={subscription.id}")
-        return True
+        return {"success": True, "status_code": None, "error": None}
     except WebPushException as ex:
         status_code = None
         response_body = None
@@ -79,10 +82,11 @@ def send_push_notification(subscription: PushSubscription, title: str, body: str
             except Exception as delete_ex:
                 logger.error(f"Failed to delete invalid subscription: {delete_ex}")
                 db.rollback()
-        return False
+        return {"success": False, "status_code": status_code, "error": str(ex)}
     except Exception as ex:
-        logger.error(f"Unexpected error sending push to subscription id={subscription.id}: {type(ex).__name__}: {ex}")
-        return False
+        error_msg = f"{type(ex).__name__}: {ex}"
+        logger.error(f"Unexpected error sending push to subscription id={subscription.id}: {error_msg}")
+        return {"success": False, "status_code": None, "error": error_msg}
 
 
 # category → notification_settings カラムのマッピング
@@ -93,6 +97,7 @@ _CATEGORY_SETTING_MAP: dict[str, str] = {
     "diaper_reminder": "diaper_reminder_enabled",
     "daily_summary": "daily_summary_enabled",
     "system": "system_notice_enabled",
+    "achievement": "family_record_enabled",  # 実績通知は family_record 設定に従う
 }
 
 
@@ -149,6 +154,7 @@ def notify_user(db: Session, user_id: int, title: str, body: str, url: str = "/"
     subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
     logger.info(f"Sending {category} push to user {user_id}: {len(subscriptions)} subscription(s)")
     for sub in subscriptions:
+        # 戻り値を無視して続行（副作用のみのため）
         send_push_notification(sub, title, body, url, db=db)
 
 
@@ -165,3 +171,42 @@ def notify_family_members(db: Session, family_id: int, exclude_user_id: int, tit
 
     for member in members:
         notify_user(db, member.user_id, title, body, url, category)
+
+
+def notify_family_members_bg(background_tasks: BackgroundTasks, family_id: int, exclude_user_id: int, title: str, body: str, url: str = "/", category: str = "family_record"):
+    """家族メンバー全員（本人を除く）に通知を送信する（バックグラウンドタスク）"""
+    def _task():
+        db = SessionLocal()
+        try:
+            notify_family_members(db, family_id, exclude_user_id, title, body, url, category)
+        finally:
+            db.close()
+
+    background_tasks.add_task(_task)
+
+
+def notify_achievements_bg(
+    background_tasks: BackgroundTasks,
+    family_id: int,
+    baby_name: str,
+    baby_id: int,
+    unlocked: list[dict],
+) -> None:
+    """実績解除を家族全員（全員）に通知する（バックグラウンドタスク）"""
+    def _task():
+        db = SessionLocal()
+        try:
+            for a in unlocked:
+                notify_family_members(
+                    db,
+                    family_id,
+                    exclude_user_id=0,  # 全員に通知
+                    title=f"実績解除！{a['icon']} {a['name']}",
+                    body=f"{baby_name}が「{a['name']}」を達成しました！",
+                    url=f"/dashboard?baby_id={baby_id}",
+                    category="achievement",
+                )
+        finally:
+            db.close()
+
+    background_tasks.add_task(_task)

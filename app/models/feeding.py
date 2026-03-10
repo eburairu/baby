@@ -1,37 +1,14 @@
-import enum
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
-from .base import Base
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
+from .base import Base, SoftDeleteMixin
+from app.models.enums import FeedingType, BreastSide, BottleContentType, FeedingCompletion
 
 
-class FeedingType(str, enum.Enum):
-    BREAST = "BREAST"
-    BOTTLE = "BOTTLE"
-    MIXED = "MIXED"
-
-
-class BreastSide(str, enum.Enum):
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-    BOTH = "BOTH"
-
-
-class BottleContentType(str, enum.Enum):
-    FORMULA = "FORMULA"
-    EXPRESSED_MILK = "EXPRESSED_MILK"
-    MIXED = "MIXED"
-
-
-class FeedingCompletion(str, enum.Enum):
-    FULL = "FULL"
-    PARTIAL = "PARTIAL"
-
-
-class Feeding(Base):
+class Feeding(Base, SoftDeleteMixin):
     __tablename__ = "feedings"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    feeding_time = Column(DateTime, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    feeding_time = Column(DateTime(timezone=True), nullable=False, index=True)
     feeding_type = Column(Enum(FeedingType, name="feedingtype"), nullable=False)
     amount_ml = Column(Float, nullable=True)
     duration_minutes = Column(Integer, nullable=True)
@@ -47,6 +24,10 @@ class Feeding(Base):
     bottle_content_type = Column(Enum(BottleContentType, name="bottlecontenttype"), nullable=True)
     feeding_completion = Column(Enum(FeedingCompletion, name="feedingcompletion"), nullable=True)
 
+    # Phase 3: ゲップの有無
+    burped = Column(Boolean, nullable=True)
+
     __table_args__ = (
         Index("idx_feeding_baby_time", "baby_id", "feeding_time"),
+        Index("ix_feedings_baby_id_is_deleted", "baby_id", "is_deleted"),
     )

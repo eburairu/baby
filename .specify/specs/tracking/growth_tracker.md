@@ -1,4 +1,4 @@
-# 成長記録 仕様書 (Growth Tracker Specification)
+# 成長記録仕様書 (Growth Tracker Specification)
 
 ## 概要
 
@@ -19,12 +19,14 @@
 - **入力項目**:
     - **計測日**: デフォルトは現在日付 (Datepicker等で選択可)。
     - **身長 (Height)**: cm単位 (小数点第1位まで)。必須ではない。
-    - **体重 (Weight)**: g または kg単位。画面上は入力しやすい単位を選択可能にするが、DB保存は統一（例: g）。必須ではない。
+    - **体重 (Weight)**: **g単位のみ**（画面上もgで入力する）。必須ではない。
     - **頭囲 (Head Circumference)**: cm単位 (小数点第1位まで)。必須ではない。
     - **メモ**: 自由記述。
 - **入力ルール**:
     - 少なくとも1つの計測値（身長、体重、頭囲のいずれか）が入力されていること。
 - **保存**: API に POST/PUT して保存する。
+    - **処理中フィードバック（新規・HIGH）**: 保存ボタンが押された後、API レスポンスが返るまでの間、ボタンを無効化（Disabled）し、「保存中...」およびスピナーを表示して処理中であることを示す。二重送信を完全に防止する。
+    - **通知**: 記録が正常に保存された場合、家族全員（記録者本人以外）に対してプッシュ通知（"成長の記録: {ユーザー名}さんが{赤ちゃん名}の身長・体重を記録しました。"）を送信する。
 
 ### F2: 成長記録一覧 (History)
 
@@ -37,15 +39,18 @@
 - 身長・体重・頭囲の推移を折れ線グラフで表示。
 - **軸の設定**:
     - **X軸**: 日付 (Date)。赤ちゃんの誕生日からの経過日数ではなく、カレンダー通りの日付を表示する（WHO基準線表示との整合性のため）。
-    - **Y軸**: 値 (cm / g)。表示されているデータ（ユーザーの記録およびWHO基準線）が適切に収まるよう、`domain={['auto', 'auto']}` による自動スケーリングを行う。
+    - **Y軸**: 値 (cm / kg)。表示されているデータ（ユーザーの記録およびWHO基準線）が適切に収まるよう、`domain={['auto', 'auto']}` による自動スケーリングを行う。
+    - **単位変換**: 体重データは DB 保存時は `g` だが、グラフ表示時には `kg` に変換（1000で除算）して表示する。身長・頭囲は `cm` で共通。
 - **ズーム機能**:
     - **期間選択スライダー (Brush)**: グラフ下部に `Recharts` の `Brush` コンポーネントを配置。
         - 配色: `ui_design_system.md` に従い、`emerald` 系（`stroke="#10b981"` 等）を使用する。
     - **デフォルト表示範囲**: 記録が多数ある場合、初期状態では「直近6ヶ月」を表示する。
-    - **クイック期間選択ボタン**: グラフ上部または下部に、以下の期間を即座に選択できるボタンを配置する。
-        - 1ヶ月 / 6ヶ月 / 1年 / 全期間
+    - **クイック期間選択ボタン**: グラフ上部に、以下の期間を即座に選択できるボタンを配置する。
+        - 7日 / 1ヶ月 / 6ヶ月 / 1年 / 全期間
     - **状態の維持**: 「身長」「体重」「頭囲」のタブを切り替えても、現在選択されている表示期間（ズーム範囲）が維持されるようにする。
-- (将来的な拡張: WHOなどの標準成長曲線を背景に表示する機能も考慮するが、初期リリースでは必須としない)
+- **WHO基準線の表示 (実装済み)**:
+    - 赤ちゃんの性別と誕生日が登録されている場合、WHOの成長曲線（P3, P50, P97）を背景参照線として表示する。
+    - グラフ上部にチェックボックスを配置し、表示/非表示を切り替え可能とする。デフォルトは表示 (Checked)。
 
 ## 画面構成
 
@@ -87,33 +92,46 @@
 - `weight`: Integer (g, Nullable) ※g単位で保存
 - `head_circumference`: Float (cm, Nullable)
 - `notes`: String (Nullable)
-- `created_at`: DateTime
 
 ## API
 
-- `GET /api/growth_records/?baby_id={id}`
-    - 指定した赤ちゃんの全記録を日付順（降順または昇順）で取得。
-- `POST /api/growth_records/`
+- `GET /api/growths/?baby_id={id}`
+    - 指定した赤ちゃんの全記録を日付順（降順のみ）で取得。
+- `POST /api/growths/`
     - 新規作成。
-- `PUT /api/growth_records/{id}`
-    - 編集更新。
-- `DELETE /api/growth_records/{id}`
+- `PUT /api/growths/{id}`
+    - 編集更新（全フィールド送信による更新）。
+- `DELETE /api/growths/{id}`
     - 削除。
 
-### レスポンススキーマ (`GrowthResponse`)
+### リクエスト/レスポンススキーマ
 
 ```typescript
-interface GrowthResponse {
-  id: number
+// POST リクエスト
+interface GrowthCreate {
   baby_id: number
+  date: string // YYYY-MM-DD形式
+  height?: number
+  weight?: number
+  head_circumference?: number
+  notes?: string
+}
+
+// PUT リクエスト
+interface GrowthUpdate {
+  date?: string
+  height?: number
+  weight?: number
+  head_circumference?: number
+  notes?: string
+}
+
+// レスポンス
+interface GrowthResponse extends GrowthCreate {
+  id: number
   user_id: number
-  date: string
-  height: number | null
-  weight: number | null
-  head_circumference: number | null
-  notes: string | null
-  created_at: string
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number
 }
 ```
 
@@ -132,14 +150,19 @@ interface GrowthResponse {
 
 ### バリデーション (Zod Schema)
 
+`frontend/schemas/growth.ts` で定義。
+
 ```typescript
-const growthRecordSchema = z.object({
-  date: z.date(),
-  height: z.number().min(0).max(100).optional(), // 妥当な範囲
-  weight: z.number().min(0).max(20000).optional(), // g単位, 20kgまでなど
-  head_circumference: z.number().min(0).max(60).optional(),
-  notes: z.string().optional(),
+export const growthSchema = z.object({
+    date: z.string().min(1, "日付を選択してください"),
+    height: z.string().optional(),
+    weight: z.string().optional(),
+    head_circumference: z.string().optional(),
+    notes: z.string().optional(),
 }).refine(data => data.height || data.weight || data.head_circumference, {
-  message: "少なくとも1つの値を入力してください",
-});
+    message: "身長、体重、頭囲の少なくとも1つを入力してください",
+    path: ["height"],
+})
 ```
+
+※ 入力フォーム (`GrowthRecordForm`) 上ではHTML5の `type="number"` 属性により数値入力が強制され、送信時に `parseFloat/parseInt` による数値変換が行われる。

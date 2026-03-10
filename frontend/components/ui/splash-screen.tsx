@@ -4,25 +4,19 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BabyBottleLoading } from "./baby-bottle-loading"
 import { useUser } from "@/hooks/useAuth"
+import { useMounted } from "@/hooks/useMounted"
 
 export function SplashScreen() {
     const { isLoading } = useUser()
     const [isVisible, setIsVisible] = useState(true)
-    const [isMounted, setIsMounted] = useState(false)
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsMounted(true)
-        }, 0)
-        return () => clearTimeout(timer)
-    }, [])
+    const isMounted = useMounted(0, true)
 
     useEffect(() => {
         // マウントとバックグラウンドのローディング完了を待ってフェードアウト
         if (isMounted && !isLoading) {
             const timer = setTimeout(() => {
                 setIsVisible(false)
-            }, 600) // 余韻を持たせてフェードアウト
+            }, 200)
             return () => clearTimeout(timer)
         }
     }, [isMounted, isLoading])
@@ -53,11 +47,11 @@ export function SplashScreen() {
                         transition={{ duration: 0.6, ease: "easeOut" }}
                     >
                         <div className="relative">
-                            <div className="absolute inset-0 bg-indigo-400 blur-2xl opacity-20 rounded-full animate-pulse" />
-                            <BabyBottleLoading className="w-28 h-28 text-indigo-500 dark:text-indigo-400 relative z-10" />
+                            <div className="absolute inset-0 blur-2xl opacity-20 rounded-full animate-pulse bg-primary" />
+                            <BabyBottleLoading className="w-28 h-28 relative z-10 text-primary" />
                         </div>
-                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mt-2 font-geist-sans drop-shadow-sm">
-                            Baby App
+                        <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent mt-2 drop-shadow-sm font-sans bg-gradient-to-r from-pink-400 via-rose-400 to-fuchsia-400">
+                            Botoro
                         </h1>
                     </motion.div>
                 </motion.div>

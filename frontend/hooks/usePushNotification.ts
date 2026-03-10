@@ -10,6 +10,17 @@ export function usePushNotification() {
     if ("Notification" in window) {
       setPermission(Notification.permission);
     }
+    // 既存の購読状態をSWから読み込む
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        const reg = regs.find((r) => r.active) ?? regs[0];
+        if (reg?.pushManager) {
+          reg.pushManager.getSubscription().then((sub) => {
+            if (sub) setSubscription(sub);
+          });
+        }
+      });
+    }
   }, []);
 
   const requestPermission = async () => {
@@ -46,19 +57,37 @@ export function usePushNotification() {
     if (!("serviceWorker" in navigator)) return null;
 
     try {
-      // Service Worker が active になるまで最大 60 秒待機
-      const registration = await Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Service Worker の準備がタイムアウトしました。ページを再読み込みして再試行してください。")), 60000)
-        ),
-      ]);
+      // getRegistrations() で全登録を取得し active なものを探す
+      // iOS PWA では getRegistration("/") がスコープ不一致で undefined を返すことがある
+      // 登録がない・active でない場合は ready で待機する（登録スクリプトが非同期のため）
+      const regs = await navigator.serviceWorker.getRegistrations();
+      const activeReg = regs.find((r) => r.active);
+
+      const registration = activeReg
+        ? activeReg
+        : await Promise.race([
+            navigator.serviceWorker.ready,
+            new Promise<never>((_, reject) =>
+              setTimeout(
+                () =>
+                  reject(
+                    new Error(
+                      "Service Worker の準備がタイムアウトしました。ページを再読み込みして再試行してください。"
+                    )
+                  ),
+                20000
+              )
+            ),
+          ]);
+
       if (!registration.pushManager) {
         throw new Error("プッシュ通知はこのブラウザ/環境では使用できません（PushManager が見つかりません）。");
       }
       const existingSubscription = await registration.pushManager.getSubscription();
 
       if (existingSubscription) {
+        await sendSubscriptionToBackend(existingSubscription);
+        setSubscription(existingSubscription);
         return existingSubscription;
       }
 
@@ -73,6 +102,20 @@ export function usePushNotification() {
       const msg = error instanceof Error ? error.message : String(error);
       console.error("Failed to subscribe user:", msg);
       throw new Error(msg);
+    }
+  };
+
+  const unsubscribeUser = async (sub: PushSubscription) => {
+    try {
+      await sub.unsubscribe();
+      await fetch(
+        `/api/notifications/unsubscribe?endpoint=${encodeURIComponent(sub.endpoint)}`,
+        { method: "POST" }
+      );
+      setSubscription(null);
+    } catch (error) {
+      console.error("Failed to unsubscribe:", error);
+      throw error;
     }
   };
 
@@ -107,6 +150,7 @@ export function usePushNotification() {
     subscription,
     requestPermission,
     subscribeUser,
+    unsubscribeUser,
     sendSubscriptionToBackend,
   };
 }

@@ -1,4 +1,4 @@
-# 陣痛タイマー機能 仕様書 (Contraction Timer Specification)
+# 陣痛タイマー機能仕様書 (Contraction Timer Specification)
 
 ## 概要
 
@@ -27,7 +27,12 @@
 - **`interval_seconds` 自動計算**: 停止時に「前回の痛みの始まり（start_time）」から「今回の痛みの始まり（start_time）」までの時間を算出する（Start-to-Start / 周期）
     - 計算式: `(今回のstart_time - 前回のstart_time) / 1000`（ミリ秒→秒、Math.round）
     - diff > 0 の場合のみ送信（前回記録がない場合や差分が0以下の場合はフィールド自体を省略）
+    - **補足**: フロントエンドで計算して送信も可能だが、最終的にはバックエンドが前回の記録と比較して再計算・検証を行い、データ整合性を担保する。
 - **ボタン仕様**: `h-20 w-full text-2xl rounded-2xl`（陣痛中の操作性を考慮して大型化）
+- **処理中フィードバック（新規・HIGH）**: ボタンが押され、APIリクエスト中または状態遷移中は、ボタンを無効化（Disabled）し、スピナーを表示して処理中であることを示す。これにより、ネットワーク遅延時の連打による重複登録を完全に防止する。
+- **家族への通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Webプッシュ/アプリ内通知）が送信される。
+    - タイトル: "陣痛タイマー"
+    - 本文: "{記録者名}さんが陣痛を計測しました。"
 
 ### F2: 陣痛記録一覧
 
@@ -79,7 +84,7 @@
     - Recharts 標準のアニメーションに加え、計測中の最新データポイントを動的に追加し、リアルタイムで波が右端に描画される。
 - **技術スタック**:
     - **Recharts** (`AreaChart`, `Area`, `XAxis`, `Tooltip`, `ResponsiveContainer`)
-    - **framer-motion** (コンテナ의登場アニメーション等)
+    - **framer-motion** (コンテナの登場アニメーション等)
 - **データ変換ロジック**:
     - 陣痛記録を Recharts 用の時系列配列（`{ time: string, value: number, duration?: number, ... }`）に変換する。
     - 1つの陣痛を複数のデータポイント（開始、ピーク、終了）で表現し、`monotone` 補間によって滑らかな山を作る。
@@ -122,10 +127,11 @@
 
 - `GET /api/contractions/?baby_id={id}` - 陣痛記録一覧取得
 - `POST /api/contractions/` - 陣痛記録作成
+    - **通知**: 記録作成成功時、対象の赤ちゃんの家族メンバー全員に通知（Push/In-App）が送信される。
 - `PATCH /api/contractions/{id}` - 陣痛記録更新 (New)
 - `DELETE /api/contractions/{id}` - 陣痛記録削除
 
-### リクエスト/レスポンス スキーマ
+### リクエスト/レスポンススキーマ
 
 ```typescript
 // POST リクエスト
@@ -151,6 +157,7 @@ interface ContractionResponse extends ContractionCreate {
   id: number
   user_id: number
   recorded_by_display_name: string | null  // 記録者の表示名（ユーザーが削除された場合はnull）
+  comment_count: number                    // コメント数
 }
 ```
 
@@ -168,6 +175,18 @@ interface ContractionTimerState {
   stop: () => { startTime: Date; endTime: Date; durationSeconds: number }
   reset: () => void
   tick: () => void
+}
+```
+
+### アクション管理 (Custom Hook)
+
+- `useContractionActions` カスタムフックで、削除・編集・コメント追加などのアクションを管理する。
+- **コールバック分離**: 以前の単一 `onSuccess` コールバックを廃止し、操作ごとのコールバック (`onDeleted`, `onUpdated`) を採用することで、SWRの再検証やUI更新を適切にトリガーし、イベントの衝突を防ぐ。
+
+```typescript
+interface UseContractionActionsOptions {
+    onDeleted?: () => void // 削除完了時のコールバック
+    onUpdated?: () => void // 更新完了時のコールバック
 }
 ```
 

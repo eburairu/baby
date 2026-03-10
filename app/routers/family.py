@@ -1,3 +1,4 @@
+import logging
 import secrets
 from typing import List
 
@@ -5,8 +6,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies import get_db, get_current_user
+from app.utils.rate_limit import RateLimiter
+from app.core import constants
 from app.models.user import User, UserSession
-from app.models.family import Family, FamilyUser, UserRole
+from app.models.family import Family, FamilyUser
+from app.models.enums import UserRole
 from app.schemas.family import (
     FamilyResponse,
     FamilyUpdate,
@@ -17,7 +21,14 @@ from app.schemas.family import (
 from app.services.auth import get_password_hash
 
 router = APIRouter(prefix="/api/family", tags=["family"])
+logger = logging.getLogger(__name__)
 
+# Limit password reset attempts to 3 per 60 seconds to prevent abuse/DoS
+reset_password_limiter = RateLimiter(
+    requests_limit=constants.RATE_LIMIT_RESET_PASSWORD_REQUESTS,
+    time_window=constants.RATE_LIMIT_RESET_PASSWORD_WINDOW,
+    error_message="Too many password reset attempts. Please try again later.",
+)
 
 def _get_family_user(db: Session, current_user: User) -> FamilyUser:
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
@@ -26,8 +37,8 @@ def _get_family_user(db: Session, current_user: User) -> FamilyUser:
     return family_user
 
 
-def _require_admin(family_user: FamilyUser) -> None:
-    if family_user.role != UserRole.ADMIN:
+def _require_admin(family_user: FamilyUser, current_user: User) -> None:
+    if family_user.role != UserRole.ADMIN and not current_user.is_superadmin:
         raise HTTPException(status_code=403, detail="Admin role required")
 
 
@@ -47,28 +58,30 @@ def update_family(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     if not body.name.strip():
         raise HTTPException(status_code=422, detail="Family name cannot be empty")
     family = db.query(Family).filter(Family.id == family_user.family_id).first()
     family.name = body.name.strip()
+    logger.info("Family updated: family_id=%s, name='%s', by user_id=%s", family.id, family.name, current_user.id)
     db.commit()
     db.refresh(family)
     return family
 
 
-@router.post("/invite_code/regenerate", response_model=FamilyResponse)
+@router.post("/invite_code/regenerate", response_model=FamilyResponse, dependencies=[Depends(reset_password_limiter)])
 def regenerate_invite_code(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     family = db.query(Family).filter(Family.id == family_user.family_id).first()
     new_code = secrets.token_hex(8).upper()
     while db.query(Family).filter(Family.invite_code == new_code).first():
         new_code = secrets.token_hex(8).upper()
     family.invite_code = new_code
+    logger.info("Invite code regenerated: family_id=%s, by user_id=%s", family.id, current_user.id)
     db.commit()
     db.refresh(family)
     return family
@@ -108,7 +121,7 @@ def update_member_role(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     target = (
         db.query(FamilyUser)
         .filter(
@@ -129,6 +142,7 @@ def update_member_role(
         if admin_count <= 1:
             raise HTTPException(status_code=400, detail="At least one admin is required")
     target.role = body.role
+    logger.info("Member role updated: target_user_id=%s, new_role=%s, by user_id=%s", user_id, body.role, current_user.id)
     db.commit()
     db.refresh(target)
     return FamilyMemberResponse(
@@ -139,14 +153,14 @@ def update_member_role(
     )
 
 
-@router.post("/members/{user_id}/reset-password", response_model=PasswordResetResponse)
+@router.post("/members/{user_id}/reset-password", response_model=PasswordResetResponse, dependencies=[Depends(reset_password_limiter)])
 def reset_member_password(
     user_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> PasswordResetResponse:
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     if user_id == current_user.id:
         raise HTTPException(status_code=400, detail="Cannot reset your own password here")
     target_family_user = (
@@ -164,6 +178,7 @@ def reset_member_password(
         raise HTTPException(status_code=404, detail="User not found")
     temporary_password = secrets.token_urlsafe(9)  # ~12 chars
     target_user.hashed_password = get_password_hash(temporary_password)
+    logger.info("Member password reset: target_user_id=%s, by user_id=%s", user_id, current_user.id)
     db.query(UserSession).filter(UserSession.user_id == user_id).delete()
     db.commit()
     return PasswordResetResponse(temporary_password=temporary_password)
@@ -176,7 +191,7 @@ def delete_member(
     current_user: User = Depends(get_current_user),
 ):
     family_user = _get_family_user(db, current_user)
-    _require_admin(family_user)
+    _require_admin(family_user, current_user)
     target = (
         db.query(FamilyUser)
         .filter(
@@ -197,4 +212,5 @@ def delete_member(
         if admin_count <= 1:
             raise HTTPException(status_code=400, detail="At least one admin is required")
     db.delete(target)
+    logger.info("Member deleted: target_user_id=%s, from family_id=%s, by user_id=%s", user_id, family_user.family_id, current_user.id)
     db.commit()

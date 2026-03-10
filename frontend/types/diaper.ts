@@ -12,3 +12,5 @@ export const DiaperType = {
 export type DiaperType = components["schemas"]["DiaperType"]
 
 export type Diaper = components["schemas"]["DiaperResponse"]
+export type DiaperUpdate = components["schemas"]["DiaperUpdate"]
+export type DiaperCreate = components["schemas"]["DiaperCreate"]

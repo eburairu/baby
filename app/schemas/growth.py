@@ -1,6 +1,8 @@
 import datetime
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Optional, List
+from app.core.constants import NOTE_MAX_LENGTH
+from app.schemas.achievement import UnlockedAchievementInfo
 
 
 class GrowthCreate(BaseModel):
@@ -9,7 +11,7 @@ class GrowthCreate(BaseModel):
     weight: Optional[int] = None  # in grams
     height: Optional[float] = None  # in cm
     head_circumference: Optional[float] = None  # in cm
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
 
 class GrowthUpdate(BaseModel):
@@ -17,7 +19,7 @@ class GrowthUpdate(BaseModel):
     weight: Optional[int] = None
     height: Optional[float] = None
     head_circumference: Optional[float] = None
-    notes: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
 
 
 class GrowthResponse(GrowthCreate):
@@ -25,5 +27,6 @@ class GrowthResponse(GrowthCreate):
     user_id: int
     recorded_by_display_name: Optional[str] = None
     comment_count: int = 0
+    unlocked_achievements: List[UnlockedAchievementInfo] = []
 
     model_config = ConfigDict(from_attributes=True)

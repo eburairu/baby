@@ -1,4 +1,4 @@
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import MetaData
 
 class Base(DeclarativeBase):
@@ -9,3 +9,6 @@ class Base(DeclarativeBase):
         "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
         "pk": "pk_%(table_name)s"
     })
+
+class SoftDeleteMixin:
+    is_deleted: Mapped[bool] = mapped_column(default=False, nullable=False)

@@ -1,4 +1,5 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '') + '/api';
+import * as Sentry from "@sentry/nextjs";
 
 export class ApiError extends Error {
     info: unknown;
@@ -16,6 +17,16 @@ export function isApiError(error: unknown): error is ApiError {
     return error instanceof ApiError;
 }
 
+export function getErrorMessage(error: unknown, defaultMessage = "エラーが発生しました"): string {
+    if (isApiError(error)) {
+        return (error.info as { detail?: string })?.detail || defaultMessage;
+    }
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return defaultMessage;
+}
+
 async function parseErrorBody(res: Response): Promise<unknown> {
     const text = await res.text();
     try {
@@ -25,76 +36,94 @@ async function parseErrorBody(res: Response): Promise<unknown> {
     }
 }
 
-export const fetcher = async <T = unknown>(url: string): Promise<T> => {
+interface RequestOptions extends Omit<RequestInit, 'body' | 'method'> {
+    errorMessage?: string;
+}
+
+async function request<T>(
+    url: string,
+    options: RequestInit & { errorMessage?: string } = {}
+): Promise<T> {
+    const { errorMessage = 'API Error', ...init } = options;
+
+    // ヘッダーの正規化とデフォルト設定
+    const headers = new Headers(init.headers);
+
+    // ボディが文字列（JSONなど）で、Content-Typeが設定されていない場合、自動的にapplication/jsonを設定する
+    if (init.body && typeof init.body === 'string' && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+
+    // テスト環境との互換性を保つため、Headersオブジェクトをプレーンなオブジェクトに変換して渡す
+    const headersRecord: Record<string, string> = {};
+    headers.forEach((value, key) => {
+        headersRecord[key] = value;
+    });
+
     const res = await fetch(`${API_BASE}${url}`, {
         credentials: 'include',
+        ...init,
+        headers: headersRecord,
     });
+
     if (!res.ok) {
+        const errorBody = await parseErrorBody(res);
+        Sentry.logger.error("API request failed", { url, status: res.status, body: errorBody });
         throw new ApiError(
-            'An error occurred while fetching the data.',
-            await parseErrorBody(res),
+            errorMessage,
+            errorBody,
             res.status
         );
     }
+
     if (res.status === 204) return null as T;
     return res.json() as Promise<T>;
+}
+
+export const fetcher = async <T = unknown>(url: string): Promise<T> => {
+    return request<T>(url, {
+        method: 'GET',
+        errorMessage: 'An error occurred while fetching the data.',
+    });
 };
 
 export const api = {
-    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
-        const res = await fetch(`${API_BASE}${url}`, {
+    get: async <TRes = unknown>(url: string, options?: RequestOptions): Promise<TRes> => {
+        return request<TRes>(url, {
+            method: 'GET',
+            ...options,
+        });
+    },
+    post: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: RequestOptions): Promise<TRes> => {
+        return request<TRes>(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify(body),
-            credentials: 'include',
+            ...options,
         });
-        if (!res.ok) {
-            throw new ApiError('API Error', await parseErrorBody(res), res.status);
-        }
-        if (res.status === 204) return null as TRes;
-        return res.json() as Promise<TRes>;
     },
-    put: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
-        const res = await fetch(`${API_BASE}${url}`, {
+    put: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: RequestOptions): Promise<TRes> => {
+        return request<TRes>(url, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify(body),
-            credentials: 'include',
+            ...options,
         });
-        if (!res.ok) {
-            throw new ApiError('API Error', await parseErrorBody(res), res.status);
-        }
-        if (res.status === 204) return null as TRes;
-        return res.json() as Promise<TRes>;
     },
-    patch: async <TRes = unknown, TReq = unknown>(url: string, body: TReq): Promise<TRes> => {
-        const res = await fetch(`${API_BASE}${url}`, {
+    patch: async <TRes = unknown, TReq = unknown>(url: string, body: TReq, options?: RequestOptions): Promise<TRes> => {
+        return request<TRes>(url, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify(body),
-            credentials: 'include',
+            ...options,
         });
-        if (!res.ok) {
-            throw new ApiError('API Error', await parseErrorBody(res), res.status);
-        }
-        if (res.status === 204) return null as TRes;
-        return res.json() as Promise<TRes>;
     },
-    delete: async <TRes = unknown>(url: string): Promise<TRes | null> => {
-        const res = await fetch(`${API_BASE}${url}`, {
+    delete: async <TRes = unknown>(url: string, options?: RequestOptions): Promise<TRes | null> => {
+        return request<TRes>(url, {
             method: 'DELETE',
-            credentials: 'include',
+            ...options,
         });
-        if (!res.ok) {
-            throw new ApiError('API Error', await parseErrorBody(res), res.status);
-        }
-        if (res.status === 204) return null;
-        return res.json() as Promise<TRes>;
     },
 };
+
+export const post = api.post;
+export const put = api.put;
+export const patch = api.patch;
+export const del = api.delete;

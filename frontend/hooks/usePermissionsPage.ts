@@ -1,4 +1,6 @@
 "use client"
+import { RECORD_TYPES, USER_ROLES } from '@/types/enums';
+
 
 import useSWR from "swr"
 import { useMemo } from "react"
@@ -32,13 +34,15 @@ export type MemberPermissions = {
 
 const ALL_RECORD_TYPES = [
   "baby",
-  "feeding",
+  RECORD_TYPES.FEEDING,
   "sleep",
   "diaper",
   "growth",
   "contraction",
   "schedule",
+  "vaccination",
   "note",
+  "milestone",
 ]
 
 export function usePermissionsPage() {
@@ -71,7 +75,7 @@ export function usePermissionsPage() {
   const memberPermissions: MemberPermissions[] = useMemo(() => {
     if (!members || !babies || !allPermsData) return []
 
-    const nonAdminMembers = members.filter((m) => m.role !== "admin")
+    const nonAdminMembers = members.filter((m) => m.role !== USER_ROLES.ADMIN)
 
     return nonAdminMembers.map((member) => {
       const babyAccess: BabyAccess[] = babies.map((baby) => {

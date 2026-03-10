@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { format } from "date-fns"
+import { noteSchema, NoteFormValues } from "@/schemas/note"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
 import { Plus, Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -20,29 +20,27 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { createNote } from "@/hooks/useNotes"
+import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
+import { UI_BUTTONS } from "@/constants/ui-colors"
 
-const noteSchema = z.object({
-    note_time: z.string().min(1, "日時は必須です"),
-    content: z.string().min(1, "内容は必須です").max(2000, "2000文字以内で入力してください"),
-})
 
-type NoteFormValues = z.infer<typeof noteSchema>
 
 interface Props {
     babyId: number
-    onAddSuccess: () => void
+    onAddSuccess: (recordId?: number) => void
+    defaultExpanded?: boolean
 }
 
-export function NoteForm({ babyId, onAddSuccess }: Props) {
+export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Props) {
     const [submitting, setSubmitting] = useState(false)
-    const [isExpanded, setIsExpanded] = useState(false)
+    const [isExpanded, setIsExpanded] = useState(defaultExpanded)
     const [error, setError] = useState<string | null>(null)
 
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
         defaultValues: {
-            note_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+            note_time: formatDateTimeLocal(new Date()),
             content: "",
         },
     })
@@ -51,16 +49,16 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
         setSubmitting(true)
         setError(null)
         try {
-            await createNote(babyId, {
+            const newNote = await createNote(babyId, {
                 content: values.content,
                 note_time: new Date(values.note_time).toISOString()
             })
             form.reset({
-                note_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                note_time: formatDateTimeLocal(new Date()),
                 content: "",
             })
             setIsExpanded(false)
-            onAddSuccess()
+            onAddSuccess(newNote?.id)
         } catch (err) {
             console.error(err)
             setError("メモの保存に失敗しました。時間をおいて再度お試しください。")
@@ -73,7 +71,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
         return (
             <Button 
                 onClick={() => setIsExpanded(true)}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-6 shadow-sm flex gap-2 transition-all duration-200"
+                className={cn("w-full rounded-xl py-6 shadow-sm flex gap-2 transition-all duration-200", UI_BUTTONS.primary)}
                 aria-label="新しいメモを入力する" data-sentry-unmask
             >
                 <Plus className="h-5 w-5" />
@@ -94,7 +92,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             name="note_time"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask>日時</FormLabel>
+                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask required>日時</FormLabel>
                                     <FormControl>
                                         <Input 
                                             type="datetime-local" 
@@ -112,7 +110,7 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             name="content"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask>内容</FormLabel>
+                                    <FormLabel className="text-xs text-gray-500 dark:text-zinc-400" data-sentry-unmask required>内容</FormLabel>
                                     <FormControl>
                                         <Textarea 
                                             placeholder="今日の出来事や赤ちゃんの様子など..." 
@@ -141,11 +139,11 @@ export function NoteForm({ babyId, onAddSuccess }: Props) {
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={submitting}
-                                data-sentry-unmask className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                                loading={submitting}
+                                data-sentry-unmask className={cn("flex-1 shadow-md shadow-indigo-500/20", UI_BUTTONS.primary)}
                             >
                                 <Save className="h-4 w-4 mr-2" />
-                                {submitting ? "保存中..." : "保存する"}
+                                保存する
                             </Button>
                         </div>
                     </form>

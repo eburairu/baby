@@ -1,11 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { Droplets, Biohazard } from "lucide-react"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { format } from "date-fns"
-import { Save } from "lucide-react"
+import { formatDateTimeLocal } from "@/lib/dateUtils"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -18,109 +16,170 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { api } from "@/lib/api"
-import { DiaperType } from "@/types/diaper"
+import { Diaper, DiaperType, DiaperUpdate, DiaperCreate } from "@/types/diaper"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
+import { UI_BUTTONS, UI_FORMS } from "@/constants/ui-colors"
+import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
+import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
+import { api } from "@/lib/api"
+import { PoopDetailsFields } from "./PoopDetailsFields"
 
-const diaperSchema = z.object({
-    diaper_type: z.nativeEnum(DiaperType),
-    change_time: z.string(),
-    notes: z.string().optional(),
-})
-
-type DiaperFormValues = z.infer<typeof diaperSchema>
 
 interface Props {
-    babyId: string
-    onSuccess: () => void
+    babyId: string | number
+    initialData?: Diaper
+    defaultDiaperType?: DiaperType
+    onSuccess: (recordId?: number) => void
+    onUpdate?: (id: number, data: DiaperUpdate) => Promise<Diaper | undefined>
 }
 
-export function DiaperForm({ babyId, onSuccess }: Props) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+function generateDiaperNotes(vals: DiaperFormValues, isEditing: boolean): string | null {
+    let finalNotes = vals.notes || ""
+    if (vals.diaper_type !== DiaperType.WET) {
+        const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
+        const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
+
+        if (!isEditing && (color || amount)) {
+            const prefixParts = []
+            if (color) prefixParts.push(`色: ${color}`)
+            if (amount) prefixParts.push(`量: ${amount}`)
+            const prefix = prefixParts.join("、")
+
+            if (prefix) {
+                finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
+            }
+        }
+    }
+    return finalNotes.trim() || null
+}
+
+interface DiaperTypeButtonProps {
+    type: DiaperType;
+    selectedType: DiaperType;
+    onClick: () => void;
+    icon: React.ReactNode;
+    label: string;
+}
+
+function DiaperTypeButton({ type, selectedType, onClick, icon, label }: DiaperTypeButtonProps) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={cn(
+                "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                selectedType === type
+                    ? UI_FORMS.selection.amberBordered.active
+                    : UI_FORMS.selection.amberBordered.inactive
+            )}
+        >
+            {icon}
+            <span className="text-xs font-medium">{label}</span>
+        </button>
+    )
+}
+
+export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, onUpdate }: Props) {
+    const isEditing = !!initialData
 
     const form = useForm<DiaperFormValues>({
         resolver: zodResolver(diaperSchema),
         defaultValues: {
-            diaper_type: DiaperType.WET,
-            change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-            notes: "",
+            diaper_type: initialData?.diaper_type ?? defaultDiaperType ?? DiaperType.WET,
+            change_time: initialData?.change_time
+                ? formatDateTimeLocal(initialData.change_time)
+                : formatDateTimeLocal(new Date()),
+            notes: initialData?.notes ?? "",
+            poop_color: "",
+            custom_poop_color: "",
+            poop_amount: "",
+            custom_poop_amount: "",
         },
     })
 
-    const selectedType = form.watch("diaper_type")
+    const selectedType = useWatch({ control: form.control, name: "diaper_type" })
+
+    const { submitRecord, isSubmitting, error } = useBaseRecordForm<DiaperFormValues>({
+        endpoint: "/diapers/",
+        babyId,
+        onSuccess: (data) => {
+            if (!isEditing) {
+                form.reset({
+                    diaper_type: DiaperType.WET,
+                    change_time: formatDateTimeLocal(new Date()),
+                    notes: "",
+                    poop_color: "",
+                    custom_poop_color: "",
+                    poop_amount: "",
+                    custom_poop_amount: "",
+                })
+            }
+            onSuccess((data as { id?: number })?.id)
+        },
+        errorMessage: "エラーが発生しました。もう一度お試しください。",
+        successMessage: isEditing ? "更新しました" : undefined
+    })
 
     const onSubmit = async (values: DiaperFormValues) => {
-        setIsSubmitting(true)
-        setError(null)
         try {
-            await api.post("/diapers/", {
+            await submitRecord<DiaperCreate, Diaper | undefined>(values, (vals) => ({
                 baby_id: Number(babyId),
-                diaper_type: values.diaper_type,
-                change_time: new Date(values.change_time).toISOString(),
-                notes: values.notes || undefined,
-            })
-            form.reset({
-                diaper_type: DiaperType.WET,
-                change_time: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-                notes: "",
-            })
-            onSuccess()
+                diaper_type: vals.diaper_type,
+                change_time: new Date(vals.change_time).toISOString(),
+                notes: generateDiaperNotes(vals, isEditing),
+            }),
+            isEditing && initialData ? async (payload: DiaperCreate) => {
+                 const updatePayload: DiaperUpdate = {
+                     diaper_type: payload.diaper_type,
+                     change_time: payload.change_time,
+                     notes: payload.notes
+                 };
+
+                 if (onUpdate) {
+                     return await onUpdate(initialData.id, updatePayload)
+                 } else {
+                     return await api.put<Diaper>(`/diapers/${initialData.id}`, updatePayload)
+                 }
+            } : undefined)
         } catch (e) {
+            // Error is handled by the hook
             console.error(e)
-            setError("エラーが発生しました。もう一度お試しください。")
-        } finally {
-            setIsSubmitting(false)
         }
     }
 
     return (
-        <Card className="rounded-2xl shadow-sm border-0 mb-6 transition-colors">
-            <CardContent className="pt-6">
+        <Card className={cn("rounded-2xl shadow-sm border-0 mb-6 transition-colors", isEditing && "mb-0 shadow-none")}>
+            <CardContent className={cn("pt-6", isEditing && "p-0")}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-3 gap-3">
-                            <button
-                                type="button"
+                            <DiaperTypeButton
+                                type={DiaperType.WET}
+                                selectedType={selectedType}
                                 onClick={() => form.setValue("diaper_type", DiaperType.WET)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.WET
-                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
-                                )}
-                            >
-                                <span className="text-2xl">💧</span>
-                                <span className="text-xs font-medium">おしっこ</span>
-                            </button>
-                            <button
-                                type="button"
+                                icon={<Droplets className="w-6 h-6" />}
+                                label="おしっこ"
+                            />
+                            <DiaperTypeButton
+                                type={DiaperType.DIRTY}
+                                selectedType={selectedType}
                                 onClick={() => form.setValue("diaper_type", DiaperType.DIRTY)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.DIRTY
-                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
-                                )}
-                            >
-                                <span className="text-2xl">💩</span>
-                                <span className="text-xs font-medium">うんち</span>
-                            </button>
-                            <button
-                                type="button"
+                                icon={<Biohazard className="w-6 h-6" />}
+                                label="うんち"
+                            />
+                            <DiaperTypeButton
+                                type={DiaperType.BOTH}
+                                selectedType={selectedType}
                                 onClick={() => form.setValue("diaper_type", DiaperType.BOTH)}
-                                className={cn(
-                                    "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors",
-                                    selectedType === DiaperType.BOTH
-                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
-                                        : "border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-500 dark:text-zinc-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-900"
-                                )}
-                            >
-                                <span className="text-2xl">💧💩</span>
-                                <span className="text-xs font-medium">両方</span>
-                            </button>
+                                icon={<span className="flex gap-0.5"><Droplets className="w-6 h-6" /><Biohazard className="w-6 h-6" /></span>}
+                                label="両方"
+                            />
                         </div>
+
+                        {selectedType !== DiaperType.WET && (
+                            <PoopDetailsFields form={form} />
+                        )}
 
                         <FormField
                             control={form.control}
@@ -154,11 +213,11 @@ export function DiaperForm({ babyId, onSuccess }: Props) {
 
                         <Button
                             type="submit"
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11"
-                            disabled={isSubmitting}
+                            className={cn("w-full rounded-xl h-11", UI_BUTTONS.primary)}
+                            loading={isSubmitting}
                             data-sentry-unmask
                         >
-                            {isSubmitting ? "保存中..." : "保存する"}
+                            {isEditing ? "更新する" : "保存する"}
                         </Button>
                     </form>
                 </Form>

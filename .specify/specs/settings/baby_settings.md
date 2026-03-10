@@ -1,8 +1,8 @@
-# 赤ちゃん管理画面 仕様書 (Baby Settings Specification)
+# 赤ちゃん管理画面仕様書 (Baby Settings Specification)
 
 ## 概要
 
-Baby App の赤ちゃん設定画面（`/settings/babies`）の仕様。
+Botoro の赤ちゃん設定画面（`/settings/babies`）の仕様。
 家族に登録されている赤ちゃんの一覧表示、情報編集、削除、および新規追加を行う管理画面。
 エントリポイントはダッシュボードヘッダーの Settings アイコン。（現在は `/settings` への暫定リンク）
 
@@ -16,8 +16,10 @@ Baby App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 - **アクションカラー**:
     - プライマリボタン（追加・保存）: `bg-indigo-600 hover:bg-indigo-700 text-white`
     - 危険操作（削除）: `bg-red-500 hover:bg-red-600 text-white`
-    - キャンセル: shadcn `variant="outline"`
-- **赤ちゃんカテゴリーカラー**: `pink` 系
+    - **キャンセル**: shadcn `variant="outline"`
+    - **ダイアログの挙動**: 
+        - 入力項目（特に特徴・傾向の多行テキストや閾値設定）が多いため、画面外への突き抜けを防止するために `max-h-[90vh]` および `overflow-y-auto` によるスクロール制御を行う。
+    - **赤ちゃんカテゴリーカラー**: `pink` 系
     - タイトル色: `text-pink-500`
     - ライトBG: `bg-pink-50`
 
@@ -42,7 +44,7 @@ Baby App の赤ちゃん設定画面（`/settings/babies`）の仕様。
     - 生年月日（`birthday`、`YYYY/MM/DD` 形式）
     - 予定日（`due_date`、設定がある場合のみ）
     - 特徴・傾向（`characteristics`、概要または全文）
-- 全員（admin / member）が閲覧できる。
+- 管理者（admin）のみが閲覧・アクセスできる。
 
 ### BF2: 赤ちゃん情報の編集
 
@@ -55,6 +57,8 @@ Baby App の赤ちゃん設定画面（`/settings/babies`）の仕様。
     - 出産予定日（`due_date`、任意）
     - 特徴・傾向（`characteristics`、任意、多行テキスト）
         - AIが日誌生成時に自動更新するフィールドだが、親が手動で修正・追記できるようにする。
+    - 授乳アラート閾値（`feeding_threshold_minutes`、任意、数値）
+    - おむつアラート閾値（`diaper_threshold_minutes`、任意、数値）
 - `react-hook-form` + `zod` によるバリデーションを使用する。
 - 追加・編集画面は共通のフォームコンポーネントを利用する。
 - 保存後は一覧を即時更新し、成功トーストを表示する。
@@ -121,6 +125,14 @@ Baby App の赤ちゃん設定画面（`/settings/babies`）の仕様。
 │  │ 最近よく寝返りをするようになった  │  │
 │  │ 夜泣きが少し減ってきた           │  │
 │  └───────────────────────────────┘  │
+│  授乳アラート閾値 (分)              │
+│  ┌───────────────────────────────┐  │
+│  │ 180                           │  │
+│  └───────────────────────────────┘  │
+│  おむつアラート閾値 (分)            │
+│  ┌───────────────────────────────┐  │
+│  │ 120                           │  │
+│  └───────────────────────────────┘  │
 │              [キャンセル] [保存]     │
 └─────────────────────────────────────┘
 ```
@@ -160,6 +172,8 @@ const babySchema = z.object({
   birthday: z.string().optional(),   // "YYYY-MM-DD" or ""
   due_date: z.string().optional(),   // "YYYY-MM-DD" or ""
   characteristics: z.string().optional(), // 多行テキスト
+  feeding_threshold_minutes: z.number().optional().nullable(),
+  diaper_threshold_minutes: z.number().optional().nullable(),
 });
 ```
 
@@ -172,16 +186,62 @@ const babySchema = z.object({
 | PATCH | `/api/babies/{baby_id}` | ✅ 実装済み | 赤ちゃん情報更新 |
 | DELETE | `/api/babies/{baby_id}` | ✅ 実装済み | 赤ちゃん削除（関連記録含む） |
 
-#### 新規スキーマ（追加が必要）
+#### スキーマ定義
+
+**バックエンド (Pydantic Models)**
+
+`app/schemas/baby.py`
 
 ```python
-# app/schemas/baby.py に追加
-
 class BabyUpdate(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, max_length=100)
     birthday: Optional[date] = None
     due_date: Optional[date] = None
-    characteristics: Optional[str] = None  # 追加
+    gender: Optional[Literal["boy", "girl", "unknown"]] = None
+    characteristics: Optional[str] = Field(None, max_length=1000)
+    feeding_threshold_minutes: Optional[int] = None
+    diaper_threshold_minutes: Optional[int] = None
+
+    @field_validator('name')
+    @classmethod
+    def name_must_not_be_none(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            raise ValueError('Name cannot be null')
+        return v
+```
+
+**フロントエンド (TypeScript Interfaces)**
+
+```typescript
+type Gender = "boy" | "girl" | "unknown";
+
+interface BabyBase {
+  name: string;
+  birthday?: string | null;  // ISO 8601 YYYY-MM-DD
+  due_date?: string | null;  // ISO 8601 YYYY-MM-DD
+  gender?: Gender | null;
+  characteristics?: string | null;
+  feeding_threshold_minutes?: number | null;
+  diaper_threshold_minutes?: number | null;
+}
+
+interface BabyCreate extends BabyBase {}
+
+interface BabyUpdate {
+  name?: string;
+  birthday?: string | null;
+  due_date?: string | null;
+  gender?: Gender | null;
+  characteristics?: string | null;
+  feeding_threshold_minutes?: number | null;
+  diaper_threshold_minutes?: number | null;
+}
+
+interface BabyResponse extends BabyBase {
+  id: number;
+  family_id: number;
+  created_at: string; // ISO 8601
+}
 ```
 
 #### 削除時のカスケード仕様
@@ -205,12 +265,12 @@ class BabyUpdate(BaseModel):
 
 | 操作 | admin | member |
 |------|-------|--------|
-| 赤ちゃん一覧の閲覧 | ✅ | ✅ |
-| 赤ちゃん情報の編集 | ✅ | ❌（編集ボタン非表示） |
-| 赤ちゃんの削除 | ✅ | ❌（削除ボタン非表示） |
-| 赤ちゃんの新規追加 | ✅ | ❌（追加ボタン非表示） |
+| 赤ちゃん一覧の閲覧（設定ページ） | ✅ | ❌ |
+| 赤ちゃん情報の編集 | ✅ | ❌ |
+| 赤ちゃんの削除 | ✅ | ❌ |
+| 赤ちゃんの新規追加 | ✅ | ❌ |
 
-権限チェックはフロントエンドの UI 制御（ボタン非表示）とバックエンドの両方で実施する。
+権限チェックはフロントエンドの UI 制御（ページレベルのリダイレクト）とバックエンドの両方で実施する。
 バックエンドは `get_current_user()` および `FamilyUser.role` を参照して検証する。
 `verify_baby_access()` は閲覧権限の確認に引き続き使用する。
 
@@ -228,16 +288,16 @@ class BabyUpdate(BaseModel):
 
 - [x] `PATCH /api/babies/{baby_id}` エンドポイント実装（admin のみ）
 - [x] `DELETE /api/babies/{baby_id}` エンドポイント実装（admin のみ、関連記録カスケード削除）
-- [ ] 各子テーブルの `ondelete="CASCADE"` 設定確認・必要に応じてマイグレーション追加
-- [ ] `BabyUpdate` スキーマ修正（`characteristics` 対応）（`app/schemas/baby.py`）
-- [ ] `Baby` モデル修正（重複定義削除）（`app/models/baby.py`）
+- [x] 各子テーブルの `ondelete="CASCADE"` 設定確認・必要に応じてマイグレーション追加
+- [x] `BabyUpdate` スキーマ修正（`characteristics` 対応）（`app/schemas/baby.py`）
+- [x] `Baby` モデル修正（重複定義削除）（`app/models/baby.py`）
 
 ### フロントエンド
 
 - [x] `frontend/app/(dashboard)/settings/babies/page.tsx` 作成
-- [ ] `BabyCard.tsx` 改修（特徴表示）
-- [ ] `BabyEditDialog.tsx` 改修（特徴フィールド追加）
-- [ ] `AddBabyDialog.tsx` 改修（特徴フィールド追加、ダッシュボードの追加ロジックを移植・共通化）
+- [x] `BabyCard.tsx` 改修（特徴表示）
+- [x] `BabyEditDialog.tsx` 改修（特徴フィールド追加）
+- [x] `AddBabyDialog.tsx` 改修（特徴フィールド追加、ダッシュボードの追加ロジックを移植・共通化）
 - [ ] ダッシュボードから `AddBabyDialog` を共通コンポーネントとして利用するようリファクタリング
 - [ ] `cd frontend && pnpm build` でビルド確認
 

@@ -1,9 +1,12 @@
 # 育児チャットボット (RAG) 仕様書 (AI Chatbot RAG Specification)
 
+> **⚠️ Status: Pending / Not Implemented**
+> 本ドキュメントに記載されているチャットボット機能（バックエンドAPI、データベースモデル、フロントエンドコンポーネント）は、現在コードベースに実装されていません。将来の機能拡張に向けた設計のドラフトとしてご参照ください。
+
 ## 概要
 
 過去の育児記録をコンテキスト（RAG）として活用し、育児に関するパーソナライズされた相談ができるチャットボット機能。
-直近 7 日分の記録サマリーをシステムプロンプトに埋め込み、OpenAI GPT-4o mini が回答を生成する。
+直近 7 日分の記録サマリーをシステムプロンプトに埋め込み、高品質な LLM（Gemini 3 Pro）が回答を生成する。
 チャット履歴はセッション単位で DB に保存し、後から参照できる。
 
 ---
@@ -14,17 +17,21 @@
 - AI は医療行為を行わない。免責事項をシステムプロンプトとフロントエンドUIに明記する。
 - 会話の文脈を保つため、直近 5 件のメッセージ履歴を LLM に渡す。
 - セッションは赤ちゃん単位で管理し、複数のトピックを分けて会話できる。
+- **モデル選択の方針 (2026年2月更新)**:
+  - Google AI Studio (Gemini) を優先プロバイダーとする。
+  - **管理画面 (AI設定)** から、利用可能な最新モデル（Gemini 1.5 Pro, Flash 等）を選択可能とする。
+  - 予算や用途に応じて、管理者がモデルや生成パラメーターを動的に変更できる。
 
 ---
 
 ## 用語定義
 
-| 用語 | 定義 |
-|------|------|
-| セッション | 1つのトピックに関する会話の単位。タイトルは最初の質問から自動生成 |
+| 用語            | 定義                                                                                    |
+| --------------- | --------------------------------------------------------------------------------------- |
+| セッション      | 1つのトピックに関する会話の単位。タイトルは最初の質問から自動生成                       |
 | RAGコンテキスト | 直近7日分の記録サマリー。各リクエスト時にDBから動的に生成してシステムプロンプトに含める |
-| 会話履歴 | セッション内の直近5件のメッセージ（user + assistant 交互）を LLM に渡す |
-| 医療免責 | AI は診断・処方を行わない旨の明示的なメッセージ |
+| 会話履歴        | セッション内の直近5件のメッセージ（user + assistant 交互）を LLM に渡す                 |
+| 医療免責        | AI は診断・処方を行わない旨の明示的なメッセージ                                         |
 
 ---
 
@@ -88,14 +95,14 @@ alembic upgrade head
 
 ### 新規・変更ファイル一覧
 
-| ファイル | 変更種別 | 内容 |
-|---------|---------|------|
-| `app/models/chatbot.py` | **新規作成** | `ChatSession`, `ChatMessage` モデル |
-| `app/schemas/chatbot.py` | **新規作成** | Pydantic スキーマ |
-| `app/routers/chatbot.py` | **新規作成** | チャット API エンドポイント |
-| `app/services/chatbot.py` | **新規作成** | RAGコンテキスト生成・OpenAI 呼び出しロジック |
-| `app/models/__init__.py` | **変更** | `ChatSession`, `ChatMessage` をインポートに追加 |
-| `app/main.py` | **変更** | `chatbot` router を `include_router` |
+| ファイル                  | 変更種別     | 内容                                            |
+| ------------------------- | ------------ | ----------------------------------------------- |
+| `app/models/chatbot.py`   | **新規作成** | `ChatSession`, `ChatMessage` モデル             |
+| `app/schemas/chatbot.py`  | **新規作成** | Pydantic スキーマ                               |
+| `app/routers/chatbot.py`  | **新規作成** | チャット API エンドポイント                     |
+| `app/services/chatbot.py` | **新規作成** | RAGコンテキスト生成・AI API 呼び出しロジック    |
+| `app/models/__init__.py`  | **変更**     | `ChatSession`, `ChatMessage` をインポートに追加 |
+| `app/main.py`             | **変更**     | `chatbot` router を `include_router`            |
 
 ---
 
@@ -126,8 +133,7 @@ class ChatMessageResponse(BaseModel):
     content: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChatSessionResponse(BaseModel):
@@ -138,8 +144,7 @@ class ChatSessionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChatSessionDetailResponse(BaseModel):
@@ -152,8 +157,7 @@ class ChatSessionDetailResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChatSendResponse(BaseModel):
@@ -173,37 +177,47 @@ class ChatSendResponse(BaseModel):
 **権限**: `verify_baby_access(db, baby_id, current_user.id)`
 
 **リクエストボディ**:
+
 ```json
 { "first_message": "最近夜中に3回起きるのですが、これは多いですか？" }
 ```
 
 **処理詳細**:
+
 1. `verify_baby_access()` でアクセス検証。
 2. `title` = `first_message` の先頭 50 文字（それ以降は「...」で省略）。
 3. `ChatSession` を DB に作成。
 4. ユーザーメッセージを `ChatMessage` として保存（`role="user"`）。
 5. RAGコンテキストを生成（後述）。
-6. OpenAI API (`gpt-4o-mini`) に送信（システムプロンプト + 会話履歴 + ユーザーメッセージ）。
+6. Gemini API (`gemini-3-pro`) に送信（システムプロンプト + 会話履歴 + ユーザーメッセージ）。
 7. AI 応答を `ChatMessage` として保存（`role="assistant"`）。
 8. `ChatSendResponse` を返す。
 
 **レスポンス** (`201 Created`):
+
 ```json
 {
   "user_message": {
-    "id": 1, "session_id": 10, "role": "user",
-    "content": "最近夜中に3回起きるのですが...", "created_at": "..."
+    "id": 1,
+    "session_id": 10,
+    "role": "user",
+    "content": "最近夜中に3回起きるのですが...",
+    "created_at": "..."
   },
   "assistant_message": {
-    "id": 2, "session_id": 10, "role": "assistant",
-    "content": "レンくんの直近7日間の睡眠記録を見ると...", "created_at": "..."
+    "id": 2,
+    "session_id": 10,
+    "role": "assistant",
+    "content": "レンくんの直近7日間の睡眠記録を見ると...",
+    "created_at": "..."
   }
 }
 ```
 
 **エラーレスポンス**:
+
 - `400 Bad Request`: `first_message` が空
-- `503 Service Unavailable`: OpenAI API 障害
+- `503 Service Unavailable`: AI API 障害
 
 ---
 
@@ -214,25 +228,28 @@ class ChatSendResponse(BaseModel):
 **権限**: `verify_baby_access(db, baby_id, current_user.id)` + セッションの `baby_id` 一致確認
 
 **リクエストボディ**:
+
 ```json
 { "content": "改善のためにできることはありますか？" }
 ```
 
 **処理詳細**:
+
 1. `verify_baby_access()` でアクセス検証。
 2. `session_id` が `baby_id` に属することを確認（他の赤ちゃんのセッションを操作不可）。
 3. ユーザーメッセージを `ChatMessage` として保存。
 4. 直近 5 件の会話履歴を取得して LLM に渡す。
 5. RAGコンテキストを生成（システムプロンプト再構築）。
-6. OpenAI API を呼び出し。
+6. Gemini API を呼び出し。
 7. AI 応答を `ChatMessage` として保存。
 8. `ChatSession.updated_at` を更新。
 9. `ChatSendResponse` を返す。
 
 **エラーレスポンス**:
+
 - `400 Bad Request`: `content` が空
 - `404 Not Found`: `session_id` が存在しない・`baby_id` に属していない
-- `503 Service Unavailable`: OpenAI API 障害
+- `503 Service Unavailable`: AI API 障害
 
 ---
 
@@ -243,6 +260,7 @@ class ChatSendResponse(BaseModel):
 **権限**: `verify_baby_access(db, baby_id, current_user.id)`
 
 **クエリパラメータ** (optional):
+
 - `limit`: 取得件数（デフォルト 20、最大 50）
 - `offset`: スキップ件数（デフォルト 0）
 
@@ -265,20 +283,24 @@ class ChatSendResponse(BaseModel):
 **概要**: セッションとその全メッセージを削除。
 
 **権限**:
+
 - セッションの作成者（`user_id` が一致）、または
 - `admin` ロールのユーザー
 
 **処理詳細**:
+
 1. `verify_baby_access()` でアクセス検証。
 2. セッションの `user_id == current_user.id` または `family_user.role == "admin"` を確認。
 3. `CASCADE` 設定により `ChatMessage` も自動削除。
 
 **レスポンス** (`200 OK`):
+
 ```json
 { "message": "Deleted" }
 ```
 
 **エラーレスポンス**:
+
 - `403 Forbidden`: 作成者でも admin でもないユーザーが削除しようとした
 - `404 Not Found`: セッションが存在しない
 
@@ -290,9 +312,31 @@ class ChatSendResponse(BaseModel):
 # app/services/chatbot.py
 
 import os
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from sqlalchemy.orm import Session
-from openai import OpenAI, APIError
+from openai import OpenAI
+
+
+def get_llm_client(db: Session) -> Tuple[OpenAI, str]:
+    """(client, model_name) を返す (管理画面の設定を優先)"""
+    config = get_ai_config(db)
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
+    api_key = os.environ.get("LLM_API_KEY")
+
+    # DB設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
+
+    if provider == "google":
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        )
+        model = model or "gemini-1.5-pro"
+    else:
+        client = OpenAI(api_key=api_key)
+        model = model or "gpt-4o"
+
+    return client, model
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -322,9 +366,9 @@ SYSTEM_PROMPT_TEMPLATE = """あなたは育児をサポートする専門的な�
 
 def build_rag_context(db: Session, baby_id: int, baby_name: str, birth_date: str) -> str:
     """直近7日分の記録を集計してRAGコンテキスト文字列を生成する。"""
-    today = date.today()
-    week_ago = datetime.combine(today - timedelta(days=7), datetime.min.time())
-    now = datetime.combine(today, datetime.max.time())
+    JST = timezone(timedelta(hours=9))
+    now = datetime.now(JST)
+    week_ago = now - timedelta(days=7)
 
     # 授乳
     feedings = db.query(Feeding).filter(
@@ -350,15 +394,15 @@ def build_rag_context(db: Session, baby_id: int, baby_name: str, birth_date: str
     # おむつ
     diapers = db.query(Diaper).filter(
         Diaper.baby_id == baby_id,
-        Diaper.diaper_time >= week_ago,
-        Diaper.diaper_time <= now,
+        Diaper.change_time >= week_ago,
+        Diaper.change_time <= now,
     ).all()
     avg_diaper_per_day = round(len(diapers) / 7, 1)
 
     # 成長（最新1件）
     latest_growth = db.query(Growth).filter(
         Growth.baby_id == baby_id,
-    ).order_by(Growth.recorded_at.desc()).first()
+    ).order_by(Growth.date.desc()).first()
 
     lines = [
         f"・授乳: 7日間合計{feeding_count}回（1日平均{avg_feeding_per_day}回）",
@@ -367,10 +411,10 @@ def build_rag_context(db: Session, baby_id: int, baby_name: str, birth_date: str
     ]
     if latest_growth:
         growth_parts = []
-        if latest_growth.weight_kg:
-            growth_parts.append(f"体重 {latest_growth.weight_kg}kg")
-        if latest_growth.height_cm:
-            growth_parts.append(f"身長 {latest_growth.height_cm}cm")
+        if latest_growth.weight:
+            growth_parts.append(f"体重 {latest_growth.weight / 1000:.3f}kg")
+        if latest_growth.height:
+            growth_parts.append(f"身長 {latest_growth.height}cm")
         if growth_parts:
             lines.append(f"・最新成長記録: {'、'.join(growth_parts)}")
 
@@ -410,18 +454,19 @@ def build_messages_for_llm(
     return messages
 
 
-def call_openai_chat(messages: list, model_name: str = "gpt-4o-mini") -> str:
-    """OpenAI API を呼び出してアシスタント応答テキストを返す。失敗時は APIError を raise する。"""
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+def call_llm_chat(db: Session, messages: list) -> str:
+    """API を呼び出してアシスタント応答テキストを返す。失敗時は例外を raise する。"""
+    client, model_name = get_llm_client(db)
+    config = get_ai_config(db)
     try:
         response = client.chat.completions.create(
             model=model_name,
             messages=messages,
-            max_tokens=800,
-            temperature=0.7,
+            max_tokens=config.get("llm_max_tokens", 800),
+            temperature=config.get("llm_temperature", 0.7),
         )
         return response.choices[0].message.content.strip()
-    except APIError as e:
+    except Exception as e:
         raise e
 ```
 
@@ -436,11 +481,16 @@ app.include_router(chatbot.router)
 
 ---
 
-## 環境変数
+## 設定（管理画面）
 
-| 変数名 | 説明 | 必須 |
-|--------|------|------|
-| `OPENAI_API_KEY` | OpenAI API キー（AI日誌生成と共用） | ✅ |
+AI チャットの動作は、`/settings/ai` (管理画面) の以下の設定値に依存する。詳細は `ai_settings.md` を参照。
+
+| 設定キー          | 説明                 | デフォルト       |
+| ----------------- | -------------------- | ---------------- |
+| `llm_model`       | 使用するモデル名     | `gemini-1.5-pro` |
+| `ai_enabled_chat` | チャット機能の有効化 | `true`           |
+| `llm_temperature` | 生成時の多様性       | `0.7`            |
+| `llm_max_tokens`  | 最大出力トークン数   | `800`            |
 
 ---
 
@@ -448,14 +498,14 @@ app.include_router(chatbot.router)
 
 ### 新規・変更ファイル一覧
 
-| ファイル | 変更種別 | 内容 |
-|---------|---------|------|
-| `frontend/hooks/useChatbot.ts` | **新規作成** | SWR フック + API ミューテーション関数 |
-| `frontend/app/(dashboard)/[babyId]/chat/page.tsx` | **新規作成** | セッション一覧ページ |
-| `frontend/app/(dashboard)/[babyId]/chat/[sessionId]/page.tsx` | **新規作成** | チャット画面 |
-| `frontend/components/chat/ChatBubble.tsx` | **新規作成** | メッセージバブルコンポーネント |
-| `frontend/components/chat/ChatInput.tsx` | **新規作成** | メッセージ入力フォーム |
-| `frontend/components/chat/MedicalDisclaimerBanner.tsx` | **新規作成** | 免責バナー（常時固定表示） |
+| ファイル                                                      | 変更種別     | 内容                                  |
+| ------------------------------------------------------------- | ------------ | ------------------------------------- |
+| `frontend/hooks/useChatbot.ts`                                | **新規作成** | SWR フック + API ミューテーション関数 |
+| `frontend/app/(dashboard)/[babyId]/chat/page.tsx`             | **新規作成** | セッション一覧ページ                  |
+| `frontend/app/(dashboard)/[babyId]/chat/[sessionId]/page.tsx` | **新規作成** | チャット画面                          |
+| `frontend/components/chat/ChatBubble.tsx`                     | **新規作成** | メッセージバブルコンポーネント        |
+| `frontend/components/chat/ChatInput.tsx`                      | **新規作成** | メッセージ入力フォーム                |
+| `frontend/components/chat/MedicalDisclaimerBanner.tsx`        | **新規作成** | 免責バナー（常時固定表示）            |
 
 ---
 
@@ -497,16 +547,19 @@ export type ChatSendResponse = {
 export function useChatSessions(babyId: number | null) {
   const { data, error, isLoading, mutate } = useSWR<ChatSession[]>(
     babyId ? `/babies/${babyId}/chat/sessions` : null,
-    fetcher
+    fetcher,
   );
   return { sessions: data, isLoading, isError: error, mutate };
 }
 
 /** セッション詳細 + メッセージ一覧取得 */
-export function useChatSession(babyId: number | null, sessionId: number | null) {
+export function useChatSession(
+  babyId: number | null,
+  sessionId: number | null,
+) {
   const { data, error, isLoading, mutate } = useSWR<ChatSessionDetail>(
     babyId && sessionId ? `/babies/${babyId}/chat/sessions/${sessionId}` : null,
-    fetcher
+    fetcher,
   );
   return { session: data, isLoading, isError: error, mutate };
 }
@@ -514,7 +567,7 @@ export function useChatSession(babyId: number | null, sessionId: number | null) 
 /** セッション作成 + 初回メッセージ送信 */
 export async function createChatSession(
   babyId: number,
-  firstMessage: string
+  firstMessage: string,
 ): Promise<{ sessionId: number; response: ChatSendResponse }> {
   const res = await fetch(`/api/babies/${babyId}/chat/sessions`, {
     method: "POST",
@@ -534,14 +587,17 @@ export async function createChatSession(
 export async function sendChatMessage(
   babyId: number,
   sessionId: number,
-  content: string
+  content: string,
 ): Promise<ChatSendResponse> {
-  const res = await fetch(`/api/babies/${babyId}/chat/sessions/${sessionId}/messages`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ content }),
-  });
+  const res = await fetch(
+    `/api/babies/${babyId}/chat/sessions/${sessionId}/messages`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ content }),
+    },
+  );
   if (!res.ok) {
     const err = await res.json();
     throw new Error(err.detail ?? "メッセージの送信に失敗しました");
@@ -552,7 +608,7 @@ export async function sendChatMessage(
 /** セッション削除 */
 export async function deleteChatSession(
   babyId: number,
-  sessionId: number
+  sessionId: number,
 ): Promise<void> {
   const res = await fetch(`/api/babies/${babyId}/chat/sessions/${sessionId}`, {
     method: "DELETE",
@@ -647,7 +703,8 @@ export function MedicalDisclaimerBanner() {
   return (
     <div className="sticky top-14 z-10 bg-amber-50 border-b border-amber-200 px-4 py-2">
       <p className="text-xs text-amber-700 text-center">
-        ⚠️ このAIは医療診断を行いません。体調不良や緊急時はかかりつけ医にご相談ください。
+        ⚠️
+        このAIは医療診断を行いません。体調不良や緊急時はかかりつけ医にご相談ください。
       </p>
     </div>
   );
@@ -681,8 +738,8 @@ export function ChatBubble({ role, content, createdAt }: Props) {
           isUser
             ? "bg-violet-500 text-white rounded-br-sm"
             : hasMedicalAlert
-            ? "bg-red-50 border border-red-200 text-red-800 rounded-bl-sm"
-            : "bg-gray-100 text-gray-800 rounded-bl-sm",
+              ? "bg-red-50 border border-red-200 text-red-800 rounded-bl-sm"
+              : "bg-gray-100 text-gray-800 rounded-bl-sm",
         ].join(" ")}
       >
         {hasMedicalAlert && (
@@ -769,13 +826,13 @@ export function ChatInput({ onSend, disabled }: Props) {
 
 ## 権限制御
 
-| 操作 | admin | member（許可） | member（制限） |
-|------|-------|--------------|--------------|
-| セッション一覧取得 | ✅ | ✅ | `baby` レベル制限時 403 |
-| セッション作成+送信 | ✅ | ✅ | `baby` レベル制限時 403 |
-| メッセージ送信 | ✅ | ✅ | `baby` レベル制限時 403 |
-| セッション詳細取得 | ✅ | ✅ | `baby` レベル制限時 403 |
-| セッション削除 | ✅（admin免除） | ✅（自分のセッションのみ） | ❌（他者のセッション） |
+| 操作                | admin           | member（許可）             | member（制限）          |
+| ------------------- | --------------- | -------------------------- | ----------------------- |
+| セッション一覧取得  | ✅              | ✅                         | `baby` レベル制限時 403 |
+| セッション作成+送信 | ✅              | ✅                         | `baby` レベル制限時 403 |
+| メッセージ送信      | ✅              | ✅                         | `baby` レベル制限時 403 |
+| セッション詳細取得  | ✅              | ✅                         | `baby` レベル制限時 403 |
+| セッション削除      | ✅（admin免除） | ✅（自分のセッションのみ） | ❌（他者のセッション）  |
 
 > チャット操作は `record_type` 単位の権限制御対象外（`baby` レベルのみ検証）。
 
@@ -783,15 +840,15 @@ export function ChatInput({ onSend, disabled }: Props) {
 
 ## エラーハンドリング
 
-| エラー条件 | バックエンド | フロントエンド |
-|-----------|------------|--------------|
-| OpenAI API 障害 | `503 Service Unavailable` | トースト「AIサービスが一時的に利用できません」+ 入力フォームを再度有効化 |
-| 空メッセージ送信 | `400 Bad Request` | 送信ボタン disabled（フロント側で事前ガード） |
-| 自分のセッション以外を削除 | `403 Forbidden` | トースト「このセッションは削除できません」 |
-| 存在しないセッション | `404 Not Found` | トースト「セッションが見つかりません」 |
-| 送信中の二重送信 | — | `isSending=true` 中はボタン disabled（フロント側で防止） |
-| 未認証 | `401 Unauthorized` | リダイレクト（既存の認証ガード） |
-| アクセス権限なし | `403 Forbidden` | トースト「アクセス権限がありません」 |
+| エラー条件                 | バックエンド              | フロントエンド                                                           |
+| -------------------------- | ------------------------- | ------------------------------------------------------------------------ |
+| AI API 障害                | `503 Service Unavailable` | トースト「AIサービスが一時的に利用できません」+ 入力フォームを再度有効化 |
+| 空メッセージ送信           | `400 Bad Request`         | 送信ボタン disabled（フロント側で事前ガード）                            |
+| 自分のセッション以外を削除 | `403 Forbidden`           | トースト「このセッションは削除できません」                               |
+| 存在しないセッション       | `404 Not Found`           | トースト「セッションが見つかりません」                                   |
+| 送信中の二重送信           | —                         | `isSending=true` 中はボタン disabled（フロント側で防止）                 |
+| 未認証                     | `401 Unauthorized`        | リダイレクト（既存の認証ガード）                                         |
+| アクセス権限なし           | `403 Forbidden`           | トースト「アクセス権限がありません」                                     |
 
 ---
 
@@ -805,10 +862,10 @@ export function ChatInput({ onSend, disabled }: Props) {
 - [ ] マイグレーション内容確認（2テーブル新規作成のみ）
 - [ ] `alembic upgrade head` でマイグレーション適用
 - [ ] `app/schemas/chatbot.py` 作成（上記スキーマ定義）
-- [ ] `app/services/chatbot.py` 作成
+  - [ ] `app/services/chatbot.py` 作成
   - [ ] `build_rag_context()` 実装（直近7日分の記録集計）
   - [ ] `build_messages_for_llm()` 実装（システムプロンプト + 直近5件履歴）
-  - [ ] `call_openai_chat()` 実装（OpenAI 呼び出し、`APIError` を raise）
+  - [ ] `call_llm_chat()` 実装（AI API 呼び出し、例外を raise）
 - [ ] `app/routers/chatbot.py` 作成
   - [ ] `POST /api/babies/{baby_id}/chat/sessions` 実装
   - [ ] `POST /api/babies/{baby_id}/chat/sessions/{session_id}/messages` 実装
@@ -817,9 +874,9 @@ export function ChatInput({ onSend, disabled }: Props) {
   - [ ] `DELETE /api/babies/{baby_id}/chat/sessions/{session_id}` 実装（作成者 or admin のみ）
   - [ ] 全エンドポイントで `verify_baby_access()` 呼び出しを確認
   - [ ] セッションの `baby_id` 一致チェックを確認
-  - [ ] OpenAI `APIError` を 503 に変換するエラーハンドラを確認
+  - [ ] AI API 例外を 503 に変換するエラーハンドラを確認
 - [ ] `app/main.py` に `chatbot` router を登録
-- [ ] `.env` に `OPENAI_API_KEY` を設定（AI日誌と共用）
+- [ ] `.env` に `LLM_API_KEY` を設定（AI日誌と共用）
 
 ### フロントエンド
 
@@ -857,7 +914,7 @@ export function ChatInput({ onSend, disabled }: Props) {
 ## 参照先ドキュメント
 
 - `.specify/specs/settings/baby_permissions.md` — `verify_baby_access()` の仕様
-- `.specify/specs/ai/ai_daily_summary.md` — AI日誌生成仕様（`OPENAI_API_KEY` 共用）
+- `.specify/specs/ai/ai_daily_summary.md` — AI日誌生成仕様（`LLM_API_KEY` 共用）
 - `.specify/specs/ui/ui_design_system.md` — カラーパレット・コンポーネントデザイン
 - `app/models/feeding.py` — `Feeding` モデル
 - `app/models/sleep.py` — `Sleep` モデル

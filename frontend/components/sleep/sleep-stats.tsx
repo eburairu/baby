@@ -1,9 +1,10 @@
 "use client"
 
-import { useSleeps } from "@/hooks/useData"
-import { isToday } from "@/lib/ageUtils"
-import { Card, CardContent } from "@/components/ui/card"
+import { useSleeps } from "@/hooks/useSleep"
+import { isToday } from "@/lib/dateUtils"
 import { Moon, Clock } from "lucide-react"
+import { StatsBlock } from "@/components/ui/stats-block"
+import { StatsCard } from "@/components/ui/stats-card"
 
 interface Props {
     babyId: string
@@ -26,29 +27,21 @@ export function SleepStats({ babyId }: Props) {
     const count = todaySleeps.length
 
     return (
-        <Card className="dark:bg-zinc-900 rounded-2xl shadow-sm border-0 mb-6 transition-colors">
-            <CardContent className="pt-6">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-xl p-4 flex items-center gap-3 transition-colors">
-                        <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-sm transition-colors">
-                            <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-zinc-400">今日の睡眠回数</p>
-                            <p className="text-lg font-bold text-gray-800 dark:text-zinc-100">{count}回</p>
-                        </div>
-                    </div>
-                    <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-xl p-4 flex items-center gap-3 transition-colors">
-                        <div className="bg-white dark:bg-zinc-800 rounded-full p-2 shadow-sm transition-colors">
-                            <Clock className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-zinc-400">合計時間</p>
-                            <p className="text-lg font-bold text-gray-800 dark:text-zinc-100">{hours}h {minutes}m</p>
-                        </div>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+        <StatsCard>
+            <div className="grid grid-cols-2 gap-4">
+                <StatsBlock
+                    icon={Moon}
+                    label="今日の睡眠回数"
+                    value={`${count}回`}
+                    color="indigo"
+                />
+                <StatsBlock
+                    icon={Clock}
+                    label="合計時間"
+                    value={`${hours}h ${minutes}m`}
+                    color="indigo"
+                />
+            </div>
+        </StatsCard>
     )
 }

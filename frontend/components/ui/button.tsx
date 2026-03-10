@@ -39,19 +39,24 @@ const buttonVariants = cva(
   }
 )
 
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+  loading?: boolean
+  hideContentOnLoading?: boolean
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
   asChild = false,
   loading = false,
+  hideContentOnLoading = false,
   children,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-    loading?: boolean
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button"
 
   return (
@@ -59,15 +64,26 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, className }), {
+        relative: loading && hideContentOnLoading,
+      })}
       disabled={loading || props.disabled}
       {...props}
     >
       {loading && !asChild ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {children}
-        </>
+        hideContentOnLoading ? (
+          <>
+            <span className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="h-4 w-4 animate-spin" />
+            </span>
+            <span className="opacity-0">{children}</span>
+          </>
+        ) : (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {children}
+          </>
+        )
       ) : (
         children
       )}

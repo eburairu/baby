@@ -1,4 +1,4 @@
-# 汎用メモ機能 仕様書 (General Memo Specification)
+# 汎用メモ機能仕様書 (General Memo Specification)
 
 ## 概要
 
@@ -50,12 +50,16 @@
 ```python
 # app/models/note.py
 
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Index
 from sqlalchemy.sql import func
 from .base import Base
 
 class Note(Base):
     __tablename__ = "notes"
+
+    __table_args__ = (
+        Index("idx_note_baby_time", "baby_id", "note_time"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False)
@@ -77,7 +81,7 @@ class Note(Base):
 | メソッド | パス | 概要 |
 |---------|-----|------|
 | `GET` | `/api/babies/{baby_id}/notes` | メモ一覧取得（履歴） |
-| `POST` | `/api/babies/{baby_id}/notes` | メモの新規登録 |
+| `POST` | `/api/babies/{baby_id}/notes` | メモの新規登録<br>※保存成功後、対象の赤ちゃんの家族全員（記録者本人以外）に通知（プッシュ通知/アプリ内通知）を送信する |
 | `PATCH` | `/api/notes/{note_id}` | メモの編集 |
 | `DELETE` | `/api/notes/{note_id}` | メモの削除 |
 
@@ -85,6 +89,36 @@ class Note(Base):
 
 - **`content`**: 1文字以上 2000文字以内。
 - **`note_time`**: 未来の日時は原則として許可しない。ただし、クライアントとサーバーの時刻同期のズレを考慮し、5分以内の未来日時は許容する。
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+// 共通ベース
+interface NoteBase {
+    content: string
+    note_time: string // ISO 8601
+}
+
+// POST リクエスト
+interface NoteCreate extends NoteBase {}
+
+// PATCH リクエスト
+interface NoteUpdate {
+    content?: string
+    note_time?: string // ISO 8601
+}
+
+// レスポンス
+interface NoteResponse extends NoteBase {
+    id: number
+    baby_id: number
+    user_id: number | null
+    created_at: string // ISO 8601
+    updated_at: string // ISO 8601
+    recorded_by_display_name: string | null  // 記録者の表示名
+    comment_count: number
+}
+```
 
 ---
 

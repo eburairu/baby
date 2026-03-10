@@ -7,7 +7,7 @@ import * as z from "zod"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -46,21 +46,17 @@ export default function LoginPage() {
             setError(null)
             await api.post("/auth/login", values)
             await mutate() // refresh user state
-            router.push("/")
+            router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Login failed", err)
-            if (isApiError(err)) {
-                setError((err.info as { detail?: string })?.detail || "ログインに失敗しました")
-            } else {
-                setError("ログインに失敗しました")
-            }
+            setError(getErrorMessage(err, "ログインに失敗しました"))
         }
     }
 
     return (
         <Card className="rounded-2xl shadow-sm border-0">
             <CardHeader>
-                <CardTitle data-sentry-unmask>Baby App にログイン</CardTitle>
+                <CardTitle data-sentry-unmask>Botoro にログイン</CardTitle>
                 <CardDescription data-sentry-unmask>ユーザー名を入力してログインしてください</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
@@ -99,6 +95,7 @@ export default function LoginPage() {
                                             onClick={() => setShowPassword(!showPassword)}
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                             aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
+                                            title={showPassword ? "パスワードを隠す" : "パスワードを表示"}
                                         >
                                             {showPassword ? (
                                                 <EyeOff className="h-4 w-4" />

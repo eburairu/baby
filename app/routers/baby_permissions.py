@@ -4,7 +4,8 @@ from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
 from app.models.baby import Baby, BabyPermission
 from app.schemas.baby_permission import (
     BabyPermissionsResponse,
@@ -23,24 +24,38 @@ def get_baby_permissions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # 1. verify_baby_access() でアクセス検証（admin ロール確認を追加）
-    verify_baby_access(db, baby_id, current_user.id)
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if family_user.role != UserRole.ADMIN:
+    # 1. verify_baby_access() でアクセス検証（baby レベルのアクセス権を確認）
+    baby = verify_baby_access(db, baby_id, current_user.id)
+    
+    # 対象の赤ちゃんの family_id に基づいて FamilyUser を取得する
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
+    
+    is_superadmin = current_user.is_superadmin
+    if (not family_user or family_user.role != UserRole.ADMIN) and not is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can manage permissions")
 
-    baby = db.query(Baby).filter(Baby.id == baby_id).first()
+    family_id = baby.family_id
     
-    # 2. 同一ファミリーの member/viewer ロールユーザー全員を FamilyUser から取得（自身 = admin は除外）
+    # 2. 同一ファミリーの member/viewer ロールユーザー全員を FamilyUser から取得
     members = db.query(FamilyUser, User).join(User, FamilyUser.user_id == User.id).filter(
-        FamilyUser.family_id == family_user.family_id,
+        FamilyUser.family_id == family_id,
         FamilyUser.role.in_([UserRole.MEMBER, UserRole.VIEWER])
     ).all()
 
-    record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
+    record_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "vaccination", "note", "milestone"]
     
     # 3. 全メンバーの BabyPermission を一括取得（N+1 の解消）
     member_user_ids = [u.id for _, u in members]
+    if not member_user_ids:
+        return BabyPermissionsResponse(
+            baby_id=baby.id,
+            baby_name=baby.name,
+            members=[]
+        )
+
     all_perms = db.query(BabyPermission).filter(
         BabyPermission.baby_id == baby_id,
         BabyPermission.user_id.in_(member_user_ids)
@@ -84,14 +99,23 @@ def update_baby_permissions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # 1. verify_baby_access() でアクセス検証（admin ロール確認を追加）
-    verify_baby_access(db, baby_id, current_user.id)
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if family_user.role != UserRole.ADMIN:
+    # 1. verify_baby_access() でアクセス検証（baby レベルのアクセス権を確認）
+    baby = verify_baby_access(db, baby_id, current_user.id)
+    
+    # 対象の赤ちゃんの family_id に基づいて FamilyUser を取得する
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
+    
+    is_superadmin = current_user.is_superadmin
+    if (not family_user or family_user.role != UserRole.ADMIN) and not is_superadmin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can manage permissions")
 
+    family_id = baby.family_id
+
     # 2. リクエストの各エントリについて検証
-    valid_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "note"]
+    valid_types = ["baby", "feeding", "sleep", "diaper", "growth", "contraction", "schedule", "vaccination", "note", "milestone"]
     for entry in update_in.permissions:
         if entry.record_type not in valid_types:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid record_type: {entry.record_type}")
@@ -99,7 +123,7 @@ def update_baby_permissions(
         # 3. user_id が同一ファミリーの member/viewer ロールであることを確認
         target_member = db.query(FamilyUser).filter(
             FamilyUser.user_id == entry.user_id,
-            FamilyUser.family_id == family_user.family_id,
+            FamilyUser.family_id == family_id,
             FamilyUser.role.in_([UserRole.MEMBER, UserRole.VIEWER])
         ).first()
         if not target_member:

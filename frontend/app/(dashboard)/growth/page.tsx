@@ -1,37 +1,38 @@
 "use client"
+import { AppIcons } from "@/constants/icons"
 
 import { useState } from "react"
-import { useSearchParams } from "next/navigation"
-import { useGrowths, useBabies } from "@/hooks/useData"
-import { usePermissions } from "@/hooks/usePermissions"
-import { useBabyStore } from "@/stores/babyStore"
+import { useGrowths } from "@/hooks/useGrowth"
+import { useRecordPage } from "@/hooks/useRecordPage"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { GrowthChart } from "@/components/growth/GrowthChart"
 import { GrowthHistoryList } from "@/components/growth/GrowthHistoryList"
 import { GrowthRecordForm } from "@/components/growth/GrowthRecordForm"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PageLoading } from "@/components/ui/page-loading"
-import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
-import { AccessDenied } from "@/components/ui/access-denied"
 import { TipsCard } from "@/components/ui/tips-card"
 import { growthTips } from "@/lib/tips-data"
-import { TrendingUp } from "lucide-react"
-import Link from "next/link"
 import { Growth } from "@/types/growth"
-import { isApiError } from "@/lib/api"
+import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
+/**
+ * 成長記録ページ
+ */
 export default function GrowthPage() {
-    const searchParams = useSearchParams()
-    const paramBabyId = searchParams.get("baby_id")
-    const commentRecordId = searchParams.get("comment")
-    const { canWrite } = usePermissions()
-    const { babies } = useBabies()
-    const { selectedBabyId } = useBabyStore()
+    const {
+        babyId,
+        babies,
+        isLoading: babiesLoading,
+        canWrite,
+        triggerFeedback,
+        commentRecordId,
+    } = useRecordPage()
 
-    // Priority: URL param > store selection > first baby
-    const babyId = paramBabyId ?? selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-    const { growths, isLoading, isError: growthError, mutate } = useGrowths(babyId)
+    const { growths, isLoading: growthsLoading, isError: growthError, mutate } = useGrowths(babyId ?? null)
+
+    const handleRefresh = async () => {
+        await mutate()
+    }
 
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingRecord, setEditingRecord] = useState<Growth | null>(null)
@@ -46,84 +47,64 @@ export default function GrowthPage() {
         setIsFormOpen(true)
     }
 
-
-    if (!babyId) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <p className="text-muted-foreground">赤ちゃんが選択されていません</p>
-            </div>
-        )
-    }
-
-    const isAccessDenied = isApiError(growthError) && growthError.status === 403
+    const currentBaby = babies?.find(b => String(b.id) === babyId)
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors">
-            <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-                <div className="flex items-center justify-center h-14 px-4 max-w-2xl mx-auto">
-                    <h1 className="text-base font-semibold text-gray-800 dark:text-zinc-100 flex items-center gap-1.5">
-                        <TrendingUp className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
-                        成長記録
-                    </h1>
-                </div>
-            </header>
+        <RecordPageLayout
+            title="成長記録"
+            icon={AppIcons.growth}
+            iconColorClass="text-emerald-500 dark:text-emerald-400"
+            isLoading={babiesLoading}
+            isDataLoading={growthsLoading}
+            apiError={growthError}
+            babyId={babyId}
+            onRefresh={handleRefresh}
+        >
+            <TipsCard {...growthTips} />
 
-            <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
-                {isAccessDenied ? (
-                    <AccessDenied />
-                ) : (
-                    <>
-                        <TipsCard {...growthTips} />
-
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-100">数値の推移</h2>
-                            {canWrite && (
-                                <Button onClick={handleAdd} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
-                                    <Plus className="h-4 w-4" />
-                                    新しい記録
-                                </Button>
-                            )}
-                        </div>
-
-                        {isLoading ? (
-                            <div className="flex justify-center py-12">
-                                <BabyBottleLoading className="w-12 h-12 text-emerald-400" />
-                            </div>
-                        ) : (
-                            <>
-                                <GrowthChart
-                                    records={growths || []}
-                                    babyBirthday={babies?.find(b => String(b.id) === babyId)?.birthday}
-                                    babyGender={babies?.find(b => String(b.id) === babyId)?.gender}
-                                />
-
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">履歴</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <GrowthHistoryList
-                                            records={growths || []}
-                                            onEdit={handleEdit}
-                                            onDeleteSuccess={() => mutate()}
-                                            canWrite={canWrite}
-                                            initialCommentRecordId={commentRecordId ? parseInt(commentRecordId, 10) : null}
-                                        />
-                                    </CardContent>
-                                </Card>
-                            </>
-                        )}
-
-                        <GrowthRecordForm
-                            babyId={parseInt(babyId)}
-                            record={editingRecord}
-                            isOpen={isFormOpen}
-                            onClose={() => setIsFormOpen(false)}
-                            onSuccess={() => mutate()}
-                        />
-                    </>
+            <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-100">数値の推移</h2>
+                {canWrite && (
+                    <Button onClick={handleAdd} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                        <Plus className="h-4 w-4" />
+                        新しい記録
+                    </Button>
                 )}
-            </main>
-        </div>
+            </div>
+
+            <GrowthChart
+                records={growths || []}
+                babyBirthday={currentBaby?.birthday}
+                babyGender={currentBaby?.gender}
+            />
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">履歴</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <GrowthHistoryList
+                        records={growths || []}
+                        onEdit={handleEdit}
+                        onDeleteSuccess={() => mutate()}
+                        canWrite={canWrite}
+                        initialCommentRecordId={commentRecordId ?? null}
+                    />
+                </CardContent>
+            </Card>
+
+            {babyId && (
+                <GrowthRecordForm
+                    babyId={parseInt(babyId)}
+                    record={editingRecord}
+                    isOpen={isFormOpen}
+                    onClose={() => setIsFormOpen(false)}
+                    onSuccess={(recordId) => {
+                        mutate()
+                        if (recordId) triggerFeedback("growth", recordId)
+                    }}
+                />
+            )}
+        </RecordPageLayout>
     )
 }

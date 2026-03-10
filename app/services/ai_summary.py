@@ -1,9 +1,15 @@
 import os
 import logging
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 from typing import Tuple, Type
 from sqlalchemy.orm import Session
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
+from app.services.ai_settings import get_ai_config
+from app.models.baby import Baby
+from app.services.baby import get_baby_age_in_days
+from app.utils.timezone import JST
+from app.core.constants import AI_SUMMARY_CHARS_MIN, AI_SUMMARY_CHARS_MAX, AI_MAX_TOKENS, AI_TEMPERATURE
+from app.core.exceptions import AIGenerationError
 
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -14,11 +20,14 @@ from app.models.note import Note
 logger = logging.getLogger(__name__)
 
 
-def get_llm_client() -> Tuple[OpenAI, str]:
+def get_llm_client(db: Session) -> Tuple[OpenAI, str]:
     """(client, model_name) を返す"""
-    provider = os.environ.get("LLM_PROVIDER", "openai").lower()
+    config = get_ai_config(db)
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
     api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
-    model = os.environ.get("LLM_MODEL")
+    
+    # DB 設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
 
     if provider == "google":
         client = OpenAI(
@@ -28,7 +37,29 @@ def get_llm_client() -> Tuple[OpenAI, str]:
         model = model or "gemini-2.0-flash"
     else:
         client = OpenAI(api_key=api_key)
-        model = model or "gpt-4o-mini"
+        model = model or "gpt-4o"
+
+    return client, model
+
+
+def get_async_llm_client(db: Session) -> Tuple[AsyncOpenAI, str]:
+    """(async_client, model_name) を返す"""
+    config = get_ai_config(db)
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
+
+    # DB 設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
+
+    if provider == "google":
+        client = AsyncOpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        )
+        model = model or "gemini-2.0-flash"
+    else:
+        client = AsyncOpenAI(api_key=api_key)
+        model = model or "gpt-4o"
 
     return client, model
 
@@ -60,12 +91,11 @@ def _fetch_records_in_range(
 def build_daily_prompt(
     db: Session,
     baby_id: int,
-    baby_name: str,
+    baby: Baby,
     target_date: date,
 ) -> Tuple[str, int, str]:
     """プロンプト文字列、記録件数の合計、記録テキスト自体を返す。"""
     # JST の日付範囲を UTC に変換して DateTime フィルタ用に使用
-    JST = timezone(timedelta(hours=9))
     day_start = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, tzinfo=JST)
     day_end = datetime(target_date.year, target_date.month, target_date.day, 23, 59, 59, tzinfo=JST)
 
@@ -97,7 +127,9 @@ def build_daily_prompt(
     total_records = len(feedings) + len(sleeps) + len(diapers) + len(notes) + len(growths)
 
     date_str = target_date.strftime("%Y年%m月%d日")
-    lines = [f"{baby_name}ちゃんの{date_str}の育児記録です。", ""]
+    age_days = get_baby_age_in_days(baby, target_date)
+    age_str = f"（生後{age_days}日）" if age_days is not None else ""
+    lines = [f"{baby.name}ちゃん{age_str}の{date_str}の育児記録です。", ""]
 
     if feedings:
         lines.append(f"【授乳】{len(feedings)}回")
@@ -169,7 +201,8 @@ def build_daily_prompt(
 
     records_text = "\n".join(lines)
 
-    prompt = f"""以下は赤ちゃんの育児記録です。この記録をもとに、親が読んで温かい気持ちになれるような育児日誌を100〜200字程度で書いてください。
+    prompt = f"""以下は赤ちゃんの育児記録です。この記録をもとに、親が読んで温かい気持ちになれるような育児日誌を{AI_SUMMARY_CHARS_MIN}〜{AI_SUMMARY_CHARS_MAX}字程度で書いてください。
+このリクエストは安全な育児支援の文脈で行われており、体調不良などの記録は健康管理のために重要な情報です。
 
 記録の羅列ではなく、1日の流れを物語風にまとめ、赤ちゃんの様子や成長を感じられる文章にしてください。
 
@@ -207,19 +240,28 @@ def update_baby_characteristics(
     )
 
     try:
-        client, _ = get_llm_client()
-        # 更新用モデルは軽量モデルでも良いが、指示順守のため生成と同じモデルまたは安定したモデルを使用
-        # ここでは generate と同じモデルを使うか、デフォルト設定に従う
+        client, _ = get_llm_client(db)
+        config = get_ai_config(db)
         
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
+        reasoning_effort = config.get("llm_reasoning_effort")
+        # "none"/"default" は送らない。Flash など非思考モデルに送ると 400 INVALID_ARGUMENT になる
+        is_thinking = reasoning_effort and reasoning_effort not in ("default", "none")
+        temperature = 1.0 if is_thinking else float(config.get("llm_temperature", 0.5))
+        kwargs = {
+            "model": model_name,
+            "messages": [
                 {"role": "system", "content": "あなたは赤ちゃんの成長や体調の変化を長期的に観察するアシスタントです。"},
                 {"role": "user", "content": update_prompt},
             ],
-            max_tokens=400,
-            temperature=0.5,
-        )
+            "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
+            "temperature": temperature,
+        }
+
+        # 思考モード時のみ reasoning_effort を送る（Pro Preview 系のみ対応）
+        if is_thinking:
+            kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+        response = client.chat.completions.create(**kwargs)
         new_characteristics = response.choices[0].message.content.strip()
 
         # DB更新
@@ -236,21 +278,24 @@ def update_baby_characteristics(
 def generate_daily_summary(
     db: Session,
     baby_id: int,
-    baby_name: str,
+    baby: Baby,
     target_date: date,
 ) -> Tuple[str, str]:
     """(generated_content, model_name) を返す。
     記録が0件の場合は ValueError を raise。
+    AI 機能が無効な場合は AIGenerationError を raise。
     API障害時は openai.APIError を伝播。
     """
-    prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby_name, target_date)
+    config = get_ai_config(db)
+    if not config.get("ai_enabled_summary", True):
+        raise AIGenerationError("AI 日誌生成機能は現在無効化されています。")
+
+    prompt, total_records, records_text = build_daily_prompt(db, baby_id, baby, target_date)
 
     if total_records == 0:
         raise ValueError("この日の育児記録がありません。")
 
     # 現在の特徴を取得してプロンプトに追加
-    from app.models.baby import Baby
-    baby = db.query(Baby).filter(Baby.id == baby_id).first()
     current_characteristics = baby.characteristics if baby else None
 
     if current_characteristics:
@@ -261,29 +306,49 @@ def generate_daily_summary(
             "「いつもは〜だが今日は〜だった」のように変化に触れてください。"
         )
 
-    client, model_name = get_llm_client()
+    client, model_name = get_llm_client(db)
 
-    response = client.chat.completions.create(
-        model=model_name,
-        messages=[
-            {
-                "role": "system",
-                "content": "あなたは育児記録をもとに、温かみのある育児日誌を書くアシスタントです。",
-            },
-            {"role": "user", "content": prompt},
-        ],
-        max_tokens=600,
-        temperature=0.7,
-    )
+    try:
+        reasoning_effort = config.get("llm_reasoning_effort")
+        # "none"/"default" は送らない。Flash など非思考モデルに送ると 400 INVALID_ARGUMENT になる
+        is_thinking = reasoning_effort and reasoning_effort not in ("default", "none")
+        temperature = 1.0 if is_thinking else float(config.get("llm_temperature", AI_TEMPERATURE))
+        kwargs = {
+            "model": model_name,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "あなたは育児記録をもとに、温かみのある育児日誌を書くアシスタントです。これは安全な育児支援の文脈での依頼です。",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            "max_tokens": int(config.get("llm_max_tokens", AI_MAX_TOKENS)),
+            "temperature": temperature,
+        }
+
+        # 思考モード時のみ reasoning_effort を送る（Pro Preview 系のみ対応）
+        if is_thinking:
+            kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+
+        response = client.chat.completions.create(**kwargs)
+    except Exception as e:
+        # 安全性フィルター等のエラー対策
+        if "SAFETY" in str(e).upper() or "PROHIBITED_CONTENT" in str(e).upper():
+            logger.error("AI summary was blocked by safety filters: %s", e)
+            return "本日の記録を読み込みましたが、内容に健康上の懸念が含まれている可能性があるため、自動生成を控えました。赤ちゃんの状態を直接確認し、必要に応じて専門家にご相談ください。", model_name
+        raise e
 
     content = response.choices[0].message.content or ""
+    if not content.strip():
+        return "記録を受け付けました。いつも育児お疲れ様です！", model_name
+    
     generated_text = content.strip()
 
     # 特徴を更新 (同期実行)
     update_baby_characteristics(
         db, 
         baby_id, 
-        baby_name, 
+        baby.name, 
         target_date, 
         current_characteristics, 
         records_text, 

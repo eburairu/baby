@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
+from app.core.constants import MAX_PAGINATION_LIMIT
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.diaper import Diaper
 from app.models.comment import RecordComment
 from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
-from app.utils.timezone import to_jst_naive
-from app.utils.notifications import notify_family_members
+from app.utils.notifications import notify_family_members_bg, notify_achievements_bg
 from app.models.baby import Baby
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
@@ -25,8 +27,8 @@ def _build_diaper_response(record: Diaper, user_map: dict, comment_count_map: di
 @router.get("/", response_model=List[DiaperResponse])
 def get_diapers(
     baby_id: int,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(MAX_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -47,16 +49,31 @@ def get_diapers(
 
 
 @router.post("/", response_model=DiaperResponse)
-def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_diaper(
+    diaper_in: DiaperCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     verify_baby_access(db, diaper_in.baby_id, current_user.id, record_type="diaper", require_write=True)
     new_diaper = Diaper(
         user_id=current_user.id,
         baby_id=diaper_in.baby_id,
-        change_time=to_jst_naive(diaper_in.change_time),
+        change_time=diaper_in.change_time,
         diaper_type=diaper_in.diaper_type,
         notes=diaper_in.notes,
     )
     db.add(new_diaper)
+    db.flush()
+
+    # 実績チェック（コミット前にflushしたレコードを使う）
+    unlocked = check_and_award_achievements(
+        baby_id=new_diaper.baby_id,
+        record_type="diaper",
+        user_id=current_user.id,
+        db=db,
+        record=new_diaper,
+    )
     db.commit()
     db.refresh(new_diaper)
 
@@ -64,8 +81,8 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
     baby = db.query(Baby).filter(Baby.id == new_diaper.baby_id).first()
     display_name = current_user.display_name or current_user.username
     if baby:
-        notify_family_members(
-            db,
+        notify_family_members_bg(
+            background_tasks,
             baby.family_id,
             current_user.id,
             title="オムツの記録",
@@ -73,9 +90,12 @@ def create_diaper(diaper_in: DiaperCreate, db: Session = Depends(get_db), curren
             url=f"/diaper?baby_id={baby.id}",
             category="family_record"
         )
+        if unlocked:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
 
     response = DiaperResponse.model_validate(new_diaper)
     response.recorded_by_display_name = display_name
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
     return response
 
 
@@ -85,11 +105,14 @@ def delete_diaper(diaper_id: int, db: Session = Depends(get_db), current_user: U
     if not diaper:
         raise HTTPException(status_code=404, detail="Diaper record not found")
     verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper", require_write=True)
+    
+    from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "diaper",
         RecordComment.record_id == diaper_id
-    ).delete()
-    db.delete(diaper)
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    diaper.is_deleted = True
     db.commit()
     return {"message": "Deleted"}
 
@@ -102,7 +125,7 @@ def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends
     verify_baby_access(db, diaper.baby_id, current_user.id, record_type="diaper", require_write=True)
 
     if diaper_in.change_time:
-        diaper.change_time = to_jst_naive(diaper_in.change_time)
+        diaper.change_time = diaper_in.change_time
     if diaper_in.diaper_type:
         diaper.diaper_type = diaper_in.diaper_type
     if diaper_in.notes is not None:

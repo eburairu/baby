@@ -55,6 +55,28 @@
 - `DELETE /api/schedules/{id}`
     - 指定したスケジュールを削除。
 
+> **注意**: 現在、スケジュールを更新するための `PATCH` または `PUT` エンドポイント、および `ScheduleUpdate` スキーマはバックエンドに実装されていません。スケジュールの編集機能が必要になった場合は、エンドポイントの追加と仕様書の更新が必要です。
+
+### リクエスト/レスポンススキーマ
+
+```typescript
+// POST リクエスト
+interface ScheduleCreate {
+  baby_id: number
+  title: string                       // 必須、最大100文字
+  description?: string                // 任意、最大2000文字
+  scheduled_time: string              // 必須、ISO 8601形式
+  is_completed?: boolean              // 任意、デフォルト: false
+}
+
+// レスポンス
+interface ScheduleResponse extends ScheduleCreate {
+  id: number
+  user_id: number
+  created_at: string                  // ISO 8601形式
+}
+```
+
 ## 権限管理
 
 - `verify_baby_access` を通じて、対象の赤ちゃんへのアクセス権限があるユーザーのみが操作可能。
