@@ -26,6 +26,7 @@ export function useSleepTimer(babyId: string) {
 
     // 初期表示および activeSleep 変更時の更新
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         updateElapsed()
     }, [updateElapsed])
 
