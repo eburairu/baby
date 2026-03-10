@@ -20,6 +20,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { Badge } from "@/components/ui/badge"
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button"
+import { AchievementUnlockPopup } from "@/components/achievements/AchievementUnlockPopup"
 import {
     Sheet,
     SheetContent,
@@ -297,6 +298,7 @@ export default function DashboardLayout({
             </div>
 
             <ScrollToTopButton hasBottomBar={born} />
+            <AchievementUnlockPopup />
         </div>
     )
 }

@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import { api, fetcher } from '@/lib/api';
+import { achievementEvents } from '@/lib/achievementEvents';
 
 /**
  * 記録リソース（授乳、おむつ、睡眠など）の CRUD を行う基底フック
@@ -22,6 +23,11 @@ export function useBaseRecord<T, TCreate, TUpdate>(
     if (!numericBabyId) return undefined;
     const newRecord = await api.post<T, TCreate>(`/${endpoint}/`, record);
     mutate();
+    // 実績解除があれば通知
+    const r = newRecord as Record<string, unknown> | undefined;
+    if (r && Array.isArray(r.unlocked_achievements) && r.unlocked_achievements.length > 0) {
+      achievementEvents.emit(r.unlocked_achievements as Parameters<typeof achievementEvents.emit>[0]);
+    }
     return newRecord;
   };
 

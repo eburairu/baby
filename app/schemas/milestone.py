@@ -3,6 +3,7 @@ from datetime import date
 from typing import Optional, List
 from app.core.constants import NOTE_MAX_LENGTH
 from app.utils.s3 import sign_image_urls
+from app.schemas.achievement import UnlockedAchievementInfo
 
 class MilestoneBase(BaseModel):
     milestone_type: str = Field(..., max_length=50)
@@ -25,6 +26,7 @@ class MilestoneResponse(MilestoneBase):
     id: int
     baby_id: int
     user_id: Optional[int]
+    unlocked_achievements: List[UnlockedAchievementInfo] = []
 
     @field_validator("image_urls", mode="after")
     @classmethod

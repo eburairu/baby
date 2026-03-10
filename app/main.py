@@ -59,6 +59,7 @@ from app.routers import feeding, sleep, diaper, growth, contraction, schedule, n
 from app.routers import version, vaccinations, milestones
 from app.routers import timer
 from app.routers import temperatures
+from app.routers import achievements
 
 app.include_router(version.router)
 app.include_router(auth.router)
@@ -83,6 +84,7 @@ app.include_router(upload.router)
 app.include_router(comments.router)
 app.include_router(timer.router)
 app.include_router(temperatures.router)
+app.include_router(achievements.router)
 
 frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/out")
 

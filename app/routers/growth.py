@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -8,8 +8,10 @@ from app.models.user import User
 from app.models.growth import Growth
 from app.models.comment import RecordComment
 from app.schemas.growth import GrowthCreate, GrowthResponse, GrowthUpdate
-from app.utils.notifications import notify_family_members
+from app.utils.notifications import notify_family_members, notify_achievements_bg
 from app.models.baby import Baby
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 
 router = APIRouter(prefix="/api/growths", tags=["growths"])
 
@@ -40,7 +42,12 @@ def get_growths(baby_id: int, db: Session = Depends(get_db), current_user: User 
 
 
 @router.post("/", response_model=GrowthResponse)
-def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_growth(
+    growth_in: GrowthCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     verify_baby_access(db, growth_in.baby_id, current_user.id, record_type="growth", require_write=True)
     new_growth = Growth(
         user_id=current_user.id,
@@ -52,6 +59,15 @@ def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), curren
         notes=growth_in.notes,
     )
     db.add(new_growth)
+    db.flush()
+
+    unlocked = check_and_award_achievements(
+        baby_id=new_growth.baby_id,
+        record_type="growth",
+        user_id=current_user.id,
+        db=db,
+        record=new_growth,
+    )
     db.commit()
     db.refresh(new_growth)
 
@@ -68,9 +84,12 @@ def create_growth(growth_in: GrowthCreate, db: Session = Depends(get_db), curren
             url=f"/growth?baby_id={baby.id}",
             category="family_record"
         )
+        if unlocked:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
 
     response = GrowthResponse.model_validate(new_growth)
     response.recorded_by_display_name = display_name
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
     return response
 
 
