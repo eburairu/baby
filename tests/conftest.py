@@ -125,10 +125,12 @@ def disable_rate_limiter(request, monkeypatch):
 def patch_session_local(monkeypatch):
     """
     Patch app.database.SessionLocal so that background tasks use the test database engine.
-    Also patch app.utils.notifications.SessionLocal to ensure the correct session factory is used.
+    Also patch app.utils.notifications.SessionLocal and app.utils.audit.SessionLocal to ensure the correct session factory is used.
     """
     import app.database
     import app.utils.notifications
+    import app.utils.audit
 
     monkeypatch.setattr(app.database, "SessionLocal", TestingSessionLocal)
     monkeypatch.setattr(app.utils.notifications, "SessionLocal", TestingSessionLocal)
+    monkeypatch.setattr(app.utils.audit, "SessionLocal", TestingSessionLocal)
