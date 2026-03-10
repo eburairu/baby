@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, JSON, Index
+from sqlalchemy.dialects.postgresql import JSONB
 from .base import Base, SoftDeleteMixin
 
 class Milestone(Base, SoftDeleteMixin):
@@ -12,7 +13,7 @@ class Milestone(Base, SoftDeleteMixin):
     title = Column(String, nullable=False)
     achieved_date = Column(Date, nullable=False, index=True)
     
-    image_urls = Column(JSON, nullable=False, default=[])
+    image_urls = Column(JSON().with_variant(JSONB, 'postgresql'), nullable=False, default=[])
     notes = Column(String, nullable=True)
 
     __table_args__ = (
