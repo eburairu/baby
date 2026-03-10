@@ -1,5 +1,6 @@
 import secrets
 from datetime import datetime, timedelta, timezone
+from app.utils.session import hash_token
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy import func
@@ -50,7 +51,7 @@ DUMMY_HASH = get_password_hash("dummy_password_for_timing_mitigation")
 def _create_session(db: Session, user_id: int) -> str:
     token = secrets.token_urlsafe(32)
     session = UserSession(
-        token=token,
+        token=hash_token(token),
         user_id=user_id,
         expires_at=datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS),
     )
@@ -70,9 +71,10 @@ async def change_password(
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     current_user.hashed_password = await get_password_hash_async(req.new_password)
     current_token = request.cookies.get("access_token")
+    current_token_hash = hash_token(current_token) if current_token else None
     db.query(UserSession).filter(
         UserSession.user_id == current_user.id,
-        UserSession.token != current_token,
+        UserSession.token != current_token_hash,
     ).delete()
     
     log_event(
@@ -293,7 +295,7 @@ async def login(
 def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     token = request.cookies.get("access_token")
     if token:
-        session = db.query(UserSession).filter(UserSession.token == token).first()
+        session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
         if session:
             # Note: log_event with commit=False ensures this and the deletion 
             # are committed in the same transaction.
