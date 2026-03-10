@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DialogTrigger, DialogTitle, DialogDescription, DialogFooter, DialogHeader, DialogContent, Dialog } from "@/components/ui/dialog"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { formatDateLocal } from "@/lib/dateUtils"
 import { PartyPopper } from "lucide-react"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
@@ -36,11 +36,7 @@ export function BirthRegistrationDialog({ babyId, babyName, onSuccess }: Props) 
             },
             {
                 onError: (err) => {
-                    setError(
-                        isApiError(err)
-                            ? ((err.info as { detail?: string })?.detail || "誕生日の登録に失敗しました")
-                            : "誕生日の登録に失敗しました"
-                    )
+                    setError(getErrorMessage(err, "誕生日の登録に失敗しました"))
                 }
             }
         )

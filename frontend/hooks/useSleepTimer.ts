@@ -3,10 +3,11 @@ import { useSleeps } from "@/hooks/useSleep"
 import { api } from "@/lib/api"
 import { formatElapsed } from "@/lib/ageUtils"
 import { useInterval } from "@/hooks/useInterval"
+import { useAsyncAction } from "./useAsyncAction"
 
 export function useSleepTimer(babyId: string) {
     const { sleeps, mutate } = useSleeps(babyId)
-    const [loading, setLoading] = useState(false)
+    const { loading, execute } = useAsyncAction()
     const [elapsed, setElapsed] = useState<string | null>(null)
 
     const activeSleep = sleeps?.find((s) => !s.end_time) ?? null
@@ -29,33 +30,23 @@ export function useSleepTimer(babyId: string) {
     }, [updateElapsed])
 
     const startSleep = async () => {
-        setLoading(true)
-        try {
+        await execute(async () => {
             await api.post("/sleeps/", {
                 baby_id: Number(babyId),
                 start_time: new Date().toISOString(),
             })
             mutate()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
+        })
     }
 
     const endSleep = async () => {
         if (!activeSleep) return
-        setLoading(true)
-        try {
+        await execute(async () => {
             await api.patch(`/sleeps/${activeSleep.id}`, {
                 end_time: new Date().toISOString(),
             })
             mutate()
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
+        })
     }
 
     return {
