@@ -12,7 +12,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Loader2 } from "lucide-react"
 
 interface UseRecordDeleteProps {
     onDelete: (id: number) => Promise<void>
@@ -51,8 +50,7 @@ export function useRecordDelete({ onDelete, onSuccess, resourceName }: UseRecord
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" disabled={isDeleting}>
-                        {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" loading={isDeleting}>
                         削除
                     </AlertDialogAction>
                 </AlertDialogFooter>

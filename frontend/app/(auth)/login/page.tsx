@@ -7,7 +7,7 @@ import * as z from "zod"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -49,11 +49,7 @@ export default function LoginPage() {
             router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Login failed", err)
-            if (isApiError(err)) {
-                setError((err.info as { detail?: string })?.detail || "ログインに失敗しました")
-            } else {
-                setError("ログインに失敗しました")
-            }
+            setError(getErrorMessage(err, "ログインに失敗しました"))
         }
     }
 

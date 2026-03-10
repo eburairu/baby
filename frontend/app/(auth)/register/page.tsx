@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -68,11 +68,7 @@ function RegisterForm() {
             router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Registration failed", err)
-            if (isApiError(err)) {
-                setError((err.info as { detail?: string })?.detail || "登録に失敗しました")
-            } else {
-                setError("登録に失敗しました")
-            }
+            setError(getErrorMessage(err, "登録に失敗しました"))
         }
     }
 
@@ -85,11 +81,7 @@ function RegisterForm() {
             router.push("/dashboard")
         } catch (err: unknown) {
             console.error("Join failed", err)
-            if (isApiError(err)) {
-                setError((err.info as { detail?: string })?.detail || "家族への参加に失敗しました")
-            } else {
-                setError("家族への参加に失敗しました")
-            }
+            setError(getErrorMessage(err, "家族への参加に失敗しました"))
         }
     }
 
