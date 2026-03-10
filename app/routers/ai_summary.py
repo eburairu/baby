@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import insert
 from typing import List
 from datetime import date, datetime
 import openai
@@ -14,7 +16,30 @@ from app.utils.notifications import notify_family_members
 from app.utils.rate_limit import RateLimiter
 from app.utils.timezone import get_jst_today
 from app.core import constants
-from app.utils.s3 import extract_object_key
+from app.utils.s3 import extract_object_key, delete_s3_objects
+
+
+def acquire_ai_summary_lock(db: Session, baby_id: int, summary_date: date) -> None:
+    """
+    pg_advisory_xact_lock を使って (baby_id, summary_date) の組み合わせに対する
+    排他ロックをトランザクション内で取得する。
+
+    ロックキーは 64-bit 整数 2 つ（baby_id, date を YYYYMMDD 整数に変換）で構成する。
+    トランザクション終了時に自動解放されるため明示的な解放は不要。
+
+    SQLite（テスト環境）では pg_advisory_xact_lock が存在しないため、
+    dialect チェックにより実行をスキップする。
+    """
+    dialect = db.bind.dialect.name if db.bind else "sqlite"
+    if dialect != "postgresql":
+        # SQLite など PostgreSQL 以外では何もしない（テスト環境）
+        return
+
+    date_int = int(summary_date.strftime("%Y%m%d"))
+    db.execute(
+        text("SELECT pg_advisory_xact_lock(:key1, :key2)"),
+        {"key1": baby_id, "key2": date_int},
+    )
 
 daily_summary_limiter = RateLimiter(
     requests_limit=constants.RATE_LIMIT_AI_SUMMARY_REQUESTS,
@@ -45,6 +70,11 @@ def create_or_get_daily_summary(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="未来の日付では日誌を生成できません。",
         )
+
+    # (baby_id, summary_date) への競合書き込みを防ぐ排他ロックを取得。
+    # 同一キーへの並行リクエストはここでブロックされ、先行トランザクション完了後に
+    # 順次処理される（UniqueViolation / SerializationFailure を回避）。
+    acquire_ai_summary_lock(db, baby_id, body.summary_date)
 
     existing = (
         db.query(DailySummary)
@@ -197,6 +227,7 @@ def edit_daily_summary(
 def delete_daily_summary(
     baby_id: int,
     summary_date: date,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -212,5 +243,11 @@ def delete_daily_summary(
     )
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily summary not found")
+
+    image_urls = list(summary.image_urls or [])
+
     summary.is_deleted = True
     db.commit()
+
+    if image_urls:
+        background_tasks.add_task(delete_s3_objects, image_urls)

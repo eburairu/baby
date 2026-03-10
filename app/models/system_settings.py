@@ -9,7 +9,7 @@ class SystemSetting(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     key = Column(String(50), unique=True, index=True, nullable=False)
     value = Column(Text, nullable=False)
-    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
     def __repr__(self):
         return f"<SystemSetting(key='{self.key}', value='{self.value}')>"

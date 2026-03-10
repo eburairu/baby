@@ -8,6 +8,8 @@ from fastapi.responses import FileResponse
 import os
 import logging
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
+from app.utils.scheduler import setup_scheduler
 
 load_dotenv()
 
@@ -15,7 +17,15 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Botoro API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start the background scheduler for periodic tasks
+    scheduler = setup_scheduler()
+    yield
+    # Shutdown: Stop the background scheduler
+    scheduler.shutdown()
+
+app = FastAPI(title="Botoro API", lifespan=lifespan)
 
 # Global Exception Handler
 @app.exception_handler(Exception)

@@ -16,7 +16,7 @@ class AppNotification(Base, SoftDeleteMixin):
     body = Column(Text, nullable=True)
     url = Column(String(512), nullable=True)
     is_read = Column(Boolean, nullable=False, default=False, server_default="false")
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="app_notifications")
 
@@ -38,7 +38,7 @@ class PushSubscription(Base, SoftDeleteMixin):
     p256dh = Column(String, nullable=False)
     auth = Column(String, nullable=False)
     user_agent = Column(String, nullable=True)
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="push_subscriptions")
 
@@ -57,6 +57,6 @@ class NotificationSetting(Base):
     system_notice_enabled = Column(Boolean, server_default="true", nullable=False, default=True)
     dnd_start_time = Column(Time, nullable=True)
     dnd_end_time = Column(Time, nullable=True)
-    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="notification_setting", uselist=False)

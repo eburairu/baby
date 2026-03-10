@@ -14,7 +14,7 @@ class Diaper(Base, SoftDeleteMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    change_time = Column(DateTime, nullable=False, index=True)
+    change_time = Column(DateTime(timezone=True), nullable=False, index=True)
     diaper_type = Column(Enum(DiaperType, name="diapertype"), nullable=False)
     notes = Column(String, nullable=True)
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)

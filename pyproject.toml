@@ -18,6 +18,7 @@ dependencies = [
     "pywebpush",
     "httpx>=0.27.0",
     "google-genai",
+    "apscheduler>=3.11.2",
 ]
 
 [dependency-groups]

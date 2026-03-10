@@ -11,4 +11,4 @@ class Base(DeclarativeBase):
     })
 
 class SoftDeleteMixin:
-    is_deleted: Mapped[bool] = mapped_column(default=False, nullable=False, index=True)
+    is_deleted: Mapped[bool] = mapped_column(default=False, nullable=False)

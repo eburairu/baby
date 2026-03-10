@@ -279,3 +279,35 @@ def get_audit_logs(
             created_at=log.created_at
         ))
     return result
+
+@router.post("/audit-logs/cleanup")
+def trigger_audit_log_cleanup(
+    days: int = Query(90, ge=1, le=3650),
+    request: Request = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_superadmin)
+):
+    """
+    Manually trigger deletion of old audit logs.
+    """
+    from app.utils.audit import cleanup_old_audit_logs
+    
+    deleted_count = cleanup_old_audit_logs(db, days=days)
+    db.commit()
+    
+    log_event(
+        db,
+        "ADMIN_CLEANUP_AUDIT_LOGS",
+        user_id=admin.id,
+        details={
+            "days_threshold": days,
+            "deleted_count": deleted_count
+        },
+        ip_address=get_client_ip(request) if request else None
+    )
+    
+    return {
+        "status": "success",
+        "message": f"Successfully deleted {deleted_count} audit logs older than {days} days.",
+        "deleted_count": deleted_count
+    }

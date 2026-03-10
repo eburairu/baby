@@ -86,8 +86,9 @@ baby-app/
 
 ### タイムゾーンの扱い
 
-- **Backend**: データベースにはタイムゾーンなしの UTC (`DateTime` / `naive`) として保存します。
-- **API**: ISO 8601 形式の文字列でやり取りします。フロントエンドからの送信時にはタイムゾーン情報 (`Z` 等) を含めることが推奨されますが、バックエンドで比較・保存する際に適切に UTC naive に変換します。
+- **Backend**: すべての `DateTime` カラムを `DateTime(timezone=True)` として定義し、DBレベル（PostgreSQL の `timestamp with time zone` 型）でタイムゾーンを明示的に保持します。
+- **API**: ISO 8601 形式の文字列でやり取りします。クライアント・サーバー間の通信は基本的にタイムゾーン情報（`Z` またはオフセット）を含む ISO 8601 形式を使用し、不整合を防ぎます。
+- **Internal**: アプリケーション内部では、取得した `datetime` オブジェクトは常に timezone-aware であることが保証されます。
 - **Validation**: 未来日時のバリデーションを行う場合、クライアントとサーバーの時刻同期のズレを考慮し、許容誤差（デフォルト5分、定数 `FUTURE_DATE_BUFFER_MINUTES` で定義）を設けます。詳細な定数管理については [マジックナンバー排除規約](../development/magic_number_policy.md) を参照してください。
 
 ### 統合レコード形式 (UnifiedRecord)
