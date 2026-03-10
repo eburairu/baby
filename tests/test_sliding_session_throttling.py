@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, timedelta, timezone
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
+from app.utils.session import hash_token
 from app.config import SESSION_EXPIRE_DAYS
 from app.utils.timezone import ensure_aware
 
@@ -25,8 +26,8 @@ def test_sliding_session_throttling(client, test_user, db):
     assert response.status_code == 200
     token = response.cookies["access_token"]
     
-    # Get session from DB
-    session = db.query(UserSession).filter(UserSession.token == token).first()
+    # Get session from DB (token is stored as SHA-256 hash)
+    session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
     assert session is not None
     initial_expiry = session.expires_at
     
@@ -49,8 +50,8 @@ def test_sliding_session_update_after_threshold(client, test_user, db):
     assert response.status_code == 200
     token = response.cookies["access_token"]
     
-    # Get session from DB
-    session = db.query(UserSession).filter(UserSession.token == token).first()
+    # Get session from DB (token is stored as SHA-256 hash)
+    session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
     initial_expiry = session.expires_at
     
     # 2. Manually backdate the expires_at in DB to simulate "time passed"

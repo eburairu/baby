@@ -8,6 +8,7 @@ from app.models.baby import Baby, BabyPermission
 from app.models.family import FamilyUser, UserRole
 from app.models.user import User, UserSession
 from app.utils.timezone import ensure_aware
+from app.utils.session import hash_token
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 
@@ -28,7 +29,7 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
     session = db.query(UserSession).filter(
-        UserSession.token == token,
+        UserSession.token == hash_token(token),
         UserSession.expires_at > func.now()
     ).first()
     if not session:

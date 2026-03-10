@@ -32,3 +32,5 @@ pr_body*.md
 
 # Playwright MCP
 .playwright-mcp/
+
+logs/daily_audit.log

@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, timedelta, timezone
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
+from app.utils.session import hash_token
 from app.utils.timezone import ensure_aware
 
 # Note: client and db fixtures are provided by conftest.py
@@ -40,8 +41,8 @@ def test_sliding_session(client, test_user, db):
     assert response.status_code == 200
     token = response.cookies["access_token"]
     
-    # Get session from DB
-    session = db.query(UserSession).filter(UserSession.token == token).first()
+    # Get session from DB (token is stored as SHA-256 hash)
+    session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
     assert session is not None
     initial_expiry = ensure_aware(session.expires_at)
     

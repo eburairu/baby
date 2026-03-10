@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Baby {
     id: number
@@ -25,8 +26,8 @@ interface Props {
 
 export function BabyDeleteDialog({ baby, open, onClose, onDeleted }: Props) {
     const [confirmName, setConfirmName] = useState("")
-    const [deleting, setDeleting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: deleting, execute } = useAsyncAction()
 
     const handleClose = () => {
         setConfirmName("")
@@ -36,18 +37,19 @@ export function BabyDeleteDialog({ baby, open, onClose, onDeleted }: Props) {
 
     const handleDelete = async () => {
         if (!baby) return
-        setDeleting(true)
         setError(null)
-        try {
-            await api.delete(`/babies/${baby.id}`)
-            setConfirmName("")
-            onDeleted()
-            onClose()
-        } catch {
-            setError("削除に失敗しました")
-        } finally {
-            setDeleting(false)
-        }
+
+        await execute(
+            async () => {
+                await api.delete(`/babies/${baby.id}`)
+                setConfirmName("")
+                onDeleted()
+                onClose()
+            },
+            {
+                onError: () => setError("削除に失敗しました")
+            }
+        )
     }
 
     const canDelete = confirmName === baby?.name

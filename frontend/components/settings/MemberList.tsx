@@ -19,6 +19,7 @@ import { getDisplayName } from "@/lib/utils"
 import { formatDate } from "@/lib/dateUtils"
 import { UserRole } from "@/lib/constants"
 import { FamilyMember } from "@/types/family"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     members: FamilyMember[]
@@ -31,18 +32,19 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
     const [roleDialogTarget, setRoleDialogTarget] = useState<FamilyMember | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<FamilyMember | null>(null)
     const [passwordResetTarget, setPasswordResetTarget] = useState<FamilyMember | null>(null)
-    const [deleting, setDeleting] = useState(false)
+    const { loading: deleting, execute } = useAsyncAction()
 
     const handleDelete = async () => {
         if (!deleteTarget) return
-        setDeleting(true)
+
         try {
-            await api.delete(`/family/members/${deleteTarget.user_id}`)
-            onUpdated()
-        } catch {
-            // エラー処理（省略）
+            await execute(
+                async () => {
+                    await api.delete(`/family/members/${deleteTarget.user_id}`)
+                    onUpdated()
+                }
+            )
         } finally {
-            setDeleting(false)
             setDeleteTarget(null)
         }
     }
