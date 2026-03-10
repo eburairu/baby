@@ -70,6 +70,7 @@ export function NotificationBell() {
                 size="icon"
                 onClick={handleOpen}
                 aria-label={count > 0 ? `通知、${count}件の未読` : "通知"}
+                title={count > 0 ? `通知、${count}件の未読` : "通知"}
                 aria-expanded={open}
                 aria-haspopup="dialog"
                 className="relative text-gray-500 dark:text-zinc-400"
