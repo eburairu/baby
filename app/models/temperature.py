@@ -1,13 +1,6 @@
-import enum
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum, Index
 from .base import Base, SoftDeleteMixin
-
-
-class TemperatureMethod(str, enum.Enum):
-    AXILLARY = "AXILLARY"   # わきの下
-    EAR = "EAR"             # 耳
-    FOREHEAD = "FOREHEAD"   # 額
-    RECTAL = "RECTAL"       # 直腸
+from app.models.enums import TemperatureMethod
 
 
 class TemperatureRecord(Base, SoftDeleteMixin):

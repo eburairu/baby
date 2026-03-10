@@ -1,11 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean, Enum as SQLEnum, Index
 from .base import Base, SoftDeleteMixin
-import enum
-
-class VaccinationStatus(str, enum.Enum):
-    SCHEDULED = "scheduled"
-    COMPLETED = "completed"
-    POSTPONED = "postponed"
+from app.models.enums import VaccinationStatus
 
 class Vaccination(Base, SoftDeleteMixin):
     __tablename__ = "vaccinations"

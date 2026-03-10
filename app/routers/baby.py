@@ -10,7 +10,8 @@ import logging
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
 from app.models.baby import Baby, BabyPermission
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -388,7 +389,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
     timestamp = record_in.timestamp
 
     if record_type == "feeding":
-        from app.models.feeding import FeedingType
+        from app.models.enums import FeedingType
         new_record = Feeding(
             user_id=current_user.id,
             baby_id=baby_id,
@@ -422,7 +423,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
         )
 
     elif record_type == "diaper":
-        from app.models.diaper import DiaperType
+        from app.models.enums import DiaperType
         new_record = Diaper(
             user_id=current_user.id,
             baby_id=baby_id,

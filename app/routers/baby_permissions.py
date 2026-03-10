@@ -4,7 +4,8 @@ from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
 from app.models.baby import Baby, BabyPermission
 from app.schemas.baby_permission import (
     BabyPermissionsResponse,
