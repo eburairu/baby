@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy.orm import Session
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
+from app.utils.session import hash_token
 from app.utils.timezone import ensure_aware
 from datetime import datetime, timedelta, timezone
 
@@ -39,7 +40,7 @@ def test_sliding_session_cookie_refresh(client, db: Session):
     
     # Replace the session with one that is about to expire
     token = client.cookies.get("access_token")
-    session = db.query(UserSession).filter(UserSession.token == token).first()
+    session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
     session.expires_at = datetime.now(timezone.utc) + timedelta(days=1)
     db.commit()
 
@@ -68,8 +69,8 @@ def test_expired_session_fails(client, db: Session):
         }
     )
     token = client.cookies.get("access_token")
-    session = db.query(UserSession).filter(UserSession.token == token).first()
-    
+    session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
+
     # Make session expired
     session.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
     db.commit()
