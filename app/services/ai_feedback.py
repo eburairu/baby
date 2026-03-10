@@ -17,7 +17,7 @@ from app.models.diaper import Diaper
 from app.models.growth import Growth
 from app.models.note import Note
 from app.models.baby import Baby
-from app.services.ai_summary import get_llm_client, _fetch_records_in_range
+from app.services.ai_summary import get_async_llm_client, _fetch_records_in_range
 from app.services.ai_settings import get_ai_config
 from app.services.baby import get_baby_age_in_days
 from app.utils.timezone import get_jst_now
@@ -236,7 +236,9 @@ def build_feedback_prompt(
     return prompt
 
 
-def generate_record_feedback(
+import asyncio
+
+async def generate_record_feedback(
     db: Session,
     baby_id: int,
     baby: Baby,
@@ -252,12 +254,12 @@ def generate_record_feedback(
         raise AIGenerationError("AI 記録フィードバック機能は現在無効化されています。")
 
     prompt = build_feedback_prompt(db, baby_id, baby, record_type, record_id)
-    client, model_name = get_llm_client(db)
+    client, model_name = get_async_llm_client(db)
 
     last_error: Exception = AIGenerationError("no attempts made")
     for attempt in range(3):
         if attempt > 0:
-            time.sleep(2 ** attempt)  # 2s, 4s
+            await asyncio.sleep(2 ** attempt)  # 2s, 4s
         try:
             reasoning_effort = config.get("llm_reasoning_effort")
             # "none"/"default" は送らない。Flash など非思考モデルに送ると 400 INVALID_ARGUMENT になる
@@ -278,7 +280,7 @@ def generate_record_feedback(
             if is_thinking:
                 kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
 
-            response = client.chat.completions.create(**kwargs)
+            response = await client.chat.completions.create(**kwargs)
             break
         except openai.BadRequestError as e:
             # Gemini API は安全性フィルターでブロックした場合に 400 BadRequest を返すことがある

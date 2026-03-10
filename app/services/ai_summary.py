@@ -3,7 +3,7 @@ import logging
 from datetime import date, datetime, timedelta
 from typing import Tuple, Type
 from sqlalchemy.orm import Session
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 from app.services.ai_settings import get_ai_config
 from app.models.baby import Baby
 from app.services.baby import get_baby_age_in_days
@@ -37,6 +37,28 @@ def get_llm_client(db: Session) -> Tuple[OpenAI, str]:
         model = model or "gemini-2.0-flash"
     else:
         client = OpenAI(api_key=api_key)
+        model = model or "gpt-4o"
+
+    return client, model
+
+
+def get_async_llm_client(db: Session) -> Tuple[AsyncOpenAI, str]:
+    """(async_client, model_name) を返す"""
+    config = get_ai_config(db)
+    provider = os.environ.get("LLM_PROVIDER", "google").lower()
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
+
+    # DB 設定があればそれを使用、なければ環境変数またはデフォルト
+    model = config.get("llm_model") or os.environ.get("LLM_MODEL")
+
+    if provider == "google":
+        client = AsyncOpenAI(
+            api_key=api_key,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        )
+        model = model or "gemini-2.0-flash"
+    else:
+        client = AsyncOpenAI(api_key=api_key)
         model = model or "gpt-4o"
 
     return client, model

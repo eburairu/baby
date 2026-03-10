@@ -26,14 +26,14 @@ router = APIRouter(prefix="/api/babies/{baby_id}/record-feedback", tags=["ai-fee
 
 
 @router.post("", response_model=RecordFeedbackResponse, status_code=status.HTTP_201_CREATED)
-def create_record_feedback(
+async def create_record_feedback(
     baby_id: int,
     body: RecordFeedbackRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """直近24時間の記録をAIが分析し、コメントとして保存する"""
-    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレート制限
+    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレー ト制限
     record_feedback_limiter.check(f"user_{current_user.id}")
 
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=False)
@@ -42,7 +42,7 @@ def create_record_feedback(
     _verify_record_ownership(db, body.record_type, body.record_id, baby_id)
 
     try:
-        feedback_text, has_concern, model_name = generate_record_feedback(
+        feedback_text, has_concern, model_name = await generate_record_feedback(
             db, baby_id, baby, body.record_type, body.record_id
         )
     except AIGenerationError as e:
