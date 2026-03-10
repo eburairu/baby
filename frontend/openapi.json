@@ -4096,6 +4096,50 @@
         ]
       }
     },
+    "/api/admin/audit-logs/cleanup": {
+      "post": {
+        "description": "Manually trigger deletion of old audit logs.",
+        "operationId": "trigger_audit_log_cleanup_api_admin_audit_logs_cleanup_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 90,
+              "maximum": 3650,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Trigger Audit Log Cleanup",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/admin/families": {
       "get": {
         "operationId": "get_admin_families_api_admin_families_get",
