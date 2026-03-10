@@ -71,7 +71,7 @@ notification_service.py の notify_*() を呼び出す
 
 | type | トリガー | タイトル例 | アイコン |
 |------|----------|-----------|---------|
-| `family_record` | 家族が記録（授乳・おむつ・睡眠・成長・陣痛・メモ）を追加 | 「パパが授乳を記録しました」 | `Baby` |
+| `family_record` | 家族が記録（授乳・おむつ・睡眠・成長・陣痛・メモ・体温）を追加 | 「パパが授乳を記録しました」 | `Baby` |
 | `comment` | 自分の記録に家族がコメント追加 | 「ママがコメントしました」 | `MessageCircle` |
 | `daily_summary` | AI デイリーサマリーが生成完了 | 「今日の育児まとめができました」 | `Sparkles` |
 | `feeding_reminder` | 前回の授乳から一定時間経過 | 「授乳の時間かもしれません」 | `Clock` |
@@ -248,7 +248,7 @@ async def notify_family_record(
     db: AsyncSession,
     actor_user_id: int,  # 記録を追加したユーザー
     baby_id: int,
-    record_type: str,    # 'feeding' | 'diaper' | 'sleep' | 'growth' ...
+    record_type: str,    # 'feeding' | 'diaper' | 'sleep' | 'growth' | 'temperature' ...
     record_url: str,     # 遷移先 URL
 ) -> None:
     """
@@ -287,7 +287,7 @@ async def notify_reminder(
 
 | トリガー | 通知 type | 通知受信者 | 除外条件 |
 |---------|----------|----------|---------|
-| 記録追加（授乳・おむつ・睡眠・成長・陣痛・メモ） | `family_record` | 同ファミリーの**記録者以外**の全メンバー | 記録者自身は除外 |
+| 記録追加（授乳・おむつ・睡眠・成長・陣痛・メモ・体温） | `family_record` | 同ファミリーの**記録者以外**の全メンバー | 記録者自身は除外 |
 | コメント追加 | `comment` | **記録オーナー** | コメント投稿者と記録オーナーが同一の場合は除外 |
 | デイリーサマリー生成 | `daily_summary` | 同ファミリーの**全メンバー** | なし |
 | 授乳リマインダー（バッチ処理） | `feeding_reminder` | 対象ユーザー | `feeding_reminder_enabled = False` の場合はスキップ |
@@ -321,6 +321,7 @@ async def notify_reminder(
 | 成長 | `growth` | `/growth` |
 | 陣痛 | `contraction` | `/contraction` |
 | メモ | `note` | `/note` |
+| 体温 | `temperature` | `/temperature` |
 
 > **注意**: 授乳記録の URL は `/babies/{id}/feedings` ではなく `/feeding` を使用する（フロントエンドに `/babies/[id]/feedings` ルートは存在しない）。
 
