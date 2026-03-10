@@ -58,6 +58,7 @@ export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
                                     }}
                                     className="h-10 w-10 shrink-0"
                                     aria-label="減らす"
+                                    title="減らす"
                                 >
                                     <Minus className="h-4 w-4" />
                                 </Button>
@@ -72,6 +73,7 @@ export function BottleFeedingFields({ form }: BottleFeedingFieldsProps) {
                                     }}
                                     className="h-10 w-10 shrink-0"
                                     aria-label="増やす"
+                                    title="増やす"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </Button>

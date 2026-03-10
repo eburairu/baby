@@ -77,7 +77,7 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                 <div className="flex items-center justify-between">
                     <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">{name}</p>
                     {isAdmin && (
-                        <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }} aria-label="家族名を編集">
+                        <Button variant="ghost" size="icon" onClick={() => { setValue(name); setEditing(true) }} aria-label="家族名を編集" title="家族名を編集">
                             <Pencil className="h-4 w-4 text-gray-500 dark:text-zinc-400" />
                         </Button>
                     )}
