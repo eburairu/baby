@@ -267,3 +267,7 @@
 ## 2026-03-09 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書の先行記載の修正]
 **学び:** 体温記録機能（`app/routers/temperatures.py`）が追加された際、仕様書 `.specify/specs/settings/baby_permissions.md` には `record_type` として `"temperature"` が記載されたが、実際の権限管理の実装（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` 内のバリデーションリスト、フロントエンドの `ALL_RECORD_TYPES`）には反映されておらず、仕様書が実装を先行する「嘘の仕様書」状態になっていた。
 **アクション:** `baby_permissions.md` から未実装の `"temperature"` を削除し、現在の実装コードと100%一致させた。今後仕様書を更新する際は、対応するバックエンド側のロジックやリストに実際に追加されているかを必ず確認・同期する。
+
+## 2026-03-10 - [ページネーション制限値（limit）の実装との乖離の発見]
+**学び:** 新しいトラッカー（例：体温記録）を追加した際、バックエンドの実装は `app/core/constants.py` の `DEFAULT_PAGINATION_LIMIT = 20` と `MAX_PAGINATION_LIMIT = 100` を参照してバリデーションを行っているにもかかわらず、仕様書側（`temperature_tracker.md`）では単一のエンドポイントに対して `limit=100` といった任意のデフォルト値が誤って記載されるケースがあることが判明した。
+**アクション:** ページネーションを伴うAPIの仕様書を更新・レビューする際は、仕様書内にハードコードされた任意の `limit` パラメータが、プロジェクト全体で定義・強制されている定数（`constants.py` の `DEFAULT_PAGINATION_LIMIT` や `MAX_PAGINATION_LIMIT`）と完全に一致しているかを必ず確認し、ズレがないように同期する。
