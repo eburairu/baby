@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -8,7 +8,7 @@ from app.models.milestone import Milestone
 from app.models.baby import Baby
 from app.schemas.milestone import MilestoneCreate, MilestoneUpdate, MilestoneResponse, MilestoneTimelineGroup
 from datetime import date
-from app.utils.s3 import extract_object_key
+from app.utils.s3 import extract_object_key, delete_s3_objects
 
 router = APIRouter(prefix="/api/milestones", tags=["milestones"])
 
@@ -71,15 +71,18 @@ async def update_milestone(
 @router.delete("/{milestone_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_milestone(
     milestone_id: int,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     db_milestone = db.query(Milestone).filter(Milestone.id == milestone_id).first()
     if not db_milestone:
         raise HTTPException(status_code=404, detail="Milestone not found")
-    
+
     verify_baby_access(db, db_milestone.baby_id, current_user.id, require_write=True)
-    
+
+    image_urls = list(db_milestone.image_urls or [])
+
     from app.models.comment import RecordComment
     db.query(RecordComment).filter(
         RecordComment.record_type == "milestone",
@@ -88,6 +91,9 @@ async def delete_milestone(
 
     db_milestone.is_deleted = True
     db.commit()
+
+    if image_urls:
+        background_tasks.add_task(delete_s3_objects, image_urls)
 
 @router.get("/timeline", response_model=List[MilestoneTimelineGroup])
 async def get_milestone_timeline(

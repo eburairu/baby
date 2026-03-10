@@ -57,6 +57,26 @@ def extract_object_key(url_or_key: str) -> str:
         return path[len(bucket_name) + 1:]
     return path
 
+def delete_s3_objects(urls: List[str]) -> None:
+    """ストレージ上のオブジェクトを削除する。URLまたはキーのリストを受け取る。"""
+    if not urls:
+        return
+
+    client = _get_s3_client()
+    if not client:
+        logger.warning("S3 client not available; skipping object deletion.")
+        return
+
+    bucket_name = os.getenv("R2_BUCKET_NAME", "baby-app-images")
+    for url_or_key in urls:
+        key = extract_object_key(url_or_key)
+        try:
+            client.delete_object(Bucket=bucket_name, Key=key)
+            logger.info(f"Deleted S3 object: {key}")
+        except Exception as e:
+            logger.error(f"Failed to delete S3 object {key}: {e}")
+
+
 def sign_image_urls(image_urls: List[str]) -> List[str]:
     """画像URL（またはキー）のリストを署名付きURLのリストに変換する。"""
     if not image_urls:
