@@ -20,3 +20,6 @@
 ## 2025-03-09 - [Tidy: UI定数と非同期状態管理・エラーハンドリングの共通化]
 学び: コードベース内で、`RECORD_TYPE_LABELS`のようなUI表示用の定数オブジェクトが複数のコンポーネント（`RecordDetailDialog`, `BabyAccessRow`など）に重複定義されていました。また、`isApiError`を用いたAPIエラーの抽出処理や、`useState`を用いた非同期処理のステート管理（loading/error）が複数のファイル（`BirthRegistrationDialog`, `useRecordFeedback`, `useSleepTimer`）で独立して実装され、ボイラープレート化していました。
 アクション: 今後、UI上のマッピング定数は `constants/ui.ts` から共通でインポートして使用する（DRYの徹底）。非同期処理については、統一された `useAsyncAction` フックを利用して、loading / error 状態と `try-catch` ブロックを完全にカプセル化し、冗長なコードを削減する。エラーハンドリングも `getErrorMessage` ユーティリティに任せて、利用側はシンプルに保つ。
+## 2025-03-10 - [APIエラーメッセージ処理と非同期ローディングのさらなる共通化]
+**学び:** APIエラーからメッセージを抽出する際、`isApiError(err) ? err.info.detail : "エラー"` のような三項演算子を用いた処理が複数のページで記述されていた。また、一部のコンポーネント（`useRecordDelete` の `AlertDialogAction` など）で、すでに `loading` プロパティが用意されているにもかかわらず、手動で `<Loader2>` を条件付きレンダリングする冗長な記述が見られた。
+**アクション:** エラーメッセージ抽出については、一元化された `getErrorMessage` ユーティリティを積極的に使用し、各ファイルでの型判定やデフォルトメッセージのボイラープレートを排除する。UIコンポーネントのローディング状態については、コンポーネントに内包された機能（`loading` prop）を信頼し、呼び出し側のコードをシンプルに保つ（DRY原則の徹底）。

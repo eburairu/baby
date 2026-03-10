@@ -25,7 +25,7 @@ import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
 import { TipsCard } from "@/components/ui/tips-card"
 import { diaryTips } from "@/lib/tips-data"
 import { DailySummary } from "@/types/dailySummary"
-import { isApiError } from "@/lib/api"
+import { getErrorMessage } from "@/lib/api"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
 
 function getTodayJST(): string {
@@ -82,8 +82,7 @@ export default function DiaryPage() {
             await generateDailySummary(babyId, selectedDate)
             await mutate()
         } catch (err: unknown) {
-            const detail = isApiError(err) ? ((err.info as { detail?: string })?.detail || "日誌の生成に失敗しました。") : "日誌の生成に失敗しました。"
-            setGenerateError(detail)
+            setGenerateError(getErrorMessage(err, "日誌の生成に失敗しました。"))
         } finally {
             setIsGenerating(false)
         }

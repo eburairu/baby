@@ -274,3 +274,7 @@
 ## 2026-03-10 - [新しい記録タイプ 'temperature' の通知センター仕様への追加漏れ]
 **学び:** 体温記録機能（`app/routers/temperatures.py`）が追加され、API側で `notify_family_members_bg` などを利用して記録時に通知を送信する実装がされているにもかかわらず、通知仕様を取りまとめている `.specify/specs/ui/notification_center.md` の各リスト（通知の種類、トリガー、URLパターン等）への追記が漏れやすい。
 **アクション:** 新規の記録・トラッカー機能を追加する際は、APIや権限管理だけでなく、通知センターの仕様書（通知トリガーの対応表や遷移先URL設計など）にも新しい `record_type` が追加されているかを検証し、同期する。
+
+## 2026-03-10 - [新しい通知タイプ 'achievement' の通知センター仕様への追加漏れ]
+**学び:** 実績機能（Achievement）の追加に伴い、`app/utils/notifications.py` で `notify_achievements_bg` 関数が実装され、`category="achievement"` として通知が送信される機能が追加されたが、通知センターの仕様書 `.specify/specs/ui/notification_center.md` 内の複数のリスト（通知の種類、通知設定との連動、トリガー、APIレスポンス型、URL設計）への追記が完全に漏れていた。
+**アクション:** 新しい通知カテゴリ（type）をシステムに追加する際は、通知送信のユーティリティ関数（`app/utils/notifications.py`）だけでなく、仕様書（`.specify/specs/ui/notification_center.md`）内の複数のテーブル（種類、設定連動、DBコメント、API型、トリガー、URL設計）を網羅的に検索し、同期漏れがないように徹底する。
