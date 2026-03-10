@@ -1,9 +1,10 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
-from app.models.temperature import TemperatureMethod
+from app.models.enums import TemperatureMethod
 from app.core.constants import NOTE_MAX_LENGTH
 from app.utils.timezone import localize_naive_as_jst
+from app.schemas.achievement import UnlockedAchievementInfo
 
 TEMPERATURE_MIN = 34.0
 TEMPERATURE_MAX = 42.0
@@ -39,5 +40,6 @@ class TemperatureResponse(TemperatureCreate):
     user_id: int
     recorded_by_display_name: Optional[str] = None
     comment_count: int = 0
+    unlocked_achievements: List[UnlockedAchievementInfo] = []
 
     model_config = ConfigDict(from_attributes=True)

@@ -5,7 +5,7 @@ import { SWR_REFRESH_INTERVAL_MS } from "@/constants"
 
 export type AppNotification = {
     id: number
-    type: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system"
+    type: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system" | "achievement"
     title: string
     body: string | null
     url: string | null

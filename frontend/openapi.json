@@ -259,6 +259,72 @@
         "title": "AuditLogResponse",
         "type": "object"
       },
+      "BabyAchievementResponse": {
+        "description": "実績一覧APIのレスポンス",
+        "properties": {
+          "achieved_at": {
+            "format": "date-time",
+            "title": "Achieved At",
+            "type": "string"
+          },
+          "achievement_id": {
+            "title": "Achievement Id",
+            "type": "string"
+          },
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "icon": {
+            "title": "Icon",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rarity": {
+            "title": "Rarity",
+            "type": "string"
+          },
+          "triggered_by_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Triggered By Display Name"
+          }
+        },
+        "required": [
+          "id",
+          "baby_id",
+          "achievement_id",
+          "achieved_at",
+          "name",
+          "icon",
+          "category",
+          "rarity",
+          "description"
+        ],
+        "title": "BabyAchievementResponse",
+        "type": "object"
+      },
       "BabyAdminResponse": {
         "properties": {
           "birthday": {
@@ -1240,6 +1306,14 @@
             ],
             "title": "Recorded By Display Name"
           },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
           "user_id": {
             "title": "User Id",
             "type": "integer"
@@ -1808,6 +1882,14 @@
             ],
             "title": "Right Breast Minutes"
           },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
           "user_id": {
             "title": "User Id",
             "type": "integer"
@@ -2205,6 +2287,14 @@
             ],
             "title": "Recorded By Display Name"
           },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
           "user_id": {
             "title": "User Id",
             "type": "integer"
@@ -2428,6 +2518,14 @@
             "maxLength": 100,
             "title": "Title",
             "type": "string"
+          },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
           },
           "user_id": {
             "anyOf": [
@@ -3189,6 +3287,14 @@
             "title": "Start Time",
             "type": "string"
           },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
           "user_id": {
             "title": "User Id",
             "type": "integer"
@@ -3363,6 +3469,14 @@
             "title": "Temperature",
             "type": "number"
           },
+          "unlocked_achievements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementInfo"
+            },
+            "title": "Unlocked Achievements",
+            "type": "array"
+          },
           "user_id": {
             "title": "User Id",
             "type": "integer"
@@ -3475,6 +3589,45 @@
           "details"
         ],
         "title": "UnifiedRecord",
+        "type": "object"
+      },
+      "UnlockedAchievementInfo": {
+        "description": "記録APIレスポンスに含める実績解除情報",
+        "properties": {
+          "achievement_id": {
+            "title": "Achievement Id",
+            "type": "string"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "icon": {
+            "title": "Icon",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "rarity": {
+            "title": "Rarity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "achievement_id",
+          "name",
+          "icon",
+          "category",
+          "rarity",
+          "description"
+        ],
+        "title": "UnlockedAchievementInfo",
         "type": "object"
       },
       "UnreadCountResponse": {
@@ -4036,6 +4189,52 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/achievements/": {
+      "get": {
+        "operationId": "get_achievements_api_achievements__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BabyAchievementResponse"
+                  },
+                  "title": "Response Get Achievements Api Achievements  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Achievements",
+        "tags": [
+          "achievements"
+        ]
+      }
+    },
     "/api/admin/audit-logs": {
       "get": {
         "operationId": "get_audit_logs_api_admin_audit_logs_get",
@@ -4773,6 +4972,47 @@
     "/api/babies/": {
       "get": {
         "operationId": "get_babies_api_babies__get",
+        "parameters": [
+          {
+            "description": "Maximum number of items to return (SuperAdmin only)",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Maximum number of items to return (SuperAdmin only)",
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Number of items to skip (SuperAdmin only)",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Number of items to skip (SuperAdmin only)",
+              "title": "Offset"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -4787,6 +5027,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Get Babies",

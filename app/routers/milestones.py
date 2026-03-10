@@ -1,4 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from app.utils.notifications import notify_achievements_bg
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
@@ -25,24 +28,41 @@ async def get_milestones(
 async def create_milestone(
     baby_id: int,
     milestone: MilestoneCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     verify_baby_access(db, baby_id, current_user.id, require_write=True)
-    
+
     milestone_data = milestone.model_dump()
     if milestone_data.get("image_urls"):
         milestone_data["image_urls"] = [extract_object_key(url) for url in milestone_data["image_urls"]]
-        
+
     db_milestone = Milestone(
         **milestone_data,
         baby_id=baby_id,
         user_id=current_user.id
     )
     db.add(db_milestone)
+    db.flush()
+
+    unlocked = check_and_award_achievements(
+        baby_id=baby_id,
+        record_type="milestone",
+        user_id=current_user.id,
+        db=db,
+    )
     db.commit()
     db.refresh(db_milestone)
-    return db_milestone
+
+    if unlocked:
+        baby = db.query(Baby).filter(Baby.id == baby_id).first()
+        if baby:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
+
+    response = MilestoneResponse.model_validate(db_milestone)
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
+    return response
 
 @router.patch("/{milestone_id}", response_model=MilestoneResponse)
 async def update_milestone(

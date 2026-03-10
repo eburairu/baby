@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, select
 from typing import List, Optional
@@ -116,6 +116,7 @@ def get_admin_families(
 def create_admin_family(
     family_in: FamilyCreateAdmin,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
 ):
@@ -130,17 +131,16 @@ def create_admin_family(
     db.add(new_family)
     db.flush()
 
-    log_event(
-        db,
-        "ADMIN_CREATE_FAMILY",
+    background_tasks.add_task(
+        log_event,
+        action="ADMIN_CREATE_FAMILY",
         user_id=admin.id,
         details={
             "family_id": new_family.id,
             "family_name": new_family.name,
             "invite_code": invite_code
         },
-        ip_address=get_client_ip(request),
-        commit=False
+        ip_address=get_client_ip(request)
     )
 
     db.commit()
@@ -219,6 +219,7 @@ def toggle_superadmin(
     user_id: int,
     request_data: SuperAdminToggleRequest,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
 ):
@@ -232,17 +233,16 @@ def toggle_superadmin(
 
     user.is_superadmin = request_data.is_superadmin
     
-    log_event(
-        db,
-        "SUPERADMIN_STATUS_CHANGE",
+    background_tasks.add_task(
+        log_event,
+        action="SUPERADMIN_STATUS_CHANGE",
         user_id=admin.id,
         details={
             "target_user_id": user.id,
             "target_username": user.username,
             "new_status": request_data.is_superadmin
         },
-        ip_address=get_client_ip(request),
-        commit=False
+        ip_address=get_client_ip(request)
     )
     
     db.commit()
@@ -282,6 +282,7 @@ def get_audit_logs(
 
 @router.post("/audit-logs/cleanup")
 def trigger_audit_log_cleanup(
+    background_tasks: BackgroundTasks,
     days: int = Query(90, ge=1, le=3650),
     request: Request = None,
     db: Session = Depends(get_db),
@@ -295,9 +296,9 @@ def trigger_audit_log_cleanup(
     deleted_count = cleanup_old_audit_logs(db, days=days)
     db.commit()
     
-    log_event(
-        db,
-        "ADMIN_CLEANUP_AUDIT_LOGS",
+    background_tasks.add_task(
+        log_event,
+        action="ADMIN_CLEANUP_AUDIT_LOGS",
         user_id=admin.id,
         details={
             "days_threshold": days,

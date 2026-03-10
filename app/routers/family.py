@@ -9,7 +9,8 @@ from app.dependencies import get_db, get_current_user
 from app.utils.rate_limit import RateLimiter
 from app.core import constants
 from app.models.user import User, UserSession
-from app.models.family import Family, FamilyUser, UserRole
+from app.models.family import Family, FamilyUser
+from app.models.enums import UserRole
 from app.schemas.family import (
     FamilyResponse,
     FamilyUpdate,

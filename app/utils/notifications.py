@@ -97,6 +97,7 @@ _CATEGORY_SETTING_MAP: dict[str, str] = {
     "diaper_reminder": "diaper_reminder_enabled",
     "daily_summary": "daily_summary_enabled",
     "system": "system_notice_enabled",
+    "achievement": "family_record_enabled",  # 実績通知は family_record 設定に従う
 }
 
 
@@ -178,6 +179,33 @@ def notify_family_members_bg(background_tasks: BackgroundTasks, family_id: int, 
         db = SessionLocal()
         try:
             notify_family_members(db, family_id, exclude_user_id, title, body, url, category)
+        finally:
+            db.close()
+
+    background_tasks.add_task(_task)
+
+
+def notify_achievements_bg(
+    background_tasks: BackgroundTasks,
+    family_id: int,
+    baby_name: str,
+    baby_id: int,
+    unlocked: list[dict],
+) -> None:
+    """実績解除を家族全員（全員）に通知する（バックグラウンドタスク）"""
+    def _task():
+        db = SessionLocal()
+        try:
+            for a in unlocked:
+                notify_family_members(
+                    db,
+                    family_id,
+                    exclude_user_id=0,  # 全員に通知
+                    title=f"実績解除！{a['icon']} {a['name']}",
+                    body=f"{baby_name}が「{a['name']}」を達成しました！",
+                    url=f"/dashboard?baby_id={baby_id}",
+                    category="achievement",
+                )
         finally:
             db.close()
 

@@ -1,8 +1,9 @@
 from pydantic import BaseModel, ConfigDict, model_validator, Field, field_validator
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from app.utils.timezone import localize_naive_as_jst
-from app.models.feeding import FeedingType, BreastSide, BottleContentType, FeedingCompletion
+from app.models.enums import FeedingType, BreastSide, BottleContentType, FeedingCompletion
+from app.schemas.achievement import UnlockedAchievementInfo
 from app.core.constants import (
     NOTE_MAX_LENGTH,
     MAX_FEEDING_ML,
@@ -46,6 +47,7 @@ class FeedingResponse(FeedingCreate):
     user_id: int
     recorded_by_display_name: Optional[str] = None
     comment_count: int = 0
+    unlocked_achievements: List[UnlockedAchievementInfo] = []
 
     model_config = ConfigDict(from_attributes=True)
 

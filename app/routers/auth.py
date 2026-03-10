@@ -2,7 +2,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from app.utils.session import hash_token
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, BackgroundTasks
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -13,7 +13,8 @@ from app.schemas.auth import LoginRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.models.user import User, UserSession
-from app.models.family import Family, FamilyUser, UserRole
+from app.models.family import Family, FamilyUser
+from app.models.enums import UserRole
 from app.services.auth import verify_password, get_password_hash, verify_password_async, get_password_hash_async
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
@@ -64,6 +65,7 @@ def _create_session(db: Session, user_id: int) -> str:
 async def change_password(
     req: PasswordChangeRequest,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> None:
@@ -77,12 +79,11 @@ async def change_password(
         UserSession.token != current_token_hash,
     ).delete()
     
-    log_event(
-        db, 
-        "PASSWORD_CHANGE", 
+    background_tasks.add_task(
+        log_event,
+        action="PASSWORD_CHANGE", 
         user_id=current_user.id, 
-        ip_address=get_client_ip(request),
-        commit=False
+        ip_address=get_client_ip(request)
     )
     
     db.commit()
@@ -115,6 +116,7 @@ async def register_family(
     family_in: FamilyCreate,
     response: Response,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
@@ -155,13 +157,12 @@ async def register_family(
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
     
-    log_event(
-        db,
-        "REGISTER_FAMILY",
+    background_tasks.add_task(
+        log_event,
+        action="REGISTER_FAMILY",
         user_id=new_user.id,
         details={"family_id": new_family.id, "family_name": new_family.name},
-        ip_address=get_client_ip(request),
-        commit=False # Part of the same transaction
+        ip_address=get_client_ip(request)
     )
     
     db.commit() # FINAL ATOMIC COMMIT
@@ -179,6 +180,7 @@ async def join_family(
     invite_code: str, 
     response: Response, 
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
@@ -217,13 +219,12 @@ async def join_family(
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
 
-    log_event(
-        db,
-        "JOIN_FAMILY",
+    background_tasks.add_task(
+        log_event,
+        action="JOIN_FAMILY",
         user_id=new_user.id,
         details={"family_id": family.id, "family_name": family.name},
-        ip_address=get_client_ip(request),
-        commit=False # Part of the same transaction
+        ip_address=get_client_ip(request)
     )
     
     db.commit() # FINAL ATOMIC COMMIT
@@ -244,6 +245,7 @@ async def login(
     login_request: LoginRequest,
     response: Response,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(func.lower(User.username) == login_request.username.lower()).first()
@@ -271,12 +273,11 @@ async def login(
         max_age=SESSION_EXPIRE_DAYS * 24 * 3600
     )
     
-    log_event(
-        db,
-        "LOGIN",
+    background_tasks.add_task(
+        log_event,
+        action="LOGIN",
         user_id=user.id,
-        ip_address=get_client_ip(request),
-        commit=False # Part of the same transaction
+        ip_address=get_client_ip(request)
     )
     
     db.commit() # FINAL ATOMIC COMMIT
@@ -292,19 +293,17 @@ async def login(
 
 
 @router.post("/logout")
-def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+def logout(request: Request, response: Response, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     token = request.cookies.get("access_token")
     if token:
         session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
         if session:
-            # Note: log_event with commit=False ensures this and the deletion 
-            # are committed in the same transaction.
-            log_event(
-                db, 
-                "LOGOUT", 
+            # Note: log_event in background task decoupled from main transaction
+            background_tasks.add_task(
+                log_event,
+                action="LOGOUT", 
                 user_id=session.user_id, 
-                ip_address=get_client_ip(request),
-                commit=False
+                ip_address=get_client_ip(request)
             )
             db.delete(session)
             db.commit()

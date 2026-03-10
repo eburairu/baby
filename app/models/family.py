@@ -1,13 +1,7 @@
-import enum
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Index
 from sqlalchemy.orm import relationship
 from .base import Base, SoftDeleteMixin
-
-
-class UserRole(str, enum.Enum):
-    ADMIN = "admin"
-    MEMBER = "member"
-    VIEWER = "viewer"
+from app.models.enums import UserRole
 
 
 class Family(Base, SoftDeleteMixin):

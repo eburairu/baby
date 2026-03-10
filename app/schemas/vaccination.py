@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import date
 from typing import Optional, List
-from app.models.vaccination import VaccinationStatus
+from app.models.enums import VaccinationStatus
 from app.core.constants import NOTE_MAX_LENGTH
 
 class VaccinationBase(BaseModel):

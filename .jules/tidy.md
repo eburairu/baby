@@ -16,3 +16,7 @@
 ## 2024-05-18 - [Tidy: 冗長なAPIエラー処理と非同期状態管理の共通化]
 学び: 複数のフォームやダイアログコンポーネントにおいて、`try-catch-finally`ブロックと`useState`によるローディング/エラー状態管理が冗長に記述されていた。また、APIエラーからメッセージを抽出する`isApiError(err) ? err.info.detail : "エラー"`というロジックも散在していた。
 アクション: 既存の`useAsyncAction`フックを活用してローディング状態と非同期処理の実行を共通化し、エラーメッセージ抽出を`getErrorMessage`という単一のユーティリティ関数に抽出した。これにより、ボイラープレートコードが大幅に削減され、状態管理が一貫したものになった。
+
+## 2025-03-09 - [Tidy: UI定数と非同期状態管理・エラーハンドリングの共通化]
+学び: コードベース内で、`RECORD_TYPE_LABELS`のようなUI表示用の定数オブジェクトが複数のコンポーネント（`RecordDetailDialog`, `BabyAccessRow`など）に重複定義されていました。また、`isApiError`を用いたAPIエラーの抽出処理や、`useState`を用いた非同期処理のステート管理（loading/error）が複数のファイル（`BirthRegistrationDialog`, `useRecordFeedback`, `useSleepTimer`）で独立して実装され、ボイラープレート化していました。
+アクション: 今後、UI上のマッピング定数は `constants/ui.ts` から共通でインポートして使用する（DRYの徹底）。非同期処理については、統一された `useAsyncAction` フックを利用して、loading / error 状態と `try-catch` ブロックを完全にカプセル化し、冗長なコードを削減する。エラーハンドリングも `getErrorMessage` ユーティリティに任せて、利用側はシンプルに保つ。

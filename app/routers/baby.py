@@ -10,7 +10,8 @@ import logging
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
 from app.models.baby import Baby, BabyPermission
 from app.models.feeding import Feeding
 from app.models.sleep import Sleep
@@ -46,9 +47,19 @@ class RecordCreate(BaseModel):
 
 
 @router.get("/", response_model=List[BabyResponse])
-def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_babies(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: Optional[int] = Query(None, description="Maximum number of items to return (SuperAdmin only)", ge=1, le=1000),
+    offset: Optional[int] = Query(None, description="Number of items to skip (SuperAdmin only)", ge=0)
+):
     if current_user.is_superadmin:
-        return db.query(Baby).filter(Baby.is_deleted == False).all()
+        query = db.query(Baby).filter(Baby.is_deleted == False)
+        if limit is not None:
+            query = query.limit(limit)
+        if offset is not None:
+            query = query.offset(offset)
+        return query.all()
 
     family_users = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).all()
     if not family_users:
@@ -378,7 +389,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
     timestamp = record_in.timestamp
 
     if record_type == "feeding":
-        from app.models.feeding import FeedingType
+        from app.models.enums import FeedingType
         new_record = Feeding(
             user_id=current_user.id,
             baby_id=baby_id,
@@ -412,7 +423,7 @@ def create_record(baby_id: int, record_in: RecordCreate, db: Session = Depends(g
         )
 
     elif record_type == "diaper":
-        from app.models.diaper import DiaperType
+        from app.models.enums import DiaperType
         new_record = Diaper(
             user_id=current_user.id,
             baby_id=baby_id,

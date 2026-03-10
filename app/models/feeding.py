@@ -1,29 +1,6 @@
-import enum
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
 from .base import Base, SoftDeleteMixin
-
-
-class FeedingType(str, enum.Enum):
-    BREAST = "BREAST"
-    BOTTLE = "BOTTLE"
-    MIXED = "MIXED"
-
-
-class BreastSide(str, enum.Enum):
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-    BOTH = "BOTH"
-
-
-class BottleContentType(str, enum.Enum):
-    FORMULA = "FORMULA"
-    EXPRESSED_MILK = "EXPRESSED_MILK"
-    MIXED = "MIXED"
-
-
-class FeedingCompletion(str, enum.Enum):
-    FULL = "FULL"
-    PARTIAL = "PARTIAL"
+from app.models.enums import FeedingType, BreastSide, BottleContentType, FeedingCompletion
 
 
 class Feeding(Base, SoftDeleteMixin):

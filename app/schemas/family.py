@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
-from app.models.family import UserRole
+from app.models.enums import UserRole
 from app.core.constants import USERNAME_MIN_LENGTH
 
 

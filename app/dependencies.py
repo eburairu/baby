@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from app.database import SessionLocal
 from app.models.baby import Baby, BabyPermission
-from app.models.family import FamilyUser, UserRole
+from app.models.family import FamilyUser
+from app.models.enums import UserRole
 from app.models.user import User, UserSession
 from app.utils.timezone import ensure_aware
 from app.utils.session import hash_token
