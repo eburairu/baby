@@ -77,6 +77,7 @@ notification_service.py の notify_*() を呼び出す
 | `feeding_reminder` | 前回の授乳から一定時間経過 | 「授乳の時間かもしれません」 | `Clock` |
 | `diaper_reminder` | 前回のおむつ替えから一定時間経過 | 「おむつ替えの時間かもしれません」 | `Clock` |
 | `system` | システムメッセージ（メンテナンス・アップデート情報等） | 「アプリが更新されました」 | `Bell` |
+| `achievement` | 記録等により実績（アチーブメント）を解除した | 「実績解除！🎖️ 初めての寝返り」 | `Trophy` |
 
 > **注意**: `comment` は PWA 仕様では `family_record` カテゴリに含まれているが、アプリ内通知センターでは視認性のため独立した `type` として扱う。
 
@@ -87,7 +88,7 @@ notification_service.py の notify_*() を呼び出す
 
 | `notification_settings` カラム | 対象 type |
 |-------------------------------|-----------|
-| `family_record_enabled` | `family_record`、`comment` |
+| `family_record_enabled` | `family_record`、`comment`、`achievement` |
 | `feeding_reminder_enabled` | `feeding_reminder` |
 | `diaper_reminder_enabled` | `diaper_reminder` |
 | `daily_summary_enabled` | `daily_summary` |
@@ -105,7 +106,7 @@ CREATE TABLE app_notifications (
     user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     type        VARCHAR(50)  NOT NULL,
     -- 'family_record' | 'comment' | 'daily_summary'
-    -- | 'feeding_reminder' | 'diaper_reminder' | 'system'
+    -- | 'feeding_reminder' | 'diaper_reminder' | 'system' | 'achievement'
     title       VARCHAR(255) NOT NULL,
     body        TEXT,
     url         VARCHAR(512),            -- タップ時の遷移先（null の場合は遷移なし）
@@ -147,7 +148,8 @@ type AppNotification = {
     | 'daily_summary'
     | 'feeding_reminder'
     | 'diaper_reminder'
-    | 'system';
+    | 'system'
+    | 'achievement';
   title: string;
   body: string | null;
   url: string | null;
@@ -290,6 +292,7 @@ async def notify_reminder(
 | 記録追加（授乳・おむつ・睡眠・成長・陣痛・メモ・体温） | `family_record` | 同ファミリーの**記録者以外**の全メンバー | 記録者自身は除外 |
 | コメント追加 | `comment` | **記録オーナー** | コメント投稿者と記録オーナーが同一の場合は除外 |
 | デイリーサマリー生成 | `daily_summary` | 同ファミリーの**全メンバー** | なし |
+| 実績解除（バックグラウンド処理） | `achievement` | 同ファミリーの**全メンバー** | なし |
 | 授乳リマインダー（バッチ処理） | `feeding_reminder` | 対象ユーザー | `feeding_reminder_enabled = False` の場合はスキップ |
 | オムツリマインダー（バッチ処理） | `diaper_reminder` | 対象ユーザー | `diaper_reminder_enabled = False` の場合はスキップ |
 | システムメッセージ | `system` | 指定ユーザー or 全ユーザー | なし |
@@ -309,6 +312,7 @@ async def notify_reminder(
 | `daily_summary` | `/diary` | AI 日誌ページへ遷移 |
 | `feeding_reminder` | `/feeding` | 授乳記録一覧ページへ遷移 |
 | `diaper_reminder` | `/diaper` | おむつ記録一覧ページへ遷移 |
+| `achievement` | `/dashboard?baby_id={id}` | ダッシュボード（実績確認）へ遷移 |
 | `system` | 任意（省略時は `null`） | URLが `null` の場合は遷移しない |
 
 **`{record_type}` の対応表**:
