@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
+import { achievementEvents } from "@/lib/achievementEvents"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface UseBaseRecordFormOptions<_T> {
@@ -49,6 +50,12 @@ export function useBaseRecordForm<T>({
                 data = await customSubmitter(payload)
             } else {
                 data = await api.post(endpoint, payload) as unknown as TResult
+            }
+
+            // 実績解除があれば通知
+            const r = data as Record<string, unknown> | null | undefined;
+            if (r && Array.isArray(r.unlocked_achievements) && r.unlocked_achievements.length > 0) {
+                achievementEvents.emit(r.unlocked_achievements as Parameters<typeof achievementEvents.emit>[0]);
             }
 
             if (successMessage) {
