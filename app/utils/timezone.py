@@ -21,3 +21,15 @@ def to_jst_naive(dt: datetime) -> datetime:
         return dt
     # JSTに変換してからタイムゾーン情報を削除
     return dt.astimezone(JST).replace(tzinfo=None)
+
+def ensure_aware(dt: datetime, default_tz=timezone.utc) -> datetime:
+    """
+    datetime が naive な場合に、指定されたタイムゾーン（デフォルトは UTC）を付与して aware にする。
+    すでに aware な場合はそのまま返す。
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=default_tz)
+    return dt
+

@@ -9,7 +9,6 @@ from app.models.user import User
 from app.models.temperature import TemperatureRecord
 from app.models.comment import RecordComment
 from app.schemas.temperature import TemperatureCreate, TemperatureResponse, TemperatureUpdate
-from app.utils.timezone import to_jst_naive
 from app.utils.notifications import notify_family_members_bg
 from app.models.baby import Baby
 
@@ -72,7 +71,7 @@ def create_temperature(
     record = TemperatureRecord(
         user_id=current_user.id,
         baby_id=temp_in.baby_id,
-        measured_at=to_jst_naive(temp_in.measured_at),
+        measured_at=temp_in.measured_at,
         temperature=temp_in.temperature,
         method=temp_in.method,
         notes=temp_in.notes,
@@ -112,7 +111,7 @@ def update_temperature(
     verify_baby_access(db, record.baby_id, current_user.id, record_type="temperature", require_write=True)
 
     if temp_in.measured_at is not None:
-        record.measured_at = to_jst_naive(temp_in.measured_at)
+        record.measured_at = temp_in.measured_at
     if temp_in.temperature is not None:
         record.temperature = temp_in.temperature
     if temp_in.method is not None:

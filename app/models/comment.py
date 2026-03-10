@@ -12,7 +12,7 @@ class RecordComment(Base, SoftDeleteMixin):
     record_type = Column(String, nullable=False)  # feeding, sleep, diaper, etc.
     record_id = Column(Integer, nullable=False)   # ID in the respective table
     content = Column(String, nullable=False)
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     is_ai_generated = Column(Boolean, nullable=False, default=False)
     ai_has_concern = Column(Boolean, nullable=True)
 

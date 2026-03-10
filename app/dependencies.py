@@ -1,11 +1,13 @@
 from typing import Generator, Annotated
 from fastapi import Depends, HTTPException, status, Request, Response
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.database import SessionLocal
 from app.models.baby import Baby, BabyPermission
 from app.models.family import FamilyUser, UserRole
 from app.models.user import User, UserSession
+from app.utils.timezone import ensure_aware
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 
@@ -27,16 +29,18 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
 
     session = db.query(UserSession).filter(
         UserSession.token == token,
-        UserSession.expires_at > datetime.now()
+        UserSession.expires_at > func.now()
     ).first()
     if not session:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
 
     # Sliding session: extend expiration if remaining time is less than threshold
     # (e.g., if SESSION_EXPIRE_DAYS is 7, update only if less than 6 days remaining)
-    threshold = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS - 1)
-    if session.expires_at < threshold:
-        session.expires_at = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS)
+    expires_at = ensure_aware(session.expires_at)
+    
+    threshold = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS - 1)
+    if expires_at < threshold:
+        session.expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS)
         db.commit()
 
         # Extend cookie in browser

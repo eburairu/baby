@@ -81,7 +81,7 @@ def test_feeding_record(auth_client):
         "/api/feedings/",
         json={
             "baby_id": baby_id,
-            "feeding_time": datetime.now().isoformat(),
+            "feeding_time": datetime.now(timezone.utc).isoformat(),
             "feeding_type": "BREAST",
             "amount_ml": 100
         }
@@ -95,7 +95,7 @@ def test_contraction_interval_calculation(auth_client):
     baby_id = res.json()["id"]
     
     # 1回目の陣痛
-    start1 = datetime.now() - timedelta(minutes=10)
+    start1 = datetime.now(timezone.utc) - timedelta(minutes=10)
     client.post(
         "/api/contractions/",
         json={

@@ -11,7 +11,7 @@ class AuditLog(Base):
     action = Column(String(50), nullable=False, index=True)
     details = Column(Text, nullable=True)
     ip_address = Column(String(45), nullable=True)  # IPv6 handles up to 45 chars
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     user = relationship("User", backref="audit_logs")
 

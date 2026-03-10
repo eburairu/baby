@@ -8,7 +8,7 @@ class ContractionTimerState(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     baby_id = Column(Integer, ForeignKey("babies.id", ondelete="CASCADE"), nullable=False, unique=True)
     status = Column(String, nullable=False, default="idle")  # "idle" | "timing"
-    start_time = Column(DateTime, nullable=True)  # タイマー開始時刻（UTC）
+    start_time = Column(DateTime(timezone=True), nullable=True)  # タイマー開始時刻（UTC）
 
 
 class FeedingTimerState(Base):
@@ -19,4 +19,4 @@ class FeedingTimerState(Base):
     active_side = Column(String, nullable=True)   # "LEFT" | "RIGHT" | null
     left_elapsed_seconds = Column(Integer, nullable=False, default=0)
     right_elapsed_seconds = Column(Integer, nullable=False, default=0)
-    segment_start_time = Column(DateTime, nullable=True)  # 現在の区間開始時刻（UTC）
+    segment_start_time = Column(DateTime(timezone=True), nullable=True)  # 現在の区間開始時刻（UTC）

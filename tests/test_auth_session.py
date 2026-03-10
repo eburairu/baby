@@ -1,7 +1,8 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
+from app.utils.timezone import ensure_aware
 
 # Note: client and db fixtures are provided by conftest.py
 
@@ -42,10 +43,10 @@ def test_sliding_session(client, test_user, db):
     # Get session from DB
     session = db.query(UserSession).filter(UserSession.token == token).first()
     assert session is not None
-    initial_expiry = session.expires_at
+    initial_expiry = ensure_aware(session.expires_at)
     
     # Ensure expiry is roughly 7 days from now
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     expected_expiry = now + timedelta(days=7)
     # Allow 1 minute difference
     assert abs((initial_expiry - expected_expiry).total_seconds()) < 60
@@ -58,7 +59,7 @@ def test_sliding_session(client, test_user, db):
     assert response.status_code == 200
     
     db.refresh(session)
-    updated_expiry = session.expires_at
+    updated_expiry = ensure_aware(session.expires_at)
     
     # In current implementation with throttling, it should NOT be updated
     assert updated_expiry == initial_expiry
