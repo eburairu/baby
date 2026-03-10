@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/achievements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Achievements */
+        get: operations["get_achievements_api_achievements__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit-logs": {
         parameters: {
             query?: never;
@@ -1304,6 +1321,35 @@ export interface components {
             /** Username */
             username: string | null;
         };
+        /**
+         * BabyAchievementResponse
+         * @description 実績一覧APIのレスポンス
+         */
+        BabyAchievementResponse: {
+            /**
+             * Achieved At
+             * Format: date-time
+             */
+            achieved_at: string;
+            /** Achievement Id */
+            achievement_id: string;
+            /** Baby Id */
+            baby_id: number;
+            /** Category */
+            category: string;
+            /** Description */
+            description: string;
+            /** Icon */
+            icon: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Rarity */
+            rarity: string;
+            /** Triggered By Display Name */
+            triggered_by_display_name?: string | null;
+        };
         /** BabyAdminResponse */
         BabyAdminResponse: {
             /** Birthday */
@@ -1618,6 +1664,11 @@ export interface components {
             notes?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
         };
@@ -1793,6 +1844,11 @@ export interface components {
             recorded_by_display_name?: string | null;
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
         };
@@ -1891,6 +1947,11 @@ export interface components {
             notes?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
             /** Weight */
@@ -1966,6 +2027,11 @@ export interface components {
             notes?: string | null;
             /** Title */
             title: string;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number | null;
         };
@@ -2077,7 +2143,7 @@ export interface components {
          * NotificationType
          * @enum {string}
          */
-        NotificationType: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system";
+        NotificationType: "family_record" | "comment" | "daily_summary" | "feeding_reminder" | "diaper_reminder" | "system" | "achievement";
         /** PasswordChangeRequest */
         PasswordChangeRequest: {
             /** Current Password */
@@ -2234,6 +2300,11 @@ export interface components {
              * Format: date-time
              */
             start_time: string;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
         };
@@ -2296,6 +2367,11 @@ export interface components {
             recorded_by_display_name?: string | null;
             /** Temperature */
             temperature: number;
+            /**
+             * Unlocked Achievements
+             * @default []
+             */
+            unlocked_achievements: components["schemas"]["UnlockedAchievementInfo"][];
             /** User Id */
             user_id: number;
         };
@@ -2331,6 +2407,24 @@ export interface components {
             timestamp: string;
             /** Type */
             type: string;
+        };
+        /**
+         * UnlockedAchievementInfo
+         * @description 記録APIレスポンスに含める実績解除情報
+         */
+        UnlockedAchievementInfo: {
+            /** Achievement Id */
+            achievement_id: string;
+            /** Category */
+            category: string;
+            /** Description */
+            description: string;
+            /** Icon */
+            icon: string;
+            /** Name */
+            name: string;
+            /** Rarity */
+            rarity: string;
         };
         /** UnreadCountResponse */
         UnreadCountResponse: {
@@ -2520,6 +2614,37 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_achievements_api_achievements__get: {
+        parameters: {
+            query: {
+                baby_id: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BabyAchievementResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_audit_logs_api_admin_audit_logs_get: {
         parameters: {
             query?: {

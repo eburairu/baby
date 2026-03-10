@@ -1,7 +1,7 @@
 "use client"
 import { Feeding, FeedingUpdate } from "@/types/feeding"
 import { RECORD_TYPES } from "@/types/enums"
-import { formatTime } from "@/lib/dateUtils"
+import { formatDateTime } from "@/lib/dateUtils"
 import { GenericRecordHistory } from "@/components/records/GenericRecordHistory"
 import { FeedingEditDialog } from "./FeedingEditDialog"
 import { COMPLETION_STYLE, FEEDING_TYPE_LABELS } from "@/constants/feeding"
@@ -39,11 +39,11 @@ export function FeedingHistory({
             initialCommentRecordId={initialCommentRecordId}
             onRefresh={onRefresh || (() => {})}
             onDelete={onDelete}
-            getCommentTitle={(record) => `授乳 ${formatTime(record.feeding_time)}`}
+            getCommentTitle={(record) => `授乳 ${formatDateTime(record.feeding_time)}`}
             renderIcon={(record) => <FeedingIcon type={record.feeding_type} />}
             renderTitle={(record) => (
                 <div className="font-medium">
-                    {formatTime(record.feeding_time)}
+                    {formatDateTime(record.feeding_time)}
                     <span className="ml-2 text-sm text-muted-foreground">
                         {FEEDING_TYPE_LABELS[record.feeding_type] || record.feeding_type}
                     </span>

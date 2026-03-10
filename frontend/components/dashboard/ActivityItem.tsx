@@ -2,6 +2,7 @@
 import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
+import { formatDateTime } from "@/lib/dateUtils"
 import { MessageCircle, User, StickyNote } from "lucide-react"
 import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS, RECORD_TYPE_BG_COLORS } from "@/constants/ui"
 import { AppIcons } from "@/constants/icons"
@@ -72,9 +73,14 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
                         ) : null}
                     </div>
                 </div>
-                <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
-                    {formatElapsed(record.timestamp)}
-                </span>
+                <div className="flex flex-col items-end shrink-0">
+                    <span className="text-xs text-gray-400 dark:text-zinc-500 whitespace-nowrap">
+                        {formatDateTime(record.timestamp)}
+                    </span>
+                    <span className="text-[10px] text-gray-300 dark:text-zinc-600 whitespace-nowrap">
+                        {formatElapsed(record.timestamp)}
+                    </span>
+                </div>
             </button>
         </li>
     )
