@@ -2911,7 +2911,8 @@
           "daily_summary",
           "feeding_reminder",
           "diaper_reminder",
-          "system"
+          "system",
+          "achievement"
         ],
         "title": "NotificationType",
         "type": "string"

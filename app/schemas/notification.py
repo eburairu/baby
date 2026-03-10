@@ -11,6 +11,7 @@ class NotificationType(str, Enum):
     feeding_reminder = "feeding_reminder"
     diaper_reminder = "diaper_reminder"
     system = "system"
+    achievement = "achievement"
 
 
 class AppNotificationResponse(BaseModel):
