@@ -16,7 +16,7 @@ class TemperatureRecord(Base, SoftDeleteMixin):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
-    measured_at = Column(DateTime, nullable=False, index=True)
+    measured_at = Column(DateTime(timezone=True), nullable=False, index=True)
     temperature = Column(Float, nullable=False)
     method = Column(
         Enum(TemperatureMethod, name="temperaturemethod"),

@@ -8,7 +8,6 @@ from app.models.user import User
 from app.models.growth import Growth
 from app.models.comment import RecordComment
 from app.schemas.growth import GrowthCreate, GrowthResponse, GrowthUpdate
-from app.utils.timezone import to_jst_naive
 from app.utils.notifications import notify_family_members
 from app.models.baby import Baby
 

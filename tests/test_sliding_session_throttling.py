@@ -1,8 +1,9 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
 from app.config import SESSION_EXPIRE_DAYS
+from app.utils.timezone import ensure_aware
 
 @pytest.fixture
 def test_user(db):
@@ -54,7 +55,7 @@ def test_sliding_session_update_after_threshold(client, test_user, db):
     
     # 2. Manually backdate the expires_at in DB to simulate "time passed"
     # Set it to now + 5 days (threshold is 6 days remaining)
-    session.expires_at = datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS - 2)
+    session.expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS - 2)
     db.commit()
     db.refresh(session)
     backdated_expiry = session.expires_at
@@ -68,4 +69,4 @@ def test_sliding_session_update_after_threshold(client, test_user, db):
     
     assert updated_expiry > backdated_expiry
     # Should be about now + 7 days
-    assert abs((updated_expiry - (datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS))).total_seconds()) < 60
+    assert abs((ensure_aware(updated_expiry) - (datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS))).total_seconds()) < 60

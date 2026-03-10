@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pytest
 
 def test_baby_input_validation(auth_client):
@@ -9,7 +9,7 @@ def test_baby_input_validation(auth_client):
     long_name = "a" * 101
     baby_payload = {
         "name": long_name,
-        "birthday": datetime.now().date().isoformat(),
+        "birthday": datetime.now(timezone.utc).date().isoformat(),
         "gender": "boy",
         "characteristics": "Normal length"
     }
@@ -22,7 +22,7 @@ def test_baby_input_validation(auth_client):
     long_chars = "b" * 1001
     baby_payload_chars = {
         "name": "Normal Baby",
-        "birthday": datetime.now().date().isoformat(),
+        "birthday": datetime.now(timezone.utc).date().isoformat(),
         "gender": "girl",
         "characteristics": long_chars
     }
@@ -35,7 +35,7 @@ def test_comment_input_validation(auth_client):
     # まず正常な赤ちゃんを作成
     baby_payload = {
         "name": "Comment Baby",
-        "birthday": datetime.now().date().isoformat(),
+        "birthday": datetime.now(timezone.utc).date().isoformat(),
         "gender": "boy"
     }
     res = client.post("/api/babies/", json=baby_payload)
@@ -45,7 +45,7 @@ def test_comment_input_validation(auth_client):
     # 記録を作成 (例: Feeding)
     feeding_payload = {
         "baby_id": baby_id,
-        "feeding_time": datetime.now().isoformat(),
+        "feeding_time": datetime.now(timezone.utc).isoformat(),
         "feeding_type": "BOTTLE",
         "amount_ml": 100
     }
@@ -68,7 +68,7 @@ def test_baby_name_cannot_be_null(auth_client):
     # 1. Create a baby
     baby_payload = {
         "name": "Original Name",
-        "birthday": datetime.now().date().isoformat(),
+        "birthday": datetime.now(timezone.utc).date().isoformat(),
         "gender": "boy"
     }
     res = client.post("/api/babies/", json=baby_payload)

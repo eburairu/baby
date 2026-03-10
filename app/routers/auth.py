@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy import func
@@ -52,7 +52,7 @@ def _create_session(db: Session, user_id: int) -> str:
     session = UserSession(
         token=token,
         user_id=user_id,
-        expires_at=datetime.now() + timedelta(days=SESSION_EXPIRE_DAYS),
+        expires_at=datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS),
     )
     db.add(session)
     db.flush()  # Use flush instead of commit to join caller's transaction

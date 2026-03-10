@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List
+from datetime import datetime
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.contraction import Contraction
 from app.models.comment import RecordComment
 from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
-from app.utils.timezone import to_jst_naive, JST
+from app.utils.timezone import JST, ensure_aware
 from app.utils.notifications import notify_family_members
 from app.models.baby import Baby
 
@@ -42,12 +43,12 @@ def get_contractions(baby_id: int, db: Session = Depends(get_db), current_user: 
     return [_build_contraction_response(r, user_map, comment_count_map) for r in records]
 
 
-def _calculate_interval_seconds(current_start: object, last_start: object) -> int | None:
+def _calculate_interval_seconds(current_start: datetime, last_start: datetime) -> int | None:
     """前回の start_time から今回の start_time までの秒数を計算する（start-to-start）。"""
-    # DB から取得した timezone-naive datetime に合わせて比較
-    if hasattr(current_start, "tzinfo") and current_start.tzinfo is not None:
-        current_start = current_start.astimezone(JST).replace(tzinfo=None)
-    diff = round((current_start - last_start).total_seconds())
+    # SQLite などの環境でも安全に比較できるように ensure_aware を適用
+    cur = ensure_aware(current_start)
+    last = ensure_aware(last_start)
+    diff = round((cur - last).total_seconds())
     if diff <= 0 or diff >= _MAX_INTERVAL_SECONDS:
         return None
     return diff
@@ -69,8 +70,8 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
     new_contraction = Contraction(
         user_id=current_user.id,
         baby_id=contraction_in.baby_id,
-        start_time=to_jst_naive(contraction_in.start_time),
-        end_time=to_jst_naive(contraction_in.end_time),
+        start_time=contraction_in.start_time,
+        end_time=contraction_in.end_time,
         duration_seconds=contraction_in.duration_seconds,
         interval_seconds=interval_seconds,
         notes=contraction_in.notes,
@@ -112,9 +113,9 @@ def update_contraction(
 
     update_data = contraction_in.model_dump(exclude_unset=True)
     if "start_time" in update_data and update_data["start_time"]:
-        update_data["start_time"] = to_jst_naive(update_data["start_time"])
+        update_data["start_time"] = update_data["start_time"]
     if "end_time" in update_data and update_data["end_time"]:
-        update_data["end_time"] = to_jst_naive(update_data["end_time"])
+        update_data["end_time"] = update_data["end_time"]
 
     for field, value in update_data.items():
         setattr(contraction, field, value)
@@ -140,7 +141,7 @@ def update_contraction(
             else None
         )
 
-        # 2. 次の記録の interval_seconds (自身との差)
+        # 2. 次의記録の interval_seconds (自身との差)
         next_record = (
             db.query(Contraction)
             .filter(Contraction.baby_id == contraction.baby_id, Contraction.start_time > contraction.start_time)

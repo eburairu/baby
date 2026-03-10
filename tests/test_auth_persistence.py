@@ -2,7 +2,8 @@ import pytest
 from sqlalchemy.orm import Session
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
-from datetime import datetime, timedelta
+from app.utils.timezone import ensure_aware
+from datetime import datetime, timedelta, timezone
 
 def test_login_persistence(client, db: Session):
     # Setup: Register a family (this also logs in and sets the cookie)
@@ -39,7 +40,7 @@ def test_sliding_session_cookie_refresh(client, db: Session):
     # Replace the session with one that is about to expire
     token = client.cookies.get("access_token")
     session = db.query(UserSession).filter(UserSession.token == token).first()
-    session.expires_at = datetime.now() + timedelta(days=1)
+    session.expires_at = datetime.now(timezone.utc) + timedelta(days=1)
     db.commit()
 
     # Access /api/auth/me to trigger sliding session
@@ -48,7 +49,7 @@ def test_sliding_session_cookie_refresh(client, db: Session):
     
     # Verify sliding session extended DB expiration
     db.refresh(session)
-    assert session.expires_at > datetime.now() + timedelta(days=6)
+    assert ensure_aware(session.expires_at) > datetime.now(timezone.utc) + timedelta(days=6)
 
     # Verify response contains refreshed cookie with full Max-Age
     set_cookie = response.headers.get("set-cookie")
@@ -70,7 +71,7 @@ def test_expired_session_fails(client, db: Session):
     session = db.query(UserSession).filter(UserSession.token == token).first()
     
     # Make session expired
-    session.expires_at = datetime.now() - timedelta(seconds=1)
+    session.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
     db.commit()
 
     # Access /api/auth/me with the expired token

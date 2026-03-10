@@ -16,8 +16,8 @@ class DailySummary(Base, SoftDeleteMixin):
     is_edited = Column(Boolean, nullable=False, default=False)
     model_name = Column(String, nullable=True)
     image_urls = Column(JSON().with_variant(JSONB, 'postgresql'), nullable=True, default=[])
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
         UniqueConstraint("baby_id", "summary_date", name="uix_daily_summary_baby_date"),

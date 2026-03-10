@@ -11,7 +11,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     display_name = Column(String, nullable=True)
     is_superadmin = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     family_users = relationship("FamilyUser", back_populates="user")
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
@@ -26,7 +26,7 @@ class UserSession(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     token = Column(String, unique=True, index=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    created_at = Column(DateTime, nullable=False, server_default=func.now())
-    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
 
     user = relationship("User", back_populates="sessions")

@@ -1,7 +1,7 @@
 import pytest
 from app.models.feeding import Feeding, FeedingType
 from app.models.baby import Baby
-from datetime import datetime
+from datetime import datetime, timezone
 
 def test_update_feeding_notes(auth_client, db):
     # 認証済みクライアントの取得
@@ -17,7 +17,7 @@ def test_update_feeding_notes(auth_client, db):
     fu = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first()
     family_id = fu.family_id
 
-    baby = Baby(family_id=family_id, name="Test Baby", birthday=datetime.now().date())
+    baby = Baby(family_id=family_id, name="Test Baby", birthday=datetime.now(timezone.utc).date())
     db.add(baby)
     db.commit()
     db.refresh(baby)
@@ -26,7 +26,7 @@ def test_update_feeding_notes(auth_client, db):
     feeding = Feeding(
         user_id=user_id,
         baby_id=baby.id,
-        feeding_time=datetime.now(),
+        feeding_time=datetime.now(timezone.utc),
         feeding_type=FeedingType.BOTTLE,
         notes="Old note"
     )
@@ -57,7 +57,7 @@ def test_update_feeding_duration_auto_calc(auth_client, db):
     family_id = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first().family_id
 
     # 赤ちゃんの作成
-    baby = Baby(family_id=family_id, name="Test Baby 2", birthday=datetime.now().date())
+    baby = Baby(family_id=family_id, name="Test Baby 2", birthday=datetime.now(timezone.utc).date())
     db.add(baby)
     db.commit()
     db.refresh(baby)
@@ -66,7 +66,7 @@ def test_update_feeding_duration_auto_calc(auth_client, db):
     feeding = Feeding(
         user_id=user_id,
         baby_id=baby.id,
-        feeding_time=datetime.now(),
+        feeding_time=datetime.now(timezone.utc),
         feeding_type=FeedingType.BREAST,
         duration_minutes=10
     )
@@ -101,7 +101,7 @@ def test_update_feeding_burped(auth_client, db):
     from app.models.family import FamilyUser
     family_id = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first().family_id
 
-    baby = Baby(family_id=family_id, name="Burp Test Baby", birthday=datetime.now().date())
+    baby = Baby(family_id=family_id, name="Burp Test Baby", birthday=datetime.now(timezone.utc).date())
     db.add(baby)
     db.commit()
     db.refresh(baby)
@@ -109,7 +109,7 @@ def test_update_feeding_burped(auth_client, db):
     feeding = Feeding(
         user_id=user_id,
         baby_id=baby.id,
-        feeding_time=datetime.now(),
+        feeding_time=datetime.now(timezone.utc),
         feeding_type=FeedingType.BOTTLE,
         burped=None,
     )
@@ -145,7 +145,7 @@ def test_create_feeding_with_burped(auth_client, db):
     from app.models.family import FamilyUser
     family_id = db.query(FamilyUser).filter(FamilyUser.user_id == user_id).first().family_id
 
-    baby = Baby(family_id=family_id, name="Burp Test Baby 2", birthday=datetime.now().date())
+    baby = Baby(family_id=family_id, name="Burp Test Baby 2", birthday=datetime.now(timezone.utc).date())
     db.add(baby)
     db.commit()
     db.refresh(baby)
@@ -154,7 +154,7 @@ def test_create_feeding_with_burped(auth_client, db):
         "/api/feedings/",
         json={
             "baby_id": baby.id,
-            "feeding_time": datetime.now().isoformat(),
+            "feeding_time": datetime.now(timezone.utc).isoformat(),
             "feeding_type": "BOTTLE",
             "burped": True,
         }

@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.temperature import TemperatureRecord
 
 
@@ -27,7 +27,7 @@ def test_create_temperature(client: TestClient, auth_client):
         "/api/temperatures/",
         json={
             "baby_id": baby_id,
-            "measured_at": datetime.now().isoformat(),
+            "measured_at": datetime.now(timezone.utc).isoformat(),
             "temperature": 37.2,
             "method": "AXILLARY",
             "notes": "測定メモ",
@@ -53,7 +53,7 @@ def test_create_temperature_all_methods(client: TestClient, auth_client):
             "/api/temperatures/",
             json={
                 "baby_id": baby_id,
-                "measured_at": datetime.now().isoformat(),
+                "measured_at": datetime.now(timezone.utc).isoformat(),
                 "temperature": 36.5,
                 "method": method,
             },
@@ -72,7 +72,7 @@ def test_create_temperature_default_method(client: TestClient, auth_client):
         "/api/temperatures/",
         json={
             "baby_id": baby_id,
-            "measured_at": datetime.now().isoformat(),
+            "measured_at": datetime.now(timezone.utc).isoformat(),
             "temperature": 36.8,
         },
     )
@@ -91,7 +91,7 @@ def test_get_temperatures_list(client: TestClient, auth_client):
             "/api/temperatures/",
             json={
                 "baby_id": baby_id,
-                "measured_at": datetime.now().isoformat(),
+                "measured_at": datetime.now(timezone.utc).isoformat(),
                 "temperature": temp,
             },
         )
@@ -117,7 +117,7 @@ def test_update_temperature(client: TestClient, auth_client):
         "/api/temperatures/",
         json={
             "baby_id": baby_id,
-            "measured_at": datetime.now().isoformat(),
+            "measured_at": datetime.now(timezone.utc).isoformat(),
             "temperature": 37.0,
             "method": "AXILLARY",
         },
@@ -148,7 +148,7 @@ def test_delete_temperature(client: TestClient, auth_client, db):
         "/api/temperatures/",
         json={
             "baby_id": baby_id,
-            "measured_at": datetime.now().isoformat(),
+            "measured_at": datetime.now(timezone.utc).isoformat(),
             "temperature": 36.9,
         },
     )
@@ -170,7 +170,7 @@ def test_temperature_access_control(client: TestClient, auth_client):
         "/api/temperatures/",
         json={
             "baby_id": baby_id,
-            "measured_at": datetime.now().isoformat(),
+            "measured_at": datetime.now(timezone.utc).isoformat(),
             "temperature": 37.0,
         },
     )
@@ -197,7 +197,7 @@ def test_temperature_invalid_range(client: TestClient, auth_client):
             "/api/temperatures/",
             json={
                 "baby_id": baby_id,
-                "measured_at": datetime.now().isoformat(),
+                "measured_at": datetime.now(timezone.utc).isoformat(),
                 "temperature": temp,
             },
         )

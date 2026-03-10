@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.diaper import Diaper
 from app.models.baby import Baby
 
@@ -26,7 +26,7 @@ def test_create_diaper(client: TestClient, auth_client):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": datetime.now().isoformat(),
+            "change_time": datetime.now(timezone.utc).isoformat(),
             "diaper_type": "WET",
             "notes": "おしっこ多め"
         }
@@ -40,7 +40,7 @@ def test_create_diaper(client: TestClient, auth_client):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": datetime.now().isoformat(),
+            "change_time": datetime.now(timezone.utc).isoformat(),
             "diaper_type": "DIRTY"
         }
     )
@@ -52,7 +52,7 @@ def test_create_diaper(client: TestClient, auth_client):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": datetime.now().isoformat(),
+            "change_time": datetime.now(timezone.utc).isoformat(),
             "diaper_type": "BOTH"
         }
     )
@@ -69,7 +69,7 @@ def test_get_diapers_list(client: TestClient, auth_client):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": (datetime.now() - timedelta(hours=1)).isoformat(),
+            "change_time": (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat(),
             "diaper_type": "WET"
         }
     )
@@ -93,14 +93,14 @@ def test_update_diaper(client: TestClient, auth_client):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": datetime.now().isoformat(),
+            "change_time": datetime.now(timezone.utc).isoformat(),
             "diaper_type": "WET"
         }
     )
     diaper_id = resp.json()["id"]
 
     # 更新
-    new_time = (datetime.now() - timedelta(minutes=30)).isoformat()
+    new_time = (datetime.now(timezone.utc) - timedelta(minutes=30)).isoformat()
     response = client.put(
         f"/api/diapers/{diaper_id}",
         json={
@@ -123,7 +123,7 @@ def test_delete_diaper(client: TestClient, auth_client, db):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": datetime.now().isoformat(),
+            "change_time": datetime.now(timezone.utc).isoformat(),
             "diaper_type": "WET"
         }
     )
@@ -149,7 +149,7 @@ def test_diaper_access_control(client: TestClient, auth_client):
         "/api/diapers/",
         json={
             "baby_id": baby_id,
-            "change_time": datetime.now().isoformat(),
+            "change_time": datetime.now(timezone.utc).isoformat(),
             "diaper_type": "WET"
         }
     )

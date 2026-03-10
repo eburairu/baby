@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models.sleep import Sleep
 from app.models.baby import Baby
 
@@ -21,7 +21,7 @@ def test_create_sleep_success(client: TestClient, auth_client):
     baby_res = client.post("/api/babies/", json={"name": "Sleepy Baby", "gender": "girl"})
     baby_id = baby_res.json()["id"]
     
-    start_time = datetime.now().isoformat()
+    start_time = datetime.now(timezone.utc).isoformat()
     response = client.post(
         "/api/sleeps/",
         json={
@@ -45,7 +45,7 @@ def test_get_sleeps_list(client: TestClient, auth_client):
     # Create a record
     client.post(
         "/api/sleeps/",
-        json={"baby_id": baby_id, "start_time": datetime.now().isoformat()}
+        json={"baby_id": baby_id, "start_time": datetime.now(timezone.utc).isoformat()}
     )
     
     response = client.get(f"/api/sleeps/?baby_id={baby_id}")
@@ -68,7 +68,7 @@ def test_access_other_family_baby(client: TestClient, auth_client):
     # POST
     resp_post = client_b.post(
         "/api/sleeps/",
-        json={"baby_id": baby_id, "start_time": datetime.now().isoformat()}
+        json={"baby_id": baby_id, "start_time": datetime.now(timezone.utc).isoformat()}
     )
     assert resp_post.status_code == 403
 
@@ -80,12 +80,12 @@ def test_update_sleep(client: TestClient, auth_client):
     # Start sleep
     start_resp = client.post(
         "/api/sleeps/",
-        json={"baby_id": baby_id, "start_time": (datetime.now() - timedelta(hours=1)).isoformat()}
+        json={"baby_id": baby_id, "start_time": (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()}
     )
     sleep_id = start_resp.json()["id"]
     
     # Stop sleep (update end_time)
-    end_time = datetime.now().isoformat()
+    end_time = datetime.now(timezone.utc).isoformat()
     response = client.patch(
         f"/api/sleeps/{sleep_id}",
         json={"end_time": end_time, "notes": "スッキリ起きた"}
@@ -101,7 +101,7 @@ def test_delete_sleep(client: TestClient, auth_client, db):
     
     resp = client.post(
         "/api/sleeps/",
-        json={"baby_id": baby_id, "start_time": datetime.now().isoformat()}
+        json={"baby_id": baby_id, "start_time": datetime.now(timezone.utc).isoformat()}
     )
     sleep_id = resp.json()["id"]
     

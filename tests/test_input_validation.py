@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from datetime import datetime
+from datetime import datetime, timezone
 import pytest
 
 def test_long_input_validation(client: TestClient):
@@ -24,7 +24,7 @@ def test_long_input_validation(client: TestClient):
     # 2. Create a Baby
     baby_payload = {
         "name": "Test Baby",
-        "birthday": datetime.now().date().isoformat(),
+        "birthday": datetime.now(timezone.utc).date().isoformat(),
         "gender": "boy"
     }
     # Try with trailing slash
@@ -37,7 +37,7 @@ def test_long_input_validation(client: TestClient):
     long_notes = "a" * 3000
     feeding_payload = {
         "baby_id": baby_id,
-        "feeding_time": datetime.now().isoformat(),
+        "feeding_time": datetime.now(timezone.utc).isoformat(),
         "feeding_type": "BOTTLE",
         "amount_ml": 100,
         "notes": long_notes
@@ -55,7 +55,7 @@ def test_long_input_validation(client: TestClient):
         "baby_id": baby_id,
         "title": "Test Schedule",
         "description": long_description,
-        "scheduled_time": datetime.now().isoformat()
+        "scheduled_time": datetime.now(timezone.utc).isoformat()
     }
     # Schedule endpoint check
     res = client.post("/api/schedules/", json=schedule_payload)

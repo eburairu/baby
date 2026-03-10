@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pytest
 from app.models.user import User, UserSession
 from app.services.auth import get_password_hash
@@ -20,7 +20,7 @@ def test_cleanup_expired_sessions(db):
     db.add(user)
     db.commit()
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
 
     # Create one valid session
     valid_session = UserSession(

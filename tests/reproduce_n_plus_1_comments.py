@@ -61,8 +61,8 @@ def setup_db():
     db.commit()
 
 
-    from datetime import datetime
-    feeding = Feeding(user_id=current_user_id, baby_id=baby.id, feeding_time=datetime.now(), feeding_type="BREAST")
+    from datetime import datetime, timezone
+    feeding = Feeding(user_id=current_user_id, baby_id=baby.id, feeding_time=datetime.now(timezone.utc), feeding_type="BREAST")
     db.add(feeding)
     db.commit()
     db.refresh(feeding)

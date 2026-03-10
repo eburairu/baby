@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.feeding import Feeding, FeedingType
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
-from app.utils.timezone import to_jst_naive
+from app.utils.timezone import JST
 from app.utils.notifications import notify_family_members_bg
 from app.models.baby import Baby
 
@@ -51,7 +51,7 @@ def create_feeding(
     new_feeding = Feeding(
         user_id=current_user.id,
         baby_id=feeding_in.baby_id,
-        feeding_time=to_jst_naive(feeding_in.feeding_time),
+        feeding_time=feeding_in.feeding_time,
         feeding_type=feeding_in.feeding_type,
         amount_ml=feeding_in.amount_ml,
         duration_minutes=feeding_in.duration_minutes,
@@ -115,7 +115,7 @@ def update_feeding(
             feeding.duration_minutes = None
 
     if "feeding_time" in update_data and update_data["feeding_time"]:
-        update_data["feeding_time"] = to_jst_naive(update_data["feeding_time"])
+        update_data["feeding_time"] = update_data["feeding_time"]
 
     for field, value in update_data.items():
         setattr(feeding, field, value)
