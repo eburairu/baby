@@ -4,6 +4,7 @@ from app.models.audit_log import AuditLog
 from typing import Optional, Any
 import json
 import logging
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -70,3 +71,17 @@ def log_event(
                 db.rollback()
             except Exception:
                 pass
+
+def cleanup_old_audit_logs(db: Session, days: int = 90) -> int:
+    """
+    Delete audit logs older than the specified number of days.
+    Returns the number of deleted records.
+    """
+    try:
+        threshold_date = datetime.now(timezone.utc) - timedelta(days=days)
+        
+        deleted_count = db.query(AuditLog).filter(AuditLog.created_at < threshold_date).delete(synchronize_session=False)
+        return deleted_count
+    except Exception as e:
+        logger.error(f"Failed to cleanup old audit logs: {e}")
+        return 0
