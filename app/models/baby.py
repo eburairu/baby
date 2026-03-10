@@ -12,7 +12,7 @@ class Baby(Base, SoftDeleteMixin):
     birthday = Column(Date, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     due_date = Column(Date, nullable=True)
-    gender = Column(Enum(Gender, name="gender"), nullable=True)
+    gender = Column(Enum(Gender, name="gender", values_callable=lambda obj: [e.value for e in obj]), nullable=True)
     characteristics = Column(String, nullable=True)  # AIが生成・更新する「赤ちゃんの特徴・傾向」
     feeding_threshold_minutes = Column(Integer, nullable=True)
     diaper_threshold_minutes = Column(Integer, nullable=True)
