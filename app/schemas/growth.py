@@ -1,7 +1,8 @@
 import datetime
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional
+from typing import Optional, List
 from app.core.constants import NOTE_MAX_LENGTH
+from app.schemas.achievement import UnlockedAchievementInfo
 
 
 class GrowthCreate(BaseModel):
@@ -26,5 +27,6 @@ class GrowthResponse(GrowthCreate):
     user_id: int
     recorded_by_display_name: Optional[str] = None
     comment_count: int = 0
+    unlocked_achievements: List[UnlockedAchievementInfo] = []
 
     model_config = ConfigDict(from_attributes=True)

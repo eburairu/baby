@@ -9,8 +9,10 @@ from app.models.user import User
 from app.models.temperature import TemperatureRecord
 from app.models.comment import RecordComment
 from app.schemas.temperature import TemperatureCreate, TemperatureResponse, TemperatureUpdate
-from app.utils.notifications import notify_family_members_bg
+from app.utils.notifications import notify_family_members_bg, notify_achievements_bg
 from app.models.baby import Baby
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 
 router = APIRouter(prefix="/api/temperatures", tags=["temperatures"])
 
@@ -77,6 +79,15 @@ def create_temperature(
         notes=temp_in.notes,
     )
     db.add(record)
+    db.flush()
+
+    unlocked = check_and_award_achievements(
+        baby_id=record.baby_id,
+        record_type="temperature",
+        user_id=current_user.id,
+        db=db,
+        record=record,
+    )
     db.commit()
     db.refresh(record)
 
@@ -92,9 +103,12 @@ def create_temperature(
             url=f"/temperature?baby_id={baby.id}",
             category="family_record",
         )
+        if unlocked:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
 
     response = TemperatureResponse.model_validate(record)
     response.recorded_by_display_name = display_name
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
     return response
 
 

@@ -10,8 +10,10 @@ from app.models.enums import FeedingType
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 from app.utils.timezone import JST
-from app.utils.notifications import notify_family_members_bg
+from app.utils.notifications import notify_family_members_bg, notify_achievements_bg
 from app.models.baby import Baby
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 
 router = APIRouter(prefix="/api/feedings", tags=["feedings"])
 
@@ -65,6 +67,15 @@ def create_feeding(
         burped=feeding_in.burped,
     )
     db.add(new_feeding)
+    db.flush()
+
+    unlocked = check_and_award_achievements(
+        baby_id=new_feeding.baby_id,
+        record_type="feeding",
+        user_id=current_user.id,
+        db=db,
+        record=new_feeding,
+    )
     db.commit()
     db.refresh(new_feeding)
 
@@ -81,9 +92,12 @@ def create_feeding(
             url=f"/feeding?baby_id={baby.id}",
             category="family_record"
         )
+        if unlocked:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
 
     response = FeedingResponse.model_validate(new_feeding)
     response.recorded_by_display_name = display_name
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
     return response
 
 

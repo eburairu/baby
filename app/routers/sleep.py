@@ -8,8 +8,10 @@ from app.models.user import User
 from app.models.sleep import Sleep
 from app.models.comment import RecordComment
 from app.schemas.sleep import SleepCreate, SleepUpdate, SleepResponse
-from app.utils.notifications import notify_family_members_bg
+from app.utils.notifications import notify_family_members_bg, notify_achievements_bg
 from app.models.baby import Baby
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 
 router = APIRouter(prefix="/api/sleeps", tags=["sleeps"])
 
@@ -55,6 +57,15 @@ def create_sleep(
         notes=sleep_in.notes,
     )
     db.add(new_sleep)
+    db.flush()
+
+    unlocked = check_and_award_achievements(
+        baby_id=new_sleep.baby_id,
+        record_type="sleep",
+        user_id=current_user.id,
+        db=db,
+        record=new_sleep,
+    )
     db.commit()
     db.refresh(new_sleep)
 
@@ -71,9 +82,12 @@ def create_sleep(
             url=f"/sleep?baby_id={baby.id}",
             category="family_record"
         )
+        if unlocked:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
 
     response = SleepResponse.model_validate(new_sleep)
     response.recorded_by_display_name = display_name
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
     return response
 
 

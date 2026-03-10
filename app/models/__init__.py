@@ -19,3 +19,4 @@ from .system_settings import SystemSetting
 from .audit_log import AuditLog
 from .timer import ContractionTimerState, FeedingTimerState
 from .temperature import TemperatureRecord
+from .achievement import BabyAchievement

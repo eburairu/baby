@@ -9,8 +9,10 @@ from app.models.user import User
 from app.models.diaper import Diaper
 from app.models.comment import RecordComment
 from app.schemas.diaper import DiaperCreate, DiaperResponse, DiaperUpdate
-from app.utils.notifications import notify_family_members_bg
+from app.utils.notifications import notify_family_members_bg, notify_achievements_bg
 from app.models.baby import Baby
+from app.achievements.checker import check_and_award_achievements
+from app.schemas.achievement import UnlockedAchievementInfo
 
 router = APIRouter(prefix="/api/diapers", tags=["diapers"])
 
@@ -62,6 +64,16 @@ def create_diaper(
         notes=diaper_in.notes,
     )
     db.add(new_diaper)
+    db.flush()
+
+    # 実績チェック（コミット前にflushしたレコードを使う）
+    unlocked = check_and_award_achievements(
+        baby_id=new_diaper.baby_id,
+        record_type="diaper",
+        user_id=current_user.id,
+        db=db,
+        record=new_diaper,
+    )
     db.commit()
     db.refresh(new_diaper)
 
@@ -78,9 +90,12 @@ def create_diaper(
             url=f"/diaper?baby_id={baby.id}",
             category="family_record"
         )
+        if unlocked:
+            notify_achievements_bg(background_tasks, baby.family_id, baby.name, baby.id, unlocked)
 
     response = DiaperResponse.model_validate(new_diaper)
     response.recorded_by_display_name = display_name
+    response.unlocked_achievements = [UnlockedAchievementInfo(**a) for a in unlocked]
     return response
 
 

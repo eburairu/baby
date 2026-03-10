@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Baby, MessageCircle, Sparkles, Bell, Clock, Loader2 } from "lucide-react"
+import { Baby, MessageCircle, Sparkles, Bell, Clock, Loader2, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AppNotification } from "@/hooks/useNotifications"
 import { markAsRead } from "@/hooks/useNotifications"
@@ -14,6 +14,7 @@ const TYPE_ICON: Record<AppNotification["type"], React.ReactNode> = {
     feeding_reminder: <Clock className="h-4 w-4 text-orange-500" />,
     diaper_reminder: <Clock className="h-4 w-4 text-orange-500" />,
     system: <Bell className="h-4 w-4 text-gray-400" />,
+    achievement: <Trophy className="h-4 w-4 text-amber-500" />,
 }
 
 function formatRelativeTime(isoString: string): string {
