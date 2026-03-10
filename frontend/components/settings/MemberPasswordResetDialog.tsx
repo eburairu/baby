@@ -14,10 +14,11 @@ import {
 import { DialogFooter } from "@/components/ui/dialog"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { getDisplayName } from "@/lib/utils"
 import { FamilyMember } from "@/types/family"
 import { useClipboard } from "@/hooks/useClipboard"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     member: FamilyMember | null
@@ -28,9 +29,9 @@ interface Props {
 export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
     const [step, setStep] = useState<"confirm" | "result">("confirm")
     const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null)
-    const [resetting, setResetting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const { copied, copyToClipboard } = useClipboard()
+    const { loading: resetting, execute } = useAsyncAction()
 
     const handleClose = () => {
         setStep("confirm")
@@ -41,24 +42,23 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
 
     const handleReset = async () => {
         if (!member) return
-        setResetting(true)
         setError(null)
-        try {
-            const res = await api.post<{ temporary_password: string }>(
-                `/family/members/${member.user_id}/reset-password`,
-                {}
-            )
-            setTemporaryPassword(res.temporary_password)
-            setStep("result")
-        } catch (e: unknown) {
-            if (isApiError(e)) {
-                setError((e.info as { detail?: string })?.detail || "パスワード再発行に失敗しました")
-            } else {
-                setError("パスワード再発行に失敗しました")
+
+        await execute(
+            async () => {
+                const res = await api.post<{ temporary_password: string }>(
+                    `/family/members/${member.user_id}/reset-password`,
+                    {}
+                )
+                setTemporaryPassword(res.temporary_password)
+                setStep("result")
+            },
+            {
+                onError: (err) => {
+                    setError(getErrorMessage(err, "パスワード再発行に失敗しました"))
+                }
             }
-        } finally {
-            setResetting(false)
-        }
+        )
     }
 
     const handleCopy = async () => {

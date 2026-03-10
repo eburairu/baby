@@ -17,6 +17,16 @@ export function isApiError(error: unknown): error is ApiError {
     return error instanceof ApiError;
 }
 
+export function getErrorMessage(error: unknown, defaultMessage = "エラーが発生しました"): string {
+    if (isApiError(error)) {
+        return (error.info as { detail?: string })?.detail || defaultMessage;
+    }
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return defaultMessage;
+}
+
 async function parseErrorBody(res: Response): Promise<unknown> {
     const text = await res.text();
     try {
