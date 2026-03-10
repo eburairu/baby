@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from typing import List, Dict, Any
-from app.models.vaccination import Vaccination, VaccinationStatus
+from app.models.vaccination import Vaccination
+from app.models.enums import VaccinationStatus
 from sqlalchemy.orm import Session
 
 def calculate_scheduled_date(birthday: date, months: int, days: int = 0) -> date:

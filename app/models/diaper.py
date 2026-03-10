@@ -1,12 +1,6 @@
-import enum
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Index
 from .base import Base, SoftDeleteMixin
-
-
-class DiaperType(str, enum.Enum):
-    WET = "WET"
-    DIRTY = "DIRTY"
-    BOTH = "BOTH"
+from app.models.enums import DiaperType
 
 
 class Diaper(Base, SoftDeleteMixin):

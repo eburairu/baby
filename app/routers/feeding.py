@@ -5,7 +5,8 @@ from typing import List
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.feeding import Feeding, FeedingType
+from app.models.feeding import Feeding
+from app.models.enums import FeedingType
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
 from app.utils.timezone import JST

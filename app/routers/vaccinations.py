@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.models.vaccination import Vaccination, VaccinationStatus
+from app.models.vaccination import Vaccination
+from app.models.enums import VaccinationStatus
 from app.models.baby import Baby
 from app.schemas.vaccination import VaccinationCreate, VaccinationUpdate, VaccinationResponse
 from app.services.vaccination_service import VaccinationService

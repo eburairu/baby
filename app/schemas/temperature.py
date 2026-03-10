@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
-from app.models.temperature import TemperatureMethod
+from app.models.enums import TemperatureMethod
 from app.core.constants import NOTE_MAX_LENGTH
 from app.utils.timezone import localize_naive_as_jst
 

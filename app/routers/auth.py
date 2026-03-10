@@ -13,7 +13,8 @@ from app.schemas.auth import LoginRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.models.user import User, UserSession
-from app.models.family import Family, FamilyUser, UserRole
+from app.models.family import Family, FamilyUser
+from app.models.enums import UserRole
 from app.services.auth import verify_password, get_password_hash, verify_password_async, get_password_hash_async
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter

@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, model_validator, Field, field_valida
 from typing import Optional
 from datetime import datetime
 from app.utils.timezone import localize_naive_as_jst
-from app.models.feeding import FeedingType, BreastSide, BottleContentType, FeedingCompletion
+from app.models.enums import FeedingType, BreastSide, BottleContentType, FeedingCompletion
 from app.core.constants import (
     NOTE_MAX_LENGTH,
     MAX_FEEDING_ML,
