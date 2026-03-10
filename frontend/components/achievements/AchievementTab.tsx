@@ -98,9 +98,10 @@ function AchievementCard({ achievement, onTap }: { achievement: BabyAchievementR
     return (
         <button
             onClick={onTap}
-            className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-zinc-800/60 text-center w-full active:scale-95 transition-transform"
+            aria-label={`${achievement.name}の詳細を表示`}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-zinc-800/60 text-center w-full active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
         >
-            <span className="text-3xl leading-none">{achievement.icon}</span>
+            <span className="text-3xl leading-none" aria-hidden="true">{achievement.icon}</span>
             <span className="text-[11px] font-semibold text-gray-800 dark:text-zinc-100 leading-tight line-clamp-2">
                 {achievement.name}
             </span>
@@ -143,7 +144,7 @@ function AchievementDetailModal({ achievement, onClose }: { achievement: BabyAch
                 </div>
                 <button
                     onClick={onClose}
-                    className="w-full py-2.5 rounded-xl bg-gray-100 dark:bg-zinc-800 text-sm font-medium text-gray-600 dark:text-zinc-300 active:opacity-70"
+                    className="w-full py-2.5 rounded-xl bg-gray-100 dark:bg-zinc-800 text-sm font-medium text-gray-600 dark:text-zinc-300 active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
                 >
                     閉じる
                 </button>
