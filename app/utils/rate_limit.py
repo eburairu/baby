@@ -1,6 +1,7 @@
 from collections import defaultdict
 import time
 from fastapi import Request, HTTPException, status
+from app.utils.audit import get_client_ip
 
 class RateLimiter:
     """
@@ -57,6 +58,6 @@ class RateLimiter:
         current_requests.append(now)
 
     async def __call__(self, request: Request):
-        # Rely on request.client.host, which is populated by uvicorn (with --proxy-headers)
-        client_ip = request.client.host if request.client and request.client.host else "unknown"
+        # Safely extract IP considering X-Forwarded-For
+        client_ip = get_client_ip(request) or "unknown"
         self.check(client_ip)

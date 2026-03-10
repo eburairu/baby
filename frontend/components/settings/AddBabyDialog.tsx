@@ -1,8 +1,9 @@
 "use client"
 import { useState } from "react"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
-import { api } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { BabyForm, BabyFormData } from "./BabyForm"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     open: boolean
@@ -11,8 +12,8 @@ interface Props {
 }
 
 export function AddBabyDialog({ open, onClose, onAdded }: Props) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: isSubmitting, execute } = useAsyncAction()
 
     const handleClose = () => {
         setError(null)
@@ -20,25 +21,28 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
     }
 
     const onSubmit = async (data: BabyFormData) => {
-        setIsSubmitting(true)
         setError(null)
-        try {
-            await api.post("/babies/", {
-                name: data.name,
-                birthday: data.birthday || null,
-                due_date: data.due_date || null,
-                gender: data.gender || "unknown",
-                characteristics: data.characteristics || null,
-                feeding_threshold_minutes: data.feeding_threshold_minutes,
-                diaper_threshold_minutes: data.diaper_threshold_minutes,
-            })
-            onAdded()
-            handleClose()
-        } catch {
-            setError("追加に失敗しました")
-        } finally {
-            setIsSubmitting(false)
-        }
+
+        await execute(
+            async () => {
+                await api.post("/babies/", {
+                    name: data.name,
+                    birthday: data.birthday || null,
+                    due_date: data.due_date || null,
+                    gender: data.gender || "unknown",
+                    characteristics: data.characteristics || null,
+                    feeding_threshold_minutes: data.feeding_threshold_minutes,
+                    diaper_threshold_minutes: data.diaper_threshold_minutes,
+                })
+                onAdded()
+                handleClose()
+            },
+            {
+                onError: (err) => {
+                    setError(getErrorMessage(err, "追加に失敗しました"))
+                }
+            }
+        )
     }
 
     return (

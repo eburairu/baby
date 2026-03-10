@@ -1,9 +1,10 @@
 "use client"
 import { useState } from "react"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
-import { api } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { BabyForm, BabyFormData } from "./BabyForm"
 import { Baby } from "@/types/baby"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     baby: Baby | null
@@ -13,8 +14,8 @@ interface Props {
 }
 
 export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
-    const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: isSubmitting, execute } = useAsyncAction()
 
     const handleClose = () => {
         setError(null)
@@ -23,25 +24,28 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
 
     const onSubmit = async (data: BabyFormData) => {
         if (!baby) return
-        setIsSubmitting(true)
         setError(null)
-        try {
-            await api.patch(`/babies/${baby.id}`, {
-                name: data.name,
-                birthday: data.birthday || null,
-                due_date: data.due_date || null,
-                gender: data.gender || "unknown",
-                characteristics: data.characteristics || null,
-                feeding_threshold_minutes: data.feeding_threshold_minutes,
-                diaper_threshold_minutes: data.diaper_threshold_minutes,
-            })
-            onUpdated()
-            handleClose()
-        } catch {
-            setError("保存に失敗しました")
-        } finally {
-            setIsSubmitting(false)
-        }
+
+        await execute(
+            async () => {
+                await api.patch(`/babies/${baby.id}`, {
+                    name: data.name,
+                    birthday: data.birthday || null,
+                    due_date: data.due_date || null,
+                    gender: data.gender || "unknown",
+                    characteristics: data.characteristics || null,
+                    feeding_threshold_minutes: data.feeding_threshold_minutes,
+                    diaper_threshold_minutes: data.diaper_threshold_minutes,
+                })
+                onUpdated()
+                handleClose()
+            },
+            {
+                onError: (err) => {
+                    setError(getErrorMessage(err, "保存に失敗しました"))
+                }
+            }
+        )
     }
 
     const defaultValues: Partial<BabyFormData> | undefined = baby ? {

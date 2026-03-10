@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy import func, select
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
@@ -32,7 +32,7 @@ from app.schemas.admin import (
     FamilyCreateAdmin,
     FamilyCreateResponseAdmin
 )
-from app.utils.audit import log_event
+from app.utils.audit import log_event, get_client_ip
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -43,34 +43,33 @@ def get_admin_stats(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
 ):
-    total_users = db.query(func.count(User.id)).scalar()
-    total_families = db.query(func.count(Family.id)).scalar()
-
-    # 記録の総計
-    feeding_count = db.query(func.count(Feeding.id)).scalar()
-    sleep_count = db.query(func.count(Sleep.id)).scalar()
-    diaper_count = db.query(func.count(Diaper.id)).scalar()
-    growth_count = db.query(func.count(Growth.id)).scalar()
-    contraction_count = db.query(func.count(Contraction.id)).scalar()
-    schedule_count = db.query(func.count(Schedule.id)).scalar()
-    note_count = db.query(func.count(Note.id)).scalar()
+    since = datetime.now(timezone.utc) - timedelta(hours=24)
+    
+    query = select(
+        select(func.count(User.id)).scalar_subquery().label("total_users"),
+        select(func.count(Family.id)).scalar_subquery().label("total_families"),
+        select(func.count(Feeding.id)).scalar_subquery().label("feeding_count"),
+        select(func.count(Sleep.id)).scalar_subquery().label("sleep_count"),
+        select(func.count(Diaper.id)).scalar_subquery().label("diaper_count"),
+        select(func.count(Growth.id)).scalar_subquery().label("growth_count"),
+        select(func.count(Contraction.id)).scalar_subquery().label("contraction_count"),
+        select(func.count(Schedule.id)).scalar_subquery().label("schedule_count"),
+        select(func.count(Note.id)).scalar_subquery().label("note_count"),
+        select(func.count(func.distinct(UserSession.user_id))).filter(UserSession.created_at >= since).scalar_subquery().label("active_users"),
+    )
+    
+    counts = db.execute(query).first()
 
     total_records = (
-        feeding_count + sleep_count + diaper_count +
-        growth_count + contraction_count + schedule_count + note_count
+        counts.feeding_count + counts.sleep_count + counts.diaper_count +
+        counts.growth_count + counts.contraction_count + counts.schedule_count + counts.note_count
     )
 
-    # 24時間以内にセッションを作成したユニークユーザー数
-    since = datetime.now(timezone.utc) - timedelta(hours=24)
-    active_users = db.query(func.count(func.distinct(UserSession.user_id))).filter(
-        UserSession.created_at >= since
-    ).scalar()
-
     return AdminStats(
-        total_users=total_users,
-        total_families=total_families,
+        total_users=counts.total_users,
+        total_families=counts.total_families,
         total_records=total_records,
-        active_users_last_24h=active_users
+        active_users_last_24h=counts.active_users
     )
 
 @router.get("/families", response_model=List[FamilyAdminResponse])
@@ -140,7 +139,7 @@ def create_admin_family(
             "family_name": new_family.name,
             "invite_code": invite_code
         },
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False
     )
 
@@ -242,7 +241,7 @@ def toggle_superadmin(
             "target_username": user.username,
             "new_status": request_data.is_superadmin
         },
-        ip_address=request.client.host if request.client else None,
+        ip_address=get_client_ip(request),
         commit=False
     )
     

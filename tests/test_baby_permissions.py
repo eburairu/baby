@@ -188,3 +188,31 @@ def test_baby_visible_after_permission_granted(setup_data):
     assert response.status_code == 200
     babies = response.json()
     assert any(b["id"] == baby.id for b in babies)
+
+def test_get_permissions_empty_members(db: Session):
+    """メンバーがいない場合（adminのみの場合）に空リストが返ることを確認し、空のIN句によるエラーを防止する"""
+    global _mock_user
+    suffix = str(uuid.uuid4())[:8]
+    family = Family(name="Solo Family", invite_code=f"SOLO-{suffix}")
+    db.add(family)
+    db.flush()
+
+    admin_user = User(id=4001, username=f"soloadmin-{suffix}", hashed_password="hashed")
+    db.add(admin_user)
+    db.flush()
+    db.add(FamilyUser(family_id=family.id, user_id=admin_user.id, role="admin"))
+
+    baby = Baby(id=5001, family_id=family.id, name="Solo Baby")
+    db.add(baby)
+    db.flush()
+    db.commit()
+
+    _mock_user = admin_user
+    client = TestClient(app)
+    response = client.get(f"/api/babies/{baby.id}/permissions")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["baby_id"] == baby.id
+    assert data["members"] == []
+

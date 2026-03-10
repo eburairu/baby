@@ -1,13 +1,14 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional, Literal
 from datetime import date, datetime
+from app.models.enums import Gender
 
 
 class BabyBase(BaseModel):
     name: str = Field(..., max_length=100)
     birthday: Optional[date] = None
     due_date: Optional[date] = None
-    gender: Optional[Literal["boy", "girl", "unknown"]] = None
+    gender: Optional[Gender] = None
     characteristics: Optional[str] = Field(None, max_length=1000)
     feeding_threshold_minutes: Optional[int] = None
     diaper_threshold_minutes: Optional[int] = None
@@ -21,7 +22,7 @@ class BabyUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     birthday: Optional[date] = None
     due_date: Optional[date] = None
-    gender: Optional[Literal["boy", "girl", "unknown"]] = None
+    gender: Optional[Gender] = None
     characteristics: Optional[str] = Field(None, max_length=1000)
     feeding_threshold_minutes: Optional[int] = None
     diaper_threshold_minutes: Optional[int] = None
