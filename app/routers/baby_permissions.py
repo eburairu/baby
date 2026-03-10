@@ -48,6 +48,13 @@ def get_baby_permissions(
     
     # 3. 全メンバーの BabyPermission を一括取得（N+1 の解消）
     member_user_ids = [u.id for _, u in members]
+    if not member_user_ids:
+        return BabyPermissionsResponse(
+            baby_id=baby.id,
+            baby_name=baby.name,
+            members=[]
+        )
+
     all_perms = db.query(BabyPermission).filter(
         BabyPermission.baby_id == baby_id,
         BabyPermission.user_id.in_(member_user_ids)
