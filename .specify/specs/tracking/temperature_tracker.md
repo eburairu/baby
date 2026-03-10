@@ -119,7 +119,7 @@
 
 - `GET /api/temperatures/?baby_id={id}&skip={skip}&limit={limit}`
     - 指定した赤ちゃんの記録を測定日時順（降順）で取得。
-    - デフォルト: skip=0, limit=100
+    - デフォルト: skip=0, limit=20 (最大100)
 - `POST /api/temperatures/`
     - 新規作成。
 - `PUT /api/temperatures/{id}`
