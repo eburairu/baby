@@ -46,9 +46,19 @@ class RecordCreate(BaseModel):
 
 
 @router.get("/", response_model=List[BabyResponse])
-def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_babies(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    limit: Optional[int] = Query(None, description="Maximum number of items to return (SuperAdmin only)", ge=1, le=1000),
+    offset: Optional[int] = Query(None, description="Number of items to skip (SuperAdmin only)", ge=0)
+):
     if current_user.is_superadmin:
-        return db.query(Baby).filter(Baby.is_deleted == False).all()
+        query = db.query(Baby).filter(Baby.is_deleted == False)
+        if limit is not None:
+            query = query.limit(limit)
+        if offset is not None:
+            query = query.offset(offset)
+        return query.all()
 
     family_users = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).all()
     if not family_users:
