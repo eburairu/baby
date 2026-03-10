@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
@@ -16,7 +16,7 @@ from app.utils.notifications import notify_family_members
 from app.utils.rate_limit import RateLimiter
 from app.utils.timezone import get_jst_today
 from app.core import constants
-from app.utils.s3 import extract_object_key
+from app.utils.s3 import extract_object_key, delete_s3_objects
 
 
 def acquire_ai_summary_lock(db: Session, baby_id: int, summary_date: date) -> None:
@@ -227,6 +227,7 @@ def edit_daily_summary(
 def delete_daily_summary(
     baby_id: int,
     summary_date: date,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -242,5 +243,11 @@ def delete_daily_summary(
     )
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily summary not found")
+
+    image_urls = list(summary.image_urls or [])
+
     summary.is_deleted = True
     db.commit()
+
+    if image_urls:
+        background_tasks.add_task(delete_s3_objects, image_urls)
