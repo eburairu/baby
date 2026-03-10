@@ -1,5 +1,4 @@
 "use client"
-import { useState } from "react"
 import { Copy, Check, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { api } from "@/lib/api"
 import { useClipboard } from "@/hooks/useClipboard"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     inviteCode: string
@@ -24,22 +24,22 @@ interface Props {
 
 export function InviteCodeCard({ inviteCode, isAdmin, onRegenerated }: Props) {
     const { copied, copyToClipboard } = useClipboard()
-    const [regenerating, setRegenerating] = useState(false)
+    const { loading: regenerating, execute } = useAsyncAction()
 
     const handleCopy = async () => {
         await copyToClipboard(inviteCode)
     }
 
     const handleRegenerate = async () => {
-        setRegenerating(true)
-        try {
-            await api.post("/family/invite_code/regenerate", {})
-            onRegenerated()
-        } catch {
-            // エラー時はトースト等を表示（簡略化のため省略）
-        } finally {
-            setRegenerating(false)
-        }
+        await execute(
+            async () => {
+                await api.post("/family/invite_code/regenerate", {})
+                onRegenerated()
+            },
+            {
+                errorMessage: "再生成に失敗しました"
+            }
+        )
     }
 
     if (!isAdmin) return null

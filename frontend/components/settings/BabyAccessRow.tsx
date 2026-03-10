@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import type { BabyAccess } from "@/hooks/usePermissionsPage"
 import { updateBabyPermissions } from "@/hooks/useBabyPermissions"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 const RECORD_TYPE_LABELS: Record<string, string> = {
   baby: "赤ちゃん情報",
@@ -26,7 +27,7 @@ interface Props {
 
 export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
   const [expanded, setExpanded] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const { loading: saving, execute } = useAsyncAction()
   const uniqueId = useId()
   const detailsId = `access-details-${uniqueId}`
 
@@ -34,30 +35,28 @@ export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
   const hasAllAccess = Object.values(babyAccess.permissions).every((v) => v === true)
 
   const applyBulk = async (canView: boolean) => {
-    setSaving(true)
-    try {
-      const permissions = Object.keys(babyAccess.permissions).map((rt) => ({
-        user_id: userId,
-        record_type: rt,
-        can_view: canView,
-      }))
-      await updateBabyPermissions(babyAccess.babyId, permissions)
-      onSaved()
-    } finally {
-      setSaving(false)
-    }
+    await execute(
+      async () => {
+        const permissions = Object.keys(babyAccess.permissions).map((rt) => ({
+          user_id: userId,
+          record_type: rt,
+          can_view: canView,
+        }))
+        await updateBabyPermissions(babyAccess.babyId, permissions)
+        onSaved()
+      }
+    )
   }
 
   const handleToggleType = async (recordType: string, newValue: boolean) => {
-    setSaving(true)
-    try {
-      await updateBabyPermissions(babyAccess.babyId, [
-        { user_id: userId, record_type: recordType, can_view: newValue },
-      ])
-      onSaved()
-    } finally {
-      setSaving(false)
-    }
+    await execute(
+      async () => {
+        await updateBabyPermissions(babyAccess.babyId, [
+          { user_id: userId, record_type: recordType, can_view: newValue },
+        ])
+        onSaved()
+      }
+    )
   }
 
   return (

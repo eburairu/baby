@@ -3,9 +3,10 @@ import { useState } from "react"
 import { DialogFooter } from "@/components/ui/dialog"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { UserRole } from "@/lib/constants"
 import { FamilyMember } from "@/types/family"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     member: FamilyMember | null
@@ -16,8 +17,8 @@ interface Props {
 
 export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
     const [selectedRole, setSelectedRole] = useState<string>(UserRole.MEMBER)
-    const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { loading: saving, execute } = useAsyncAction()
 
     const handleOpen = () => {
         if (member) setSelectedRole(member.role)
@@ -26,21 +27,20 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
 
     const handleSave = async () => {
         if (!member) return
-        setSaving(true)
         setError(null)
-        try {
-            await api.patch(`/family/members/${member.user_id}/role`, { role: selectedRole })
-            onUpdated()
-            onClose()
-        } catch (e: unknown) {
-            if (isApiError(e)) {
-                setError((e.info as { detail?: string })?.detail || "ロール変更に失敗しました")
-            } else {
-                setError("ロール変更に失敗しました")
+
+        await execute(
+            async () => {
+                await api.patch(`/family/members/${member.user_id}/role`, { role: selectedRole })
+                onUpdated()
+                onClose()
+            },
+            {
+                onError: (e) => {
+                    setError(getErrorMessage(e, "ロール変更に失敗しました"))
+                }
             }
-        } finally {
-            setSaving(false)
-        }
+        )
     }
 
     const roles = [
