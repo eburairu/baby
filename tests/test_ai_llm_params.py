@@ -6,7 +6,7 @@ Gemini モデルへの API 呼び出し時のパラメータ構築テスト。
 - 思考モード (low/medium/high) 使用時は temperature=1.0 が必須（Pro Preview 制約）
 """
 import pytest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, AsyncMock, patch, call
 from datetime import date, datetime, timezone
 from app.utils.timezone import JST
 
@@ -27,9 +27,10 @@ def _make_mock_response(content: str) -> MagicMock:
 
 # ── ai_feedback ──────────────────────────────────────────────────────────────
 
-@patch("app.services.ai_feedback.get_llm_client")
+@pytest.mark.anyio
+@patch("app.services.ai_feedback.get_async_llm_client")
 @patch("app.services.ai_feedback.get_ai_config")
-def test_feedback_no_extra_body_when_reasoning_effort_none(mock_config, mock_get_client, db):
+async def test_feedback_no_extra_body_when_reasoning_effort_none(mock_config, mock_get_client, db):
     """reasoning_effort="none" のとき extra_body を送らない"""
     mock_config.return_value = {
         "ai_enabled_feedback": True,
@@ -39,9 +40,9 @@ def test_feedback_no_extra_body_when_reasoning_effort_none(mock_config, mock_get
     }
     mock_client = MagicMock()
     mock_get_client.return_value = (mock_client, "gemini-2.0-flash")
-    mock_client.chat.completions.create.return_value = _make_mock_response(
+    mock_client.chat.completions.create = AsyncMock(return_value=_make_mock_response(
         '{"feedback": "OK", "has_concern": false}'
-    )
+    ))
 
     # テストデータ
     user = User(username="param_test_user", hashed_password="fake")
@@ -63,7 +64,7 @@ def test_feedback_no_extra_body_when_reasoning_effort_none(mock_config, mock_get
     db.add(feeding)
     db.commit()
 
-    generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
+    await generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
 
     call_kwargs = mock_client.chat.completions.create.call_args[1]
     assert "extra_body" not in call_kwargs, (
@@ -71,9 +72,10 @@ def test_feedback_no_extra_body_when_reasoning_effort_none(mock_config, mock_get
     )
 
 
-@patch("app.services.ai_feedback.get_llm_client")
+@pytest.mark.anyio
+@patch("app.services.ai_feedback.get_async_llm_client")
 @patch("app.services.ai_feedback.get_ai_config")
-def test_feedback_extra_body_and_temperature_when_thinking(mock_config, mock_get_client, db):
+async def test_feedback_extra_body_and_temperature_when_thinking(mock_config, mock_get_client, db):
     """reasoning_effort="low" のとき extra_body を送り temperature=1.0 にする"""
     mock_config.return_value = {
         "ai_enabled_feedback": True,
@@ -83,9 +85,9 @@ def test_feedback_extra_body_and_temperature_when_thinking(mock_config, mock_get
     }
     mock_client = MagicMock()
     mock_get_client.return_value = (mock_client, "gemini-2.5-pro-preview-05-06")
-    mock_client.chat.completions.create.return_value = _make_mock_response(
+    mock_client.chat.completions.create = AsyncMock(return_value=_make_mock_response(
         '{"feedback": "OK", "has_concern": false}'
-    )
+    ))
 
     user = User(username="param_test_user2", hashed_password="fake")
     db.add(user)
@@ -106,7 +108,7 @@ def test_feedback_extra_body_and_temperature_when_thinking(mock_config, mock_get
     db.add(feeding)
     db.commit()
 
-    generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
+    await generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
 
     call_kwargs = mock_client.chat.completions.create.call_args[1]
     assert call_kwargs.get("extra_body") == {"reasoning_effort": "low"}, (

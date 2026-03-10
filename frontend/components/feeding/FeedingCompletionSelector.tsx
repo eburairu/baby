@@ -18,6 +18,7 @@ export function FeedingCompletionSelector({ value, onChange }: Props) {
                         key={item.value}
                         type="button"
                         aria-pressed={value === item.value}
+                        aria-label={`授乳完全度: ${item.label}`}
                         onClick={() => onChange(value === item.value ? null : item.value)}
                         className={cn(
                             "flex-1 rounded-lg border py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

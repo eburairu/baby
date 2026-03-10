@@ -1,6 +1,6 @@
 import json
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, AsyncMock, patch
 from datetime import datetime, timezone
 
 from app.core.exceptions import AIGenerationError
@@ -35,9 +35,10 @@ def test_extract_json_logic():
     assert _extract_json(raw) == raw
 
 # 2. サービス関数のモックテスト
-@patch("app.services.ai_feedback.get_llm_client")
+@pytest.mark.anyio
+@patch("app.services.ai_feedback.get_async_llm_client")
 @patch("app.services.ai_feedback.get_ai_config")
-def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
+async def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
     # Setup
     mock_config.return_value = {"ai_enabled_feedback": True}
     
@@ -51,7 +52,7 @@ def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
 {"feedback": "モックフィードバックです。", "has_concern": false}
 ```
 追加のテキスト。"""
-    mock_client.chat.completions.create.return_value = mock_response
+    mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
 
     # テストデータ
     user = User(username="test_user_ai", hashed_password="fake")
@@ -73,7 +74,7 @@ def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
     db.commit()
 
     # 実行
-    feedback, has_concern, model = generate_record_feedback(
+    feedback, has_concern, model = await generate_record_feedback(
         db, baby.id, baby, "feeding", feeding.id
     )
 
@@ -83,8 +84,9 @@ def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
     assert model == "gpt-test-model"
 
 
+@pytest.mark.anyio
 @patch("app.services.ai_feedback.get_ai_config")
-def test_generate_record_feedback_disabled(mock_config, db):
+async def test_generate_record_feedback_disabled(mock_config, db):
     # Setup
     mock_config.return_value = {"ai_enabled_feedback": False}
     
@@ -109,5 +111,5 @@ def test_generate_record_feedback_disabled(mock_config, db):
 
     # 実行して例外を検証
     with pytest.raises(AIGenerationError, match="AI 記録フィードバック機能は現在無効化されています。"):
-        generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
+        await generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
 

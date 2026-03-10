@@ -4,7 +4,6 @@ from typing import List, Dict, Any
 
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
-from app.models.family import FamilyUser, UserRole
 from app.models.system_settings import SystemSetting
 from app.schemas.ai_settings import AISettingsSummary, AISettingsPatch, AIModel
 from app.services.ai_settings import get_ai_config, get_available_llm_models
@@ -14,21 +13,14 @@ router = APIRouter(prefix="/api/ai", tags=["ai-settings"])
 
 def verify_admin_access(db: Session, user: User):
     """
-    ユーザーが SuperAdmin であるか、いずれかの家族の admin ロールを持っているか検証する。
+    ユーザーが SuperAdmin であるか検証する。
     """
-    if user.is_superadmin:
-        return True
-
-    admin_user = db.query(FamilyUser).filter(
-        FamilyUser.user_id == user.id,
-        FamilyUser.role == UserRole.ADMIN
-    ).first()
-    if not admin_user:
+    if not user.is_superadmin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access required"
+            detail="SuperAdmin access required"
         )
-    return admin_user
+    return True
 
 
 @router.get("/settings", response_model=AISettingsSummary)

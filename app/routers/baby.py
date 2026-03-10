@@ -50,18 +50,17 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
     if current_user.is_superadmin:
         return db.query(Baby).filter(Baby.is_deleted == False).all()
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
-    if not family_user:
+    family_users = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).all()
+    if not family_users:
         return []
 
+    family_ids = [fu.family_id for fu in family_users]
     babies = db.query(Baby).filter(
-        Baby.family_id == family_user.family_id,
+        Baby.family_id.in_(family_ids),
         Baby.is_deleted == False
     ).all()
 
-    # admin / superadmin は全件返す
-    if family_user.role == UserRole.ADMIN or current_user.is_superadmin:
-        return babies
+    family_roles = {fu.family_id: fu.role for fu in family_users}
 
     # member/viewer: can_view=true の BabyPermission が存在する赤ちゃんのみ返す（デフォルト拒否）
     allowed_baby_ids = set(
@@ -71,7 +70,13 @@ def get_babies(db: Session = Depends(get_db), current_user: User = Depends(get_c
             BabyPermission.can_view == True,
         ).all()
     )
-    return [b for b in babies if b.id in allowed_baby_ids]
+    
+    result = []
+    for b in babies:
+        if family_roles.get(b.family_id) == UserRole.ADMIN or b.id in allowed_baby_ids:
+            result.append(b)
+            
+    return result
 
 
 @router.post("/", response_model=BabyResponse)
