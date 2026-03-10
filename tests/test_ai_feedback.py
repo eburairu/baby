@@ -60,13 +60,13 @@ def test_generate_record_feedback_mock(mock_config, mock_get_client, db):
     family = Family(name="Test Family", invite_code="TEST-AI")
     db.add(family)
     db.commit()
-    baby = Baby(family_id=family.id, name="テストベビー", gender="BOY", birthday=datetime.now().date())
+    baby = Baby(family_id=family.id, name="テストベビー", gender="boy", birthday=datetime.now().date())
     db.add(baby)
     db.commit()
     feeding = Feeding(
-        baby_id=baby.id, 
+        baby_id=baby.id,
         user_id=user.id,
-        feeding_time=datetime.now(), 
+        feeding_time=datetime.now(),
         feeding_type="BREAST"
     )
     db.add(feeding)
@@ -95,13 +95,13 @@ def test_generate_record_feedback_disabled(mock_config, db):
     family = Family(name="Test Family Disabled", invite_code="TEST-AI-DIS")
     db.add(family)
     db.commit()
-    baby = Baby(family_id=family.id, name="テストベビー", gender="BOY", birthday=datetime.now().date())
+    baby = Baby(family_id=family.id, name="テストベビー", gender="boy", birthday=datetime.now().date())
     db.add(baby)
     db.commit()
     feeding = Feeding(
-        baby_id=baby.id, 
+        baby_id=baby.id,
         user_id=user.id,
-        feeding_time=datetime.now(), 
+        feeding_time=datetime.now(),
         feeding_type="BREAST"
     )
     db.add(feeding)
