@@ -1771,6 +1771,8 @@ export interface components {
             id: number;
             /** Invite Code */
             invite_code: string;
+            /** Invite Code Expires At */
+            invite_code_expires_at?: string | null;
             /** Name */
             name: string;
         };

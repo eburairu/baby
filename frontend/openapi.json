@@ -1579,6 +1579,18 @@
             "title": "Invite Code",
             "type": "string"
           },
+          "invite_code_expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invite Code Expires At"
+          },
           "name": {
             "title": "Name",
             "type": "string"

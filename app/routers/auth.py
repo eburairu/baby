@@ -127,7 +127,8 @@ async def register_family(
     while db.query(Family).filter(Family.invite_code == invite_code).first():
         invite_code = secrets.token_hex(8).upper()
 
-    new_family = Family(name=family_in.name, invite_code=invite_code)
+    invite_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
+    new_family = Family(name=family_in.name, invite_code=invite_code, invite_code_expires_at=invite_code_expires_at)
     db.add(new_family)
     db.flush()
 
@@ -192,6 +193,8 @@ async def join_family(
     family = db.query(Family).filter(Family.invite_code == invite_code).first()
     if not family:
         raise HTTPException(status_code=404, detail="Invalid invite code")
+    if family.invite_code_expires_at and family.invite_code_expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        raise HTTPException(status_code=410, detail="Invite code has expired")
 
     new_user = User(
         username=user_in.username.lower(),

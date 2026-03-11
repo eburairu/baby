@@ -1,6 +1,7 @@
 import useSWR from 'swr';
 import { api, fetcher } from '@/lib/api';
 import { achievementEvents } from '@/lib/achievementEvents';
+import { useOfflineSyncStore } from '@/stores/offlineSyncStore';
 
 /**
  * 記録リソース（授乳、おむつ、睡眠など）の CRUD を行う基底フック
@@ -21,6 +22,26 @@ export function useBaseRecord<T, TCreate, TUpdate>(
   // レコード追加
   const add = async (record: TCreate): Promise<T | undefined> => {
     if (!numericBabyId) return undefined;
+
+    // オフライン時: 楽観的UIとオフラインキューで対応
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+    if (!isOnline) {
+      const tempId = -Date.now();
+      const optimisticItem = { ...record, id: tempId } as unknown as T;
+      // SWRキャッシュに楽観的に追加（再検証なし）
+      await mutate(
+        (current: T[] | undefined) => [...(current ?? []), optimisticItem],
+        { revalidate: false }
+      );
+      // オフラインキューに登録してオンライン復帰時に同期
+      useOfflineSyncStore.getState().addOp({
+        endpoint: `/${endpoint}/`,
+        method: 'POST',
+        body: record,
+      });
+      return optimisticItem;
+    }
+
     const newRecord = await api.post<T, TCreate>(`/${endpoint}/`, record);
     mutate();
     // 実績解除があれば通知

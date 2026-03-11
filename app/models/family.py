@@ -10,6 +10,7 @@ class Family(Base, SoftDeleteMixin):
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     name = Column(String, nullable=False)
     invite_code = Column(String, unique=True, index=True, nullable=False)
+    invite_code_expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     family_users = relationship("FamilyUser", back_populates="family")
