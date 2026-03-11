@@ -186,6 +186,7 @@ interface UnifiedRecord {
   timestamp: string; // ISO 8601 (JST)
   comment_count: number;
   recorded_by_display_name: string | null;
+  updated_at: string | null;
   details: RecordDetails; // 各タイプに応じた詳細情報
 }
 

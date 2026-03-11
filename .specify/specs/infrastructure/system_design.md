@@ -101,6 +101,7 @@ baby-app/
 - **`details`**: 種別ごとの詳細データ（`notes` など）を格納するオブジェクト
 - **`comment_count`**: 記録に対するコメント数
 - **`recorded_by_display_name`**: 記録者の表示名
+- **`updated_at`**: 記録の最終更新日時
 
 ## 権限管理
 
