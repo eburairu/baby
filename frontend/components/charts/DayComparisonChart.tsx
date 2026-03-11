@@ -97,9 +97,9 @@ export function DayComparisonChart({ data, colorToday, currentHour, unit = "回"
                     <Line
                         dataKey="avg7"
                         name="7日平均"
-                        stroke={gridColor}
-                        strokeDasharray="4 2"
-                        strokeWidth={1.5}
+                        stroke={isDark ? "#a1a1aa" : "#9ca3af"}
+                        strokeDasharray="6 3"
+                        strokeWidth={2}
                         dot={false}
                     />
                 </LineChart>
