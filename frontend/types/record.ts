@@ -8,4 +8,5 @@ export interface BabyRecord {
     };
     comment_count: number;
     recorded_by_display_name?: string | null;
+    updated_at?: string;
 }

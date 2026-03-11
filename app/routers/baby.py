@@ -37,6 +37,7 @@ class UnifiedRecord(BaseModel):
     details: dict
     comment_count: int = 0
     recorded_by_display_name: Optional[str] = None
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -224,7 +225,8 @@ def get_records(
                     "duration_minutes": feeding.duration_minutes,
                     "notes": feeding.notes,
                 },
-                0
+                0,
+                None
             ))
 
     if can_view_type("sleep"):
@@ -240,7 +242,8 @@ def get_records(
                     "end_time": sleep.end_time.isoformat() if sleep.end_time else None,
                     "notes": sleep.notes,
                 },
-                0
+                0,
+                None
             ))
 
     if can_view_type("diaper"):
@@ -256,7 +259,8 @@ def get_records(
                     "diaper_type": diaper.diaper_type,
                     "notes": diaper.notes,
                 },
-                0
+                0,
+                None
             ))
 
     if can_view_type("growth"):
@@ -276,12 +280,13 @@ def get_records(
                     "head_circumference_cm": growth.head_circumference,
                     "notes": growth.notes,
                 },
-                0
+                0,
+                None
             ))
 
     if can_view_type("note"):
         for note in db.query(
-            Note.id, Note.user_id, Note.note_time, Note.content
+            Note.id, Note.user_id, Note.note_time, Note.content, Note.updated_at
         ).filter(
             Note.baby_id == baby_id,
             Note.is_deleted == False
@@ -291,7 +296,8 @@ def get_records(
                 {
                     "notes": note.content,
                 },
-                0
+                0,
+                note.updated_at
             ))
 
     if can_view_type("contraction"):
@@ -309,7 +315,8 @@ def get_records(
                     "duration_seconds": c.duration_seconds,
                     "notes": c.notes,
                 },
-                0
+                0,
+                None
             ))
 
     # ⚡ Bolt: Fetch, Sort, Truncate, THEN Enrich
@@ -321,7 +328,7 @@ def get_records(
         ts = r[3]
         if ts.tzinfo is None:
             ts = ts.replace(tzinfo=JST)
-        processed_raw_records.append((r[0], r[1], r[2], ts, r[4], r[5]))
+        processed_raw_records.append((r[0], r[1], r[2], ts, r[4], r[5], r[6]))
 
     # タイムスタンプ降順でソートし、limitで切り詰める
     processed_raw_records.sort(key=lambda r: r[3], reverse=True)
@@ -374,8 +381,9 @@ def get_records(
             details=details,
             comment_count=comment_counts.get((rec_type, rec_id), 0),
             recorded_by_display_name=user_map.get(user_id),
+            updated_at=updated_at,
         )
-        for rec_id, rec_type, user_id, ts, details, _ in truncated_records
+        for rec_id, rec_type, user_id, ts, details, _, updated_at in truncated_records
     ]
 
     return records

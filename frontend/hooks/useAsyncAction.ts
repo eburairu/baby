@@ -7,7 +7,7 @@ interface UseAsyncActionOptions<T> {
     onSuccess?: (data: T) => void
     onError?: (error: unknown) => void
     successMessage?: string
-    errorMessage?: string
+    errorMessage?: string | ((error: unknown) => string)
 }
 
 export function useAsyncAction() {
@@ -36,7 +36,8 @@ export function useAsyncAction() {
             setError(error)
             Sentry.logger.error("Async action failed", { error })
             if (options.errorMessage) {
-                toast.error(options.errorMessage)
+                const msg = typeof options.errorMessage === 'function' ? options.errorMessage(error) : options.errorMessage
+                toast.error(msg)
             }
             if (options.onError) {
                 options.onError(error)

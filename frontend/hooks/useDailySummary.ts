@@ -33,11 +33,13 @@ export async function editDailySummary(
     babyId: number,
     summaryDate: string,
     editedContent: string | null,
-    imageUrls: string[]
+    imageUrls: string[],
+    updatedAt: string
 ): Promise<DailySummary> {
     return api.patch<DailySummary>(`/babies/${babyId}/daily-summary/${summaryDate}`, {
         edited_content: editedContent,
         image_urls: imageUrls,
+        updated_at: updatedAt,
     });
 }
 

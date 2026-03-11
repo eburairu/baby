@@ -25,7 +25,7 @@ export async function createNote(babyId: number, data: { content: string; note_t
   return api.post<Note>(`/babies/${babyId}/notes`, data);
 }
 
-export async function updateNote(noteId: number, data: { content?: string; note_time?: string }): Promise<Note> {
+export async function updateNote(noteId: number, data: { content?: string; note_time?: string; updated_at: string }): Promise<Note> {
   return api.patch<Note>(`/notes/${noteId}`, data);
 }
 
