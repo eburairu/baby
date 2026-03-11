@@ -54,7 +54,7 @@ export function SleepChart({ sleeps }: SleepChartProps) {
     const { resolvedTheme } = useTheme()
     const isDark = resolvedTheme === "dark"
 
-    const [view, setView] = useLocalStorage<"trend" | "rhythm">("sleep-chart-view", "trend")
+    const [view, setView] = useLocalStorage<"trend" | "rhythm" | "compare">("sleep-chart-view", "trend")
 
     // 推移ビュー用データ
     const trendData = useMemo(() => calculateDailySleepStats(sleeps, 7), [sleeps])
@@ -90,7 +90,7 @@ export function SleepChart({ sleeps }: SleepChartProps) {
                 <ChartViewToggle view={view} onChange={setView} />
             </div>
 
-            {view === "trend" ? (
+            {view !== "rhythm" && view !== "compare" ? (
                 !hasAny ? (
                     <p className="py-8 text-center text-sm text-gray-400 dark:text-zinc-500">記録がありません</p>
                 ) : (
