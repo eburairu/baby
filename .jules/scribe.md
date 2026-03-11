@@ -278,3 +278,6 @@
 ## 2026-03-10 - [新しい通知タイプ 'achievement' の通知センター仕様への追加漏れ]
 **学び:** 実績機能（Achievement）の追加に伴い、`app/utils/notifications.py` で `notify_achievements_bg` 関数が実装され、`category="achievement"` として通知が送信される機能が追加されたが、通知センターの仕様書 `.specify/specs/ui/notification_center.md` 内の複数のリスト（通知の種類、通知設定との連動、トリガー、APIレスポンス型、URL設計）への追記が完全に漏れていた。
 **アクション:** 新しい通知カテゴリ（type）をシステムに追加する際は、通知送信のユーティリティ関数（`app/utils/notifications.py`）だけでなく、仕様書（`.specify/specs/ui/notification_center.md`）内の複数のテーブル（種類、設定連動、DBコメント、API型、トリガー、URL設計）を網羅的に検索し、同期漏れがないように徹底する。
+## 2026-03-10 - [体温記録仕様書のページネーションデフォルト値と実装の同期]
+**学び:** 体温記録エンドポイント（`app/routers/temperatures.py`）の実装では、デフォルトの `limit` パラメータが `MAX_PAGINATION_LIMIT`（100）に設定されているにもかかわらず、仕様書（`temperature_tracker.md`）には誤って `limit=20` と記載されていました。
+**アクション:** 仕様書内のハードコードされた `limit` パラメータのデフォルト値を、バックエンドの実装に合わせ `100` へ修正しました。今後は API ルーターの `Query(...)` のデフォルト値と仕様書の記載が一致しているかを常に確認します。
