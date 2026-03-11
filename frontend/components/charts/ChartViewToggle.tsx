@@ -1,15 +1,22 @@
 "use client"
 
+export type ChartView = "trend" | "rhythm" | "compare"
+
+const VIEWS: { key: ChartView; label: string }[] = [
+    { key: "trend", label: "推移" },
+    { key: "rhythm", label: "リズム" },
+    { key: "compare", label: "比較" },
+]
+
 interface ChartViewToggleProps {
-    view: "trend" | "rhythm"
-    onChange: (v: "trend" | "rhythm") => void
+    view: ChartView
+    onChange: (v: ChartView) => void
 }
 
 export function ChartViewToggle({ view, onChange }: ChartViewToggleProps) {
     return (
         <div className="flex gap-1 rounded-lg bg-gray-100 p-0.5 dark:bg-zinc-800">
-            {(["trend", "rhythm"] as const).map((v) => {
-                const label = v === "trend" ? "推移" : "リズム"
+            {VIEWS.map(({ key: v, label }) => {
                 const active = view === v
                 return (
                     <button
@@ -25,6 +32,7 @@ export function ChartViewToggle({ view, onChange }: ChartViewToggleProps) {
                     >
                         {label}
                     </button>
+
                 )
             })}
         </div>

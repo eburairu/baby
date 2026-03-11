@@ -147,6 +147,37 @@ export function calculateDailyStats(feedings: NormalizedFeeding[], days = 7): Da
     })
 }
 
+export interface HourlyPoint {
+    hour: number   // 0-23
+    today: number  // 0:00〜hour:59 の累積回数（今日）
+    avg7: number   // 過去7日（当日除く）の同時刻累積回数の平均
+}
+
+export function buildFeedingHourlyComparison(feedings: NormalizedFeeding[]): HourlyPoint[] {
+    const getHourJST = (iso: string) => (new Date(iso).getUTCHours() + 9) % 24
+
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+    const days = Array.from({ length: 7 }, (_, i) => {
+        return new Date(todayStart.getTime() - (i + 1) * 86400000)
+    })
+
+    const todayRecs = feedings.filter(f => isSameDay(new Date(f.timestamp), todayStart))
+
+    return Array.from({ length: 24 }, (_, hour) => {
+        const todayCount = todayRecs.filter(f => getHourJST(f.timestamp) <= hour).length
+
+        const past7Counts = days.map(dayStart => {
+            const dayRecs = feedings.filter(f => isSameDay(new Date(f.timestamp), dayStart))
+            return dayRecs.filter(f => getHourJST(f.timestamp) <= hour).length
+        })
+        const avg7 = past7Counts.reduce((s, n) => s + n, 0) / 7
+
+        return { hour, today: todayCount, avg7 }
+    })
+}
+
 interface BuildFeedingPayloadOptions {
     babyId: number
     values: FeedingFormValues

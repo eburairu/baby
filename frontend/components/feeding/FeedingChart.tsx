@@ -21,6 +21,8 @@ import { buildRhythmData, calcMedianIntervalMin } from "@/lib/rhythmUtils"
 import type { Feeding } from "@/types/feeding"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { getChartGridColor, getChartTextColor, getChartTooltipStyle } from "@/components/charts/ChartStyles"
+import { DayComparisonChart } from "@/components/charts/DayComparisonChart"
+import { buildFeedingHourlyComparison } from "@/lib/feedingUtils"
 
 const CHART_HEIGHT = 200
 const MIN_RECORDS_FOR_PREDICTION = 5
@@ -33,7 +35,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
     const { resolvedTheme } = useTheme()
     const isDark = resolvedTheme === "dark"
 
-    const [view, setView] = useLocalStorage<"trend" | "rhythm">("feeding-chart-view", "trend")
+    const [view, setView] = useLocalStorage<"trend" | "rhythm" | "compare">("feeding-chart-view", "trend")
 
     // 推移ビュー用データ
     const trendData = useMemo(() => {
@@ -69,6 +71,13 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
         }
     }, [feedings])
 
+    // 比較ビュー用データ
+    const compareData = useMemo(() => {
+        if (view !== "compare") return []
+        const normalized = feedings.map(normalizeFeedingFromEntity)
+        return buildFeedingHourlyComparison(normalized)
+    }, [feedings, view])
+
     const gridColor = getChartGridColor(isDark)
     const textColor = getChartTextColor(isDark)
 
@@ -79,12 +88,18 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
         <StatsCard>
             <div className="mb-3 flex items-center justify-between">
                 <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
-                    {view === "trend" ? "7日間の推移" : "生活リズム（過去7日）"}
+                    {view === "trend" ? "7日間の推移" : view === "rhythm" ? "生活リズム（過去7日）" : "今日 vs 7日平均"}
                 </p>
                 <ChartViewToggle view={view} onChange={setView} />
             </div>
 
-            {view === "trend" ? (
+            {view === "compare" ? (
+                <DayComparisonChart
+                    data={compareData}
+                    colorToday={isDark ? "#fb7185" : "#f43f5e"}
+                    currentHour={(new Date().getUTCHours() + 9) % 24}
+                />
+            ) : view === "trend" ? (
                 !hasAny ? (
                     <p className="py-8 text-center text-sm text-gray-400 dark:text-zinc-500">記録がありません</p>
                 ) : (
