@@ -43,8 +43,11 @@ def get_admin_stats(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
 ):
-    since = datetime.now(timezone.utc) - timedelta(hours=24)
-    
+    from app.config import SESSION_EXPIRE_DAYS
+    # スライディングセッション延長後の expires_at を基準に直近24hのアクティブユーザーを算出。
+    # セッションを24h以内に使ったユーザーは expires_at >= now + (SESSION_EXPIRE_DAYS - 1) days。
+    active_threshold = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS - 1)
+
     query = select(
         select(func.count(User.id)).scalar_subquery().label("total_users"),
         select(func.count(Family.id)).scalar_subquery().label("total_families"),
@@ -55,7 +58,7 @@ def get_admin_stats(
         select(func.count(Contraction.id)).scalar_subquery().label("contraction_count"),
         select(func.count(Schedule.id)).scalar_subquery().label("schedule_count"),
         select(func.count(Note.id)).scalar_subquery().label("note_count"),
-        select(func.count(func.distinct(UserSession.user_id))).filter(UserSession.created_at >= since).scalar_subquery().label("active_users"),
+        select(func.count(func.distinct(UserSession.user_id))).filter(UserSession.expires_at >= active_threshold).scalar_subquery().label("active_users"),
     )
     
     counts = db.execute(query).first()
