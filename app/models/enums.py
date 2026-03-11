@@ -68,3 +68,12 @@ class VaccinationStatus(str, Enum):
     SCHEDULED = "scheduled"
     COMPLETED = "completed"
     POSTPONED = "postponed"
+
+class NotificationType(str, Enum):
+    family_record = "family_record"
+    comment = "comment"
+    daily_summary = "daily_summary"
+    feeding_reminder = "feeding_reminder"
+    diaper_reminder = "diaper_reminder"
+    system = "system"
+    achievement = "achievement"

@@ -2,16 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, time
 from enum import Enum
-
-
-class NotificationType(str, Enum):
-    family_record = "family_record"
-    comment = "comment"
-    daily_summary = "daily_summary"
-    feeding_reminder = "feeding_reminder"
-    diaper_reminder = "diaper_reminder"
-    system = "system"
-    achievement = "achievement"
+from app.models.enums import NotificationType
 
 
 class AppNotificationResponse(BaseModel):
