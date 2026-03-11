@@ -1,9 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Hexagon } from "@/components/ui/hexagon"
 import { HexagonWidgetCard } from "@/components/dashboard/HexagonWidgetCard"
 import { BabyInfoPopup } from "@/components/dashboard/BabyInfoPopup"
+import type { TabId } from "@/components/dashboard/BabyInfoPopup"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
 
@@ -22,7 +24,33 @@ interface BabyWidgetProps {
 }
 
 export function BabyWidget({ baby, size }: BabyWidgetProps) {
-  const [open, setOpen] = useState<boolean>(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const isAchievementsDeepLink =
+    searchParams.get("baby_id") === String(baby.id) &&
+    searchParams.get("tab") === "achievements"
+
+  const [open, setOpen] = useState<boolean>(() => isAchievementsDeepLink)
+  const [activeTab, setActiveTab] = useState<TabId>(() =>
+    isAchievementsDeepLink ? "achievements" : "info"
+  )
+
+  // URLパラメータのクリーンアップのみ（setStateを呼ばない）
+  useEffect(() => {
+    if (!isAchievementsDeepLink) return
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("baby_id")
+    params.delete("tab")
+    const newUrl = params.size > 0 ? `?${params}` : window.location.pathname
+    router.replace(newUrl)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // マウント時のみ実行
+
+  const handleManualOpen = () => {
+    setActiveTab("info")
+    setOpen(true)
+  }
 
   const initial = baby.name.charAt(0) || "?"
   const ageLabel = baby.birthday
@@ -32,7 +60,7 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={handleManualOpen}
         aria-label={`${baby.name}の情報を見る`}
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -51,7 +79,13 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
           <span>{ageLabel}</span>
         </HexagonWidgetCard>
       </button>
-      <BabyInfoPopup baby={baby} open={open} onOpenChange={setOpen} />
+      <BabyInfoPopup
+        baby={baby}
+        open={open}
+        onOpenChange={setOpen}
+        activeTab={activeTab}
+        onActiveTabChange={setActiveTab}
+      />
     </>
   )
 }

@@ -23,8 +23,7 @@ import { createNote } from "@/hooks/useNotes"
 import { cn } from "@/lib/utils"
 import { ErrorMessage } from "@/components/ui/error-message"
 import { UI_BUTTONS } from "@/constants/ui-colors"
-
-
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 interface Props {
     babyId: number
@@ -32,10 +31,11 @@ interface Props {
     defaultExpanded?: boolean
 }
 
+import { getErrorMessage } from "@/lib/api"
+
 export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Props) {
-    const [submitting, setSubmitting] = useState(false)
     const [isExpanded, setIsExpanded] = useState(defaultExpanded)
-    const [error, setError] = useState<string | null>(null)
+    const { loading: submitting, error, execute } = useAsyncAction()
 
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
@@ -46,25 +46,26 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
     })
 
     const onSubmit = async (values: NoteFormValues) => {
-        setSubmitting(true)
-        setError(null)
-        try {
-            const newNote = await createNote(babyId, {
-                content: values.content,
-                note_time: new Date(values.note_time).toISOString()
-            })
-            form.reset({
-                note_time: formatDateTimeLocal(new Date()),
-                content: "",
-            })
-            setIsExpanded(false)
-            onAddSuccess(newNote?.id)
-        } catch (err) {
-            console.error(err)
-            setError("メモの保存に失敗しました。時間をおいて再度お試しください。")
-        } finally {
-            setSubmitting(false)
-        }
+        await execute(
+            async () => {
+                const newNote = await createNote(babyId, {
+                    content: values.content,
+                    note_time: new Date(values.note_time).toISOString()
+                })
+                return newNote
+            },
+            {
+                onSuccess: (newNote) => {
+                    form.reset({
+                        note_time: formatDateTimeLocal(new Date()),
+                        content: "",
+                    })
+                    setIsExpanded(false)
+                    onAddSuccess(newNote?.id)
+                },
+                errorMessage: "メモの保存に失敗しました。時間をおいて再度お試しください。"
+            }
+        )
     }
 
     if (!isExpanded) {
@@ -83,8 +84,7 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
     return (
         <Card className="rounded-2xl border-0 shadow-sm overflow-hidden dark:bg-zinc-900 transition-all duration-300">
             <CardContent className="p-4">
-                {error && <ErrorMessage message={error} className="mb-4" />}
-                
+                {!!error && <ErrorMessage message={getErrorMessage(error, "メモの保存に失敗しました。")} className="mb-4" />}
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
@@ -130,7 +130,6 @@ export function NoteForm({ babyId, onAddSuccess, defaultExpanded = false }: Prop
                                 variant="ghost"
                                 onClick={() => {
                                     setIsExpanded(false)
-                                    setError(null)
                                 }}
                                 data-sentry-unmask className="flex-1 dark:text-zinc-400"
                                 disabled={submitting}

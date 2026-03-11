@@ -12,11 +12,13 @@ interface UseAsyncActionOptions<T> {
 
 export function useAsyncAction() {
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<unknown | null>(null)
 
     const execute = async <T>(
         action: () => Promise<T>,
         options: UseAsyncActionOptions<T> = {}
     ) => {
+        setError(null)
         if (loading) return
         setLoading(true)
         Sentry.logger.trace("Entering async action", { hasSuccessMsg: !!options.successMessage })
@@ -31,6 +33,7 @@ export function useAsyncAction() {
             return result
         } catch (error) {
             console.error(error)
+            setError(error)
             Sentry.logger.error("Async action failed", { error })
             if (options.errorMessage) {
                 toast.error(options.errorMessage)
@@ -43,5 +46,5 @@ export function useAsyncAction() {
         }
     }
 
-    return { loading, execute }
+    return { loading, error, execute }
 }

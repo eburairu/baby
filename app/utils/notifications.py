@@ -203,7 +203,7 @@ def notify_achievements_bg(
                     exclude_user_id=0,  # 全員に通知
                     title=f"実績解除！{a['icon']} {a['name']}",
                     body=f"{baby_name}が「{a['name']}」を達成しました！",
-                    url=f"/dashboard?baby_id={baby_id}",
+                    url=f"/dashboard?baby_id={baby_id}&tab=achievements",
                     category="achievement",
                 )
         finally:
