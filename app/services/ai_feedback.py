@@ -31,22 +31,21 @@ RECORD_TYPE_JA = {
     "note": "メモ",
 }
 
-TRIGGER_FOCUS = {
-    "feeding": "前回からの授乳間隔・今日の授乳回数や総量",
-    "diaper": "今日のおむつ回数・内訳（おしっこ/うんち）と前回からの経過時間",
-    "growth": "前回測定値との差分（体重・身長の増加量）",
-    "note": "メモの内容を踏まえた赤ちゃん全体の状態",
-}
 
 SYSTEM_PROMPT = """あなたは育児記録アシスタントです。
 このリクエストは、親が自分の赤ちゃんの健康状態を把握するための安全な育児支援の文脈で行われています。
 「熱がある」「元気がない」などの体調に関する記述は、医学的な懸念を把握するための重要な情報であり、ポリシー違反ではありません。
-赤ちゃんの直近の記録を分析し、親に向けて温かく簡潔なフィードバックを日本語で返してください。
 JSON形式のみで返してください。Markdownのコードブロック（```json ... ```）は使用せず、純粋なJSONテキストのみを出力してください。
 返却形式:
 {"feedback": "フィードバックテキスト", "has_concern": true/false}
 
 フィードバックは50〜150字程度、1〜2文にまとめてください。
+
+【コメントの焦点ルール】
+- 原則として「今回の記録」の内容のみにコメントしてください（その記録の量・タイプ・メモなど）。
+- has_concern が true の場合のみ、24時間の傾向（授乳間隔・回数・おむつ状況など）にも言及してください。
+- has_concern が false の場合は今回の記録に対するコメントのみ返し、他の記録や全体傾向には言及しないでください。
+
 has_concern は以下の場合に true としてください（いずれかに該当すれば）:
 - 授乳間隔が6時間以上空いている（新生児〜3ヶ月）
 - 直近24時間の授乳回数が5回未満（新生児期）
@@ -54,7 +53,7 @@ has_concern は以下の場合に true としてください（いずれかに�
 - うんちが24時間で0回（または極端に少ない傾向がメモで示されている）
 - 成長記録で体重が前回より有意に減少している（100g以上の減少）
 - メモに「元気がない」「ぐったり」「熱がある」などの懸念ワードがある
-上記に該当しない場合は has_concern: false とし、ポジティブなコメントを返してください。
+上記に該当しない場合は has_concern: false とし、今回の記録に対するポジティブなコメントを返してください。
 医療診断は行わず「確認してみてください」「小児科に相談することをお勧めします」程度にとどめてください。"""
 
 def _extract_json(text: str) -> str:
@@ -205,6 +204,54 @@ def _build_growth_context(db: Session, baby_id: int, growth_id: int) -> str:
     return "\n".join(lines)
 
 
+def _build_target_record_text(db: Session, record_type: str, record_id: int) -> str:
+    """今回記録したレコードの詳細テキストを生成する"""
+    if record_type == "feeding":
+        record = db.query(Feeding).filter(Feeding.id == record_id).first()
+        if not record:
+            return "（記録取得失敗）"
+        t = record.feeding_time.strftime("%-m/%-d %H:%M")
+        kind = {"BREAST": "母乳", "BOTTLE": "ミルク", "MIXED": "混合"}.get(
+            str(record.feeding_type.value) if hasattr(record.feeding_type, "value") else str(record.feeding_type),
+            str(record.feeding_type),
+        )
+        detail = f"授乳 {t} {kind}"
+        if record.amount_ml:
+            detail += f" {int(record.amount_ml)}ml"
+        if record.duration_minutes:
+            detail += f" {record.duration_minutes}分"
+        if record.notes:
+            detail += f"\nメモ: {record.notes}"
+        return detail
+
+    if record_type == "diaper":
+        record = db.query(Diaper).filter(Diaper.id == record_id).first()
+        if not record:
+            return "（記録取得失敗）"
+        t = record.change_time.strftime("%-m/%-d %H:%M")
+        kind = {"WET": "おしっこ", "DIRTY": "うんち", "BOTH": "両方"}.get(
+            str(record.diaper_type.value) if hasattr(record.diaper_type, "value") else str(record.diaper_type),
+            str(record.diaper_type),
+        )
+        line = f"おむつ交換 {t} {kind}"
+        if record.notes:
+            line += f"\nメモ: {record.notes}"
+        return line
+
+    if record_type == "note":
+        record = db.query(Note).filter(Note.id == record_id).first()
+        if not record:
+            return "（記録取得失敗）"
+        t = record.note_time.strftime("%-m/%-d %H:%M")
+        return f"メモ {t}\n内容: {record.content}"
+
+    if record_type == "growth":
+        # growth は _build_growth_context で詳細コンテキストを別途生成するのでここでは空を返す
+        return ""
+
+    return "（不明な記録種別）"
+
+
 def build_feedback_prompt(
     db: Session,
     baby_id: int,
@@ -212,26 +259,27 @@ def build_feedback_prompt(
     record_type: str,
     record_id: int,
 ) -> str:
-    """直近24時間の全記録を取得してプロンプトを組み立てる"""
+    """今回の記録を主対象とし、傾向確認用に24時間記録を添えてプロンプトを組み立てる"""
     now = get_jst_now()
-
-    records_text = _build_records_text(db, baby_id, now)
-
-    if record_type == "growth":
-        growth_ctx = _build_growth_context(db, baby_id, record_id)
-        if growth_ctx:
-            records_text = records_text + "\n" + growth_ctx
-
-    trigger_focus = TRIGGER_FOCUS.get(record_type, "全体的な状態")
     record_type_ja = RECORD_TYPE_JA.get(record_type, record_type)
-
     age_days = get_baby_age_in_days(baby, now.date())
     age_str = f"（生後{age_days}日）" if age_days is not None else ""
 
+    # 今回の記録（主なコメント対象）
+    if record_type == "growth":
+        target_text = _build_growth_context(db, baby_id, record_id)
+    else:
+        target_text = _build_target_record_text(db, record_type, record_id)
+
+    # 24時間の全記録（傾向確認・has_concern判定用）
+    records_text = _build_records_text(db, baby_id, now)
+
     prompt = (
         f"{baby.name}ちゃん{age_str}の記録です。今ちょうど「{record_type_ja}」を記録しました。\n\n"
-        f"【直近24時間の記録】\n{records_text}\n\n"
-        f"この記録を踏まえて、{trigger_focus}を中心に分析し、JSONで返してください。"
+        f"【今回の記録（コメント対象）】\n{target_text}\n\n"
+        f"【直近24時間の記録（傾向確認・has_concern判定用）】\n{records_text}\n\n"
+        f"今回の記録に対してコメントしてください。has_concernがfalseの場合は今回の記録のみにフォーカスし、"
+        f"他の記録や全体傾向には言及しないでください。JSONで返してください。"
     )
     return prompt
 
