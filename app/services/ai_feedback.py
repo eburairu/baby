@@ -122,7 +122,7 @@ def _build_records_text(db: Session, baby_id: int, now: datetime) -> str:
     if feedings:
         lines.append(f"【授乳】{len(feedings)}回")
         for f in feedings:
-            t = f.feeding_time.strftime("%H:%M")
+            t = f.feeding_time.strftime("%-m/%-d %H:%M")
             kind = {"BREAST": "母乳", "BOTTLE": "ミルク", "MIXED": "混合"}.get(
                 str(f.feeding_type.value) if hasattr(f.feeding_type, "value") else str(f.feeding_type),
                 str(f.feeding_type),
@@ -141,7 +141,7 @@ def _build_records_text(db: Session, baby_id: int, now: datetime) -> str:
     if diapers:
         lines.append(f"【おむつ】{len(diapers)}回")
         for d in diapers:
-            t = d.change_time.strftime("%H:%M")
+            t = d.change_time.strftime("%-m/%-d %H:%M")
             kind = {"WET": "おしっこ", "DIRTY": "うんち", "BOTH": "両方"}.get(
                 str(d.diaper_type.value) if hasattr(d.diaper_type, "value") else str(d.diaper_type),
                 str(d.diaper_type),
@@ -156,7 +156,7 @@ def _build_records_text(db: Session, baby_id: int, now: datetime) -> str:
     if notes:
         lines.append("【メモ】")
         for n in notes:
-            t = n.note_time.strftime("%H:%M")
+            t = n.note_time.strftime("%-m/%-d %H:%M")
             lines.append(f"  {t} {n.content}")
         lines.append("")
 
