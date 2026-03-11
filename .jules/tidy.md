@@ -26,3 +26,7 @@
 ## 2025-03-11 - 非同期状態管理の共通化（useAsyncAction）とcascading rendersの回避
 **学び:** `try...catch...finally` ブロックと手動の `useState`（`loading`, `error`）を使用した非同期処理のボイラープレートが複数のコンポーネント（例: `RecordDetailDialog`, `NoteForm`, `NoteEditDialog`）に散在していた。また、コンポーネントのマウント時やプロパティの変更時に `useEffect` 内で直接 `setState` を呼び出すと、React の `cascading renders` 警告が発生する。
 **アクション:** 将来的なリファクタリングでは、非同期処理を扱う際は共有の `useAsyncAction` フックを積極的に活用し、コードの重複を排除する。また、`useAsyncAction` が `error` ステートも返すように拡張することで、エラーハンドリングの一貫性を向上させることができる。`useEffect` 内での状態の初期化による cascading renders を防ぐには、単に `setTimeout` を使うだけでなく、依存配列を正しく設定するか、必要に応じて React 19 の機能を活用するなど、より根本的な解決策を検討する（今回は setTimeout を用いる回避策を適用した）。
+
+## 2024-05-19 - useAsyncAction フックの活用とコードの共通化
+**学び:** `isSaving` や `error` といった非同期処理のローカルステート、および `try/catch/finally` によるエラーハンドリングが複数のコンポーネント（特に設定・フォーム画面）で重複して記述されている。これらは `useAsyncAction` フックによって共通化でき、コンポーネントの責務を削減できる。また、APIエラー時の詳細メッセージ取得も各所で `e.info.detail` を手動パースしていたが、`lib/api.ts` の `getErrorMessage` に切り出すことで DRY 原則を満たし、可読性が向上する。
+**アクション:** フォーム送信やAPI通信など、非同期アクションのローディング・エラー状態を管理する際は、常に `useAsyncAction` を利用する。また、UIコンポーネント固有の API エラーメッセージ取得は必ず `getErrorMessage` ユーティリティを用いるようにする。

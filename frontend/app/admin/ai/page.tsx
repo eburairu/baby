@@ -8,14 +8,16 @@ import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Save, Sparkles } from "lucide-react"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { getErrorMessage } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function AdminAISettingsPage() {
   const { data, isLoading, isError, mutate } = useAISettings()
 
   const [formData, setFormData] = useState<Record<string, string>>({})
-  const [isSaving, setIsSaving] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const { loading: isSaving, execute: saveSettings } = useAsyncAction()
 
   useEffect(() => {
     if (data?.settings) {
@@ -23,6 +25,7 @@ export default function AdminAISettingsPage() {
       Object.entries(data.settings).forEach(([key, value]) => {
         initialForm[key] = String(value)
       })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(initialForm)
     }
   }, [data])
@@ -47,18 +50,19 @@ export default function AdminAISettingsPage() {
   }
 
   const handleSave = async () => {
-    setIsSaving(true)
-    try {
-      await updateAISettings(formData)
-      await mutate()
-      setHasChanges(false)
-      toast.success("AI 設定を保存しました")
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "設定の保存に失敗しました"
-      toast.error(message)
-    } finally {
-      setIsSaving(false)
-    }
+    await saveSettings(
+      async () => {
+        await updateAISettings(formData)
+        await mutate()
+        setHasChanges(false)
+      },
+      {
+        successMessage: "AI 設定を保存しました",
+        onError: (err) => {
+          toast.error(getErrorMessage(err, "設定の保存に失敗しました"))
+        }
+      }
+    )
   }
 
   return (
