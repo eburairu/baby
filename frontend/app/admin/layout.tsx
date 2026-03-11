@@ -83,8 +83,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </Link>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="md:hidden" aria-label="メニューを開く" title="メニューを開く">
+                  <Menu className="h-5 w-5" aria-hidden="true" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
