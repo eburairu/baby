@@ -9,9 +9,7 @@ class AppNotification(Base, SoftDeleteMixin):
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    type = Column(String(50), nullable=False)
-    # 'family_record' | 'comment' | 'daily_summary'
-    # | 'feeding_reminder' | 'diaper_reminder' | 'system'
+    type = Column(String(50), nullable=False)  # references NotificationType enum
     title = Column(String(255), nullable=False)
     body = Column(Text, nullable=True)
     url = Column(String(512), nullable=True)

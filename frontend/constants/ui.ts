@@ -7,6 +7,7 @@ import { type LucideIcon } from 'lucide-react';
 import { RECORD_TYPE_ICONS } from './icons';
 
 export const TOAST_DURATION_MS = 3000;
+export const SWR_REFRESH_INTERVAL_MS = 30000;
 export const MOBILE_BREAKPOINT_PX = 768;
 
 export const RECORD_TYPE_LABELS = {
