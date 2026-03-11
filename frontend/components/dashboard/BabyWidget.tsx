@@ -27,25 +27,28 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const isAchievementsDeepLink =
-    searchParams.get("baby_id") === String(baby.id) &&
-    searchParams.get("tab") === "achievements"
+  const [open, setOpen] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<TabId>("info")
 
-  const [open, setOpen] = useState<boolean>(() => isAchievementsDeepLink)
-  const [activeTab, setActiveTab] = useState<TabId>(() =>
-    isAchievementsDeepLink ? "achievements" : "info"
-  )
-
-  // URLパラメータのクリーンアップのみ（setStateを呼ばない）
+  // URLパラメータ経由のディープリンク（通知タップ時）を処理する。
+  // searchParams が変化したとき（client-side navigation 後も含む）に実行する。
+  // URL パラメータ（外部システム）の変化に応答する正当な useEffect。
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (!isAchievementsDeepLink) return
+    const babyId = searchParams.get("baby_id")
+    const tab = searchParams.get("tab")
+    if (babyId !== String(baby.id) || tab !== "achievements") return
+
+    setOpen(true)
+    setActiveTab("achievements")
+
     const params = new URLSearchParams(searchParams.toString())
     params.delete("baby_id")
     params.delete("tab")
     const newUrl = params.size > 0 ? `?${params}` : window.location.pathname
     router.replace(newUrl)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // マウント時のみ実行
+  }, [searchParams, baby.id, router])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleManualOpen = () => {
     setActiveTab("info")
