@@ -9,12 +9,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { BabyRecord } from "@/types/record"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useUser } from "@/hooks/useAuth"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { CommentSection } from "@/components/records/CommentSection"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Loader2 } from "lucide-react"
 import { RECORD_TYPE_LABELS } from "@/constants/ui"
 
 interface Props {
@@ -27,66 +27,70 @@ interface Props {
 export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
   const { canWrite } = usePermissions()
   const { user } = useUser()
-  const [loading, setLoading] = useState(false)
+  const { loading, execute } = useAsyncAction()
   const [notes, setNotes] = useState("")
 
   useEffect(() => {
-    if (record) {
-      setNotes(record.details.notes || "")
+    if (open && record) {
+      // openのタイミングで初期化してcascading rendersを回避するためにsetTimeoutを使用
+      const timerId = setTimeout(() => {
+        setNotes(record.details.notes || "")
+      }, 0)
+      return () => clearTimeout(timerId)
     }
-  }, [record])
+  }, [open, record])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!record) return
 
-    setLoading(true)
-    try {
-      let endpoint = ""
-      const isoTimestamp = new Date(record.timestamp).toISOString()
-      const body: Record<string, string | null> = { notes }
+    await execute(
+      async () => {
+        let endpoint = ""
+        const isoTimestamp = new Date(record.timestamp).toISOString()
+        const body: Record<string, string | null> = { notes }
 
-      switch (record.type) {
-        case RECORD_TYPES.FEEDING:
-          endpoint = `/feedings/${record.id}`
-          body.feeding_time = isoTimestamp
-          await api.patch(endpoint, body)
-          break
-        case "sleep":
-          endpoint = `/sleeps/${record.id}`
-          body.start_time = isoTimestamp
-          await api.patch(endpoint, body)
-          break
-        case "diaper":
-          endpoint = `/diapers/${record.id}`
-          body.change_time = isoTimestamp
-          await api.put(endpoint, body)
-          break
-        case "growth":
-          endpoint = `/growths/${record.id}`
-          // Use format to get YYYY-MM-DD in local time
-          body.date = formatDateLocal(new Date(record.timestamp))
-          await api.put(endpoint, body)
-          break
-        case "note":
-          endpoint = `/notes/${record.id}`
-          await api.patch(endpoint, { content: notes, note_time: isoTimestamp })
-          break
-        case "contraction":
-          endpoint = `/contractions/${record.id}`
-          body.start_time = isoTimestamp
-          await api.patch(endpoint, body)
-          break
+        switch (record.type) {
+          case RECORD_TYPES.FEEDING:
+            endpoint = `/feedings/${record.id}`
+            body.feeding_time = isoTimestamp
+            await api.patch(endpoint, body)
+            break
+          case "sleep":
+            endpoint = `/sleeps/${record.id}`
+            body.start_time = isoTimestamp
+            await api.patch(endpoint, body)
+            break
+          case "diaper":
+            endpoint = `/diapers/${record.id}`
+            body.change_time = isoTimestamp
+            await api.put(endpoint, body)
+            break
+          case "growth":
+            endpoint = `/growths/${record.id}`
+            // Use format to get YYYY-MM-DD in local time
+            body.date = formatDateLocal(new Date(record.timestamp))
+            await api.put(endpoint, body)
+            break
+          case "note":
+            endpoint = `/notes/${record.id}`
+            await api.patch(endpoint, { content: notes, note_time: isoTimestamp })
+            break
+          case "contraction":
+            endpoint = `/contractions/${record.id}`
+            body.start_time = isoTimestamp
+            await api.patch(endpoint, body)
+            break
+        }
+      },
+      {
+        onSuccess: () => {
+          onSuccess()
+          onOpenChange(false)
+        },
+        errorMessage: "更新に失敗しました"
       }
-
-      onSuccess()
-      onOpenChange(false)
-    } catch (error) {
-      console.error(error)
-      alert("更新に失敗しました")
-    } finally {
-      setLoading(false)
-    }
+    )
   }
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -94,27 +98,28 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
   const handleDelete = async () => {
     if (!record) return
 
-    setLoading(true)
-    try {
-      let endpoint = ""
-      switch (record.type) {
-        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
-        case "sleep": endpoint = `/sleeps/${record.id}`; break
-        case "diaper": endpoint = `/diapers/${record.id}`; break
-        case "growth": endpoint = `/growths/${record.id}`; break
-        case "note": endpoint = `/notes/${record.id}`; break
-        case "contraction": endpoint = `/contractions/${record.id}`; break
+    await execute(
+      async () => {
+        let endpoint = ""
+        switch (record.type) {
+          case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
+          case "sleep": endpoint = `/sleeps/${record.id}`; break
+          case "diaper": endpoint = `/diapers/${record.id}`; break
+          case "growth": endpoint = `/growths/${record.id}`; break
+          case "note": endpoint = `/notes/${record.id}`; break
+          case "contraction": endpoint = `/contractions/${record.id}`; break
+        }
+        await api.delete(endpoint)
+      },
+      {
+        onSuccess: () => {
+          setDeleteConfirmOpen(false)
+          onSuccess()
+          onOpenChange(false)
+        },
+        errorMessage: "削除に失敗しました"
       }
-      await api.delete(endpoint)
-      setDeleteConfirmOpen(false)
-      onSuccess()
-      onOpenChange(false)
-    } catch (error) {
-      console.error(error)
-      alert("削除に失敗しました")
-    } finally {
-      setLoading(false)
-    }
+    )
   }
 
   if (!record) return null

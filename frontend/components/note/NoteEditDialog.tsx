@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -17,8 +17,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { ErrorMessage } from "@/components/ui/error-message"
 import { formatJapaneseDateTime, formatDateTimeLocal } from "@/lib/dateUtils"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 const noteSchema = z.object({
     note_time: z.string().min(1, "日時は必須です"),
@@ -34,9 +34,11 @@ interface NoteEditDialogProps {
     onSuccess: () => void
 }
 
+import { ErrorMessage } from "@/components/ui/error-message"
+import { getErrorMessage } from "@/lib/api"
+
 export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEditDialogProps) {
-    const [submitting, setSubmitting] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const { loading: submitting, error, execute } = useAsyncAction()
 
     const form = useForm<NoteFormValues>({
         resolver: zodResolver(noteSchema),
@@ -48,31 +50,34 @@ export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEdit
 
     useEffect(() => {
         if (note && open) {
-            form.reset({
-                content: note.content,
-                note_time: formatDateTimeLocal(note.note_time),
-            })
-            setError(null)
+            // openのタイミングで初期化してcascading rendersを回避するためにsetTimeoutを使用
+            const timerId = setTimeout(() => {
+                form.reset({
+                    content: note.content,
+                    note_time: formatDateTimeLocal(note.note_time),
+                })
+            }, 0)
+            return () => clearTimeout(timerId)
         }
     }, [note, open, form])
 
     const handleUpdate = async (values: NoteFormValues) => {
         if (!note) return
-        setSubmitting(true)
-        setError(null)
-        try {
-            await updateNote(note.id, {
-                content: values.content,
-                note_time: new Date(values.note_time).toISOString()
-            })
-            onSuccess()
-            onOpenChange(false)
-        } catch (e) {
-            console.error(e)
-            setError("更新に失敗しました。時間をおいて再度お試しください。")
-        } finally {
-            setSubmitting(false)
-        }
+        await execute(
+            async () => {
+                await updateNote(note.id, {
+                    content: values.content,
+                    note_time: new Date(values.note_time).toISOString()
+                })
+            },
+            {
+                onSuccess: () => {
+                    onSuccess()
+                    onOpenChange(false)
+                },
+                errorMessage: "更新に失敗しました。時間をおいて再度お試しください。"
+            }
+        )
     }
 
     return (
@@ -81,8 +86,7 @@ export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEdit
             onOpenChange={onOpenChange}
             title="メモの編集"
         >
-            {error && <ErrorMessage message={error} className="mb-2" />}
-
+            {!!error && <ErrorMessage message={getErrorMessage(error, "更新に失敗しました。")} className="mb-2" />}
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleUpdate)} className="space-y-4 py-2">
                     <FormField
