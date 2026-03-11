@@ -6,23 +6,25 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useUser, User as UserType } from "@/hooks/useAuth"
-import { api, isApiError } from "@/lib/api"
+import { api, getErrorMessage } from "@/lib/api"
 import { toast } from "sonner"
 import { getDisplayName } from "@/lib/utils"
 import { SettingsHeader } from "@/components/settings/SettingsHeader"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 export default function ProfileSettingsPage() {
     const { user, mutate } = useUser()
     const [isEditing, setIsEditing] = useState(false)
     const [displayName, setDisplayName] = useState("")
-    const [isSaving, setIsSaving] = useState(false)
 
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [passwordError, setPasswordError] = useState<string | null>(null)
-    const [isSavingPassword, setIsSavingPassword] = useState(false)
+
+    const { loading: isSaving, execute: saveProfile } = useAsyncAction()
+    const { loading: isSavingPassword, execute: savePassword } = useAsyncAction()
 
     // 初期値をセット
     const handleEditStart = () => {
@@ -31,23 +33,25 @@ export default function ProfileSettingsPage() {
     }
 
     const handleSave = async () => {
-        setIsSaving(true)
-        try {
-            const updatedUser = await api.patch<UserType>("/auth/me", {
-                display_name: displayName,
-            })
-            await mutate(updatedUser) // SWRのキャッシュを更新
-            setIsEditing(false)
-            toast.success("プロフィールを更新しました", {
-                description: "表示名が変更されました",
-            })
-        } catch {
-            toast.error("エラーが発生しました", {
-                description: "プロフィールの更新に失敗しました",
-            })
-        } finally {
-            setIsSaving(false)
-        }
+        await saveProfile(
+            async () => {
+                const updatedUser = await api.patch<UserType>("/auth/me", {
+                    display_name: displayName,
+                })
+                await mutate(updatedUser) // SWRのキャッシュを更新
+                setIsEditing(false)
+                toast.success("プロフィールを更新しました", {
+                    description: "表示名が変更されました",
+                })
+            },
+            {
+                onError: () => {
+                    toast.error("エラーが発生しました", {
+                        description: "プロフィールの更新に失敗しました",
+                    })
+                }
+            }
+        )
     }
 
     const handlePasswordChangeStart = () => {
@@ -68,28 +72,27 @@ export default function ProfileSettingsPage() {
             setPasswordError("パスワードは8文字以上で入力してください")
             return
         }
-        setIsSavingPassword(true)
-        try {
-            await api.post("/auth/change-password", {
-                current_password: currentPassword,
-                new_password: newPassword,
-            })
-            setIsChangingPassword(false)
-            toast.success("パスワードを変更しました")
-        } catch (e: unknown) {
-            if (isApiError(e)) {
-                const detail = (e.info as { detail?: string })?.detail
-                if (detail === "Current password is incorrect") {
-                    setPasswordError("現在のパスワードが正しくありません")
-                } else {
-                    setPasswordError(detail || "パスワードの変更に失敗しました")
+
+        await savePassword(
+            async () => {
+                await api.post("/auth/change-password", {
+                    current_password: currentPassword,
+                    new_password: newPassword,
+                })
+                setIsChangingPassword(false)
+            },
+            {
+                successMessage: "パスワードを変更しました",
+                onError: (e) => {
+                    const errorMsg = getErrorMessage(e)
+                    if (errorMsg === "Current password is incorrect") {
+                        setPasswordError("現在のパスワードが正しくありません")
+                    } else {
+                        setPasswordError(errorMsg || "パスワードの変更に失敗しました")
+                    }
                 }
-            } else {
-                setPasswordError("パスワードの変更に失敗しました")
             }
-        } finally {
-            setIsSavingPassword(false)
-        }
+        )
     }
 
     if (!user) return null

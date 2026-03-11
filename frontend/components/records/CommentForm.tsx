@@ -45,16 +45,8 @@ export function CommentForm({ onSubmit }: CommentFormProps) {
           hideContentOnLoading
           className="bg-orange-500 hover:bg-orange-600 text-white"
         >
-          {isSubmitting ? (
-            <>
-              送信中...
-            </>
-          ) : (
-            <>
-              <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
-              応援を送る
-            </>
-          )}
+          <Heart className="w-3.5 h-3.5 mr-1.5 fill-current" />
+          応援を送る
         </Button>
       </div>
     </form>
