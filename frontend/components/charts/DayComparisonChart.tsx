@@ -20,9 +20,10 @@ interface Props {
     data: HourlyPoint[]
     colorToday: string
     currentHour: number
+    unit?: string  // バッジ・ツールチップに使う単位 (デフォルト: "回")
 }
 
-export function DayComparisonChart({ data, colorToday, currentHour }: Props) {
+export function DayComparisonChart({ data, colorToday, currentHour, unit = "回" }: Props) {
     const { resolvedTheme } = useTheme()
     const isDark = resolvedTheme === "dark"
 
@@ -33,16 +34,17 @@ export function DayComparisonChart({ data, colorToday, currentHour }: Props) {
     const avgNow = data[currentHour]?.avg7 ?? 0
     const diff = todayNow - avgNow
 
+    const threshold = unit === "回" ? 0.5 : unit === "ml" ? 5 : 2
     let badgeText: string
     let badgeClass: string
-    if (Math.abs(diff) < 0.5) {
+    if (Math.abs(diff) < threshold) {
         badgeText = "7日平均とほぼ同じ"
         badgeClass = "bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-zinc-300"
     } else if (diff > 0) {
-        badgeText = `7日平均より +${diff.toFixed(1)}回`
+        badgeText = `7日平均より +${unit === "回" ? diff.toFixed(1) : Math.round(diff)}${unit}`
         badgeClass = "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
     } else {
-        badgeText = `7日平均より ${diff.toFixed(1)}回`
+        badgeText = `7日平均より ${unit === "回" ? diff.toFixed(1) : Math.round(diff)}${unit}`
         badgeClass = "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
     }
 
@@ -74,7 +76,7 @@ export function DayComparisonChart({ data, colorToday, currentHour }: Props) {
                         contentStyle={getChartTooltipStyle(isDark)}
                         labelFormatter={(h) => `${h}時`}
                         formatter={(value, name) => [
-                            name === "今日" ? `${value}回` : `${Number(value).toFixed(1)}回`,
+                            `${unit === "回" ? Number(value).toFixed(1) : Math.round(Number(value))}${unit}`,
                             name as string,
                         ]}
                     />

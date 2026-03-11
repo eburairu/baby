@@ -16,16 +16,23 @@ import { formatDateLocal } from "@/lib/dateUtils"
 import { StatsCard } from "@/components/ui/stats-card"
 import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
 import { RhythmChartView } from "@/components/charts/RhythmChartView"
-import { calculateDailyStats, normalizeFeedingFromEntity } from "@/lib/feedingUtils"
+import { calculateDailyStats, normalizeFeedingFromEntity, buildFeedingHourlyComparison } from "@/lib/feedingUtils"
 import { buildRhythmData, calcMedianIntervalMin } from "@/lib/rhythmUtils"
 import type { Feeding } from "@/types/feeding"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { getChartGridColor, getChartTextColor, getChartTooltipStyle } from "@/components/charts/ChartStyles"
 import { DayComparisonChart } from "@/components/charts/DayComparisonChart"
-import { buildFeedingHourlyComparison } from "@/lib/feedingUtils"
 
 const CHART_HEIGHT = 200
 const MIN_RECORDS_FOR_PREDICTION = 5
+
+type CompareMetric = "count" | "ml" | "min"
+
+const COMPARE_METRICS: { key: CompareMetric; label: string; unit: string }[] = [
+    { key: "count", label: "回数", unit: "回" },
+    { key: "ml",    label: "ミルク量", unit: "ml" },
+    { key: "min",   label: "授乳時間", unit: "分" },
+]
 
 interface FeedingChartProps {
     feedings: Feeding[]
@@ -36,6 +43,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
     const isDark = resolvedTheme === "dark"
 
     const [view, setView] = useLocalStorage<"trend" | "rhythm" | "compare">("feeding-chart-view", "trend")
+    const [compareMetric, setCompareMetric] = useLocalStorage<CompareMetric>("feeding-compare-metric", "count")
 
     // 推移ビュー用データ
     const trendData = useMemo(() => {
@@ -72,17 +80,27 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
     }, [feedings])
 
     // 比較ビュー用データ
-    const compareData = useMemo(() => {
+    const feedingHourlyData = useMemo(() => {
         if (view !== "compare") return []
         const normalized = feedings.map(normalizeFeedingFromEntity)
         return buildFeedingHourlyComparison(normalized)
     }, [feedings, view])
+
+    const compareData = useMemo(() => {
+        return feedingHourlyData.map(p => {
+            if (compareMetric === "ml")  return { hour: p.hour, today: p.todayMl,    avg7: p.avg7Ml }
+            if (compareMetric === "min") return { hour: p.hour, today: p.todayMin,   avg7: p.avg7Min }
+            return                              { hour: p.hour, today: p.todayCount, avg7: p.avg7Count }
+        })
+    }, [feedingHourlyData, compareMetric])
 
     const gridColor = getChartGridColor(isDark)
     const textColor = getChartTextColor(isDark)
 
     const hasBreast = trendData.some(d => d.breastMin > 0)
     const hasBottle = trendData.some(d => d.bottleMl > 0)
+
+    const currentMetric = COMPARE_METRICS.find(m => m.key === compareMetric) ?? COMPARE_METRICS[0]
 
     return (
         <StatsCard>
@@ -94,11 +112,30 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
             </div>
 
             {view === "compare" ? (
-                <DayComparisonChart
-                    data={compareData}
-                    colorToday={isDark ? "#fb7185" : "#f43f5e"}
-                    currentHour={(new Date().getUTCHours() + 9) % 24}
-                />
+                <>
+                    <div className="mb-3 flex gap-1">
+                        {COMPARE_METRICS.map(({ key, label }) => (
+                            <button
+                                key={key}
+                                onClick={() => setCompareMetric(key)}
+                                className={[
+                                    "rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors",
+                                    compareMetric === key
+                                        ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300"
+                                        : "text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200",
+                                ].join(" ")}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    <DayComparisonChart
+                        data={compareData}
+                        colorToday={isDark ? "#fb7185" : "#f43f5e"}
+                        currentHour={(new Date().getUTCHours() + 9) % 24}
+                        unit={currentMetric.unit}
+                    />
+                </>
             ) : view === "trend" ? (
                 !hasAny ? (
                     <p className="py-8 text-center text-sm text-gray-400 dark:text-zinc-500">記録がありません</p>
