@@ -77,7 +77,7 @@ export default function DiaryPage() {
             // バックエンドは is_edited=true のレコードを再生成せず返すため、
             // クリアしないと再生成が行われないまま成功扱いになってしまう。
             if (forceRegen && selectedSummary?.is_edited) {
-                await editDailySummary(babyId, selectedDate, null, selectedSummary.image_urls ?? [])
+                await editDailySummary(babyId, selectedDate, null, selectedSummary.image_urls ?? [], selectedSummary.updated_at)
             }
             await generateDailySummary(babyId, selectedDate)
             await mutate()
@@ -101,9 +101,9 @@ export default function DiaryPage() {
         setEditOpen(true)
     }
 
-    const handleEditSave = async (summaryDate: string, editedContent: string | null, imageUrls: string[]) => {
+    const handleEditSave = async (summaryDate: string, editedContent: string | null, imageUrls: string[], updatedAt: string) => {
         if (!babyId) return
-        await editDailySummary(babyId, summaryDate, editedContent, imageUrls)
+        await editDailySummary(babyId, summaryDate, editedContent, imageUrls, updatedAt)
         await mutate()
     }
 

@@ -128,13 +128,15 @@ AI に対し、以下の情報を元に特徴の抽出を依頼する。
 
 ### `PATCH /api/babies/{baby_id}/daily-summary/{date}`
 
-**概要**: 日誌を手動編集する。
+**概要**: 日誌を手動編集する。同時編集によるデータ消失を防ぐため、楽観的ロック（Optimistic Lock）を使用する。
 
 **リクエストボディ (`DailySummaryEdit`)**:
 - `edited_content`: 編集後のテキスト (Nullable)。
 - `image_urls`: 更新する画像URLリスト (Optional)。
+- `updated_at`: 編集開始時に取得した元データの更新日時 (DateTime, 必須)。
 
 **挙動**:
+- リクエストに含まれる `updated_at` とデータベース上の最新の `updated_at` を比較し、一致しない場合は `409 Conflict` を返す。
 - `edited_content` に文字列が指定された場合、`is_edited` は `true` に更新される。
 - `edited_content` に `null` が指定された場合、`is_edited` は `false` にリセットされ、AI生成内容 (`generated_content`) が表示されるようになる。
 - `image_urls` が指定された場合、既存のリストを上書きする。

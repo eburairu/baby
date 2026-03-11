@@ -16,7 +16,7 @@ interface DiaryEditDialogProps {
     summary: DailySummary | null
     open: boolean
     onOpenChange: (open: boolean) => void
-    onSave: (summaryDate: string, editedContent: string | null, imageUrls: string[]) => Promise<void>
+    onSave: (summaryDate: string, editedContent: string | null, imageUrls: string[], updatedAt: string) => Promise<void>
     canWrite?: boolean
 }
 
@@ -25,6 +25,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
     const [pendingImages, setPendingImages] = useState<string[]>([])
     const [isUploading, setIsUploading] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
+    const [saveError, setSaveError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -33,6 +34,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
             setContent(summary.edited_content ?? summary.generated_content)
             setPendingImages(summary.image_urls ?? [])
             setUploadError(null)
+            setSaveError(null)
         }
     }, [open, summary])
 
@@ -86,9 +88,17 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
     const handleSave = async () => {
         if (!summary) return
         setSaving(true)
+        setSaveError(null)
         try {
-            await onSave(summary.summary_date, content.trim() || null, pendingImages)
+            await onSave(summary.summary_date, content.trim() || null, pendingImages, summary.updated_at)
             onOpenChange(false)
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number } };
+            if (err?.response?.status === 409) {
+                setSaveError("他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。")
+            } else {
+                setSaveError("保存に失敗しました。時間をおいて再度お試しください。")
+            }
         } finally {
             setSaving(false)
         }
@@ -101,6 +111,11 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
             title={<span data-sentry-unmask>育児日誌を編集</span>}
         >
             <div className="space-y-4">
+                {saveError && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
+                        {saveError}
+                    </div>
+                )}
                 <div>
                     <Textarea
                         value={content}

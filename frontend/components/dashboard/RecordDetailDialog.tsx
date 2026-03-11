@@ -74,7 +74,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
             break
           case "note":
             endpoint = `/notes/${record.id}`
-            await api.patch(endpoint, { content: notes, note_time: isoTimestamp })
+            await api.patch(endpoint, { content: notes, note_time: isoTimestamp, updated_at: record.updated_at })
             break
           case "contraction":
             endpoint = `/contractions/${record.id}`
@@ -88,7 +88,13 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
           onSuccess()
           onOpenChange(false)
         },
-        errorMessage: "更新に失敗しました"
+        errorMessage: (error: unknown) => {
+            const err = error as { response?: { status?: number } };
+            if (err?.response?.status === 409) {
+                return "他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。"
+            }
+            return "更新に失敗しました"
+        }
       }
     )
   }

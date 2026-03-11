@@ -51,7 +51,7 @@ def test_update_note(client: TestClient, auth_client):
     # Update
     response = client.patch(
         f"/api/notes/{note_id}",
-        json={"content": "New Content"}
+        json={"content": "New Content", "updated_at": resp.json()["updated_at"]}
     )
     assert response.status_code == 200
     assert response.json()["content"] == "New Content"
