@@ -163,6 +163,20 @@ Botoro のメイン画面（ホーム）となるダッシュボードの仕様�
         - `limit`: 取得件数 (default: 20, min: 1, max: 100)
     - **Response**: `List[UnifiedRecord]`
 
+- **POST /api/babies/{baby_id}/records**
+    - **Request Body**: `RecordCreate`
+    - **Response**: `UnifiedRecord` (作成された記録の初期状態)
+    - **備考**: クイックアクション等から「最低限の情報」で即時記録を作成する際に利用します。
+
+**リクエストスキーマ (`RecordCreate`)**
+
+```typescript
+interface RecordCreate {
+  type: string;
+  timestamp: string; // ISO 8601 (JST)
+}
+```
+
 **レスポンススキーマ (`UnifiedRecord`)**
 
 ```typescript

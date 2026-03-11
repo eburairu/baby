@@ -281,3 +281,10 @@
 ## 2026-03-10 - [体温記録仕様書のページネーションデフォルト値と実装の同期]
 **学び:** 体温記録エンドポイント（`app/routers/temperatures.py`）の実装では、デフォルトの `limit` パラメータが `MAX_PAGINATION_LIMIT`（100）に設定されているにもかかわらず、仕様書（`temperature_tracker.md`）には誤って `limit=20` と記載されていました。
 **アクション:** 仕様書内のハードコードされた `limit` パラメータのデフォルト値を、バックエンドの実装に合わせ `100` へ修正しました。今後は API ルーターの `Query(...)` のデフォルト値と仕様書の記載が一致しているかを常に確認します。
+
+## 2026-03-11 - [統合タイムラインAPIのPOSTエンドポイントの仕様書欠落]
+**学び:**
+- 統合タイムライン（`app/routers/baby.py`）において、一覧取得エンドポイント（`GET /api/babies/{id}/records`）とレスポンススキーマ（`UnifiedRecord`）は仕様書（`.specify/specs/ui/dashboard.md`）に記載されていたが、同ファイル内で定義されているクイック記録作成用のエンドポイント（`POST /api/babies/{id}/records`）およびリクエストスキーマ（`RecordCreate`）が完全に欠落していた。
+- トラッカーのメインエンドポイントとは別に、ダッシュボード等で横断的に利用される統合APIの場合、取得（GET）は記載されても更新・作成（POST/PATCH）の仕様が漏れるパターンがある。
+**アクション:**
+- `dashboard.md` のAPI仕様セクションに、`POST /api/babies/{id}/records` と `RecordCreate` スキーマのTypeScriptインターフェースを追記した。横断APIや統合APIの仕様書を確認する際は、必ずCRUD全体（特にPOST/PUT）が実装に沿って網羅されているかを確認する。
