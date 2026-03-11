@@ -7,6 +7,7 @@ export const DiaperType = {
     WET: "WET",
     DIRTY: "DIRTY",
     BOTH: "BOTH",
+    CLEAN: "CLEAN",
 } as const
 
 export type DiaperType = components["schemas"]["DiaperType"]
