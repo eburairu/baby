@@ -202,7 +202,12 @@ if [ -n "$MERGED_PR" ]; then
       && log "issue #${ISSUE_NUMBER} をクローズしました" \
       || log "issueクローズに失敗しました（無視）"
   fi
-  exit 0
+  # 特定issueを指定した場合はスキップして終了、自動選択の場合は次のissueへ
+  if [ -n "${ISSUE_ARG:-}" ]; then
+    exit 0
+  fi
+  log "次のissueを処理します..."
+  exec "$0"
 fi
 
 # ===========================================================
