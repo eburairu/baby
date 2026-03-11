@@ -31,6 +31,13 @@ reset_password_limiter = RateLimiter(
     error_message="Too many password reset attempts. Please try again later.",
 )
 
+# Limit invite code regeneration to prevent abuse/DoS
+regenerate_invite_limiter = RateLimiter(
+    requests_limit=constants.RATE_LIMIT_REGENERATE_INVITE_REQUESTS,
+    time_window=constants.RATE_LIMIT_REGENERATE_INVITE_WINDOW,
+    error_message="Too many invite code generation requests. Please try again later.",
+)
+
 def _get_family_user(db: Session, current_user: User) -> FamilyUser:
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     if not family_user:
@@ -70,7 +77,7 @@ def update_family(
     return family
 
 
-@router.post("/invite_code/regenerate", response_model=FamilyResponse, dependencies=[Depends(reset_password_limiter)])
+@router.post("/invite_code/regenerate", response_model=FamilyResponse, dependencies=[Depends(regenerate_invite_limiter)])
 def regenerate_invite_code(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
