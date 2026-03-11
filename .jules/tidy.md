@@ -23,3 +23,6 @@
 ## 2025-03-10 - [APIエラーメッセージ処理と非同期ローディングのさらなる共通化]
 **学び:** APIエラーからメッセージを抽出する際、`isApiError(err) ? err.info.detail : "エラー"` のような三項演算子を用いた処理が複数のページで記述されていた。また、一部のコンポーネント（`useRecordDelete` の `AlertDialogAction` など）で、すでに `loading` プロパティが用意されているにもかかわらず、手動で `<Loader2>` を条件付きレンダリングする冗長な記述が見られた。
 **アクション:** エラーメッセージ抽出については、一元化された `getErrorMessage` ユーティリティを積極的に使用し、各ファイルでの型判定やデフォルトメッセージのボイラープレートを排除する。UIコンポーネントのローディング状態については、コンポーネントに内包された機能（`loading` prop）を信頼し、呼び出し側のコードをシンプルに保つ（DRY原則の徹底）。
+## 2025-03-11 - 非同期状態管理の共通化（useAsyncAction）とcascading rendersの回避
+**学び:** `try...catch...finally` ブロックと手動の `useState`（`loading`, `error`）を使用した非同期処理のボイラープレートが複数のコンポーネント（例: `RecordDetailDialog`, `NoteForm`, `NoteEditDialog`）に散在していた。また、コンポーネントのマウント時やプロパティの変更時に `useEffect` 内で直接 `setState` を呼び出すと、React の `cascading renders` 警告が発生する。
+**アクション:** 将来的なリファクタリングでは、非同期処理を扱う際は共有の `useAsyncAction` フックを積極的に活用し、コードの重複を排除する。また、`useAsyncAction` が `error` ステートも返すように拡張することで、エラーハンドリングの一貫性を向上させることができる。`useEffect` 内での状態の初期化による cascading renders を防ぐには、単に `setTimeout` を使うだけでなく、依存配列を正しく設定するか、必要に応じて React 19 の機能を活用するなど、より根本的な解決策を検討する（今回は setTimeout を用いる回避策を適用した）。
