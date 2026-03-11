@@ -90,11 +90,13 @@ def test_secure_daily_summary_image_urls(mock_get_s3, auth_client, db):
     )
     db.add(summary)
     db.commit()
+    db.refresh(summary)
 
     # PATCH with image URLs
     image_url = "https://pub-xxx.r2.dev/summary_img.webp"
     response = client.patch(f"/api/babies/{baby.id}/daily-summary/{summary_date}", json={
-        "image_urls": [image_url]
+        "image_urls": [image_url],
+        "updated_at": summary.updated_at.isoformat()
     })
     
     assert response.status_code == 200

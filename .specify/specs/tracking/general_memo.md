@@ -82,7 +82,7 @@ class Note(Base):
 |---------|-----|------|
 | `GET` | `/api/babies/{baby_id}/notes` | メモ一覧取得（履歴） |
 | `POST` | `/api/babies/{baby_id}/notes` | メモの新規登録<br>※保存成功後、対象の赤ちゃんの家族全員（記録者本人以外）に通知（プッシュ通知/アプリ内通知）を送信する |
-| `PATCH` | `/api/notes/{note_id}` | メモの編集 |
+| `PATCH` | `/api/notes/{note_id}` | メモの編集<br>※`updated_at`を用いた楽観的ロックにより、同時編集時のConflict(`409`)を防止 |
 | `DELETE` | `/api/notes/{note_id}` | メモの削除 |
 
 ### バリデーション
@@ -106,6 +106,7 @@ interface NoteCreate extends NoteBase {}
 interface NoteUpdate {
     content?: string
     note_time?: string // ISO 8601
+    updated_at: string // ISO 8601 (楽観的ロック用、必須)
 }
 
 // レスポンス

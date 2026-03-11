@@ -104,6 +104,9 @@ def update_note(
     
     verify_baby_access(db, db_note.baby_id, current_user.id, record_type="note", require_write=True)
 
+    if db_note.updated_at.replace(tzinfo=None) != note_in.updated_at.replace(tzinfo=None):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Data has been modified by another user.")
+
     if note_in.note_time:
         check_time = note_in.note_time
         if check_time.tzinfo is None:
@@ -115,6 +118,7 @@ def update_note(
             raise HTTPException(status_code=400, detail="Future date is not allowed")
 
     update_data = note_in.model_dump(exclude_unset=True)
+    update_data.pop("updated_at", None)
     if "note_time" in update_data and update_data["note_time"]:
         update_data["note_time"] = update_data["note_time"]
 

@@ -1124,8 +1124,16 @@
               }
             ],
             "title": "Image Urls"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
           }
         },
+        "required": [
+          "updated_at"
+        ],
         "title": "DailySummaryEdit",
         "type": "object"
       },
@@ -2770,8 +2778,16 @@
               }
             ],
             "title": "Note Time"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
           }
         },
+        "required": [
+          "updated_at"
+        ],
         "title": "NoteUpdate",
         "type": "object"
       },
@@ -3594,6 +3610,18 @@
           "type": {
             "title": "Type",
             "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
           }
         },
         "required": [

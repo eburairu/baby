@@ -214,6 +214,9 @@ def edit_daily_summary(
     if not summary:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily summary not found")
 
+    if summary.updated_at.replace(tzinfo=None) != body.updated_at.replace(tzinfo=None):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Data has been modified by another user.")
+
     summary.edited_content = body.edited_content
     summary.is_edited = body.edited_content is not None
     if body.image_urls is not None:

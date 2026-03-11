@@ -22,6 +22,7 @@ class NoteCreate(NoteBase):
 class NoteUpdate(BaseModel):
     content: Optional[str] = Field(None, min_length=1, max_length=NOTE_MAX_LENGTH)
     note_time: Optional[datetime] = None
+    updated_at: datetime
 
     @field_validator('note_time', mode='before')
     @classmethod

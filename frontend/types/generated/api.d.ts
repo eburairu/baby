@@ -1590,6 +1590,11 @@ export interface components {
             edited_content?: string | null;
             /** Image Urls */
             image_urls?: string[] | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** DailySummaryResponse */
         DailySummaryResponse: {
@@ -2106,6 +2111,11 @@ export interface components {
             content?: string | null;
             /** Note Time */
             note_time?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** NotificationSettingsResponse */
         NotificationSettingsResponse: {
@@ -2409,6 +2419,8 @@ export interface components {
             timestamp: string;
             /** Type */
             type: string;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /**
          * UnlockedAchievementInfo

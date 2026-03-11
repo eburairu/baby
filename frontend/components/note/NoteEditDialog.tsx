@@ -67,7 +67,8 @@ export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEdit
             async () => {
                 await updateNote(note.id, {
                     content: values.content,
-                    note_time: new Date(values.note_time).toISOString()
+                    note_time: new Date(values.note_time).toISOString(),
+                    updated_at: note.updated_at
                 })
             },
             {
@@ -75,7 +76,13 @@ export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEdit
                     onSuccess()
                     onOpenChange(false)
                 },
-                errorMessage: "更新に失敗しました。時間をおいて再度お試しください。"
+                errorMessage: (error: unknown) => {
+                    const err = error as { response?: { status?: number } };
+                    if (err?.response?.status === 409) {
+                        return "他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。"
+                    }
+                    return "更新に失敗しました。時間をおいて再度お試しください。"
+                }
             }
         )
     }
