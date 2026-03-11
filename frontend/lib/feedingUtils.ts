@@ -147,6 +147,57 @@ export function calculateDailyStats(feedings: NormalizedFeeding[], days = 7): Da
     })
 }
 
+export interface HourlyPoint {
+    hour: number   // 0-23
+    today: number  // 0:00〜hour:59 の累積値（今日）
+    avg7: number   // 過去7日（当日除く）の同時刻累積値の平均
+}
+
+export interface FeedingHourlyPoint {
+    hour: number
+    todayCount: number
+    avg7Count: number
+    todayMl: number
+    avg7Ml: number
+    todayMin: number
+    avg7Min: number
+}
+
+export function buildFeedingHourlyComparison(feedings: NormalizedFeeding[]): FeedingHourlyPoint[] {
+    const getHourJST = (iso: string) => (new Date(iso).getUTCHours() + 9) % 24
+
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+    const days = Array.from({ length: 7 }, (_, i) => {
+        return new Date(todayStart.getTime() - (i + 1) * 86400000)
+    })
+
+    const todayRecs = feedings.filter(f => isSameDay(new Date(f.timestamp), todayStart))
+
+    return Array.from({ length: 24 }, (_, hour) => {
+        const todayUpToHour = todayRecs.filter(f => getHourJST(f.timestamp) <= hour)
+        const todayCount = todayUpToHour.length
+        const todayMl = todayUpToHour.reduce((s, f) => s + (f.amount || 0), 0)
+        const todayMin = todayUpToHour.reduce((s, f) => s + (f.duration || 0), 0)
+
+        const past7 = days.map(dayStart => {
+            const dayRecs = feedings.filter(f => isSameDay(new Date(f.timestamp), dayStart))
+            const upToHour = dayRecs.filter(f => getHourJST(f.timestamp) <= hour)
+            return {
+                count: upToHour.length,
+                ml: upToHour.reduce((s, f) => s + (f.amount || 0), 0),
+                min: upToHour.reduce((s, f) => s + (f.duration || 0), 0),
+            }
+        })
+        const avg7Count = past7.reduce((s, d) => s + d.count, 0) / 7
+        const avg7Ml = past7.reduce((s, d) => s + d.ml, 0) / 7
+        const avg7Min = past7.reduce((s, d) => s + d.min, 0) / 7
+
+        return { hour, todayCount, avg7Count, todayMl, avg7Ml, todayMin, avg7Min }
+    })
+}
+
 interface BuildFeedingPayloadOptions {
     babyId: number
     values: FeedingFormValues

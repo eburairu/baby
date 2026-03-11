@@ -75,6 +75,37 @@ export interface DailyDiaperData {
     dirty: number
 }
 
+export interface HourlyPoint {
+    hour: number
+    today: number
+    avg7: number
+}
+
+export function buildDiaperHourlyComparison(diapers: NormalizedDiaper[]): HourlyPoint[] {
+    const getHourJST = (iso: string) => (new Date(iso).getUTCHours() + 9) % 24
+
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+    const days = Array.from({ length: 7 }, (_, i) => {
+        return new Date(todayStart.getTime() - (i + 1) * 86400000)
+    })
+
+    const todayRecs = diapers.filter(d => isSameDay(new Date(d.timestamp), todayStart))
+
+    return Array.from({ length: 24 }, (_, hour) => {
+        const todayCount = todayRecs.filter(d => getHourJST(d.timestamp) <= hour).length
+
+        const past7Counts = days.map(dayStart => {
+            const dayRecs = diapers.filter(d => isSameDay(new Date(d.timestamp), dayStart))
+            return dayRecs.filter(d => getHourJST(d.timestamp) <= hour).length
+        })
+        const avg7 = past7Counts.reduce((s, n) => s + n, 0) / 7
+
+        return { hour, today: todayCount, avg7 }
+    })
+}
+
 export function calculateDailyDiaperStats(diapers: NormalizedDiaper[], days = 7): DailyDiaperData[] {
     const today = new Date()
     return Array.from({ length: days }, (_, i) => {
