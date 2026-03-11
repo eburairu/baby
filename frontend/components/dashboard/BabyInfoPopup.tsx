@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { Edit, Sparkles } from "lucide-react"
 import { Hexagon } from "@/components/ui/hexagon"
@@ -32,6 +32,7 @@ interface BabyInfoPopupProps {
   baby: BabyForWidget
   open: boolean
   onOpenChange: (open: boolean) => void
+  defaultTab?: TabId
 }
 
 const genderLabel = (g: string | null | undefined): string => {
@@ -44,16 +45,22 @@ const formatBirthday = (birthday: string): string => {
   return formatJapaneseDate(birthday)
 }
 
-type TabId = "info" | "achievements"
+export type TabId = "info" | "achievements"
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "info", label: "情報" },
   { id: "achievements", label: "実績" },
 ]
 
-export function BabyInfoPopup({ baby, open, onOpenChange }: BabyInfoPopupProps) {
+export function BabyInfoPopup({ baby, open, onOpenChange, defaultTab }: BabyInfoPopupProps) {
   const { isAdmin } = usePermissions()
-  const [activeTab, setActiveTab] = useState<TabId>("info")
+  const [activeTab, setActiveTab] = useState<TabId>(defaultTab ?? "info")
+
+  useEffect(() => {
+    if (open) {
+      setActiveTab(defaultTab ?? "info")
+    }
+  }, [open, defaultTab])
 
   const ageLabel = baby.birthday
     ? calcAge(baby.birthday).label
