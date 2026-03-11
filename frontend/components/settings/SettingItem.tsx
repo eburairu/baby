@@ -27,18 +27,14 @@ export function SettingItem({
     isDestructive = false,
     rightElement,
 }: SettingItemProps) {
-    const hexagonColorClass = bgClass.replace(/bg-/g, 'text-');
-    
     const content = (
         <SettingsCard className={`flex items-center gap-4 ${
             onClick || href ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800" : ""
         } ${
             isDestructive ? "hover:bg-red-50 dark:hover:bg-red-950/20 group" : ""
         }`}>
-            <div className={`relative flex items-center justify-center ${
-                isDestructive ? "group-hover:text-red-100 dark:group-hover:text-red-900/30 transition-colors" : ""
-            }`}>
-                <Hexagon size={40} className={hexagonColorClass}>
+            <div className="relative flex items-center justify-center">
+                <Hexagon size={40} className={`${bgClass} transition-colors ${isDestructive ? "group-hover:bg-red-100 dark:group-hover:bg-red-900/30" : ""}`} color="transparent">
                     <Icon className={`relative z-10 h-5 w-5 ${colorClass} ${
                         isDestructive ? "group-hover:text-red-600 dark:group-hover:text-red-400" : ""
                     }`} />
