@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React from "react"
 import Link from "next/link"
 import { Edit, Sparkles } from "lucide-react"
 import { Hexagon } from "@/components/ui/hexagon"
@@ -28,11 +28,14 @@ interface BabyForWidget {
   characteristics?: string | null
 }
 
+export type TabId = "info" | "achievements"
+
 interface BabyInfoPopupProps {
   baby: BabyForWidget
   open: boolean
   onOpenChange: (open: boolean) => void
-  defaultTab?: TabId
+  activeTab: TabId
+  onActiveTabChange: (tab: TabId) => void
 }
 
 const genderLabel = (g: string | null | undefined): string => {
@@ -45,22 +48,13 @@ const formatBirthday = (birthday: string): string => {
   return formatJapaneseDate(birthday)
 }
 
-export type TabId = "info" | "achievements"
-
 const TABS: { id: TabId; label: string }[] = [
   { id: "info", label: "情報" },
   { id: "achievements", label: "実績" },
 ]
 
-export function BabyInfoPopup({ baby, open, onOpenChange, defaultTab }: BabyInfoPopupProps) {
+export function BabyInfoPopup({ baby, open, onOpenChange, activeTab, onActiveTabChange }: BabyInfoPopupProps) {
   const { isAdmin } = usePermissions()
-  const [activeTab, setActiveTab] = useState<TabId>(defaultTab ?? "info")
-
-  useEffect(() => {
-    if (open) {
-      setActiveTab(defaultTab ?? "info")
-    }
-  }, [open, defaultTab])
 
   const ageLabel = baby.birthday
     ? calcAge(baby.birthday).label
@@ -93,7 +87,7 @@ export function BabyInfoPopup({ baby, open, onOpenChange, defaultTab }: BabyInfo
           {TABS.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => onActiveTabChange(tab.id)}
               className={cn(
                 "flex-1 py-2 text-sm font-medium transition-colors",
                 activeTab === tab.id

@@ -24,25 +24,33 @@ interface BabyWidgetProps {
 }
 
 export function BabyWidget({ baby, size }: BabyWidgetProps) {
-  const [open, setOpen] = useState<boolean>(false)
-  const [defaultTab, setDefaultTab] = useState<TabId | undefined>(undefined)
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  const isAchievementsDeepLink =
+    searchParams.get("baby_id") === String(baby.id) &&
+    searchParams.get("tab") === "achievements"
+
+  const [open, setOpen] = useState<boolean>(() => isAchievementsDeepLink)
+  const [activeTab, setActiveTab] = useState<TabId>(() =>
+    isAchievementsDeepLink ? "achievements" : "info"
+  )
+
+  // URLパラメータのクリーンアップのみ（setStateを呼ばない）
   useEffect(() => {
-    const babyId = searchParams.get("baby_id")
-    const tab = searchParams.get("tab")
-    if (babyId === String(baby.id) && tab === "achievements") {
-      setDefaultTab("achievements")
-      setOpen(true)
-      // URLからパラメータを削除して履歴をきれいに保つ
-      const params = new URLSearchParams(searchParams.toString())
-      params.delete("baby_id")
-      params.delete("tab")
-      const newUrl = params.size > 0 ? `?${params}` : window.location.pathname
-      router.replace(newUrl)
-    }
-  }, [searchParams, baby.id, router])
+    if (!isAchievementsDeepLink) return
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("baby_id")
+    params.delete("tab")
+    const newUrl = params.size > 0 ? `?${params}` : window.location.pathname
+    router.replace(newUrl)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // マウント時のみ実行
+
+  const handleManualOpen = () => {
+    setActiveTab("info")
+    setOpen(true)
+  }
 
   const initial = baby.name.charAt(0) || "?"
   const ageLabel = baby.birthday
@@ -52,7 +60,7 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
   return (
     <>
       <button
-        onClick={() => { setDefaultTab(undefined); setOpen(true) }}
+        onClick={handleManualOpen}
         aria-label={`${baby.name}の情報を見る`}
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -71,7 +79,13 @@ export function BabyWidget({ baby, size }: BabyWidgetProps) {
           <span>{ageLabel}</span>
         </HexagonWidgetCard>
       </button>
-      <BabyInfoPopup baby={baby} open={open} onOpenChange={setOpen} defaultTab={defaultTab} />
+      <BabyInfoPopup
+        baby={baby}
+        open={open}
+        onOpenChange={setOpen}
+        activeTab={activeTab}
+        onActiveTabChange={setActiveTab}
+      />
     </>
   )
 }
