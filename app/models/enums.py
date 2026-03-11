@@ -56,6 +56,7 @@ class DiaperType(str, Enum):
     WET = "WET"
     DIRTY = "DIRTY"
     BOTH = "BOTH"
+    CLEAN = "CLEAN"
 
 class TemperatureMethod(str, Enum):
     AXILLARY = "AXILLARY"   # わきの下

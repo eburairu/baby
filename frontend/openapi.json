@@ -1333,7 +1333,8 @@
         "enum": [
           "WET",
           "DIRTY",
-          "BOTH"
+          "BOTH",
+          "CLEAN"
         ],
         "title": "DiaperType",
         "type": "string"
