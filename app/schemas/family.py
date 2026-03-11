@@ -24,6 +24,7 @@ class FamilyResponse(BaseModel):
     id: int
     name: str
     invite_code: str
+    invite_code_expires_at: Optional[datetime] = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,5 +1,6 @@
 import logging
 import secrets
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -81,6 +82,7 @@ def regenerate_invite_code(
     while db.query(Family).filter(Family.invite_code == new_code).first():
         new_code = secrets.token_hex(8).upper()
     family.invite_code = new_code
+    family.invite_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
     logger.info("Invite code regenerated: family_id=%s, by user_id=%s", family.id, current_user.id)
     db.commit()
     db.refresh(family)
