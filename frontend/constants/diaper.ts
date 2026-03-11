@@ -21,6 +21,12 @@ export const DIAPER_STYLES: Record<DiaperType, { bg: string; border: string; tex
         border: "border-purple-100 dark:border-purple-900/50",
         text: "text-purple-700 dark:text-purple-400",
         label: "両方"
+    },
+    [DiaperType.CLEAN]: {
+        bg: "bg-gray-50 dark:bg-zinc-800/50",
+        border: "border-gray-100 dark:border-zinc-700",
+        text: "text-gray-700 dark:text-zinc-400",
+        label: "きれい"
     }
 };
 

@@ -1676,7 +1676,7 @@ export interface components {
          * DiaperType
          * @enum {string}
          */
-        DiaperType: "WET" | "DIRTY" | "BOTH";
+        DiaperType: "WET" | "DIRTY" | "BOTH" | "CLEAN";
         /** DiaperUpdate */
         DiaperUpdate: {
             /** Change Time */
