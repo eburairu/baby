@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 
 
-class Growth(Base, SoftDeleteMixin):
+class Growth(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "growths"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

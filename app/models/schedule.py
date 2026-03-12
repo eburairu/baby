@@ -12,6 +12,7 @@ class Schedule(Base, SoftDeleteMixin):
     scheduled_time = Column(DateTime(timezone=True), nullable=False, index=True)
     is_completed = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
 
     __table_args__ = (

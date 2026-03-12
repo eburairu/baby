@@ -49,12 +49,14 @@ register_limiter = RateLimiter(
 # making response times consistent regardless of user existence.
 DUMMY_HASH = get_password_hash("dummy_password_for_timing_mitigation")
 
-def _create_session(db: Session, user_id: int) -> str:
+def _create_session(db: Session, user_id: int, request: Request) -> str:
     token = secrets.token_urlsafe(32)
     session = UserSession(
         token=hash_token(token),
         user_id=user_id,
         expires_at=datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS),
+        ip_address=get_client_ip(request),
+        user_agent=request.headers.get("user-agent"),
     )
     db.add(session)
     db.flush()  # Use flush instead of commit to join caller's transaction
@@ -147,7 +149,7 @@ async def register_family(
     db.add(family_user)
     db.flush() # Ensure ids are assigned but not committed yet
 
-    token = _create_session(db, new_user.id)
+    token = _create_session(db, new_user.id, request)
     response.set_cookie(
         key="access_token",
         value=token,
@@ -211,7 +213,7 @@ async def join_family(
     db.add(family_user)
     db.flush()
 
-    token = _create_session(db, new_user.id)
+    token = _create_session(db, new_user.id, request)
     response.set_cookie(
         key="access_token",
         value=token,
@@ -265,7 +267,7 @@ async def login(
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user.id).first()
     role = family_user.role if family_user else None
 
-    token = _create_session(db, user.id)
+    token = _create_session(db, user.id, request)
     response.set_cookie(
         key="access_token",
         value=token,
