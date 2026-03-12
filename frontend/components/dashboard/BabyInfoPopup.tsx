@@ -88,6 +88,8 @@ export function BabyInfoPopup({ baby, open, onOpenChange, activeTab, onActiveTab
             <button
               key={tab.id}
               onClick={() => onActiveTabChange(tab.id)}
+              aria-pressed={activeTab === tab.id}
+              aria-label={`${tab.label}タブを表示`}
               className={cn(
                 "flex-1 py-2 text-sm font-medium transition-colors",
                 activeTab === tab.id

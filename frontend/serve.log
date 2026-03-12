@@ -1,76 +1,222 @@
 npm warn exec The following package was not found and will be installed: serve@14.2.6
  INFO  Accepting connections at http://localhost:3000
- HTTP  3/11/2026 8:32:34 PM ::1 GET /admin
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 25 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/media/07454f8ad8aaac57-s.p.fc65572f.woff2
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 2 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/c5efcc2eb9ecde44.css
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/9a8c0ce9fdf669e7.css
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/media/797e433ab948586e-s.p.dbea232f.woff2
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/85e1c0ad46cbafbd.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/21c3b8f8a9fd1b29.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 7 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 6 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 6 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 6 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 5 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 9 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/322fc8520f3e0aa7.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/d6080f41951f9237.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/d1eb78b151953fb7.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 4 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 5 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/f03a946546196e78.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 3 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 12 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/9021cb852020f162.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/turbopack-f5b5f02c5cc141ac.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/32a562af20f6093e.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 5 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 4 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/d4643c04cdad999f.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/08d0394933f000fc.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 5 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 7 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 8 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/72f85bfbe39f9969.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/6b2c38f5975dd7c4.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/ab84b860b1e748fb.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/f62afd7284c7e66f.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 10 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 10 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 9 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 9 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/db665a1fcbc44583.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 3 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/57c4f270fe20cc25.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/ca8fb7647ca9f3fc.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 4 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 2 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /sw.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 2 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /worker-1e999a0f776a11db.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 1 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /api/admin/stats
- HTTP  3/11/2026 8:32:34 PM ::1 GET /api/admin/audit-logs
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 404 in 3 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 404 in 3 ms
- HTTP  3/11/2026 8:32:34 PM ::1 HEAD /
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 1 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /__next._tree.txt?_rsc=17qrm
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 2 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /__next._head.txt?_rsc=m0mb1
- HTTP  3/11/2026 8:32:34 PM ::1 GET /__next._index.txt?_rsc=444lg
- HTTP  3/11/2026 8:32:34 PM ::1 GET /__next.__PAGE__.txt?_rsc=941a9
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 6 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 5 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 2 ms
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/74554fc17965bd13.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/190f2f2896808643.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/1929c29c6600887d.js
- HTTP  3/11/2026 8:32:34 PM ::1 GET /_next/static/chunks/20f9fb223d419a26.js
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 3 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 2 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 3 ms
- HTTP  3/11/2026 8:32:34 PM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /dashboard
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 38 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/media/07454f8ad8aaac57-s.p.fc65572f.woff2
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/media/797e433ab948586e-s.p.dbea232f.woff2
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/c5efcc2eb9ecde44.css
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/9a8c0ce9fdf669e7.css
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 9 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 9 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 10 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 14 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/85e1c0ad46cbafbd.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/21c3b8f8a9fd1b29.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/322fc8520f3e0aa7.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/d6080f41951f9237.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/6496843bb12b369c.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/f03a946546196e78.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 9 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/9021cb852020f162.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 12 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/turbopack-9d0a494afbcb38a2.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/32a562af20f6093e.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/d4643c04cdad999f.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 16 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 9 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 33 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/08d0394933f000fc.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/72f85bfbe39f9969.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/6b2c38f5975dd7c4.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 7 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 9 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/ab84b860b1e748fb.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 6 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/74554fc17965bd13.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 5 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/cd02b7d8a89857bb.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/32575918c817fdba.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/6ea2fa752bdaed51.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/c894dadde63b30b7.js
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/e5b0b6ade4e60e10.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 17 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/723fc7d055e3af73.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 7 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 7 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/ed18bd3cce5cfb74.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 4 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 14 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/a43429c6f83207f3.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 5 ms
+ HTTP  3/12/2026 8:22:37 AM ::1 GET /_next/static/chunks/ca8fb7647ca9f3fc.js
+ HTTP  3/12/2026 8:22:37 AM ::1 Returned 200 in 8 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 GET /api/notifications
+ HTTP  3/12/2026 8:22:38 AM ::1 GET /api/babies/
+ HTTP  3/12/2026 8:22:38 AM ::1 GET /api/version
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 404 in 6 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 404 in 5 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 404 in 8 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 GET /sw.js
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 200 in 7 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 GET /worker-1e999a0f776a11db.js
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 HEAD /contraction
+ HTTP  3/12/2026 8:22:38 AM ::1 HEAD /dashboard
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:22:38 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /contraction/__next._tree.txt?_rsc=18t7j
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /dashboard/__next._tree.txt?_rsc=18t7j
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 10 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /contraction/__next._head.txt?_rsc=oh8t4
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /contraction/__next._index.txt?_rsc=585va
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /contraction/__next.!KGRhc2hib2FyZCk.txt?_rsc=1yeh9
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /contraction/__next.!KGRhc2hib2FyZCk.contraction.txt?_rsc=iv8ix
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 6 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 5 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /contraction/__next.!KGRhc2hib2FyZCk.contraction.__PAGE__.txt?_rsc=1jvdn
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /dashboard/__next._head.txt?_rsc=oh8t4
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /dashboard/__next.!KGRhc2hib2FyZCk.dashboard.txt?_rsc=16sqo
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /dashboard/__next.!KGRhc2hib2FyZCk.dashboard.__PAGE__.txt?_rsc=16vtn
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /_next/static/chunks/93a5a615d1accb14.js
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /_next/static/chunks/f277fdfa7c7dd31a.js
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /_next/static/chunks/108056c12e90f3f8.js
+ HTTP  3/12/2026 8:22:39 AM ::1 GET /_next/static/chunks/5c64b81678cb24ea.js
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:22:39 AM ::1 Returned 200 in 6 ms
+ HTTP  3/12/2026 8:22:44 AM ::1 GET /api/version
+ HTTP  3/12/2026 8:22:44 AM ::1 Returned 404 in 2 ms
+ HTTP  3/12/2026 8:22:49 AM ::1 GET /api/notifications
+ HTTP  3/12/2026 8:22:49 AM ::1 Returned 404 in 2 ms
+ HTTP  3/12/2026 8:22:54 AM ::1 GET /api/version
+ HTTP  3/12/2026 8:22:54 AM ::1 Returned 404 in 2 ms
+ HTTP  3/12/2026 8:23:09 AM ::1 GET /api/notifications
+ HTTP  3/12/2026 8:23:09 AM ::1 Returned 404 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /dashboard
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/media/07454f8ad8aaac57-s.p.fc65572f.woff2
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/c5efcc2eb9ecde44.css
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/media/797e433ab948586e-s.p.dbea232f.woff2
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/9a8c0ce9fdf669e7.css
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/85e1c0ad46cbafbd.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/21c3b8f8a9fd1b29.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/322fc8520f3e0aa7.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 7 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/d6080f41951f9237.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/6496843bb12b369c.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 7 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/f03a946546196e78.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/9021cb852020f162.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/turbopack-9d0a494afbcb38a2.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/32a562af20f6093e.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/d4643c04cdad999f.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/08d0394933f000fc.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/72f85bfbe39f9969.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/6b2c38f5975dd7c4.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/ab84b860b1e748fb.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 4 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/74554fc17965bd13.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/cd02b7d8a89857bb.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/32575918c817fdba.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/6ea2fa752bdaed51.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/c894dadde63b30b7.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/e5b0b6ade4e60e10.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/723fc7d055e3af73.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/ed18bd3cce5cfb74.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/a43429c6f83207f3.js
+ HTTP  3/12/2026 8:23:25 AM ::1 GET /_next/static/chunks/ca8fb7647ca9f3fc.js
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:25 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /api/notifications
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /api/babies/
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /api/version
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 404 in 8 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 404 in 7 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 404 in 7 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /sw.js
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /worker-1e999a0f776a11db.js
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 HEAD /contraction
+ HTTP  3/12/2026 8:23:26 AM ::1 HEAD /dashboard
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /contraction/__next._tree.txt?_rsc=18t7j
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 0 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /dashboard/__next._tree.txt?_rsc=18t7j
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /contraction/__next._head.txt?_rsc=oh8t4
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 3 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /contraction/__next._index.txt?_rsc=585va
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /contraction/__next.!KGRhc2hib2FyZCk.txt?_rsc=1yeh9
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /contraction/__next.!KGRhc2hib2FyZCk.contraction.txt?_rsc=iv8ix
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /contraction/__next.!KGRhc2hib2FyZCk.contraction.__PAGE__.txt?_rsc=1jvdn
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /dashboard/__next._head.txt?_rsc=oh8t4
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /dashboard/__next.!KGRhc2hib2FyZCk.dashboard.txt?_rsc=16sqo
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /dashboard/__next.!KGRhc2hib2FyZCk.dashboard.__PAGE__.txt?_rsc=16vtn
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 0 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /_next/static/chunks/93a5a615d1accb14.js
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 0 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /_next/static/chunks/f277fdfa7c7dd31a.js
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /_next/static/chunks/108056c12e90f3f8.js
+ HTTP  3/12/2026 8:23:26 AM ::1 GET /_next/static/chunks/5c64b81678cb24ea.js
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 1 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:26 AM ::1 Returned 200 in 2 ms
+ HTTP  3/12/2026 8:23:31 AM ::1 GET /api/notifications
+ HTTP  3/12/2026 8:23:31 AM ::1 Returned 404 in 2 ms
+ HTTP  3/12/2026 8:23:36 AM ::1 GET /api/version
+ HTTP  3/12/2026 8:23:36 AM ::1 Returned 404 in 2 ms
+ HTTP  3/12/2026 8:23:51 AM ::1 GET /api/version
+ HTTP  3/12/2026 8:23:51 AM ::1 GET /api/notifications
+ HTTP  3/12/2026 8:23:51 AM ::1 Returned 404 in 3 ms
+ HTTP  3/12/2026 8:23:51 AM ::1 Returned 404 in 2 ms
