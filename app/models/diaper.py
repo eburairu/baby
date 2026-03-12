@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 from app.models.enums import DiaperType
 
 
-class Diaper(Base, SoftDeleteMixin):
+class Diaper(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "diapers"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

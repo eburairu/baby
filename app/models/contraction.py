@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 
 
-class Contraction(Base, SoftDeleteMixin):
+class Contraction(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "contractions"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

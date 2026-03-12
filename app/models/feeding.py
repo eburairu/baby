@@ -1,9 +1,9 @@
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime, Float, Enum, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 from app.models.enums import FeedingType, BreastSide, BottleContentType, FeedingCompletion
 
 
-class Feeding(Base, SoftDeleteMixin):
+class Feeding(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "feedings"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
