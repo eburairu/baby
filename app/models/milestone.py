@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, JSON, Index
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableList
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 
-class Milestone(Base, SoftDeleteMixin):
+class Milestone(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "milestones"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

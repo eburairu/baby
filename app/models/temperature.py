@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 from app.models.enums import TemperatureMethod
 
 
-class TemperatureRecord(Base, SoftDeleteMixin):
+class TemperatureRecord(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "temperature_records"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

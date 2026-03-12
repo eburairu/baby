@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean, Enum as SQLEnum, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, TimestampMixin
 from app.models.enums import VaccinationStatus
 
-class Vaccination(Base, SoftDeleteMixin):
+class Vaccination(Base, SoftDeleteMixin, TimestampMixin):
     __tablename__ = "vaccinations"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)

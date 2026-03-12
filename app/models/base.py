@@ -1,5 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, DateTime
+from sqlalchemy.sql import func
+from datetime import datetime
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention={
@@ -12,3 +14,11 @@ class Base(DeclarativeBase):
 
 class SoftDeleteMixin:
     is_deleted: Mapped[bool] = mapped_column(default=False, nullable=False)
+
+class TimestampMixin:
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
