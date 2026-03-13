@@ -298,3 +298,7 @@
 ## 2024-03-12 - [BabyPermissions Spec Drift]
 **学び:** 新しい記録タイプ（今回は体温）が追加された際に、BabyPermissionsの仕様書（.specify/specs/settings/baby_permissions.md）内の ValidRecordType や有効値一覧表への追加が漏れやすいパターンの発見。
 **アクション:** 仕様書側のテーブル定義や型定義にも新しい記録タイプを追加し、バックエンドのバリデーション定義との同期を保つ。
+
+## 2025-02-14 - 未実装の仕様（Ghost Features）の削除
+**学び:** 新規の機能（今回であれば temperature レコード）が、フロントエンドやバックエンドに実装される前に仕様書（baby_permissions.md 等）に「ahead-of-time」で記載されてしまう仕様の乖離パターンがある。実装側（VALID_RECORD_TYPES 等）に存在しない機能は、仕様の真実性を保つために削除すべきである。
+**アクション:** 権限や定数リストの仕様を更新する際は、必ずバックエンドの Pydantic Schema およびフロントエンドの tracking list（ALL_RECORD_TYPES など）の実装状況を確認し、乖離を防ぐ。
