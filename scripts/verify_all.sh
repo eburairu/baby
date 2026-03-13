@@ -40,6 +40,7 @@ if [ "$HEADS_COUNT" -gt 1 ]; then
     exit 1
 fi
 
+alembic upgrade head
 alembic check
 if [ $? -ne 0 ]; then
     echo -e "${RED}✗ Alembic スキーマにドリフト（差分）が検出されました。マイグレーションファイルを作成するか、最新のDBにアップグレードしてください。${NC}"
