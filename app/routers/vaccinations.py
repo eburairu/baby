@@ -19,6 +19,12 @@ vaccination_generate_limiter = RateLimiter(
     error_message="Too many generation requests. Please try again later.",
 )
 
+vaccination_create_limiter = RateLimiter(
+    requests_limit=constants.RATE_LIMIT_VACCINATION_CREATE_REQUESTS,
+    time_window=constants.RATE_LIMIT_VACCINATION_CREATE_WINDOW,
+    error_message="Too many requests. Please try again later.",
+)
+
 @router.get("/", response_model=List[VaccinationResponse])
 async def get_vaccinations(
     baby_id: int,
@@ -35,6 +41,7 @@ async def create_vaccination(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    vaccination_create_limiter.check(f"user_{current_user.id}")
     verify_baby_access(db, baby_id, current_user.id, require_write=True)
     db_vaccination = Vaccination(
         **vaccination.model_dump(),
