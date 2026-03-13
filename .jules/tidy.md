@@ -30,3 +30,6 @@
 ## 2024-05-19 - useAsyncAction フックの活用とコードの共通化
 **学び:** `isSaving` や `error` といった非同期処理のローカルステート、および `try/catch/finally` によるエラーハンドリングが複数のコンポーネント（特に設定・フォーム画面）で重複して記述されている。これらは `useAsyncAction` フックによって共通化でき、コンポーネントの責務を削減できる。また、APIエラー時の詳細メッセージ取得も各所で `e.info.detail` を手動パースしていたが、`lib/api.ts` の `getErrorMessage` に切り出すことで DRY 原則を満たし、可読性が向上する。
 **アクション:** フォーム送信やAPI通信など、非同期アクションのローディング・エラー状態を管理する際は、常に `useAsyncAction` を利用する。また、UIコンポーネント固有の API エラーメッセージ取得は必ず `getErrorMessage` ユーティリティを用いるようにする。
+## 2024-03-14 - ButtonおよびAlertDialogActionへのloadingプロップの適用漏れと冗長なスピナー表示
+**学び:** `components/ui/button.tsx` や `components/ui/alert-dialog.tsx` には既に非同期処理中であることを示す `loading` プロップが実装されていますが、`disabled={isSubmitting}` を渡しつつ自前で `<Loader2 />` をレンダリングしている箇所（Fat Component化の一因）、または単に `disabled` のみを渡していてローディングインジケーターが表示されない箇所（UXの低下）が散見されました。
+**アクション:** フォームやダイアログのサブミットボタンでは、手動でスピナーを記述するのではなく、常に共有の `loading` プロップを利用することで、DRY原則を保ちつつ一貫したUXを提供するよう今後も共通化を推進します。

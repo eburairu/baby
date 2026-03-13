@@ -123,7 +123,7 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                     <AlertDialogCancel onClick={handleClose}>キャンセル</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleReset}
-                        disabled={resetting}
+                        loading={resetting}
                         className="bg-indigo-600 hover:bg-indigo-700"
                     >
                         再発行する
