@@ -338,8 +338,9 @@ export default function NotificationsPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">開始時間</label>
+                  <label htmlFor="dnd-start-time" className="text-xs font-medium text-muted-foreground">開始時間</label>
                   <input
+                    id="dnd-start-time"
                     type="time"
                     className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
                     value={settings?.dnd_start_time || ""}
@@ -347,8 +348,9 @@ export default function NotificationsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">終了時間</label>
+                  <label htmlFor="dnd-end-time" className="text-xs font-medium text-muted-foreground">終了時間</label>
                   <input
+                    id="dnd-end-time"
                     type="time"
                     className="w-full p-2 rounded-md border dark:bg-zinc-800 dark:border-zinc-700 text-sm"
                     value={settings?.dnd_end_time || ""}
