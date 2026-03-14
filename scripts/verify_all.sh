@@ -31,31 +31,41 @@ set -a
 [ -f .env ] && source .env
 set +a
 
+# 1.5 Alembic 複数Headチェック
+echo -e "
+${YELLOW}--- [1/6] Alembic 複数Head検知... ---${NC}"
+HEADS_COUNT=$(alembic heads | grep "(head)" | wc -l)
+if [ "$HEADS_COUNT" -gt 1 ]; then
+    echo -e "${RED}✗ 複数の Alembic head が検出されました。 'alembic merge heads' を実行して解消してください。${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓ Alembic head は1つです${NC}"
+
 # 2. バックエンドテスト
 echo -e "
-${YELLOW}--- [1/5] バックエンドテスト実行中... ---${NC}"
+${YELLOW}--- [2/6] バックエンドテスト実行中... ---${NC}"
 # 仮想環境の python を使用
 .venv/bin/python -m pytest tests/
 
 # 3. OpenAPI スキーマの更新
 echo -e "
-${YELLOW}--- [2/5] OpenAPI スキーマの更新と検証... ---${NC}"
+${YELLOW}--- [3/6] OpenAPI スキーマの更新と検証... ---${NC}"
 .venv/bin/python scripts/export_openapi.py
 
 # 4. フロントエンド型定義の生成
 echo -e "
-${YELLOW}--- [3/5] フロントエンド型定義の生成... ---${NC}"
+${YELLOW}--- [4/6] フロントエンド型定義の生成... ---${NC}"
 cd frontend
 pnpm types:generate
 
 # 5. フロントエンド Lint
 echo -e "
-${YELLOW}--- [4/5] フロントエンド Lint 実行中... ---${NC}"
+${YELLOW}--- [5/6] フロントエンド Lint 実行中... ---${NC}"
 pnpm lint
 
 # 6. フロントエンド Build
 echo -e "
-${YELLOW}--- [5/5] フロントエンド Build 実行中... ---${NC}"
+${YELLOW}--- [6/6] フロントエンド Build 実行中... ---${NC}"
 pnpm build
 
 echo -e "
