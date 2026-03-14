@@ -40,6 +40,7 @@ Web Push API を使用して、ユーザーのデバイス（スマートフォ�
 | **デイリーサマリー** | AIによる1日のまとめが生成されたとき | `/diary` | `daily_summary` |
 | **授乳リマインダー** | 前回の授乳から一定時間経過したとき | `/feeding` | `feeding_reminder` |
 | **オムツリマインダー** | 前回のオムツから一定時間経過したとき | `/diaper` | `diaper_reminder` |
+| **実績解除** | 記録等により実績（アチーブメント）を解除したとき | `/dashboard?baby_id={id}` | `achievement` |
 | **重要なお知らせ** | メンテナンスやアップデート情報 | `/settings` | `system` |
 
 ### 4.2. 通知設定 UI (Settings UI)
