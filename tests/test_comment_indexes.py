@@ -6,9 +6,7 @@ from app.models.comment import RecordComment
 
 @pytest.fixture(scope="function")
 def setup_db():
-    Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
 
 def test_comment_indexes(setup_db):
     """RecordCommentのインデックスが正しく作成されているか確認"""
