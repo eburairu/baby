@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { User, Loader2, Lock } from "lucide-react"
+import { User, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -142,9 +142,8 @@ export default function ProfileSettingsPage() {
                                         <Button
                                             className="flex-1 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
                                             onClick={handleSave}
-                                            disabled={isSaving}
+                                            loading={isSaving}
                                         >
-                                            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                             保存
                                         </Button>
                                         <Button
@@ -218,9 +217,8 @@ export default function ProfileSettingsPage() {
                                     <Button
                                         className="flex-1 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
                                         onClick={handlePasswordSave}
-                                        disabled={isSavingPassword}
+                                        loading={isSavingPassword}
                                     >
-                                        {isSavingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         変更する
                                     </Button>
                                     <Button

@@ -83,7 +83,8 @@ export function BabyDeleteDialog({ baby, open, onClose, onDeleted }: Props) {
                     </Button>
                     <Button
                         onClick={handleDelete}
-                        disabled={!canDelete || deleting}
+                        loading={deleting}
+                        disabled={!canDelete}
                         className="bg-red-500 hover:bg-red-600 text-white"
                     >
                         削除
