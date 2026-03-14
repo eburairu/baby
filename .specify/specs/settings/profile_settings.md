@@ -193,6 +193,8 @@ class UserResponse(BaseModel):
     id: int
     username: str
     display_name: Optional[str] = None   # ← 追加
+    role: Optional[str] = None
+    is_superadmin: bool = False
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
