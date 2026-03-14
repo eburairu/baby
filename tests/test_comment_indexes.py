@@ -6,6 +6,7 @@ from app.models.comment import RecordComment
 
 @pytest.fixture(scope="function")
 def setup_db():
+    Base.metadata.create_all(bind=engine)
     yield
 
 def test_comment_indexes(setup_db):

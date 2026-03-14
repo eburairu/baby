@@ -33,6 +33,7 @@ SOFT_DELETE_TABLES = [
 
 @pytest.fixture(scope="module")
 def setup_db():
+    Base.metadata.create_all(bind=engine)
     yield
 
 
