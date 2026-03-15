@@ -71,8 +71,8 @@ def test_expired_session_fails(client, db: Session):
     token = client.cookies.get("access_token")
     session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
 
-    # Make session expired
-    session.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+    # Make session expired (far in the past to avoid PostgreSQL func.now() returning transaction start time)
+    session.expires_at = datetime(2000, 1, 1, tzinfo=timezone.utc)
     db.commit()
 
     # Access /api/auth/me with the expired token

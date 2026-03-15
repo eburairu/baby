@@ -299,6 +299,9 @@
 **学び:** 新しい記録タイプ（今回は体温）が追加された際に、BabyPermissionsの仕様書（.specify/specs/settings/baby_permissions.md）内の ValidRecordType や有効値一覧表への追加が漏れやすいパターンの発見。
 **アクション:** 仕様書側のテーブル定義や型定義にも新しい記録タイプを追加し、バックエンドのバリデーション定義との同期を保つ。
 
+## 2025-02-14 - 未実装の仕様（Ghost Features）の削除
+**学び:** 新規の機能（今回であれば temperature レコード）が、フロントエンドやバックエンドに実装される前に仕様書（baby_permissions.md 等）に「ahead-of-time」で記載されてしまう仕様の乖離パターンがある。実装側（VALID_RECORD_TYPES 等）に存在しない機能は、仕様の真実性を保つために削除すべきである。
+**アクション:** 権限や定数リストの仕様を更新する際は、必ずバックエンドの Pydantic Schema およびフロントエンドの tracking list（ALL_RECORD_TYPES など）の実装状況を確認し、乖離を防ぐ。
 ## 2026-03-13 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書への追加漏れ再発]
 **学び:** 過去にも同様の指摘（2024-03-09, 2026-03-09等）があったが、体温記録機能（`temperature`）の追加に際して、仕様書（`baby_permissions.md`）には追記されていたものの、実際に権限を管理・検証するバックエンドコード（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` および `app/routers/baby_permissions.py` の `valid_types`）や、フロントエンドでの設定画面の表示を制御するコード（`frontend/hooks/usePermissionsPage.ts` の `ALL_RECORD_TYPES`）への追加が依然として漏れていた。仕様書だけが更新され、実装が伴っていない「嘘の仕様書」状態となっていた。
 **アクション:** `VALID_RECORD_TYPES`, `valid_types`, および `ALL_RECORD_TYPES` に `"temperature"` を追加し、仕様書と実装を同期させた。今後は、仕様書に新しい `record_type` が追加されているのを見つけた場合、それが実際にコード上で権限管理の対象としてリストに追加されているかを必ず確認する。
@@ -310,3 +313,6 @@
 ## 2026-03-13 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書の先行記載の修正]
 **学び:** 体温記録機能（`temperature`）に関連して、仕様書 `.specify/specs/settings/baby_permissions.md` には `record_type` として `"temperature"` が先行して追加記載されていましたが、実際の権限管理の実装コード（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` の `valid_types` リスト、フロントエンドの `ALL_RECORD_TYPES` など）には反映されておらず、仕様書が実装を先行する「嘘の仕様書」状態になっていました。
 **アクション:** `baby_permissions.md` から未実装の `"temperature"` を削除し、現在の実装コードと100%一致させました。今後仕様書を更新する際は、対応するバックエンド側のロジックやリストに実際に追加されているかを必ず確認・同期します。
+## 2026-03-14 - [PWAプッシュ通知仕様書における新機能の追記漏れ]
+**学び:** 体温記録や実績解除機能が追加された際、アプリ内通知仕様書（`notification_center.md`）が更新されていても、PWA向けのプッシュ通知仕様書（`pwa_notifications.md`）の「通知項目一覧」には追記が漏れやすい。特に記録タイプが「family_record」カテゴリに属する場合、独立した行としての追加が見落とされがちである。
+**アクション:** 通知機能に関連する新しい記録タイプやカテゴリを追加する際は、`notification_center.md` だけでなく `pwa_notifications.md` などのインフラ・PWA関連の仕様書にも通知項目が網羅されているかを必ず確認・同期する。

@@ -52,6 +52,50 @@ jobs:
       - name: Run tests
         run: uv run pytest tests/ -q
 
+  validate-alembic-drift:
+    name: Validate Alembic Schema Drift
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Check multiple heads
+        run: |
+          HEADS_COUNT=$(uv run alembic heads | grep "(head)" | wc -l)
+          if [ "$HEADS_COUNT" -gt 1 ]; then
+            echo "::error::Multiple Alembic heads detected. Please merge them."
+            exit 1
+          fi
+
+      - name: Check schema drift
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+
   validate-schema:
     name: Validate OpenAPI Schema
     runs-on: ubuntu-latest

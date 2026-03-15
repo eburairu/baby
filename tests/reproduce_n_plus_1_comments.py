@@ -14,8 +14,14 @@ from app.models.feeding import Feeding
 from app.models.comment import RecordComment
 from app.routers.comments import get_record_comments
 
-# Setup in-memory SQLite database
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+from testcontainers.postgres import PostgresContainer
+import atexit
+
+postgres = PostgresContainer("postgres:16-alpine")
+postgres.start()
+atexit.register(postgres.stop)
+
+SQLALCHEMY_DATABASE_URL = postgres.get_connection_url()
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

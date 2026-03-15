@@ -36,7 +36,9 @@ Web Push API を使用して、ユーザーのデバイス（スマートフォ�
 | **メモ・日記** | 家族がメモや日記を投稿したとき | `/note` | `family_record` |
 | **成長の記録** | 家族が身長・体重を記録したとき | `/growth` | `family_record` |
 | **陣痛タイマー** | 家族が陣痛を計測したとき | `/contraction` | `family_record` |
+| **体温の記録** | 家族が体温を記録したとき | `/temperature` | `family_record` |
 | **コメント** | 自分の記録に家族がコメントしたとき | 該当する記録画面 | `family_record` |
+| **実績の解除** | 実績（アチーブメント）を達成したとき | `/dashboard?baby_id={id}&tab=achievements` | `achievement` |
 | **デイリーサマリー** | AIによる1日のまとめが生成されたとき | `/diary` | `daily_summary` |
 | **授乳リマインダー** | 前回の授乳から一定時間経過したとき | `/feeding` | `feeding_reminder` |
 | **オムツリマインダー** | 前回のオムツから一定時間経過したとき | `/diaper` | `diaper_reminder` |

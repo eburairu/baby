@@ -79,7 +79,8 @@ export function MemberRoleDialog({ member, open, onClose, onUpdated }: Props) {
                     <Button variant="outline" onClick={onClose} disabled={saving}>キャンセル</Button>
                     <Button
                         onClick={handleSave}
-                        disabled={saving || selectedRole === member?.role}
+                        loading={saving}
+                        disabled={selectedRole === member?.role}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
                         変更する
