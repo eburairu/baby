@@ -1,6 +1,16 @@
 import os
 import atexit
+import time
 from urllib.parse import urlparse, urlunparse
+
+# Neon サーバーレス DB との接続を維持するための TCP keepalive 設定
+# 長時間テスト実行中に SSL 接続が切断されるのを防ぐ
+_KEEPALIVE_CONNECT_ARGS = {
+    "keepalives": 1,
+    "keepalives_idle": 30,     # 30秒アイドル後に keepalive パケットを送信
+    "keepalives_interval": 10, # 10秒ごとに再送信
+    "keepalives_count": 5,     # 5回失敗で切断と判定
+}
 
 try:
     from testcontainers.postgres import PostgresContainer
@@ -15,6 +25,8 @@ try:
     atexit.register(_stop_container)
 
     DATABASE_URL = postgres_container.get_connection_url()
+    # Testcontainers ではローカル接続なので keepalive 設定不要
+    _KEEPALIVE_CONNECT_ARGS = {}
     print("Using Testcontainers PostgreSQL for tests.")
 except Exception as e:
     print(f"Testcontainers could not start ({e}). Falling back to remote test DB.")
@@ -23,9 +35,13 @@ except Exception as e:
         raise RuntimeError("DATABASE_URL must be set if Testcontainers is not available.")
 
     test_db_name = "botoro_test_db"
-    
+
     from sqlalchemy import create_engine, text
-    setup_engine = create_engine(base_url, isolation_level="AUTOCOMMIT")
+    setup_engine = create_engine(
+        base_url,
+        isolation_level="AUTOCOMMIT",
+        connect_args=_KEEPALIVE_CONNECT_ARGS,
+    )
     try:
         with setup_engine.connect() as conn:
             # PostgreSQL does not support DROP DATABASE IF EXISTS in a transaction block
@@ -72,6 +88,7 @@ SQLALCHEMY_DATABASE_URL = DATABASE_URL
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     poolclass=NullPool,
+    connect_args=_KEEPALIVE_CONNECT_ARGS,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -91,14 +108,33 @@ from sqlalchemy import event
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    # Neon 接続失敗時のリトライ
+    for attempt in range(3):
+        try:
+            Base.metadata.drop_all(bind=engine)
+            Base.metadata.create_all(bind=engine)
+            break
+        except Exception as exc:
+            if attempt == 2:
+                raise
+            time.sleep(2 ** attempt)
     yield
 
 @pytest.fixture(scope="function")
 def db():
     global _current_connection
-    connection = engine.connect()
+    # Neon サーバーレス DB は稀にSSL接続を切断するためリトライする
+    last_exc = None
+    for attempt in range(3):
+        try:
+            connection = engine.connect()
+            break
+        except Exception as exc:
+            last_exc = exc
+            if attempt < 2:
+                time.sleep(2 ** attempt)  # 指数バックオフ: 1s, 2s
+    else:
+        raise last_exc
     _current_connection = connection
     transaction = connection.begin()
     
