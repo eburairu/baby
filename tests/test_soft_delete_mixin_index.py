@@ -35,7 +35,6 @@ SOFT_DELETE_TABLES = [
 def setup_db():
     Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
 
 
 def test_no_single_column_is_deleted_index(setup_db):

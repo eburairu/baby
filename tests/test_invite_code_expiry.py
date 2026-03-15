@@ -13,7 +13,7 @@ def test_family_creation_sets_invite_code_expiry(client):
     assert res.status_code == 200
     data = res.json()
     assert "invite_code_expires_at" in data
-    expires_at = datetime.fromisoformat(data["invite_code_expires_at"]).replace(tzinfo=timezone.utc)
+    expires_at = datetime.fromisoformat(data["invite_code_expires_at"].replace("Z", "+00:00"))
     now = datetime.now(timezone.utc)
     # 有効期限は現在から約48時間後（±5分の誤差を許容）
     assert expires_at > now + timedelta(hours=47, minutes=55)
@@ -33,7 +33,7 @@ def test_regenerate_invite_code_resets_expiry(client):
     assert res.status_code == 200
     data = res.json()
     assert "invite_code_expires_at" in data
-    new_expires = datetime.fromisoformat(data["invite_code_expires_at"]).replace(tzinfo=timezone.utc)
+    new_expires = datetime.fromisoformat(data["invite_code_expires_at"].replace("Z", "+00:00"))
     now = datetime.now(timezone.utc)
     # 再生成後の有効期限は約48時間後
     assert new_expires > now + timedelta(hours=47, minutes=55)
