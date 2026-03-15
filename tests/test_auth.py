@@ -68,6 +68,52 @@ def test_logout(auth_client):
     assert response.status_code == 200
     assert "access_token" not in client.cookies
 
+def test_logout_with_endpoint_deletes_push_subscription(client, db):
+    """ログアウト時に endpoint を渡すと対応する PushSubscription が論理削除される"""
+    from app.models.notification import PushSubscription
+
+    # ユーザー登録
+    res = client.post(
+        "/api/auth/register/family",
+        json={"name": "Push Family", "username": "pushuser", "password": "password123"},
+    )
+    assert res.status_code == 200
+
+    # PushSubscription を登録
+    endpoint = "https://push.example.com/test-endpoint"
+    sub_res = client.post(
+        "/api/notifications/subscribe",
+        json={
+            "endpoint": endpoint,
+            "p256dh": "dummyp256dh",
+            "auth": "dummyauth",
+        },
+    )
+    assert sub_res.status_code == 200
+
+    # ログアウト時に endpoint を渡す
+    logout_res = client.post("/api/auth/logout", json={"endpoint": endpoint})
+    assert logout_res.status_code == 200
+
+    # PushSubscription が論理削除されていること
+    sub = db.query(PushSubscription).filter(PushSubscription.endpoint == endpoint).first()
+    assert sub is not None
+    assert sub.is_deleted is True
+
+
+def test_logout_without_endpoint_works_as_before(client):
+    """endpoint なしのログアウトは従来通り動作する"""
+    client.post(
+        "/api/auth/register/family",
+        json={"name": "Nopush Family", "username": "nopushuser", "password": "password123"},
+    )
+    assert "access_token" in client.cookies
+
+    response = client.post("/api/auth/logout", json={})
+    assert response.status_code == 200
+    assert "access_token" not in client.cookies
+
+
 def test_join_family(client):
     # 家族作成
     res = client.post(

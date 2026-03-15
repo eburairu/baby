@@ -33,3 +33,7 @@
 ## 2025-03-14 - [Tidy: 記録詳細ダイアログの定数利用の統一]
 学び: `RecordDetailDialog` などのコンポーネント内で、`record.type` を判定する `switch` 文に `RECORD_TYPES.FEEDING` のような定数と `"sleep"`, `"diaper"` のようなハードコードされた文字列が混在していました。このようなマジックストリングの使用はタイポによるバグの温床となり、コードの保守性を低下させます。
 アクション: 今後、コードベース内で特定のドメインに関連するタイプ（例：`record.type`）を判定または使用する際は、必ず `frontend/types/enums.ts` などの一元化された定数（`RECORD_TYPES` など）を使用し、ハードコードされた文字列を排除して一貫性と安全性を保ちます。
+
+## 2024-03-14 - ButtonおよびAlertDialogActionへのloadingプロップの適用漏れと冗長なスピナー表示
+**学び:** `components/ui/button.tsx` や `components/ui/alert-dialog.tsx` には既に非同期処理中であることを示す `loading` プロップが実装されていますが、`disabled={isSubmitting}` を渡しつつ自前で `<Loader2 />` をレンダリングしている箇所（Fat Component化の一因）、または単に `disabled` のみを渡していてローディングインジケーターが表示されない箇所（UXの低下）が散見されました。
+**アクション:** フォームやダイアログのサブミットボタンでは、手動でスピナーを記述するのではなく、常に共有の `loading` プロップを利用することで、DRY原則を保ちつつ一貫したUXを提供するよう今後も共通化を推進します。

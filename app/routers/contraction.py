@@ -45,7 +45,7 @@ def get_contractions(baby_id: int, db: Session = Depends(get_db), current_user: 
 
 def _calculate_interval_seconds(current_start: datetime, last_start: datetime) -> int | None:
     """前回の start_time から今回の start_time までの秒数を計算する（start-to-start）。"""
-    # SQLite などの環境でも安全に比較できるように ensure_aware を適用
+    # timezone-aware な datetime として比較するために ensure_aware を適用
     cur = ensure_aware(current_start)
     last = ensure_aware(last_start)
     diff = round((cur - last).total_seconds())
