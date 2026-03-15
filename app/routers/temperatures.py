@@ -37,7 +37,7 @@ def get_temperatures(
     verify_baby_access(db, baby_id, current_user.id, record_type="temperature")
     records = (
         db.query(TemperatureRecord)
-        .filter(TemperatureRecord.baby_id == baby_id)
+        .filter(TemperatureRecord.baby_id == baby_id, TemperatureRecord.is_deleted == False)
         .order_by(TemperatureRecord.measured_at.desc())
         .offset(skip)
         .limit(limit)
@@ -51,6 +51,7 @@ def get_temperatures(
             .filter(
                 RecordComment.record_type == "temperature",
                 RecordComment.record_id.in_(record_ids),
+                RecordComment.is_deleted == False,
             )
             .group_by(RecordComment.record_id)
             .all()

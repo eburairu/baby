@@ -5,11 +5,10 @@ import time
 from datetime import datetime, timedelta
 from typing import Tuple
 from app.core.constants import AI_MAX_TOKENS
-from app.core.exceptions import AIGenerationError
+from app.core.exceptions import AIGenerationError, AIRateLimitError, AIServiceError
 
 import openai
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
 
 from app.models.comment import RecordComment
 from app.models.feeding import Feeding
@@ -85,31 +84,6 @@ def _extract_json(text: str) -> str:
 
     return text
 
-
-def _verify_record_ownership(
-    db: Session, record_type: str, record_id: int, baby_id: int
-) -> None:
-    """record_id と baby_id の対応を確認（なりすまし防止）"""
-    model_map = {
-        "feeding": Feeding,
-        "diaper": Diaper,
-        "growth": Growth,
-        "note": Note,
-    }
-    model = model_map.get(record_type)
-    if model is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid record_type")
-
-    record = db.query(model).filter(
-        model.id == record_id,
-        model.baby_id == baby_id,
-    ).first()
-
-    if not record:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"{record_type} record {record_id} not found for baby {baby_id}",
-        )
 
 
 def _build_records_text(db: Session, baby_id: int, now: datetime) -> str:
@@ -337,9 +311,15 @@ async def generate_record_feedback(
                 return "記録を分析しましたが、現在適切なアドバイスを生成できませんでした。赤ちゃんの様子に気になる点がある場合は、直接医師にご相談ください。", True, model_name
             last_error = e
             break # リトライしない
-        except (openai.RateLimitError, openai.APIConnectionError) as e:
-            logger.warning("Retryable error on attempt %d: %s", attempt + 1, e)
-            last_error = e
+        except openai.RateLimitError as e:
+            logger.warning("Rate limit on attempt %d: %s", attempt + 1, e)
+            last_error = AIRateLimitError(str(e))
+        except openai.APIConnectionError as e:
+            logger.warning("Connection error on attempt %d: %s", attempt + 1, e)
+            last_error = AIServiceError(str(e))
+        except openai.OpenAIError as e:
+            logger.warning("OpenAI error on attempt %d: %s", attempt + 1, e)
+            raise AIServiceError(str(e))
     else:
         raise last_error
 

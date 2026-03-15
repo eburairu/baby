@@ -1,17 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
-import openai
 
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
-from app.core.exceptions import AIGenerationError
+from app.core.exceptions import AIGenerationError, AIRateLimitError, AIServiceError, InvalidRecordTypeError, RecordNotFoundError
 from app.schemas.ai_feedback import RecordFeedbackRequest, RecordFeedbackResponse
 from app.services.ai_feedback import (
-    _verify_record_ownership,
     generate_record_feedback,
     save_ai_comment,
 )
+from app.services.record import verify_record_ownership
 from app.utils.rate_limit import RateLimiter
 from app.utils.timezone import get_jst_now
 from app.core import constants
@@ -39,26 +38,31 @@ async def create_record_feedback(
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=False)
 
     # record_id が baby_id に属するか確認
-    _verify_record_ownership(db, body.record_type, body.record_id, baby_id)
+    try:
+        verify_record_ownership(db, body.record_type, body.record_id, baby_id)
+    except InvalidRecordTypeError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except RecordNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
         feedback_text, has_concern, model_name = await generate_record_feedback(
             db, baby_id, baby, body.record_type, body.record_id
         )
-    except AIGenerationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        )
-    except openai.RateLimitError:
+    except AIRateLimitError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="AIサービスの利用上限に達しました。しばらく時間をおいてから再試行してください。",
         )
-    except openai.OpenAIError:
+    except AIServiceError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="AIサービスでエラーが発生しました。時間をおいて再試行してください。",
+        )
+    except AIGenerationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         )
 
     comment = save_ai_comment(
