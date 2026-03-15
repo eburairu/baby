@@ -313,3 +313,6 @@
 ## 2026-03-13 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書の先行記載の修正]
 **学び:** 体温記録機能（`temperature`）に関連して、仕様書 `.specify/specs/settings/baby_permissions.md` には `record_type` として `"temperature"` が先行して追加記載されていましたが、実際の権限管理の実装コード（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` の `valid_types` リスト、フロントエンドの `ALL_RECORD_TYPES` など）には反映されておらず、仕様書が実装を先行する「嘘の仕様書」状態になっていました。
 **アクション:** `baby_permissions.md` から未実装の `"temperature"` を削除し、現在の実装コードと100%一致させました。今後仕様書を更新する際は、対応するバックエンド側のロジックやリストに実際に追加されているかを必ず確認・同期します。
+## 2024-05-24 - [体温記録機能の権限仕様追記]
+**学び:** 新しい記録タイプ（今回は `temperature`）がバックエンドやフロントエンドに追加される際、権限モデル（`BabyPermission`）の対象として仕様書 (`baby_permissions.md`) の有効値リストやインターフェース定義 (`ValidRecordType`) から漏れやすいという仕様の乖離パターンが存在する。
+**アクション:** 新規レコードタイプ実装時は、関連する設定・権限・インフラ系の仕様書や定数への反映漏れを監査するプロセスが必要。

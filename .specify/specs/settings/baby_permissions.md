@@ -51,7 +51,8 @@ Baby（赤ちゃん全体の可視性）
        ├── schedule（スケジュール）
        ├── vaccination（予防接種）
        ├── note（汎用メモ）
-       └── milestone（マイルストーン）
+       ├── milestone（マイルストーン）
+       └── temperature（体温）
 ```
 
 ### `record_type` の有効値一覧
@@ -68,6 +69,7 @@ Baby（赤ちゃん全体の可視性）
 | `"vaccination"` | 予防接種記録 | `vaccinations` |
 | `"note"` | 汎用メモ | `notes` |
 | `"milestone"` | 発育発達マイルストーン記録 | `milestones` |
+| `"temperature"` | 体温記録 | `temperature_records` |
 
 ### 権限判定ロジック
 
@@ -236,7 +238,8 @@ for record_type in VALID_RECORD_TYPES:
         { "record_type": "schedule",    "can_view": true  },
         { "record_type": "vaccination", "can_view": true  },
         { "record_type": "note",        "can_view": true  },
-        { "record_type": "milestone",   "can_view": true  }
+        { "record_type": "milestone",   "can_view": true  },
+        { "record_type": "temperature", "can_view": false }
       ]
     }
   ]
@@ -252,7 +255,7 @@ for record_type in VALID_RECORD_TYPES:
 ### リクエスト/レスポンススキーマ
 
 ```typescript
-type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule" | "vaccination" | "note" | "milestone";
+type ValidRecordType = "baby" | "feeding" | "sleep" | "diaper" | "growth" | "contraction" | "schedule" | "vaccination" | "note" | "milestone" | "temperature";
 
 // 単一の権限レコード（1ユーザー × 1record_type）
 interface BabyPermissionItem {
