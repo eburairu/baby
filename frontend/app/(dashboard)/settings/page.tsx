@@ -79,7 +79,18 @@ export default function SettingsPage() {
 
     const handleLogout = async () => {
         try {
-            await api.post("/auth/logout", {})
+            let endpoint: string | undefined
+            if ("serviceWorker" in navigator) {
+                const registration = await navigator.serviceWorker.ready.catch(() => null)
+                if (registration) {
+                    const subscription = await registration.pushManager.getSubscription().catch(() => null)
+                    if (subscription) {
+                        endpoint = subscription.endpoint
+                        await subscription.unsubscribe().catch(() => null)
+                    }
+                }
+            }
+            await api.post("/auth/logout", { endpoint: endpoint ?? null })
             await mutate() // clear user state
             router.push("/login")
         } catch (e) {
