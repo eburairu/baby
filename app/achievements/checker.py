@@ -128,7 +128,7 @@ def _check_streak(
 
 
 def _parse_date(value) -> date:
-    """SQLite は date() を文字列で返すため、date オブジェクトに変換する"""
+    """date / datetime / str を date オブジェクトに正規化する"""
     if isinstance(value, date):
         return value
     if isinstance(value, str):

@@ -23,9 +23,7 @@ def mock_get_current_user():
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
-    Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(autouse=True)
 def overrides():

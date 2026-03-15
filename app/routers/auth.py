@@ -1,19 +1,21 @@
 import secrets
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from app.utils.session import hash_token
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, BackgroundTasks
+from fastapi import APIRouter, Body, Depends, HTTPException, status, Response, Request, BackgroundTasks
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.dependencies import get_db, get_current_user
-from app.schemas.auth import LoginRequest
+from app.schemas.auth import LoginRequest, LogoutRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser
+from app.models.notification import PushSubscription
 from app.models.enums import UserRole
 from app.services.auth import verify_password, get_password_hash, verify_password_async, get_password_hash_async
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
@@ -298,16 +300,24 @@ async def login(
 
 
 @router.post("/logout")
-def logout(request: Request, response: Response, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def logout(request: Request, response: Response, background_tasks: BackgroundTasks, db: Session = Depends(get_db), logout_req: Optional[LogoutRequest] = Body(default=None)):
     token = request.cookies.get("access_token")
     if token:
         session = db.query(UserSession).filter(UserSession.token == hash_token(token)).first()
         if session:
+            if logout_req and logout_req.endpoint:
+                sub = db.query(PushSubscription).filter(
+                    PushSubscription.endpoint == logout_req.endpoint,
+                    PushSubscription.user_id == session.user_id,
+                    PushSubscription.is_deleted == False,  # noqa: E712
+                ).first()
+                if sub:
+                    sub.is_deleted = True
             # Note: log_event in background task decoupled from main transaction
             background_tasks.add_task(
                 log_event,
-                action="LOGOUT", 
-                user_id=session.user_id, 
+                action="LOGOUT",
+                user_id=session.user_id,
                 ip_address=get_client_ip(request)
             )
             db.delete(session)
