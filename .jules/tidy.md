@@ -37,3 +37,5 @@
 ## 2024-03-14 - ButtonおよびAlertDialogActionへのloadingプロップの適用漏れと冗長なスピナー表示
 **学び:** `components/ui/button.tsx` や `components/ui/alert-dialog.tsx` には既に非同期処理中であることを示す `loading` プロップが実装されていますが、`disabled={isSubmitting}` を渡しつつ自前で `<Loader2 />` をレンダリングしている箇所（Fat Component化の一因）、または単に `disabled` のみを渡していてローディングインジケーターが表示されない箇所（UXの低下）が散見されました。
 **アクション:** フォームやダイアログのサブミットボタンでは、手動でスピナーを記述するのではなく、常に共有の `loading` プロップを利用することで、DRY原則を保ちつつ一貫したUXを提供するよう今後も共通化を推進します。
+
+2025-03-15 - [Tidy: 陣痛タイマーの非同期処理を useAsyncAction にリファクタリング] 学び: `ContractionTimer.tsx` 内の非同期処理の状態管理(`isSubmitting`, `setIsSubmitting`)と手動の `try-catch-finally` ブロック、およびトースト通知ロジックを共通の `useAsyncAction` フックに抽出することで、コンポーネントの責務が明確になり可読性が向上した。 アクション: 今後もローカルで独自に `try-catch-finally` と `isSubmitting` のような状態を管理しているフォームやタイマーコンポーネントを見つけたら、同様に `useAsyncAction` フックを活用して共通化・DRY化を推進する。

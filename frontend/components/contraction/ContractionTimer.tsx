@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { useContractionTimer } from "@/stores/contractionStore"
 import { api } from "@/lib/api"
 import { Button } from "@/components/ui/button"
@@ -20,7 +21,7 @@ interface ContractionTimerProps {
 export default function ContractionTimer({ babyId, onRecorded }: ContractionTimerProps) {
     const { status, elapsedSeconds, start, stop, tick, sync } = useContractionTimer()
     const { mutate } = useContractionTimerSync(babyId)
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const { loading: isSubmitting, execute } = useAsyncAction()
 
     const isTiming = status === "timing"
 
@@ -46,35 +47,38 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
         } else {
             const result = stop()
             if (result) {
-                setIsSubmitting(true)
-                try {
-                    // PUT (状態更新) と POST (記録作成) を並行して実行
-                    await Promise.all([
-                        api.put(`/babies/${babyId}/timer/contraction`, {
-                            status: "idle",
-                            start_time: null
-                        }),
-                        api.post("/contractions/", {
-                            baby_id: babyId,
-                            start_time: result.startTime.toISOString(),
-                            end_time: result.endTime.toISOString(),
-                            duration_seconds: result.durationSeconds,
-                        })
-                    ])
-                    toast.success("記録しました")
-                    onRecorded()
-                    mutate()
-                } catch (err) {
-                    console.error("Failed to save contraction", err)
-                    toast.error("保存に失敗しました")
-                    // サーバーの状態と同期し直す
-                    mutate()
-                } finally {
-                    setIsSubmitting(false)
-                }
+                await execute(
+                    async () => {
+                        // PUT (状態更新) と POST (記録作成) を並行して実行
+                        await Promise.all([
+                            api.put(`/babies/${babyId}/timer/contraction`, {
+                                status: "idle",
+                                start_time: null
+                            }),
+                            api.post("/contractions/", {
+                                baby_id: babyId,
+                                start_time: result.startTime.toISOString(),
+                                end_time: result.endTime.toISOString(),
+                                duration_seconds: result.durationSeconds,
+                            })
+                        ])
+                    },
+                    {
+                        successMessage: "記録しました",
+                        errorMessage: "保存に失敗しました",
+                        onSuccess: () => {
+                            onRecorded()
+                            mutate()
+                        },
+                        onError: () => {
+                            // サーバーの状態と同期し直す
+                            mutate()
+                        }
+                    }
+                )
             }
         }
-    }, [status, babyId, start, stop, sync, onRecorded, mutate])
+    }, [status, babyId, start, stop, sync, onRecorded, mutate, execute])
 
     return (
         <Card className={`transition-all duration-300 ${isTiming ? "border-red-400 bg-red-50 dark:bg-red-950/30 shadow-lg shadow-red-100 dark:shadow-red-900/20" : ""}`}>
