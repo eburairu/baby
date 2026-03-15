@@ -71,6 +71,7 @@ class TestPostgresqlJsonb:
             model_name="test-model",
         ).on_conflict_do_update(
             index_elements=["baby_id", "summary_date"],
+            index_where=text("is_deleted = false"),
             set_={"generated_content": "更新日誌"},
         )
         db.execute(stmt)
