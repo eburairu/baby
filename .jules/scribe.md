@@ -313,3 +313,6 @@
 ## 2026-03-13 - [新しい記録タイプ 'temperature' のアクセス権限設定・仕様書の先行記載の修正]
 **学び:** 体温記録機能（`temperature`）に関連して、仕様書 `.specify/specs/settings/baby_permissions.md` には `record_type` として `"temperature"` が先行して追加記載されていましたが、実際の権限管理の実装コード（`app/schemas/baby_permission.py` の `VALID_RECORD_TYPES` や `app/routers/baby_permissions.py` の `valid_types` リスト、フロントエンドの `ALL_RECORD_TYPES` など）には反映されておらず、仕様書が実装を先行する「嘘の仕様書」状態になっていました。
 **アクション:** `baby_permissions.md` から未実装の `"temperature"` を削除し、現在の実装コードと100%一致させました。今後仕様書を更新する際は、対応するバックエンド側のロジックやリストに実際に追加されているかを必ず確認・同期します。
+## 2026-03-14 - [PWAプッシュ通知仕様書における新機能の追記漏れ]
+**学び:** 体温記録や実績解除機能が追加された際、アプリ内通知仕様書（`notification_center.md`）が更新されていても、PWA向けのプッシュ通知仕様書（`pwa_notifications.md`）の「通知項目一覧」には追記が漏れやすい。特に記録タイプが「family_record」カテゴリに属する場合、独立した行としての追加が見落とされがちである。
+**アクション:** 通知機能に関連する新しい記録タイプやカテゴリを追加する際は、`notification_center.md` だけでなく `pwa_notifications.md` などのインフラ・PWA関連の仕様書にも通知項目が網羅されているかを必ず確認・同期する。
