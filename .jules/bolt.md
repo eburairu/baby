@@ -29,3 +29,7 @@
 ## 2026-03-09 - [Fetch, Sort, Truncate, THEN Enrich pattern]
 **Learning:** When aggregating lists from multiple tables in memory (like a timeline), fetching auxiliary data (like comment counts and related users) for *all* retrieved items before truncating the list to the pagination `limit` causes explosive DB load. If each table returns up to 1000 items, you might query auxiliary data for 7000 items, only to discard 6950 of them after sorting.
 **Action:** Always follow the "Fetch -> Sort -> Truncate -> THEN Enrich" pattern. Sort the unified in-memory list and apply the `limit` slice *before* executing the `IN()` queries for related entities like comments and user mappings.
+
+## 2024-03-24 - Gzip Middlewareの導入によるペイロード圧縮
+**学び:** FastAPI はデフォルトでレスポンス圧縮を提供していないため、タイムライン（`/api/babies/{id}/records`）のような大量のJSONデータを返すエンドポイントで巨大なペイロードが発生し、転送遅延の原因になっていた。
+**アクション:** 今後、FastAPI プロジェクトの初期段階で `GZipMiddleware`（適切な `minimum_size` 設定付き）が組み込まれているかをチェックリストに加える。

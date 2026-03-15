@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from app.middleware.security import SecurityHeadersMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
@@ -49,6 +50,9 @@ app.add_middleware(
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
+
+# ⚡ Bolt: レスポンスサイズが1000バイトを超える場合にGzip圧縮を行い、ネットワーク転送時間を大幅に短縮する
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Trusted Host Middleware (Security Enhancement)
 allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
