@@ -317,3 +317,7 @@
 ## 2026-03-14 - [新しい通知タイプ 'achievement' の PWAプッシュ通知仕様への追加漏れ]
 **学び:** 実績機能（Achievement）の追加に伴い、`app/utils/notifications.py` で `notify_achievements_bg` 関数が実装され、PWAプッシュ通知仕様にも関連する機能が追加されたが、PWA通知仕様書の `.specify/specs/infrastructure/pwa_notifications.md` の「4.1. 通知項目」リストへの追記が漏れていた。
 **アクション:** 新規の通知トリガーやカテゴリを追加する際は、アプリ内通知センター仕様書（`notification_center.md`）だけでなく、PWA通知仕様書（`pwa_notifications.md`）の通知項目リストにも同様にその通知タイプが追加されているかを確認・同期する。
+
+## 2026-03-14 - [PWAプッシュ通知仕様書における新機能の追記漏れ]
+**学び:** 体温記録や実績解除機能が追加された際、アプリ内通知仕様書（`notification_center.md`）が更新されていても、PWA向けのプッシュ通知仕様書（`pwa_notifications.md`）の「通知項目一覧」には追記が漏れやすい。特に記録タイプが「family_record」カテゴリに属する場合、独立した行としての追加が見落とされがちである。
+**アクション:** 通知機能に関連する新しい記録タイプやカテゴリを追加する際は、`notification_center.md` だけでなく `pwa_notifications.md` などのインフラ・PWA関連の仕様書にも通知項目が網羅されているかを必ず確認・同期する。

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, func, Index
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, _utcnow
 
 
 class Schedule(Base, SoftDeleteMixin):
@@ -12,7 +12,7 @@ class Schedule(Base, SoftDeleteMixin):
     scheduled_time = Column(DateTime(timezone=True), nullable=False, index=True)
     is_completed = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=_utcnow)
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
 
     __table_args__ = (

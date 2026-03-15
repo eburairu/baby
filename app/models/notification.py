@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Time, Text, func, Index
 from sqlalchemy.orm import relationship
-from app.models.base import Base, SoftDeleteMixin
+from app.models.base import Base, SoftDeleteMixin, _utcnow
 
 
 class AppNotification(Base, SoftDeleteMixin):
@@ -55,6 +55,6 @@ class NotificationSetting(Base):
     system_notice_enabled = Column(Boolean, server_default="true", nullable=False, default=True)
     dnd_start_time = Column(Time, nullable=True)
     dnd_end_time = Column(Time, nullable=True)
-    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=_utcnow)
 
     user = relationship("User", back_populates="notification_setting", uselist=False)
