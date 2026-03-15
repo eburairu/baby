@@ -12,6 +12,9 @@ _KEEPALIVE_CONNECT_ARGS = {
     "keepalives_count": 5,     # 5回失敗で切断と判定
 }
 
+_SKIP_TESTS = False
+_SKIP_REASON = ""
+
 try:
     from testcontainers.postgres import PostgresContainer
     import docker.errors
@@ -29,41 +32,50 @@ try:
     _KEEPALIVE_CONNECT_ARGS = {}
     print("Using Testcontainers PostgreSQL for tests.")
 except Exception as e:
-    print(f"Testcontainers could not start ({e}). Falling back to remote test DB.")
-    base_url = os.environ.get("DATABASE_URL")
-    if not base_url:
-        raise RuntimeError("DATABASE_URL must be set if Testcontainers is not available.")
+    if os.environ.get("USE_NEON_TESTS") != "1":
+        _SKIP_TESTS = True
+        _SKIP_REASON = (
+            f"Testcontainers が起動できませんでした: {e}\n"
+            "Neon DB でテストを実行するには USE_NEON_TESTS=1 を設定してください。"
+        )
+        print(f"⚠  {_SKIP_REASON}")
+        DATABASE_URL = "postgresql://skip:skip@localhost:5432/skip"  # ダミー（接続しない）
+    else:
+        print(f"Testcontainers could not start ({e}). USE_NEON_TESTS=1 が設定されているため Neon を使用します。")
+        base_url = os.environ.get("DATABASE_URL")
+        if not base_url:
+            raise RuntimeError("DATABASE_URL must be set if Testcontainers is not available.")
 
-    test_db_name = "botoro_test_db"
+        test_db_name = "botoro_test_db"
 
-    from sqlalchemy import create_engine, text
-    setup_engine = create_engine(
-        base_url,
-        isolation_level="AUTOCOMMIT",
-        connect_args=_KEEPALIVE_CONNECT_ARGS,
-    )
-    try:
-        with setup_engine.connect() as conn:
-            # PostgreSQL does not support DROP DATABASE IF EXISTS in a transaction block
-            # isolation_level="AUTOCOMMIT" handles this.
-            conn.execute(text(f"DROP DATABASE IF EXISTS {test_db_name} (FORCE)"))
-    except Exception as drop_e:
-        # Not all postgres versions support (FORCE), fallback to simple drop
+        from sqlalchemy import create_engine, text
+        setup_engine = create_engine(
+            base_url,
+            isolation_level="AUTOCOMMIT",
+            connect_args=_KEEPALIVE_CONNECT_ARGS,
+        )
         try:
             with setup_engine.connect() as conn:
-                conn.execute(text(f"DROP DATABASE IF EXISTS {test_db_name}"))
-        except Exception:
-            pass
+                # PostgreSQL does not support DROP DATABASE IF EXISTS in a transaction block
+                # isolation_level="AUTOCOMMIT" handles this.
+                conn.execute(text(f"DROP DATABASE IF EXISTS {test_db_name} (FORCE)"))
+        except Exception as drop_e:
+            # Not all postgres versions support (FORCE), fallback to simple drop
+            try:
+                with setup_engine.connect() as conn:
+                    conn.execute(text(f"DROP DATABASE IF EXISTS {test_db_name}"))
+            except Exception:
+                pass
 
-    try:
-        with setup_engine.connect() as conn:
-            conn.execute(text(f"CREATE DATABASE {test_db_name}"))
-    except Exception as e:
-        print(f"Could not create test database (might already exist): {e}")
+        try:
+            with setup_engine.connect() as conn:
+                conn.execute(text(f"CREATE DATABASE {test_db_name}"))
+        except Exception as e:
+            print(f"Could not create test database (might already exist): {e}")
 
-    parsed = urlparse(base_url)
-    parsed = parsed._replace(path=f"/{test_db_name}")
-    DATABASE_URL = urlunparse(parsed)
+        parsed = urlparse(base_url)
+        parsed = parsed._replace(path=f"/{test_db_name}")
+        DATABASE_URL = urlunparse(parsed)
 
 
 # app.database のインポート前に DATABASE_URL を設定しないと RuntimeError になる
@@ -108,6 +120,8 @@ from sqlalchemy import event
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
+    if _SKIP_TESTS:
+        pytest.exit(_SKIP_REASON, returncode=0)
     # Neon 接続失敗時のリトライ
     for attempt in range(3):
         try:
