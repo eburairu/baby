@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}=== 検証プロセスを開始します ===${NC}"
 
 # 0. コミット禁止ファイルのチェック（追加）
-echo -e "${YELLOW}--- [0/6] ステージング済みファイルの最終チェック... ---${NC}"
+echo -e "${YELLOW}--- [0/5] ステージング済みファイルの最終チェック... ---${NC}"
 sh scripts/check_staged_files.sh
 if [ $? -ne 0 ]; then
     echo -e "${RED}✗ 誤ったファイルがステージングされています。修正してください。${NC}"
@@ -33,7 +33,7 @@ set +a
 
 # 1.5 Alembic 複数Headチェック
 echo -e "
-${YELLOW}--- [1/6] Alembic 複数Head検知... ---${NC}"
+${YELLOW}--- [1/5] Alembic 複数Head検知... ---${NC}"
 HEADS_COUNT=$(alembic heads | grep "(head)" | wc -l)
 if [ "$HEADS_COUNT" -gt 1 ]; then
     echo -e "${RED}✗ 複数の Alembic head が検出されました。 'alembic merge heads' を実行して解消してください。${NC}"
@@ -42,30 +42,26 @@ fi
 echo -e "${GREEN}✓ Alembic head は1つです${NC}"
 
 # 2. バックエンドテスト
+# デフォルト: Testcontainers（Docker）でローカル実行。Dockerが使えない場合はスキップ。
+# Neon DB を使う場合: USE_NEON_TESTS=1 sh scripts/verify_all.sh
 echo -e "
-${YELLOW}--- [2/6] バックエンドテスト実行中... ---${NC}"
-# 仮想環境の python を使用
+${YELLOW}--- [2/5] バックエンドテスト実行中... ---${NC}"
 .venv/bin/python -m pytest tests/
 
 # 3. OpenAPI スキーマの更新
 echo -e "
-${YELLOW}--- [3/6] OpenAPI スキーマの更新と検証... ---${NC}"
+${YELLOW}--- [3/5] OpenAPI スキーマの更新と検証... ---${NC}"
 .venv/bin/python scripts/export_openapi.py
 
 # 4. フロントエンド型定義の生成
 echo -e "
-${YELLOW}--- [4/6] フロントエンド型定義の生成... ---${NC}"
+${YELLOW}--- [4/5] フロントエンド型定義の生成... ---${NC}"
 cd frontend
 pnpm types:generate
 
-# 5. フロントエンド Lint
+# 5. フロントエンド Build（ESLint も内包）
 echo -e "
-${YELLOW}--- [5/6] フロントエンド Lint 実行中... ---${NC}"
-pnpm lint
-
-# 6. フロントエンド Build
-echo -e "
-${YELLOW}--- [6/6] フロントエンド Build 実行中... ---${NC}"
+${YELLOW}--- [5/5] フロントエンド Build 実行中... ---${NC}"
 pnpm build
 
 echo -e "
