@@ -23,7 +23,10 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                 name="poop_color"
                 render={({ field }) => (
                     <FormItem className="space-y-2">
-                        <FormLabel className="text-xs text-muted-foreground">うんちの色</FormLabel>
+                        <fieldset>
+                        <FormLabel asChild>
+                            <legend className="text-xs text-muted-foreground">うんちの色</legend>
+                        </FormLabel>
                         <FormControl>
                             <RadioGroup
                                 onValueChange={field.onChange}
@@ -32,11 +35,11 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                             >
                                 {POOP_COLORS.map((color) => (
                                     <div key={color} className="flex items-center">
-                                        <RadioGroupItem value={color} id={`color-${color}`} className="sr-only" />
+                                        <RadioGroupItem value={color} id={`color-${color}`} className="sr-only peer" />
                                         <Label
                                             htmlFor={`color-${color}`}
                                             className={cn(
-                                                "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all",
+                                                "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
                                                 field.value === color
                                                     ? "bg-amber-500 border-amber-500 text-white font-medium shadow-sm"
                                                     : "bg-white border-muted text-muted-foreground hover:border-amber-200"
@@ -49,6 +52,7 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                             </RadioGroup>
                         </FormControl>
                         <FormMessage />
+                        </fieldset>
                     </FormItem>
                 )}
             />
@@ -72,7 +76,10 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                 name="poop_amount"
                 render={({ field }) => (
                     <FormItem className="space-y-2">
-                        <FormLabel className="text-xs text-muted-foreground">うんちの量</FormLabel>
+                        <fieldset>
+                        <FormLabel asChild>
+                            <legend className="text-xs text-muted-foreground">うんちの量</legend>
+                        </FormLabel>
                         <FormControl>
                             <RadioGroup
                                 onValueChange={field.onChange}
@@ -81,11 +88,11 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                             >
                                 {POOP_AMOUNTS.map((amount) => (
                                     <div key={amount} className="flex items-center">
-                                        <RadioGroupItem value={amount} id={`amount-${amount}`} className="sr-only" />
+                                        <RadioGroupItem value={amount} id={`amount-${amount}`} className="sr-only peer" />
                                         <Label
                                             htmlFor={`amount-${amount}`}
                                             className={cn(
-                                                "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all",
+                                                "px-3 py-1.5 rounded-full border text-xs cursor-pointer transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
                                                 field.value === amount
                                                     ? "bg-amber-500 border-amber-500 text-white font-medium shadow-sm"
                                                     : "bg-white border-muted text-muted-foreground hover:border-amber-200"
@@ -98,6 +105,7 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                             </RadioGroup>
                         </FormControl>
                         <FormMessage />
+                        </fieldset>
                     </FormItem>
                 )}
             />
