@@ -2437,6 +2437,23 @@
         "title": "LoginRequest",
         "type": "object"
       },
+      "LogoutRequest": {
+        "properties": {
+          "endpoint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endpoint"
+          }
+        },
+        "title": "LogoutRequest",
+        "type": "object"
+      },
       "MemberRoleUpdate": {
         "properties": {
           "role": {
@@ -4842,6 +4859,23 @@
     "/api/auth/logout": {
       "post": {
         "operationId": "logout_api_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/LogoutRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Logout Req"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "content": {
@@ -4850,6 +4884,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Logout",

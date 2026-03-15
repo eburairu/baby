@@ -1989,6 +1989,11 @@ export interface components {
             /** Username */
             username: string;
         };
+        /** LogoutRequest */
+        LogoutRequest: {
+            /** Endpoint */
+            endpoint?: string | null;
+        };
         /** MemberRoleUpdate */
         MemberRoleUpdate: {
             role: components["schemas"]["UserRole"];
@@ -3052,7 +3057,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["LogoutRequest"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -3061,6 +3070,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

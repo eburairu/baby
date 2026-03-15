@@ -33,13 +33,14 @@ def get_diapers(
     current_user: User = Depends(get_current_user)
 ):
     verify_baby_access(db, baby_id, current_user.id, record_type="diaper")
-    records = db.query(Diaper).filter(Diaper.baby_id == baby_id).order_by(Diaper.change_time.desc()).offset(skip).limit(limit).all()
+    records = db.query(Diaper).filter(Diaper.baby_id == baby_id, Diaper.is_deleted == False).order_by(Diaper.change_time.desc()).offset(skip).limit(limit).all()
     record_ids = [r.id for r in records]
     comment_count_map: dict = {}
     if record_ids:
         rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
             RecordComment.record_type == "diaper",
-            RecordComment.record_id.in_(record_ids)
+            RecordComment.record_id.in_(record_ids),
+            RecordComment.is_deleted == False
         ).group_by(RecordComment.record_id).all()
         comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}

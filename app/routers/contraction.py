@@ -28,13 +28,14 @@ def _build_contraction_response(record: Contraction, user_map: dict, comment_cou
 @router.get("/", response_model=List[ContractionResponse])
 def get_contractions(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="contraction")
-    records = db.query(Contraction).filter(Contraction.baby_id == baby_id).order_by(Contraction.start_time.desc()).all()
+    records = db.query(Contraction).filter(Contraction.baby_id == baby_id, Contraction.is_deleted == False).order_by(Contraction.start_time.desc()).all()
     record_ids = [r.id for r in records]
     comment_count_map: dict = {}
     if record_ids:
         rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
             RecordComment.record_type == "contraction",
-            RecordComment.record_id.in_(record_ids)
+            RecordComment.record_id.in_(record_ids),
+            RecordComment.is_deleted == False
         ).group_by(RecordComment.record_id).all()
         comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}
@@ -45,7 +46,7 @@ def get_contractions(baby_id: int, db: Session = Depends(get_db), current_user: 
 
 def _calculate_interval_seconds(current_start: datetime, last_start: datetime) -> int | None:
     """前回の start_time から今回の start_time までの秒数を計算する（start-to-start）。"""
-    # SQLite などの環境でも安全に比較できるように ensure_aware を適用
+    # timezone-aware な datetime として比較するために ensure_aware を適用
     cur = ensure_aware(current_start)
     last = ensure_aware(last_start)
     diff = round((cur - last).total_seconds())

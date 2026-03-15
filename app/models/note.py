@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, Index
 from sqlalchemy.sql import func
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, _utcnow
 
 class Note(Base, SoftDeleteMixin):
     __tablename__ = "notes"
@@ -16,4 +16,4 @@ class Note(Base, SoftDeleteMixin):
     content = Column(Text, nullable=False)
     note_time = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=_utcnow)

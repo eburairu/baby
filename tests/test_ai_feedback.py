@@ -113,3 +113,62 @@ async def test_generate_record_feedback_disabled(mock_config, db):
     with pytest.raises(AIGenerationError, match="AI 記録フィードバック機能は現在無効化されています。"):
         await generate_record_feedback(db, baby.id, baby, "feeding", feeding.id)
 
+import openai
+from app.core.exceptions import AIRateLimitError, AIServiceError
+
+@pytest.mark.anyio
+@patch("app.services.ai_feedback.get_async_llm_client")
+@patch("app.services.ai_feedback.get_ai_config")
+async def test_generate_record_feedback_rate_limit(mock_config, mock_get_client, db):
+    mock_config.return_value = {"ai_enabled_feedback": True}
+    mock_client = MagicMock()
+    mock_get_client.return_value = (mock_client, "gpt-test-model")
+    
+    mock_client.chat.completions.create = AsyncMock(
+        side_effect=openai.RateLimitError(
+            message="Rate limit exceeded",
+            response=MagicMock(),
+            body={}
+        )
+    )
+
+    user = User(username="test_user_ai_rate", hashed_password="fake")
+    db.add(user)
+    db.commit()
+    family = Family(name="Test Family Rate", invite_code="TEST-AI-RT")
+    db.add(family)
+    db.commit()
+    baby = Baby(family_id=family.id, name="テストベビー", gender="boy", birthday=datetime.now(timezone.utc).date())
+    db.add(baby)
+    db.commit()
+
+    with pytest.raises(AIRateLimitError):
+        await generate_record_feedback(db, baby.id, baby, "feeding", 1)
+
+@pytest.mark.anyio
+@patch("app.services.ai_feedback.get_async_llm_client")
+@patch("app.services.ai_feedback.get_ai_config")
+async def test_generate_record_feedback_openai_error(mock_config, mock_get_client, db):
+    mock_config.return_value = {"ai_enabled_feedback": True}
+    mock_client = MagicMock()
+    mock_get_client.return_value = (mock_client, "gpt-test-model")
+    
+    mock_client.chat.completions.create = AsyncMock(
+        side_effect=openai.APIConnectionError(
+            request=MagicMock()
+        )
+    )
+
+    user = User(username="test_user_ai_api", hashed_password="fake")
+    db.add(user)
+    db.commit()
+    family = Family(name="Test Family API", invite_code="TEST-AI-AP")
+    db.add(family)
+    db.commit()
+    baby = Baby(family_id=family.id, name="テストベビー", gender="boy", birthday=datetime.now(timezone.utc).date())
+    db.add(baby)
+    db.commit()
+
+    with pytest.raises(AIServiceError):
+        await generate_record_feedback(db, baby.id, baby, "feeding", 1)
+

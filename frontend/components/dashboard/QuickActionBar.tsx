@@ -107,6 +107,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => handleFeedingModal("BREAST")}
                         disabled={isLoading}
                         aria-label="母乳を記録"
+                        aria-haspopup="dialog"
                         animationType="tilt"
                     />
                     {/* 上段: ミルク */}
@@ -117,6 +118,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => handleFeedingModal("BOTTLE")}
                         disabled={isLoading}
                         aria-label="ミルクを記録"
+                        aria-haspopup="dialog"
                         animationType="tilt"
                     />
                     {/* 中段: おしっこ */}
@@ -127,6 +129,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => handleDiaperModal(DiaperType.WET)}
                         disabled={isLoading}
                         aria-label="おしっこを記録"
+                        aria-haspopup="dialog"
                         animationType="bounce"
                     />
                     {/* 中段: うんち */}
@@ -137,6 +140,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => handleDiaperModal(DiaperType.DIRTY)}
                         disabled={isLoading}
                         aria-label="うんちを記録"
+                        aria-haspopup="dialog"
                         animationType="bounce"
                     />
                     {/* 中段: おしっこ/うんち */}
@@ -147,6 +151,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => handleDiaperModal(DiaperType.BOTH)}
                         disabled={isLoading}
                         aria-label="おしっこ・うんちを記録"
+                        aria-haspopup="dialog"
                         animationType="bounce"
                     />
                     {/* 下段: 睡眠 */}
@@ -179,6 +184,7 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         onClick={() => setNoteDialogOpen(true)}
                         disabled={isLoading}
                         aria-label="メモを追加"
+                        aria-haspopup="dialog"
                         animationType="tilt"
                     />
                     {/* 下段: 日誌 */}

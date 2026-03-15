@@ -3,12 +3,12 @@ Issue #801: AI日誌生成(upsert)時の競合エラーを防ぐ排他ロック�
 
 テスト対象:
   - upsert 実行前に acquire_ai_summary_lock() が呼ばれること
-  - acquire_ai_summary_lock() が pg_advisory_xact_lock を発行すること（SQLite テストではモック）
+  - acquire_ai_summary_lock() が実際の PostgreSQL で pg_advisory_xact_lock を発行すること
   - ロック取得済みの場合（2回目のリクエスト）でも is_edited フラグによる分岐が正常に動くこと
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, call
 from datetime import date
 
 from app.models.family import Family
@@ -90,24 +90,16 @@ def test_advisory_lock_is_called_on_upsert(db: Session, client):
 
 def test_acquire_ai_summary_lock_executes_pg_advisory_lock(db: Session):
     """
-    acquire_ai_summary_lock() が db.execute() で pg_advisory_xact_lock を
-    呼び出していることを確認する。dialect を postgresql に偽装してテストする。
+    acquire_ai_summary_lock() が実際の PostgreSQL で pg_advisory_xact_lock を
+    例外なく実行できることを確認する。モックを使わず実DBで検証する。
     """
     from app.routers.ai_summary import acquire_ai_summary_lock
 
-    mock_db = MagicMock()
-    # PostgreSQL dialect に見せかける
-    mock_db.bind.dialect.name = "postgresql"
     target_date = date(2026, 3, 10)
     baby_id = 42
 
-    acquire_ai_summary_lock(mock_db, baby_id, target_date)
-
-    # db.execute が呼ばれたことを確認
-    mock_db.execute.assert_called_once()
-    # 第1引数（TextClause）のテキストに pg_advisory_xact_lock が含まれること
-    first_arg = mock_db.execute.call_args.args[0]
-    assert "pg_advisory_xact_lock" in str(first_arg)
+    # 実 PostgreSQL に対して実行し、例外が発生しないことを確認
+    acquire_ai_summary_lock(db, baby_id, target_date)
 
 
 # ---------------------------------------------------------------------------

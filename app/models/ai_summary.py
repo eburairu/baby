@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index, JSON
+from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, UniqueConstraint, Index, JSON, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.sql import func
-from .base import Base, SoftDeleteMixin
+from .base import Base, SoftDeleteMixin, _utcnow
 
 
 class DailySummary(Base, SoftDeleteMixin):
@@ -18,9 +18,15 @@ class DailySummary(Base, SoftDeleteMixin):
     model_name = Column(String, nullable=True)
     image_urls = Column(MutableList.as_mutable(JSON().with_variant(JSONB, 'postgresql')), nullable=True, default=[])
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=_utcnow)
 
     __table_args__ = (
-        UniqueConstraint("baby_id", "summary_date", name="uix_daily_summary_baby_date"),
+        Index(
+            "uix_daily_summary_baby_date_partial",
+            "baby_id",
+            "summary_date",
+            unique=True,
+            postgresql_where=text("is_deleted = false")
+        ),
         Index("ix_daily_summaries_baby_id_is_deleted", "baby_id", "is_deleted"),
     )
