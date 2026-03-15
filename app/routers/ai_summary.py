@@ -26,15 +26,7 @@ def acquire_ai_summary_lock(db: Session, baby_id: int, summary_date: date) -> No
 
     ロックキーは 64-bit 整数 2 つ（baby_id, date を YYYYMMDD 整数に変換）で構成する。
     トランザクション終了時に自動解放されるため明示的な解放は不要。
-
-    SQLite（テスト環境）では pg_advisory_xact_lock が存在しないため、
-    dialect チェックにより実行をスキップする。
     """
-    dialect = db.bind.dialect.name if db.bind else "sqlite"
-    if dialect != "postgresql":
-        # SQLite など PostgreSQL 以外では何もしない（テスト環境）
-        return
-
     date_int = int(summary_date.strftime("%Y%m%d"))
     db.execute(
         text("SELECT pg_advisory_xact_lock(:key1, :key2)"),

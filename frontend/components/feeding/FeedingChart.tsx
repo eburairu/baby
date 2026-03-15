@@ -118,8 +118,9 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                             <button
                                 key={key}
                                 onClick={() => setCompareMetric(key)}
+                                aria-pressed={compareMetric === key}
                                 className={[
-                                    "rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors",
+                                    "rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-zinc-900",
                                     compareMetric === key
                                         ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300"
                                         : "text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200",

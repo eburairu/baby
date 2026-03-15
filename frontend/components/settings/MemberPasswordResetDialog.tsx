@@ -88,6 +88,8 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                                 variant="outline"
                                 size="sm"
                                 onClick={handleCopy}
+                                aria-label={copied ? "コピー完了" : "パスワードをコピー"}
+                                title="パスワードをコピー"
                                 className="shrink-0 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                             >
                                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
@@ -123,7 +125,7 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                     <AlertDialogCancel onClick={handleClose}>キャンセル</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleReset}
-                        disabled={resetting}
+                        loading={resetting}
                         className="bg-indigo-600 hover:bg-indigo-700"
                     >
                         再発行する
