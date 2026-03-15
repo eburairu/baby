@@ -117,8 +117,8 @@ async def serve_frontend(full_path: str):
     # Join with base path and resolve absolute path (handles ..)
     requested_path = os.path.abspath(os.path.join(base_path, full_path.lstrip("/")))
 
-    # Check if the resolved path starts with the base path
-    if not requested_path.startswith(base_path):
+    # Check if the resolved path is strictly inside the base path
+    if os.path.commonpath([base_path, requested_path]) != base_path:
         # Path traversal attempt - serve index.html (SPA routing handles 404)
         return FileResponse(os.path.join(frontend_build_path, "index.html"))
 
