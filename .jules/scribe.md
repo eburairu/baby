@@ -298,3 +298,7 @@
 ## 2024-03-12 - [BabyPermissions Spec Drift]
 **学び:** 新しい記録タイプ（今回は体温）が追加された際に、BabyPermissionsの仕様書（.specify/specs/settings/baby_permissions.md）内の ValidRecordType や有効値一覧表への追加が漏れやすいパターンの発見。
 **アクション:** 仕様書側のテーブル定義や型定義にも新しい記録タイプを追加し、バックエンドのバリデーション定義との同期を保つ。
+
+## 2024-05-15 - baby_permissions.md の「存在しない仕様 (ghost feature)」を削除
+**学び:** `temperature` (体温) はフロント/バックエンドには記録機能として実装されているが、権限管理の `BabyPermission` の `VALID_RECORD_TYPES` や `usePermissionsPage.ts` の `ALL_RECORD_TYPES` 等のバリデーションには追加されていない。にもかかわらず、`.specify/specs/settings/baby_permissions.md` には `temperature` が「有効値」として記載されている「ghost feature」の仕様ドリフトが発生していた。
+**アクション:** 実装に先行してドキュメントにのみ記載されている「ghost feature」は実際の実装と乖離するため、現在のコードに合わせてドキュメントから削除した。
