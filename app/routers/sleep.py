@@ -26,13 +26,14 @@ def _build_sleep_response(record: Sleep, user_map: dict, comment_count_map: dict
 @router.get("/", response_model=List[SleepResponse])
 def get_sleeps(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="sleep")
-    records = db.query(Sleep).filter(Sleep.baby_id == baby_id).order_by(Sleep.start_time.desc()).all()
+    records = db.query(Sleep).filter(Sleep.baby_id == baby_id, Sleep.is_deleted == False).order_by(Sleep.start_time.desc()).all()
     record_ids = [r.id for r in records]
     comment_count_map: dict = {}
     if record_ids:
         rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
             RecordComment.record_type == "sleep",
-            RecordComment.record_id.in_(record_ids)
+            RecordComment.record_id.in_(record_ids),
+            RecordComment.is_deleted == False
         ).group_by(RecordComment.record_id).all()
         comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}

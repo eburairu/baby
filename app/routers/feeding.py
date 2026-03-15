@@ -28,13 +28,14 @@ def _build_feeding_response(record: Feeding, user_map: dict, comment_count_map: 
 @router.get("/", response_model=List[FeedingResponse])
 def get_feedings(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     verify_baby_access(db, baby_id, current_user.id, record_type="feeding")
-    records = db.query(Feeding).filter(Feeding.baby_id == baby_id).order_by(Feeding.feeding_time.desc()).all()
+    records = db.query(Feeding).filter(Feeding.baby_id == baby_id, Feeding.is_deleted == False).order_by(Feeding.feeding_time.desc()).all()
     record_ids = [r.id for r in records]
     comment_count_map: dict = {}
     if record_ids:
         rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
             RecordComment.record_type == "feeding",
-            RecordComment.record_id.in_(record_ids)
+            RecordComment.record_id.in_(record_ids),
+            RecordComment.is_deleted == False
         ).group_by(RecordComment.record_id).all()
         comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}

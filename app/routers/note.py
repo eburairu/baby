@@ -28,13 +28,14 @@ def get_notes(
 ):
     """メモ一覧取得（履歴）"""
     verify_baby_access(db, baby_id, current_user.id, record_type="note")
-    records = db.query(Note).filter(Note.baby_id == baby_id).order_by(Note.note_time.desc()).all()
+    records = db.query(Note).filter(Note.baby_id == baby_id, Note.is_deleted == False).order_by(Note.note_time.desc()).all()
     record_ids = [r.id for r in records]
     comment_count_map: dict = {}
     if record_ids:
         rows = db.query(RecordComment.record_id, func.count(RecordComment.id).label("cnt")).filter(
             RecordComment.record_type == "note",
-            RecordComment.record_id.in_(record_ids)
+            RecordComment.record_id.in_(record_ids),
+            RecordComment.is_deleted == False
         ).group_by(RecordComment.record_id).all()
         comment_count_map = {row.record_id: row.cnt for row in rows}
     user_ids = {r.user_id for r in records if r.user_id is not None}
