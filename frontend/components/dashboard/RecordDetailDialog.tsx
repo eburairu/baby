@@ -56,27 +56,27 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
             body.feeding_time = isoTimestamp
             await api.patch(endpoint, body)
             break
-          case "sleep":
+          case RECORD_TYPES.SLEEP:
             endpoint = `/sleeps/${record.id}`
             body.start_time = isoTimestamp
             await api.patch(endpoint, body)
             break
-          case "diaper":
+          case RECORD_TYPES.DIAPER:
             endpoint = `/diapers/${record.id}`
             body.change_time = isoTimestamp
             await api.put(endpoint, body)
             break
-          case "growth":
+          case RECORD_TYPES.GROWTH:
             endpoint = `/growths/${record.id}`
             // Use format to get YYYY-MM-DD in local time
             body.date = formatDateLocal(new Date(record.timestamp))
             await api.put(endpoint, body)
             break
-          case "note":
+          case RECORD_TYPES.NOTE:
             endpoint = `/notes/${record.id}`
             await api.patch(endpoint, { content: notes, note_time: isoTimestamp, updated_at: record.updated_at })
             break
-          case "contraction":
+          case RECORD_TYPES.CONTRACTION:
             endpoint = `/contractions/${record.id}`
             body.start_time = isoTimestamp
             await api.patch(endpoint, body)
@@ -109,11 +109,11 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         let endpoint = ""
         switch (record.type) {
           case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
-          case "sleep": endpoint = `/sleeps/${record.id}`; break
-          case "diaper": endpoint = `/diapers/${record.id}`; break
-          case "growth": endpoint = `/growths/${record.id}`; break
-          case "note": endpoint = `/notes/${record.id}`; break
-          case "contraction": endpoint = `/contractions/${record.id}`; break
+          case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${record.id}`; break
+          case RECORD_TYPES.DIAPER: endpoint = `/diapers/${record.id}`; break
+          case RECORD_TYPES.GROWTH: endpoint = `/growths/${record.id}`; break
+          case RECORD_TYPES.NOTE: endpoint = `/notes/${record.id}`; break
+          case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${record.id}`; break
         }
         await api.delete(endpoint)
       },
