@@ -88,6 +88,8 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                                 variant="outline"
                                 size="sm"
                                 onClick={handleCopy}
+                                aria-label={copied ? "コピー完了" : "パスワードをコピー"}
+                                title="パスワードをコピー"
                                 className="shrink-0 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                             >
                                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}

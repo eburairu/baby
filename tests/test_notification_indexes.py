@@ -8,11 +8,8 @@ from app.models.notification import AppNotification, PushSubscription
 
 @pytest.fixture(scope="function")
 def setup_db():
-    # テーブル作成
     Base.metadata.create_all(bind=engine)
     yield
-    # テーブル削除
-    Base.metadata.drop_all(bind=engine)
 
 def test_app_notification_indexes(setup_db):
     """AppNotificationのインデックスが正しく作成されているか確認"""
