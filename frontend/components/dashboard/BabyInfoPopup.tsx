@@ -83,10 +83,14 @@ export function BabyInfoPopup({ baby, open, onOpenChange, activeTab, onActiveTab
         </SheetHeader>
 
         {/* タブ */}
-        <div className="flex border-b border-border/50 mb-4">
+        <div role="tablist" aria-label="赤ちゃん情報タブ" className="flex border-b border-border/50 mb-4">
           {TABS.map((tab) => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`tabpanel-${tab.id}`}
+              id={`tab-${tab.id}`}
               onClick={() => onActiveTabChange(tab.id)}
               className={cn(
                 "flex-1 py-2 text-sm font-medium transition-colors",
@@ -102,7 +106,7 @@ export function BabyInfoPopup({ baby, open, onOpenChange, activeTab, onActiveTab
 
         {/* 情報タブ */}
         {activeTab === "info" && (
-          <div className="space-y-3 py-2">
+          <div id="tabpanel-info" role="tabpanel" aria-labelledby="tab-info" className="space-y-3 py-2">
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">誕生日</span>
               <span className="text-sm font-medium">{birthdayDisplay}</span>
@@ -140,7 +144,9 @@ export function BabyInfoPopup({ baby, open, onOpenChange, activeTab, onActiveTab
 
         {/* 実績タブ */}
         {activeTab === "achievements" && (
-          <AchievementTab babyId={baby.id} />
+          <div id="tabpanel-achievements" role="tabpanel" aria-labelledby="tab-achievements">
+            <AchievementTab babyId={baby.id} />
+          </div>
         )}
       </SheetContent>
     </Sheet>
