@@ -321,3 +321,6 @@
 ## 2026-03-14 - [PWAプッシュ通知仕様書における新機能の追記漏れ]
 **学び:** 体温記録や実績解除機能が追加された際、アプリ内通知仕様書（`notification_center.md`）が更新されていても、PWA向けのプッシュ通知仕様書（`pwa_notifications.md`）の「通知項目一覧」には追記が漏れやすい。特に記録タイプが「family_record」カテゴリに属する場合、独立した行としての追加が見落とされがちである。
 **アクション:** 通知機能に関連する新しい記録タイプやカテゴリを追加する際は、`notification_center.md` だけでなく `pwa_notifications.md` などのインフラ・PWA関連の仕様書にも通知項目が網羅されているかを必ず確認・同期する。
+## 2024-03-16 - [権限仕様の同期]
+**学び:** `app/models/temperature.py` と `app/routers/temperatures.py` に体温記録 (`temperature`) が実装され、権限検証 (`verify_baby_access(..., record_type="temperature")`) が行われているにもかかわらず、`.specify/specs/settings/baby_permissions.md` の `record_type` の有効値一覧やレスポンス例、TypeScriptの型定義に記述が漏れていた。新しく追加された記録タイプが権限仕様に反映されない「specification drift」のパターンを確認した。
+**アクション:** 今後、バックエンドに新しい記録タイプ（モデルおよびルーター）が追加された際は、対応する権限仕様書（`baby_permissions.md` など）の `record_type` リストや関連定義も漏れなく更新する必要がある。
