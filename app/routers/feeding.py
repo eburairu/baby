@@ -6,6 +6,7 @@ from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.feeding import Feeding
+from app.models.timer import FeedingTimerState
 from app.models.enums import FeedingType
 from app.models.comment import RecordComment
 from app.schemas.feeding import FeedingCreate, FeedingResponse, FeedingUpdate
@@ -69,6 +70,17 @@ def create_feeding(
     )
     db.add(new_feeding)
     db.flush()
+
+    # タイマーリセット要求があれば処理
+    if feeding_in.reset_timer:
+        db.query(FeedingTimerState).filter(
+            FeedingTimerState.baby_id == feeding_in.baby_id
+        ).update({
+            "active_side": None,
+            "left_elapsed_seconds": 0,
+            "right_elapsed_seconds": 0,
+            "segment_start_time": None
+        }, synchronize_session=False)
 
     unlocked = check_and_award_achievements(
         baby_id=new_feeding.baby_id,

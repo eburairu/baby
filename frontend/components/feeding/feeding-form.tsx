@@ -59,6 +59,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
         setRightSeconds,
         activeBreastSide,
         toggleTimer,
+        reset, // Use local reset from store
         resetAllTimers,
         formatTimer,
         totalSeconds
@@ -126,7 +127,7 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                     bottle_content_type: nextBottleType,
                     notes: "",
                 })
-                resetAllTimers()
+                reset() // local reset only, API handled by reset_timer: true in POST
                 setFeedingCompletion(null)
                 setBurped(null)
             }
@@ -161,7 +162,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         activeTab,
                         feedingCompletion,
                         bottleContentType: vals.bottle_content_type ?? null,
-                        burped
+                        burped,
+                        reset_timer: true
                     }),
                     onAdd
                 )
@@ -174,7 +176,8 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
                         activeTab,
                         feedingCompletion,
                         bottleContentType: vals.bottle_content_type ?? null,
-                        burped
+                        burped,
+                        reset_timer: true
                     })
                 })
             }

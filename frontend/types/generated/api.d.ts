@@ -1528,6 +1528,11 @@ export interface components {
             /** Notes */
             notes?: string | null;
             /**
+             * Reset Timer
+             * @default false
+             */
+            reset_timer: boolean;
+            /**
              * Start Time
              * Format: date-time
              */
@@ -1554,6 +1559,11 @@ export interface components {
             notes?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
+            /**
+             * Reset Timer
+             * @default false
+             */
+            reset_timer: boolean;
             /**
              * Start Time
              * Format: date-time
@@ -1836,6 +1846,11 @@ export interface components {
             left_breast_minutes?: number | null;
             /** Notes */
             notes?: string | null;
+            /**
+             * Reset Timer
+             * @default false
+             */
+            reset_timer: boolean;
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
         };
@@ -1871,6 +1886,11 @@ export interface components {
             notes?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
+            /**
+             * Reset Timer
+             * @default false
+             */
+            reset_timer: boolean;
             /** Right Breast Minutes */
             right_breast_minutes?: number | null;
             /**

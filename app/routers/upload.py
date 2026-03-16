@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+import filetype
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from pydantic import BaseModel
 import boto3
@@ -78,26 +79,29 @@ async def upload_image(
 
     # Validate magic bytes and determine correct MIME type and extension
     # This prevents users from uploading malicious files (e.g., HTML/PHP) with fake extensions
-    detected_mime_type = None
-    detected_extension = None
-
-    if content.startswith(b"\xFF\xD8\xFF"):
-        detected_mime_type = "image/jpeg"
-        detected_extension = ".jpg"
-    elif content.startswith(b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"):
-        detected_mime_type = "image/png"
-        detected_extension = ".png"
-    elif content.startswith(b"\x47\x49\x46\x38"):
-        detected_mime_type = "image/gif"
-        detected_extension = ".gif"
-    elif content.startswith(b"RIFF") and len(content) >= 12 and content[8:12] == b"WEBP":
-        detected_mime_type = "image/webp"
-        detected_extension = ".webp"
-    else:
+    kind = filetype.guess(content)
+    if not kind or not kind.mime.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="無効な画像ファイル形式です。",
         )
+
+    # 許可される画像形式を制限（JPEG, PNG, GIF, WEBP）
+    # TIFFなどは画像として検知されるが、Webでは一般的に使用されないため制限する
+    allowed_mimes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if kind.mime not in allowed_mimes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="サポートされていない画像形式です（JPEG, PNG, GIF, WEBP のみ対応）。",
+        )
+
+    detected_mime_type = kind.mime
+    # filetype.extension はドットなし（例: 'jpg'）
+    # .jpeg の場合は互換性のために .jpg に正規化する
+    if kind.extension == "jpeg":
+        detected_extension = ".jpg"
+    else:
+        detected_extension = f".{kind.extension}"
 
     # Use detected extension instead of trusting user input
     object_key = f"{uuid.uuid4()}{detected_extension}"
