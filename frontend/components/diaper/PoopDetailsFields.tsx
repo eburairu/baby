@@ -1,7 +1,7 @@
 import React from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { DiaperFormValues } from "@/schemas/diaper"
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -24,9 +24,7 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                 render={({ field }) => (
                     <FormItem className="space-y-2">
                         <fieldset>
-                        <FormLabel asChild>
-                            <legend className="text-xs text-muted-foreground">うんちの色</legend>
-                        </FormLabel>
+                        <legend className="text-xs text-muted-foreground">うんちの色</legend>
                         <FormControl>
                             <RadioGroup
                                 onValueChange={field.onChange}
@@ -77,9 +75,7 @@ export function PoopDetailsFields({ form }: PoopDetailsFieldsProps) {
                 render={({ field }) => (
                     <FormItem className="space-y-2">
                         <fieldset>
-                        <FormLabel asChild>
-                            <legend className="text-xs text-muted-foreground">うんちの量</legend>
-                        </FormLabel>
+                        <legend className="text-xs text-muted-foreground">うんちの量</legend>
                         <FormControl>
                             <RadioGroup
                                 onValueChange={field.onChange}
