@@ -48,8 +48,6 @@ def test_upload_image_extension_override(auth_client):
     """
     拡張子が偽装されている場合でも、マジックバイトに基づいて正しい拡張子とContent-Typeが設定されることをテストする
     """
-    from unittest.mock import MagicMock, patch
-
     # Mock S3 client
     mock_s3_client = MagicMock()
 
@@ -65,7 +63,6 @@ def test_upload_image_extension_override(auth_client):
         data = response.json()
 
         # Verify that the filename in the response has .jpg extension
-        # Current implementation fails here because it uses .php
         assert data["filename"].endswith(".jpg")
         assert not data["filename"].endswith(".php")
 
@@ -76,3 +73,39 @@ def test_upload_image_extension_override(auth_client):
         # Even if user sent image/jpeg, we want to ensure our code explicitly sets it based on detection
         assert call_kwargs["ContentType"] == "image/jpeg"
         assert call_kwargs["Key"].endswith(".jpg")
+
+
+def test_upload_image_unsupported_image_type(auth_client):
+    """
+    TIFFなどは画像だが、現時点ではサポートされていないため、400エラーが返されることをテストする
+    """
+    client = auth_client()
+
+    # TIFF magic bytes: II* (49 49 2A 00)
+    tiff_content = b"\x49\x49\x2A\x00" + b"fake tiff content"
+    files = {'file': ('test.tif', tiff_content, 'image/tiff')}
+
+    response = client.post("/api/upload/image", files=files)
+
+    assert response.status_code == 400
+    assert "サポートされていない画像形式です" in response.json()["detail"]
+
+
+def test_upload_image_valid_webp(auth_client):
+    """
+    有効な WebP ファイルが正しくアップロードされることをテストする
+    """
+    mock_s3_client = MagicMock()
+
+    with patch("app.routers.upload._get_r2_client", return_value=mock_s3_client):
+        client = auth_client()
+
+        # WebP magic bytes: RIFF....WEBP
+        webp_content = b"RIFF" + b"\x00\x00\x00\x00" + b"WEBP" + b"VP8 "
+        files = {'file': ('test.webp', webp_content, 'image/webp')}
+
+        response = client.post("/api/upload/image", files=files)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["filename"].endswith(".webp")
