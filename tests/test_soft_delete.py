@@ -23,7 +23,7 @@ def test_baby_soft_delete(auth_client, db: Session):
     # 3. データベース上にレコードが残っていることを確認 (物理削除されていない)
     # 論理削除導入後は is_deleted=True のレコードが取得できるはず
     # まだ導入されていない現在は、物理削除されているため None になるはず
-    baby_in_db = db.query(Baby).filter(Baby.id == baby_id).first()
+    baby_in_db = db.query(Baby).execution_options(include_deleted=True).filter(Baby.id == baby_id).first()
     assert baby_in_db is not None, "Baby should not be physically deleted"
     assert getattr(baby_in_db, "is_deleted", False) is True, "Baby should be marked as deleted"
 
@@ -61,7 +61,7 @@ def test_feeding_soft_delete(auth_client, db: Session):
     assert response.status_code == 200
 
     # 4. データベース上にレコードが残っていることを確認
-    feeding_in_db = db.query(Feeding).filter(Feeding.id == feeding_id).first()
+    feeding_in_db = db.query(Feeding).execution_options(include_deleted=True).filter(Feeding.id == feeding_id).first()
     assert feeding_in_db is not None, "Feeding should not be physically deleted"
     assert getattr(feeding_in_db, "is_deleted", False) is True, "Feeding should be marked as deleted"
 
