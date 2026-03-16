@@ -63,9 +63,10 @@ export default function FeedingPage() {
             <TipsCard {...feedingTips} />
 
             {canWrite && babyId && (
-                <FeedingForm 
-                    babyId={typeof babyId === 'string' ? parseInt(babyId, 10) : (babyId || 0)} 
-                    onAdd={handleAddFeeding} 
+                <FeedingForm
+                    babyId={typeof babyId === 'string' ? parseInt(babyId, 10) : (babyId || 0)}
+                    onAdd={handleAddFeeding}
+                    onSuccess={refreshFeedings}
                     lastMilkAmount={summary.lastMilkAmount}
                     lastBottleContentType={summary.lastBottleContentType}
                 />
