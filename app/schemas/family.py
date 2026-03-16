@@ -50,3 +50,8 @@ class MemberRoleUpdate(BaseModel):
 
 class PasswordResetResponse(BaseModel):
     temporary_password: str
+
+
+class FamilyJoinRequest(BaseModel):
+    invite_code: str = Field(..., min_length=1, max_length=50)
+
