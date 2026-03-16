@@ -325,3 +325,7 @@
 ## 2024-03-16 - [設定] baby_permissions.md と実装の乖離修正
 **学び:** 新しい記録タイプ（例: `temperature`）が追加された場合、各機能（この場合は `app/routers/temperatures.py` や `app/models/temperature.py`）は実装されるが、`baby_permissions.md` のような権限管理の仕様書への追記が漏れやすい。特に `record_type` の有効値一覧は、APIの連携にも関わるため、実装が先行しドキュメントと不整合が起きる。ただし、仕様書への追記は実装と対応させる必要があり、コード自体の更新（`app/schemas/baby_permission.py` など）は Scribe の責務外である。
 **アクション:** 仕様書 `.specify/specs/settings/baby_permissions.md` の `record_type` 一覧に `temperature` を追記し、コード（`app/routers/temperatures.py` 内の `record_type="temperature"` の使用）と整合させた。今後も新しい記録タイプが実装された際には、`baby_permissions.md` にも対応する値が含まれているか確認する。
+
+## 2024-03-16 - [プロフィール設定仕様書の仕様乖離 - FamilyMemberResponseのUserRole反映漏れ]
+**学び:** `app/schemas/family.py` の `FamilyMemberResponse` モデルで `role` フィールドの型が `str` から `UserRole` Enumにアップデートされているにもかかわらず、対応する仕様書 `.specify/specs/settings/profile_settings.md` では古い型 `str` が残っていた。`family_settings.md` は更新されていたため、モデルが複数の仕様書に記載されていると片方の更新が漏れやすい。
+**アクション:** 今後、共通のレスポンスモデルのフィールド型（特にEnumへの移行など）に変更があった場合は、それが参照されている全てのマークダウン仕様書を検索し、漏れなく更新・同期するようにする。
