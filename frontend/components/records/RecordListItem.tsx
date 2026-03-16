@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import React, { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 interface RecordListItemProps {
@@ -14,7 +14,8 @@ interface RecordListItemProps {
     onClick?: () => void
 }
 
-export function RecordListItem({
+// ⚡ Bolt: React.memoを追加し、親コンポーネントの状態変更（ダイアログ開閉等）によるリストアイテムの不要な再レンダリングを防止
+export const RecordListItem = React.memo(function RecordListItem({
     icon,
     children,
     actions,
@@ -48,4 +49,4 @@ export function RecordListItem({
             )}
         </div>
     )
-}
+})
