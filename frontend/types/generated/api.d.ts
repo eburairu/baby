@@ -619,6 +619,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/family/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Join Family */
+        post: operations["join_family_api_family_join_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/family/members": {
         parameters: {
             query?: never;
@@ -1749,6 +1766,11 @@ export interface components {
             members: components["schemas"]["AdminFamilyMemberResponse"][];
             /** Name */
             name: string;
+        };
+        /** FamilyJoinRequest */
+        FamilyJoinRequest: {
+            /** Invite Code */
+            invite_code: string;
         };
         /** FamilyMemberResponse */
         FamilyMemberResponse: {
@@ -4226,6 +4248,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FamilyResponse"];
+                };
+            };
+        };
+    };
+    join_family_api_family_join_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyJoinRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -3,11 +3,12 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 
 from app.dependencies import get_db, get_current_user
 from app.utils.rate_limit import RateLimiter
+from app.utils.audit import get_client_ip
 from app.core import constants
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser
@@ -18,6 +19,7 @@ from app.schemas.family import (
     FamilyMemberResponse,
     MemberRoleUpdate,
     PasswordResetResponse,
+    FamilyJoinRequest,
 )
 from app.services.auth import get_password_hash
 
@@ -36,6 +38,13 @@ regenerate_invite_limiter = RateLimiter(
     requests_limit=constants.RATE_LIMIT_REGENERATE_INVITE_REQUESTS,
     time_window=constants.RATE_LIMIT_REGENERATE_INVITE_WINDOW,
     error_message="Too many invite code generation requests. Please try again later.",
+)
+
+# Limit join family via invite code attempts to prevent brute force attacks
+join_family_limiter = RateLimiter(
+    requests_limit=constants.RATE_LIMIT_JOIN_FAMILY_REQUESTS,
+    time_window=constants.RATE_LIMIT_JOIN_FAMILY_WINDOW,
+    error_message="Too many join attempts. Please try again later.",
 )
 
 def _get_family_user(db: Session, current_user: User) -> FamilyUser:
@@ -91,6 +100,43 @@ def regenerate_invite_code(
     family.invite_code = new_code
     family.invite_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
     logger.info("Invite code regenerated: family_id=%s, by user_id=%s", family.id, current_user.id)
+    db.commit()
+    db.refresh(family)
+    return family
+
+
+@router.post("/join", response_model=FamilyResponse)
+def join_family(
+    body: FamilyJoinRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Rate limit based on IP and User ID to prevent brute force attacks on invite codes
+    client_ip = get_client_ip(request) or "unknown"
+    limiter_key = f"{client_ip}:{current_user.id}"
+    join_family_limiter.check(limiter_key)
+
+    invite_code = body.invite_code.upper()
+    family = db.query(Family).filter(Family.invite_code == invite_code).first()
+    if not family:
+        raise HTTPException(status_code=404, detail="Invalid invite code")
+        
+    if family.invite_code_expires_at and family.invite_code_expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        raise HTTPException(status_code=410, detail="Invite code has expired")
+
+    # Check if user is already a member
+    existing_member = db.query(FamilyUser).filter(
+        FamilyUser.family_id == family.id,
+        FamilyUser.user_id == current_user.id
+    ).first()
+    if existing_member:
+        raise HTTPException(status_code=400, detail="Already a member of this family")
+
+    family_user = FamilyUser(family_id=family.id, user_id=current_user.id, role=UserRole.VIEWER)
+    db.add(family_user)
+    
+    logger.info("User joined family via invite code: user_id=%s, family_id=%s", current_user.id, family.id)
     db.commit()
     db.refresh(family)
     return family
