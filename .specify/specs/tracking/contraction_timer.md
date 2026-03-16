@@ -142,6 +142,7 @@ interface ContractionCreate {
   duration_seconds?: number
   interval_seconds?: number
   notes?: string
+  reset_timer?: boolean   // trueの場合、作成と同時にタイマーをリセットする
 }
 
 // PATCH リクエスト (New)

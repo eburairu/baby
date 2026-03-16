@@ -12,6 +12,7 @@ class ContractionCreate(BaseModel):
     duration_seconds: Optional[int] = None
     interval_seconds: Optional[int] = None
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
+    reset_timer: bool = False
 
     @field_validator('start_time', 'end_time', mode='before')
     @classmethod

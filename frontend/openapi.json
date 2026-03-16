@@ -868,6 +868,11 @@
             ],
             "title": "Notes"
           },
+          "reset_timer": {
+            "default": false,
+            "title": "Reset Timer",
+            "type": "boolean"
+          },
           "start_time": {
             "format": "date-time",
             "title": "Start Time",
@@ -952,6 +957,11 @@
               }
             ],
             "title": "Recorded By Display Name"
+          },
+          "reset_timer": {
+            "default": false,
+            "title": "Reset Timer",
+            "type": "boolean"
           },
           "start_time": {
             "format": "date-time",
@@ -1757,6 +1767,11 @@
             ],
             "title": "Notes"
           },
+          "reset_timer": {
+            "default": false,
+            "title": "Reset Timer",
+            "type": "boolean"
+          },
           "right_breast_minutes": {
             "anyOf": [
               {
@@ -1904,6 +1919,11 @@
               }
             ],
             "title": "Recorded By Display Name"
+          },
+          "reset_timer": {
+            "default": false,
+            "title": "Reset Timer",
+            "type": "boolean"
           },
           "right_breast_minutes": {
             "anyOf": [
