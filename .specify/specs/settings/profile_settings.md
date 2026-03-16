@@ -209,7 +209,7 @@ class FamilyMemberResponse(BaseModel):
     user_id: int
     username: str
     display_name: Optional[str] = None   # ← 追加
-    role: str
+    role: UserRole
     joined_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
