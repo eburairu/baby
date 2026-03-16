@@ -72,6 +72,7 @@ export const HexagonButton = React.forwardRef<HTMLButtonElement, HexagonButtonPr
       disabled={loading}
       aria-busy={loading}
       aria-pressed={active}
+      title={props.title || props["aria-label"] || label}
       {...props}
       style={{ width, height, ...props.style } as React.CSSProperties}
     >
