@@ -95,8 +95,8 @@ def test_logout_with_endpoint_deletes_push_subscription(client, db):
     logout_res = client.post("/api/auth/logout", json={"endpoint": endpoint})
     assert logout_res.status_code == 200
 
-    # PushSubscription が論理削除されていること
-    sub = db.query(PushSubscription).filter(PushSubscription.endpoint == endpoint).first()
+    # PushSubscription が論理削除されていること（include_deleted=True で確認）
+    sub = db.query(PushSubscription).execution_options(include_deleted=True).filter(PushSubscription.endpoint == endpoint).first()
     assert sub is not None
     assert sub.is_deleted is True
 

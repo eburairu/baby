@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker, with_loader_criteria
+from sqlalchemy.orm import sessionmaker, with_loader_criteria, Session as ORMSession
 from app.models.base import SoftDeleteMixin
 
 import os
@@ -17,17 +17,16 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-@event.listens_for(SessionLocal, "do_orm_execute")
+@event.listens_for(ORMSession, "do_orm_execute")
 def _add_soft_delete_filter(execute_state):
     if (
         execute_state.is_select
-        and not execute_state.is_column_load
-        and not execute_state.is_relationship_load
         and not execute_state.execution_options.get("include_deleted", False)
     ):
         execute_state.statement = execute_state.statement.options(
             with_loader_criteria(
                 SoftDeleteMixin,
                 lambda cls: cls.is_deleted == False,
+                include_aliases=True
             )
         )
