@@ -82,6 +82,7 @@ export function useFeedingTimer({
         setRightSeconds,
         activeBreastSide: activeSide,
         toggleTimer,
+        reset, // local reset
         resetAllTimers,
         formatTimer: formatTimeMMSS,
         totalSeconds

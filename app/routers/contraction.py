@@ -7,6 +7,7 @@ from datetime import datetime
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
 from app.models.contraction import Contraction
+from app.models.timer import ContractionTimerState
 from app.models.comment import RecordComment
 from app.schemas.contraction import ContractionCreate, ContractionResponse, ContractionUpdate
 from app.utils.timezone import JST, ensure_aware
@@ -78,6 +79,16 @@ def create_contraction(contraction_in: ContractionCreate, db: Session = Depends(
         notes=contraction_in.notes,
     )
     db.add(new_contraction)
+
+    # タイマーリセット要求があれば処理
+    if contraction_in.reset_timer:
+        db.query(ContractionTimerState).filter(
+            ContractionTimerState.baby_id == contraction_in.baby_id
+        ).update({
+            "status": "idle",
+            "start_time": None
+        }, synchronize_session=False)
+
     db.commit()
     db.refresh(new_contraction)
 

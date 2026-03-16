@@ -33,6 +33,7 @@ class FeedingCreate(BaseModel):
     feeding_completion: Optional[FeedingCompletion] = None
     # Phase 3: ゲップの有無
     burped: Optional[bool] = None
+    reset_timer: bool = False
 
     @model_validator(mode="after")
     def auto_calc_duration(self) -> "FeedingCreate":

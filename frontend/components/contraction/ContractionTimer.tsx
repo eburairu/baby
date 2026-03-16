@@ -49,19 +49,14 @@ export default function ContractionTimer({ babyId, onRecorded }: ContractionTime
             if (result) {
                 await execute(
                     async () => {
-                        // PUT (状態更新) と POST (記録作成) を並行して実行
-                        await Promise.all([
-                            api.put(`/babies/${babyId}/timer/contraction`, {
-                                status: "idle",
-                                start_time: null
-                            }),
-                            api.post("/contractions/", {
-                                baby_id: babyId,
-                                start_time: result.startTime.toISOString(),
-                                end_time: result.endTime.toISOString(),
-                                duration_seconds: result.durationSeconds,
-                            })
-                        ])
+                        // POST (記録作成) 時に reset_timer: true を指定して同一トランザクションでリセット
+                        await api.post("/contractions/", {
+                            baby_id: babyId,
+                            start_time: result.startTime.toISOString(),
+                            end_time: result.endTime.toISOString(),
+                            duration_seconds: result.durationSeconds,
+                            reset_timer: true
+                        })
                     },
                     {
                         successMessage: "記録しました",

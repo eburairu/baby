@@ -168,6 +168,7 @@ interface FeedingCreate {
   feeding_completion?: "FULL" | "PARTIAL"
   burped?: boolean
   notes?: string                      // 最大2000文字 (NOTE_MAX_LENGTH)
+  reset_timer?: boolean               // trueの場合、作成と同時にタイマーをリセットする
 }
 
 // Update
