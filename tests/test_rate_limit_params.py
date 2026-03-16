@@ -2,7 +2,7 @@ from app.routers.auth import login_limiter, change_password_limiter, register_li
 from app.routers.ai_feedback import record_feedback_limiter
 from app.routers.comments import comment_limiter
 from app.routers.notifications import test_notification_limiter
-from app.routers.family import reset_password_limiter
+from app.routers.family import reset_password_limiter, join_family_limiter
 from app.routers.ai_summary import daily_summary_limiter
 from app.routers.upload import upload_limiter
 from app.routers.vaccinations import vaccination_generate_limiter
@@ -46,3 +46,7 @@ def test_rate_limit_constants_usage():
     # Vaccinations
     assert vaccination_generate_limiter.requests_limit == constants.RATE_LIMIT_VACCINATION_GENERATE_REQUESTS
     assert vaccination_generate_limiter.time_window == constants.RATE_LIMIT_VACCINATION_GENERATE_WINDOW
+
+    # Family join (brute force protection)
+    assert join_family_limiter.requests_limit == constants.RATE_LIMIT_JOIN_FAMILY_REQUESTS
+    assert join_family_limiter.time_window == constants.RATE_LIMIT_JOIN_FAMILY_WINDOW

@@ -1533,6 +1533,21 @@
         "title": "FamilyDetailResponse",
         "type": "object"
       },
+      "FamilyJoinRequest": {
+        "properties": {
+          "invite_code": {
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Invite Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invite_code"
+        ],
+        "title": "FamilyJoinRequest",
+        "type": "object"
+      },
       "FamilyMemberResponse": {
         "properties": {
           "display_name": {
@@ -6530,6 +6545,47 @@
           }
         },
         "summary": "Regenerate Invite Code",
+        "tags": [
+          "family"
+        ]
+      }
+    },
+    "/api/family/join": {
+      "post": {
+        "operationId": "join_family_api_family_join_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FamilyJoinRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Join Family",
         "tags": [
           "family"
         ]
