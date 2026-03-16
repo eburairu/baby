@@ -325,3 +325,7 @@
 ## 2024-03-16 - [設定] baby_permissions.md と実装の乖離修正
 **学び:** 新しい記録タイプ（例: `temperature`）が追加された場合、各機能（この場合は `app/routers/temperatures.py` や `app/models/temperature.py`）は実装されるが、`baby_permissions.md` のような権限管理の仕様書への追記が漏れやすい。特に `record_type` の有効値一覧は、APIの連携にも関わるため、実装が先行しドキュメントと不整合が起きる。ただし、仕様書への追記は実装と対応させる必要があり、コード自体の更新（`app/schemas/baby_permission.py` など）は Scribe の責務外である。
 **アクション:** 仕様書 `.specify/specs/settings/baby_permissions.md` の `record_type` 一覧に `temperature` を追記し、コード（`app/routers/temperatures.py` 内の `record_type="temperature"` の使用）と整合させた。今後も新しい記録タイプが実装された際には、`baby_permissions.md` にも対応する値が含まれているか確認する。
+
+## 2026-03-17 - [未実装機能 'temperature' の仕様書からの削除]
+**学び:** `app/routers/temperatures.py` に機能自体は実装されているものの、アクセス権限管理（`app/schemas/baby_permission.py`の`VALID_RECORD_TYPES`等）には未追加の状態で、仕様書 `baby_permissions.md` にのみ先行して `"temperature"` が記載される「仕様書の先行記載（嘘の仕様書）」パターンが存在していた。
+**アクション:** `baby_permissions.md` の有効値一覧や型定義から未完全な実装である `"temperature"` を削除し、現在の実装コードと100%一致させた。
