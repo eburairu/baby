@@ -61,8 +61,37 @@ Botoro の現在の設計思想に基づき、**システム全体のデフォ�
 - **概要**: AI 設定値を更新する。
 - **権限**: `admin` ロールのみ。
 - **バリデーション**: `llm_temperature` は 0.0〜2.0 の範囲内であること等。
+### 3.2 リクエスト/レスポンススキーマ
 
-### 3.2 サービスロジックの変更
+```typescript
+interface AIModel {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface AISettings {
+  llm_model: string;
+  llm_temperature: number;
+  llm_max_tokens: number;
+  ai_enabled_chat: boolean;
+  ai_enabled_summary: boolean;
+  ai_enabled_feedback: boolean;
+}
+
+interface AISettingsSummary {
+  settings: AISettings;
+  available_models: AIModel[];
+}
+
+interface AISettingsPatch {
+  settings: Record<string, string>; // key -> value (文字列ベース) の辞書
+}
+```
+
+
+
+### 3.3 サービスロジックの変更
 
 既存の AI サービス（`ai_summary.py`, `chatbot.py`, `ai_feedback.py`）は、環境変数 `LLM_MODEL` の代わりに、DB から取得した設定値を使用するように変更する。
 

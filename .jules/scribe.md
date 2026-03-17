@@ -329,3 +329,7 @@
 ## 2024-03-16 - [プロフィール設定仕様書の仕様乖離 - FamilyMemberResponseのUserRole反映漏れ]
 **学び:** `app/schemas/family.py` の `FamilyMemberResponse` モデルで `role` フィールドの型が `str` から `UserRole` Enumにアップデートされているにもかかわらず、対応する仕様書 `.specify/specs/settings/profile_settings.md` では古い型 `str` が残っていた。`family_settings.md` は更新されていたため、モデルが複数の仕様書に記載されていると片方の更新が漏れやすい。
 **アクション:** 今後、共通のレスポンスモデルのフィールド型（特にEnumへの移行など）に変更があった場合は、それが参照されている全てのマークダウン仕様書を検索し、漏れなく更新・同期するようにする。
+
+## 2024-05-18 - [AI設定のAPIスキーマ定義追加]
+**学び:** `ai_settings.md` に、バックエンドのPydanticスキーマ（`AISettingResponse`, `AISettingsPatch`, `AIModel`, `AISettingsSummary`）に対応するTypeScriptのインターフェース定義（`AISettings`, `AIModel`, `AISettingsSummary`, `AISettingsPatch`）が欠落している仕様乖離パターン（Specification Drift）を発見しました。
+**アクション:** 次回以降、新しい設定ページや機能が追加される際に、APIのエンドポイント定義だけでなく、リクエストとレスポンスの型定義（TypeScript interface）が仕様書に記載されているか確認します。
