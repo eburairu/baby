@@ -4,6 +4,7 @@ from app.achievements.checker import check_and_award_achievements
 from app.schemas.achievement import UnlockedAchievementInfo
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from typing import List
 from app.dependencies import get_db, get_current_user, verify_baby_access
 from app.models.user import User
@@ -44,7 +45,14 @@ async def create_milestone(
         user_id=current_user.id
     )
     db.add(db_milestone)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A milestone of this type already exists for this baby."
+        )
 
     unlocked = check_and_award_achievements(
         baby_id=baby_id,
@@ -84,7 +92,14 @@ async def update_milestone(
     for key, value in update_data.items():
         setattr(db_milestone, key, value)
     
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A milestone of this type already exists for this baby."
+        )
     db.refresh(db_milestone)
     return db_milestone
 
