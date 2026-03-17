@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest"
-import { api, fetcher, isApiError, ApiError } from "@/lib/api"
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest"
+import { api, fetcher, isApiError, ApiError, _nav } from "@/lib/api"
 
 // Mock fetch globally
 const fetchMock = vi.fn()
@@ -222,6 +222,97 @@ describe("API Utilities", () => {
             expect(isApiError(null)).toBe(false)
             expect(isApiError(undefined)).toBe(false)
             expect(isApiError("string")).toBe(false)
+        })
+    })
+
+    describe("401 Unauthorized グローバルハンドリング", () => {
+        let redirectSpy: ReturnType<typeof vi.spyOn>
+
+        beforeEach(() => {
+            redirectSpy = vi.spyOn(_nav, "redirectTo").mockImplementation(() => {})
+            localStorage.clear()
+            // デフォルトはダッシュボードページ（非認証ページ）
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/dashboard" },
+                writable: true,
+                configurable: true,
+            })
+        })
+
+        it("非認証ページで 401 を受け取ったとき /login にリダイレクトする", async () => {
+            fetchMock.mockResolvedValueOnce({
+                ok: false,
+                status: 401,
+                text: async () => JSON.stringify({ detail: "Unauthorized" }),
+                statusText: "Unauthorized",
+            })
+
+            await expect(fetcher("/test")).rejects.toThrow(ApiError)
+            expect(redirectSpy).toHaveBeenCalledWith("/login")
+        })
+
+        it("401 時に永続化ストアをクリアする", async () => {
+            localStorage.setItem("baby-store", JSON.stringify({ state: { selectedBabyId: "123" } }))
+            localStorage.setItem("offline-sync-store", JSON.stringify({ state: {} }))
+
+            fetchMock.mockResolvedValueOnce({
+                ok: false,
+                status: 401,
+                text: async () => JSON.stringify({ detail: "Unauthorized" }),
+                statusText: "Unauthorized",
+            })
+
+            await expect(fetcher("/test")).rejects.toThrow(ApiError)
+            expect(localStorage.getItem("baby-store")).toBeNull()
+            expect(localStorage.getItem("offline-sync-store")).toBeNull()
+        })
+
+        it("/login ページにいるときは 401 でリダイレクトしない", async () => {
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/login" },
+                writable: true,
+                configurable: true,
+            })
+
+            fetchMock.mockResolvedValueOnce({
+                ok: false,
+                status: 401,
+                text: async () => JSON.stringify({ detail: "Unauthorized" }),
+                statusText: "Unauthorized",
+            })
+
+            await expect(fetcher("/test")).rejects.toThrow(ApiError)
+            expect(redirectSpy).not.toHaveBeenCalled()
+        })
+
+        it("/register ページにいるときは 401 でリダイレクトしない", async () => {
+            Object.defineProperty(window, "location", {
+                value: { pathname: "/register" },
+                writable: true,
+                configurable: true,
+            })
+
+            fetchMock.mockResolvedValueOnce({
+                ok: false,
+                status: 401,
+                text: async () => JSON.stringify({ detail: "Unauthorized" }),
+                statusText: "Unauthorized",
+            })
+
+            await expect(fetcher("/test")).rejects.toThrow(ApiError)
+            expect(redirectSpy).not.toHaveBeenCalled()
+        })
+
+        it("401 以外のエラーではリダイレクトしない", async () => {
+            fetchMock.mockResolvedValueOnce({
+                ok: false,
+                status: 403,
+                text: async () => JSON.stringify({ detail: "Forbidden" }),
+                statusText: "Forbidden",
+            })
+
+            await expect(fetcher("/test")).rejects.toThrow(ApiError)
+            expect(redirectSpy).not.toHaveBeenCalled()
         })
     })
 })
