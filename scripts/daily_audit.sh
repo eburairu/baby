@@ -21,6 +21,9 @@ log() { echo "[$(date +%H:%M:%S)] $*"; }
 
 # --- 1. ラベル確保 ---
 gh label create "$LABEL" --color "#fbca04" --description "自動コードベース監査で生成" 2>/dev/null || true
+gh label create "priority: high"   --color "#d73a4a" --description "本番影響あり・最優先"   2>/dev/null || true
+gh label create "priority: medium" --color "#e4e669" --description "重要だが緊急ではない"   2>/dev/null || true
+gh label create "priority: low"    --color "#cfd3d7" --description "改善提案・低優先度"     2>/dev/null || true
 
 # --- 2. コンテスト収集 ---
 log "コンテスト収集..."
@@ -144,23 +147,32 @@ for p in data['proposals']:
     continue
   fi
 
-  # typeからGitHubラベルへのマッピング
+  # ラベルを配列で構築（スペース入りラベル名に対応）
+  LABELS=("$LABEL")
   case "$TYPE" in
-    bug)         LABEL_FLAGS="--label $LABEL --label bug" ;;
-    enhancement) LABEL_FLAGS="--label $LABEL --label enhancement" ;;
-    *)           LABEL_FLAGS="--label $LABEL" ;;
+    bug)         LABELS+=("bug") ;;
+    enhancement) LABELS+=("enhancement") ;;
   esac
+  case "$PRIORITY" in
+    high)   LABELS+=("priority: high") ;;
+    medium) LABELS+=("priority: medium") ;;
+    low)    LABELS+=("priority: low") ;;
+  esac
+
+  LABEL_FLAGS=()
+  for L in "${LABELS[@]}"; do
+    LABEL_FLAGS+=(--label "$L")
+  done
 
   FULL_BODY="$BODY
 
 ---
 *自動監査: $DATE | Type: $TYPE | Priority: $PRIORITY*"
 
-  # shellcheck disable=SC2086
   ISSUE_URL=$(gh issue create \
     --title "$AUDIT_TITLE" \
     --body "$FULL_BODY" \
-    $LABEL_FLAGS \
+    "${LABEL_FLAGS[@]}" \
     2>/dev/null) || {
     log "[ERROR] issue作成失敗: $AUDIT_TITLE"
     continue
