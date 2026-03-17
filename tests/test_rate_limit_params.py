@@ -1,7 +1,7 @@
 from app.routers.auth import login_limiter, change_password_limiter, register_limiter
 from app.routers.ai_feedback import record_feedback_limiter
 from app.routers.comments import comment_limiter
-from app.routers.notifications import test_notification_limiter
+from app.routers.notifications import notification_rate_limiter
 from app.routers.family import reset_password_limiter, join_family_limiter
 from app.routers.ai_summary import daily_summary_limiter
 from app.routers.upload import upload_limiter
@@ -28,8 +28,8 @@ def test_rate_limit_constants_usage():
     assert comment_limiter.time_window == constants.RATE_LIMIT_COMMENT_WINDOW
 
     # Notifications
-    assert test_notification_limiter.requests_limit == constants.RATE_LIMIT_NOTIFICATION_REQUESTS
-    assert test_notification_limiter.time_window == constants.RATE_LIMIT_NOTIFICATION_WINDOW
+    assert notification_rate_limiter.requests_limit == constants.RATE_LIMIT_NOTIFICATION_REQUESTS
+    assert notification_rate_limiter.time_window == constants.RATE_LIMIT_NOTIFICATION_WINDOW
 
     # Family
     assert reset_password_limiter.requests_limit == constants.RATE_LIMIT_RESET_PASSWORD_REQUESTS
