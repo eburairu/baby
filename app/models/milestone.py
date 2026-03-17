@@ -20,4 +20,11 @@ class Milestone(Base, SoftDeleteMixin, TimestampMixin):
     __table_args__ = (
         Index("idx_milestone_baby_achieved", "baby_id", "achieved_date"),
         Index("ix_milestones_baby_id_is_deleted", "baby_id", "is_deleted"),
+        Index(
+            "uix_baby_milestone_type",
+            "baby_id",
+            "milestone_type",
+            unique=True,
+            postgresql_where="milestone_type != 'custom' AND is_deleted = false"
+        ),
     )
