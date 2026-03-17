@@ -9,6 +9,7 @@ import { DailySummary } from "@/types/dailySummary"
 import { compressImage, ImageTooLargeError } from "@/lib/imageCompression"
 import { uploadImage } from "@/lib/uploadImage"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 const MAX_IMAGES = 10
 
@@ -26,7 +27,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
     const [isUploading, setIsUploading] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
     const [saveError, setSaveError] = useState<string | null>(null)
-    const [saving, setSaving] = useState(false)
+    const { loading: saving, execute } = useAsyncAction()
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
@@ -87,21 +88,23 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
 
     const handleSave = async () => {
         if (!summary) return
-        setSaving(true)
         setSaveError(null)
-        try {
-            await onSave(summary.summary_date, content.trim() || null, pendingImages, summary.updated_at)
-            onOpenChange(false)
-        } catch (error: unknown) {
-            const err = error as { response?: { status?: number } };
-            if (err?.response?.status === 409) {
-                setSaveError("他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。")
-            } else {
-                setSaveError("保存に失敗しました。時間をおいて再度お試しください。")
+        await execute(
+            async () => {
+                await onSave(summary.summary_date, content.trim() || null, pendingImages, summary.updated_at)
+                onOpenChange(false)
+            },
+            {
+                onError: (error: unknown) => {
+                    const err = error as { response?: { status?: number } };
+                    if (err?.response?.status === 409) {
+                        setSaveError("他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。")
+                    } else {
+                        setSaveError("保存に失敗しました。時間をおいて再度お試しください。")
+                    }
+                }
             }
-        } finally {
-            setSaving(false)
-        }
+        )
     }
 
     return (
