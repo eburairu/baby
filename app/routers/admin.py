@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks, Response
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, select
 from typing import List, Optional
@@ -163,6 +163,36 @@ def create_admin_family(
         invite_code=new_family.invite_code,
         created_at=new_family.created_at
     )
+
+@router.delete("/families/{family_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_action_limiter)])
+def delete_admin_family(
+    family_id: int,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_superadmin)
+):
+    family = db.query(Family).filter(Family.id == family_id, Family.is_deleted == False).first()
+    if not family:
+        raise HTTPException(status_code=404, detail="Family not found")
+
+    from app.services.family import soft_delete_family
+    
+    soft_delete_family(db, family)
+
+    background_tasks.add_task(
+        log_event,
+        action="ADMIN_DELETE_FAMILY",
+        user_id=admin.id,
+        details={
+            "family_id": family_id,
+            "family_name": family.name
+        },
+        ip_address=get_client_ip(request)
+    )
+
+    logger.info("Family deleted by Admin: family_id=%s, by admin_id=%s", family_id, admin.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.get("/families/{family_id}", response_model=FamilyDetailResponse, dependencies=[Depends(admin_action_limiter)])
 def get_admin_family_detail(

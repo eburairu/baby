@@ -4550,6 +4550,39 @@
       }
     },
     "/api/admin/families/{family_id}": {
+      "delete": {
+        "operationId": "delete_admin_family_api_admin_families__family_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "family_id",
+            "required": true,
+            "schema": {
+              "title": "Family Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Admin Family",
+        "tags": [
+          "admin"
+        ]
+      },
       "get": {
         "operationId": "get_admin_family_detail_api_admin_families__family_id__get",
         "parameters": [
