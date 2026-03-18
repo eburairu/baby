@@ -142,17 +142,17 @@ jobs:
 
       - name: Check requirements.txt drift
         run: |
-          uv export --no-dev --no-hashes -o /tmp/requirements.txt
-          if ! diff -q requirements.txt /tmp/requirements.txt > /dev/null; then
+          uv export --no-dev --no-hashes -o requirements.txt
+          if ! git diff --quiet requirements.txt; then
             echo "::error::requirements.txt is out of date."
             echo "Run 'uv export --no-dev --no-hashes -o requirements.txt' and commit the result."
-            diff requirements.txt /tmp/requirements.txt
+            git diff requirements.txt
             exit 1
           fi
-          uv export --group dev --no-hashes -o /tmp/requirements-dev.txt
-          if ! diff -q requirements-dev.txt /tmp/requirements-dev.txt > /dev/null; then
+          uv export --group dev --no-hashes -o requirements-dev.txt
+          if ! git diff --quiet requirements-dev.txt; then
             echo "::error::requirements-dev.txt is out of date."
             echo "Run 'uv export --group dev --no-hashes -o requirements-dev.txt' and commit the result."
-            diff requirements-dev.txt /tmp/requirements-dev.txt
+            git diff requirements-dev.txt
             exit 1
           fi
