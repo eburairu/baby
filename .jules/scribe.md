@@ -333,3 +333,7 @@
 ## 2024-05-18 - [AI設定のAPIスキーマ定義追加]
 **学び:** `ai_settings.md` に、バックエンドのPydanticスキーマ（`AISettingResponse`, `AISettingsPatch`, `AIModel`, `AISettingsSummary`）に対応するTypeScriptのインターフェース定義（`AISettings`, `AIModel`, `AISettingsSummary`, `AISettingsPatch`）が欠落している仕様乖離パターン（Specification Drift）を発見しました。
 **アクション:** 次回以降、新しい設定ページや機能が追加される際に、APIのエンドポイント定義だけでなく、リクエストとレスポンスの型定義（TypeScript interface）が仕様書に記載されているか確認します。
+
+## 2024-05-19 - AI設定仕様書の権限モデルのズレ (SuperAdmin)
+**学び:** `admin` ロールから `SuperAdmin` (is_superadmin) への権限モデルの移行や、それに伴うルーティングの変更 (`/settings/ai` -> `/admin/ai`) が行われた場合、仕様書が古いまま取り残される「Specification Drift」が発生しやすい。
+**アクション:** 新しい機能が `SuperAdmin` 向けに追加されたり、既存機能が `SuperAdmin` に移行したりした場合は、関連する仕様書の権限記述とフロントエンドのルート設計を必ず見直す。
