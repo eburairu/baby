@@ -54,12 +54,12 @@ Botoro の現在の設計思想に基づき、**システム全体のデフォ�
 #### `GET /api/ai/settings`
 
 - **概要**: 現在の AI 設定値を取得する。
-- **権限**: 全ユーザー（参照のみ）、または admin のみ（画面要件に依存）。基本は **admin のみ**とする。
+- **権限**: `SuperAdmin` 権限（`is_superadmin` が true）を持つユーザーのみ。
 
 #### `PATCH /api/ai/settings`
 
 - **概要**: AI 設定値を更新する。
-- **権限**: `admin` ロールのみ。
+- **権限**: `SuperAdmin` 権限のみ。
 - **バリデーション**: `llm_temperature` は 0.0〜2.0 の範囲内であること等。
 
 ### 3.2 サービスロジックの変更
@@ -75,9 +75,9 @@ def get_llm_config(db: Session):
 
 ## 4. フロントエンド設計
 
-### 4.1 管理画面 (`/settings/ai`)
+### 4.1 管理画面 (`/admin/ai`)
 
-設定ナビゲーションから「AI 設定」としてアクセス可能にする。
+システム管理者用（SuperAdmin）ナビゲーションから「AI 設定」としてアクセス可能にする。
 
 **構成要素**:
 
@@ -105,8 +105,8 @@ def get_llm_config(db: Session):
 
 ## 5. 権限制御
 
-- 設定の閲覧・変更は、現在ログインしているユーザーの `FamilyUser.role` が `admin` である場合にのみ許可する。
-- 非 admin ユーザーが `/settings/ai` に直接アクセスしようとした場合は、403 エラーを表示し設定トップにリダイレクトする。
+- 設定の閲覧・変更は、現在ログインしているユーザーの `is_superadmin` フラグが `true`（SuperAdmin 権限）である場合にのみ許可する。
+- 非 SuperAdmin ユーザーが `/admin/ai` に直接アクセスしようとした場合は、アクセスをブロックしトップにリダイレクトする（`SuperAdminGuard` により保護）。
 
 ## 6. 実装チェックリスト
 
@@ -114,11 +114,11 @@ def get_llm_config(db: Session):
 - [ ] `system_settings` テーブルの作成 (Alembic)
 - [ ] `GET /api/ai/available-models` 実装 (Google AI SDK 連携)
 - [ ] `GET /api/ai/settings` 実装
-- [ ] `PATCH /api/ai/settings` 実装 (admin 権限チェック)
+- [ ] `PATCH /api/ai/settings` 実装 (SuperAdmin 権限チェック)
 - [ ] 既存 AI サービスの設定値取得ロジックの置換
 
 ### フロントエンド
 - [ ] `useAISettings.ts` フック作成
-- [ ] `/settings/ai` ページの作成
-- [ ] `settings_navigation.md` への項目追加
-- [ ] admin 以外へのアクセスガード実装
+- [ ] `/admin/ai` ページの作成
+- [ ] 管理者用ナビゲーションへの項目追加
+- [ ] SuperAdmin 以外へのアクセスガード実装 (`SuperAdminGuard`)
