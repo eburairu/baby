@@ -333,3 +333,7 @@
 ## 2024-05-18 - [AI設定のAPIスキーマ定義追加]
 **学び:** `ai_settings.md` に、バックエンドのPydanticスキーマ（`AISettingResponse`, `AISettingsPatch`, `AIModel`, `AISettingsSummary`）に対応するTypeScriptのインターフェース定義（`AISettings`, `AIModel`, `AISettingsSummary`, `AISettingsPatch`）が欠落している仕様乖離パターン（Specification Drift）を発見しました。
 **アクション:** 次回以降、新しい設定ページや機能が追加される際に、APIのエンドポイント定義だけでなく、リクエストとレスポンスの型定義（TypeScript interface）が仕様書に記載されているか確認します。
+
+## 2024-05-24 - Sync ValidRecordType in baby_permissions.md
+**学び:** `temperature` (体温) はフロントエンドや別エンドポイントでは使用されているが、権限管理の `VALID_RECORD_TYPES` (`app/schemas/baby_permission.py`) には含まれていなかった。仕様書には先行して記載されていたため、コードの実装と乖離していた。
+**アクション:** `.specify/specs/settings/baby_permissions.md` の `ValidRecordType` から `temperature` を削除し、真のソースコード(Pythonスキーマ)と一致させた。
