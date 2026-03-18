@@ -80,6 +80,7 @@ export function GrowthHistoryList({
                                 <td className="py-2 px-4">
                                 <button
                                     aria-label={`${record.date} の成長記録へのコメント${(record.comment_count ?? 0) > 0 ? ` (${record.comment_count}件)` : ""}`}
+                                    title={`${record.date} の成長記録へのコメント${(record.comment_count ?? 0) > 0 ? ` (${record.comment_count}件)` : ""}`}
                                         onClick={() => openComment(record)}
                                     className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
                                     >

@@ -81,6 +81,7 @@ export function BabyAccessRow({ userId, babyAccess, onSaved }: Props) {
             aria-controls={detailsId}
             className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
             aria-label={expanded ? "折りたたむ" : "詳細設定を開く"}
+            title={expanded ? "折りたたむ" : "詳細設定を開く"}
           >
             {expanded ? (
               <ChevronUp className="h-4 w-4" />
