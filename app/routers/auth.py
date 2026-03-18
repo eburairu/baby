@@ -22,6 +22,7 @@ from app.services.auth import verify_password, get_password_hash, verify_passwor
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
 from app.utils.audit import log_event, get_client_ip
+from app.utils.timezone import ensure_aware
 from app.core import constants
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -52,14 +53,19 @@ register_limiter = RateLimiter(
 # making response times consistent regardless of user existence.
 DUMMY_HASH = get_password_hash("dummy_password_for_timing_mitigation")
 
-def _create_session(db: Session, user_id: int, request: Request) -> str:
+def _create_session(db: Session, user_id: int, ip_address: str | None, user_agent: str | None) -> str:
+    """
+    セッションを作成して token を返す。
+    ip_address / user_agent は呼び出し元がスレッドプール実行前に抽出して渡すこと
+    （Request オブジェクトはスレッドセーフでないため、スレッド内で直接参照しない）。
+    """
     token = secrets.token_urlsafe(32)
     session = UserSession(
         token=hash_token(token),
         user_id=user_id,
         expires_at=datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS),
-        ip_address=get_client_ip(request),
-        user_agent=request.headers.get("user-agent"),
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
     db.add(session)
     db.flush()  # Use flush instead of commit to join caller's transaction
@@ -127,14 +133,22 @@ async def register_family(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
+    # Request オブジェクトはスレッドセーフでないため、スレッドプール実行前に値を抽出する
+    ip_address = get_client_ip(request)
+    user_agent = request.headers.get("user-agent")
+
     def _do_registration(password_hash):
         existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Username already registered")
 
         invite_code = secrets.token_hex(8).upper()
+        attempts = 0
         while db.query(Family).filter(Family.invite_code == invite_code).first():
             invite_code = secrets.token_hex(8).upper()
+            attempts += 1
+            if attempts >= 10:
+                raise HTTPException(status_code=500, detail="Failed to generate unique invite code")
 
         invite_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
         new_family = Family(name=family_in.name, invite_code=invite_code, invite_code_expires_at=invite_code_expires_at)
@@ -154,11 +168,11 @@ async def register_family(
 
         family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
         db.add(family_user)
-        db.flush() # Ensure ids are assigned but not committed yet
+        db.flush()  # Ensure ids are assigned but not committed yet
 
-        token = _create_session(db, new_user.id, request)
-        
-        db.commit() # FINAL ATOMIC COMMIT
+        token = _create_session(db, new_user.id, ip_address, user_agent)
+
+        db.commit()  # FINAL ATOMIC COMMIT
         db.refresh(new_family)
         return new_family, new_user, token
 
@@ -192,13 +206,17 @@ async def register_family(
     dependencies=[Depends(register_limiter)],
 )
 async def join_family(
-    user_in: UserCreate, 
-    invite_code: str, 
-    response: Response, 
+    user_in: UserCreate,
+    invite_code: str,
+    response: Response,
     request: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
+    # Request オブジェクトはスレッドセーフでないため、スレッドプール実行前に値を抽出する
+    ip_address = get_client_ip(request)
+    user_agent = request.headers.get("user-agent")
+
     def _do_join(password_hash):
         existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
         if existing_user:
@@ -209,7 +227,7 @@ async def join_family(
         family = db.query(Family).filter(Family.invite_code == normalized_invite_code).first()
         if not family:
             raise HTTPException(status_code=404, detail="Invalid invite code")
-        if family.invite_code_expires_at and family.invite_code_expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        if family.invite_code_expires_at and ensure_aware(family.invite_code_expires_at) < datetime.now(timezone.utc):
             raise HTTPException(status_code=410, detail="Invite code has expired")
 
         new_user = User(
@@ -227,8 +245,8 @@ async def join_family(
         db.add(family_user)
         db.flush()
 
-        token = _create_session(db, new_user.id, request)
-        db.commit() # FINAL ATOMIC COMMIT
+        token = _create_session(db, new_user.id, ip_address, user_agent)
+        db.commit()  # FINAL ATOMIC COMMIT
         db.refresh(new_user)
         return new_user, family, token
 
@@ -291,9 +309,13 @@ async def login(
     if not await verify_password_async(login_request.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
+    # Request オブジェクトはスレッドセーフでないため、スレッドプール実行前に値を抽出する
+    ip_address = get_client_ip(request)
+    user_agent = request.headers.get("user-agent")
+
     def _finalize_login():
-        token = _create_session(db, user.id, request)
-        db.commit() # FINAL ATOMIC COMMIT
+        token = _create_session(db, user.id, ip_address, user_agent)
+        db.commit()  # FINAL ATOMIC COMMIT
         return token
 
     token = await run_in_threadpool(_finalize_login)

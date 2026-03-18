@@ -44,6 +44,7 @@ def update_baby(db: Session, baby: Baby, update_data: Union[BabyUpdate, Dict[str
 def soft_delete_baby(db: Session, baby: Baby):
     """
     赤ちゃんを論理削除し、関連するすべての記録も論理削除する。
+    commit は呼び出し元が責任を持つ（atomic な操作のため）。
     """
     # 関連する記録の論理削除
     models_to_soft_delete = [
@@ -51,12 +52,11 @@ def soft_delete_baby(db: Session, baby: Baby):
         Schedule, Milestone, Vaccination, TemperatureRecord,
         RecordComment, DailySummary
     ]
-    
+
     for model in models_to_soft_delete:
         records = db.query(model).filter(model.baby_id == baby.id).all()
         for record in records:
             record.is_deleted = True
-    
+
     # 赤ちゃん自身を論理削除
     baby.is_deleted = True
-    db.commit()
