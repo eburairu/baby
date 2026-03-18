@@ -139,3 +139,20 @@ jobs:
             git diff frontend/openapi.json
             exit 1
           fi
+
+      - name: Check requirements.txt drift
+        run: |
+          uv export --no-dev --no-hashes -o requirements.txt
+          if ! git diff --quiet requirements.txt; then
+            echo "::error::requirements.txt is out of date."
+            echo "Run 'uv export --no-dev --no-hashes -o requirements.txt' and commit the result."
+            git diff requirements.txt
+            exit 1
+          fi
+          uv export --group dev --no-hashes -o requirements-dev.txt
+          if ! git diff --quiet requirements-dev.txt; then
+            echo "::error::requirements-dev.txt is out of date."
+            echo "Run 'uv export --group dev --no-hashes -o requirements-dev.txt' and commit the result."
+            git diff requirements-dev.txt
+            exit 1
+          fi
