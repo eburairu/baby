@@ -34,6 +34,7 @@ export function RecordMetaItems({
         }}
         aria-haspopup="dialog"
         aria-label={commentCount > 0 ? `${commentCount}件のコメントを表示` : "コメントを追加"}
+        title={commentCount > 0 ? `${commentCount}件のコメントを表示` : "コメントを追加"}
         className="inline-flex items-center gap-0.5 text-gray-400 dark:text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 rounded-sm outline-none"
       >
         <MessageCircle className="w-3 h-3" />

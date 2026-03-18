@@ -60,6 +60,7 @@ export function AchievementUnlockPopup() {
                     onClick={() => setQueue((prev) => prev.slice(1))}
                     className="shrink-0 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 text-lg leading-none"
                     aria-label="閉じる"
+                    title="閉じる"
                 >
                     ×
                 </button>
