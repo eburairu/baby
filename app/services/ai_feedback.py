@@ -1,3 +1,5 @@
+import asyncio
+from starlette.concurrency import run_in_threadpool
 import re
 import json
 import logging
@@ -271,12 +273,12 @@ async def generate_record_feedback(
     (feedback_text, has_concern, model_name) を返す 。
     JSON パース失敗時は has_concern=False としてフォールバック。
     """
-    config = get_ai_config(db)
+    config = await run_in_threadpool(get_ai_config, db)
     if not config.get("ai_enabled_feedback", True):
         raise AIGenerationError("AI 記録フィードバック機能は現在無効化されています。")
 
-    prompt = build_feedback_prompt(db, baby_id, baby, record_type, record_id)
-    client, model_name = get_async_llm_client(db)
+    prompt = await run_in_threadpool(build_feedback_prompt, db, baby_id, baby, record_type, record_id)
+    client, model_name = await run_in_threadpool(get_async_llm_client, db)
 
     last_error: Exception = AIGenerationError("no attempts made")
     for attempt in range(3):

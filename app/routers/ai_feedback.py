@@ -1,3 +1,4 @@
+from starlette.concurrency import run_in_threadpool
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -35,11 +36,11 @@ async def create_record_feedback(
     # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレー ト制限
     record_feedback_limiter.check(f"user_{current_user.id}")
 
-    baby = verify_baby_access(db, baby_id, current_user.id, require_write=False)
+    baby = await run_in_threadpool(verify_baby_access, db, baby_id, current_user.id, require_write=False)
 
     # record_id が baby_id に属するか確認
     try:
-        verify_record_ownership(db, body.record_type, body.record_id, baby_id)
+        await run_in_threadpool(verify_record_ownership, db, body.record_type, body.record_id, baby_id)
     except InvalidRecordTypeError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except RecordNotFoundError as e:
@@ -65,7 +66,8 @@ async def create_record_feedback(
             detail=str(e),
         )
 
-    comment = save_ai_comment(
+    comment = await run_in_threadpool(
+        save_ai_comment,
         db,
         record_type=body.record_type,
         record_id=body.record_id,

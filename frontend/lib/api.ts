@@ -1,6 +1,24 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '') + '/api';
 import * as Sentry from "@sentry/nextjs";
 
+const AUTH_PAGES = ['/login', '/register'];
+
+/** テスト可能にするためのナビゲーション抽象 */
+export const _nav = {
+    redirectTo: (url: string) => { window.location.href = url },
+};
+
+function handleUnauthorized(): void {
+    if (typeof window === 'undefined') return;
+    if (AUTH_PAGES.some(page => window.location.pathname.startsWith(page))) return;
+
+    // 永続化ストアをクリア
+    localStorage.removeItem('baby-store');
+    localStorage.removeItem('offline-sync-store');
+
+    _nav.redirectTo('/login');
+}
+
 export class ApiError extends Error {
     info: unknown;
     status: number;
@@ -69,6 +87,9 @@ async function request<T>(
     if (!res.ok) {
         const errorBody = await parseErrorBody(res);
         Sentry.logger.error("API request failed", { url, status: res.status, body: errorBody });
+        if (res.status === 401) {
+            handleUnauthorized();
+        }
         throw new ApiError(
             errorMessage,
             errorBody,

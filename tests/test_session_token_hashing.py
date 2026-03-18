@@ -79,8 +79,6 @@ def test_logout_with_hashed_token(client, test_user, db):
 def test_tampered_token_is_rejected(client):
     """改ざんされたトークンで認証が通らない"""
     # 有効なセッションなしで偽トークンだけ送信
-    response = client.get(
-        "/api/auth/me",
-        cookies={"access_token": "tampered_token_value"},
-    )
+    client.cookies.set("access_token", "tampered_token_value")
+    response = client.get("/api/auth/me")
     assert response.status_code == 401

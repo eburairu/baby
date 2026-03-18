@@ -1,3 +1,4 @@
+from starlette.concurrency import run_in_threadpool
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -21,6 +22,7 @@ from app.services.auth import verify_password, get_password_hash, verify_passwor
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 from app.utils.rate_limit import RateLimiter
 from app.utils.audit import log_event, get_client_ip
+from app.utils.timezone import ensure_aware
 from app.core import constants
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -51,14 +53,19 @@ register_limiter = RateLimiter(
 # making response times consistent regardless of user existence.
 DUMMY_HASH = get_password_hash("dummy_password_for_timing_mitigation")
 
-def _create_session(db: Session, user_id: int, request: Request) -> str:
+def _create_session(db: Session, user_id: int, ip_address: str | None, user_agent: str | None) -> str:
+    """
+    セッションを作成して token を返す。
+    ip_address / user_agent は呼び出し元がスレッドプール実行前に抽出して渡すこと
+    （Request オブジェクトはスレッドセーフでないため、スレッド内で直接参照しない）。
+    """
     token = secrets.token_urlsafe(32)
     session = UserSession(
         token=hash_token(token),
         user_id=user_id,
         expires_at=datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS),
-        ip_address=get_client_ip(request),
-        user_agent=request.headers.get("user-agent"),
+        ip_address=ip_address,
+        user_agent=user_agent,
     )
     db.add(session)
     db.flush()  # Use flush instead of commit to join caller's transaction
@@ -78,10 +85,15 @@ async def change_password(
     current_user.hashed_password = await get_password_hash_async(req.new_password)
     current_token = request.cookies.get("access_token")
     current_token_hash = hash_token(current_token) if current_token else None
-    db.query(UserSession).filter(
-        UserSession.user_id == current_user.id,
-        UserSession.token != current_token_hash,
-    ).delete()
+    
+    def logout_other_sessions():
+        db.query(UserSession).filter(
+            UserSession.user_id == current_user.id,
+            UserSession.token != current_token_hash,
+        ).delete()
+        db.commit()
+
+    await run_in_threadpool(logout_other_sessions)
     
     background_tasks.add_task(
         log_event,
@@ -89,8 +101,6 @@ async def change_password(
         user_id=current_user.id, 
         ip_address=get_client_ip(request)
     )
-    
-    db.commit()
 
 
 @router.patch("/me", response_model=UserResponse)
@@ -123,35 +133,52 @@ async def register_family(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+    # Request オブジェクトはスレッドセーフでないため、スレッドプール実行前に値を抽出する
+    ip_address = get_client_ip(request)
+    user_agent = request.headers.get("user-agent")
 
-    invite_code = secrets.token_hex(8).upper()
-    while db.query(Family).filter(Family.invite_code == invite_code).first():
+    def _do_registration(password_hash):
+        existing_user = db.query(User).filter(func.lower(User.username) == family_in.username.lower()).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Username already registered")
+
         invite_code = secrets.token_hex(8).upper()
+        attempts = 0
+        while db.query(Family).filter(Family.invite_code == invite_code).first():
+            invite_code = secrets.token_hex(8).upper()
+            attempts += 1
+            if attempts >= 10:
+                raise HTTPException(status_code=500, detail="Failed to generate unique invite code")
 
-    invite_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
-    new_family = Family(name=family_in.name, invite_code=invite_code, invite_code_expires_at=invite_code_expires_at)
-    db.add(new_family)
-    db.flush()
-
-    new_user = User(
-        username=family_in.username.lower(),
-        hashed_password=await get_password_hash_async(family_in.password),
-    )
-    db.add(new_user)
-    try:
+        invite_code_expires_at = datetime.now(timezone.utc) + timedelta(hours=48)
+        new_family = Family(name=family_in.name, invite_code=invite_code, invite_code_expires_at=invite_code_expires_at)
+        db.add(new_family)
         db.flush()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Username already registered")
 
-    family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
-    db.add(family_user)
-    db.flush() # Ensure ids are assigned but not committed yet
+        new_user = User(
+            username=family_in.username.lower(),
+            hashed_password=password_hash,
+        )
+        db.add(new_user)
+        try:
+            db.flush()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(status_code=400, detail="Username already registered")
 
-    token = _create_session(db, new_user.id, request)
+        family_user = FamilyUser(family_id=new_family.id, user_id=new_user.id, role=UserRole.ADMIN)
+        db.add(family_user)
+        db.flush()  # Ensure ids are assigned but not committed yet
+
+        token = _create_session(db, new_user.id, ip_address, user_agent)
+
+        db.commit()  # FINAL ATOMIC COMMIT
+        db.refresh(new_family)
+        return new_family, new_user, token
+
+    hashed_password = await get_password_hash_async(family_in.password)
+    new_family, new_user, token = await run_in_threadpool(_do_registration, hashed_password)
+
     response.set_cookie(
         key="access_token",
         value=token,
@@ -170,8 +197,6 @@ async def register_family(
         ip_address=get_client_ip(request)
     )
     
-    db.commit() # FINAL ATOMIC COMMIT
-    db.refresh(new_family)
     return new_family
 
 
@@ -181,41 +206,53 @@ async def register_family(
     dependencies=[Depends(register_limiter)],
 )
 async def join_family(
-    user_in: UserCreate, 
-    invite_code: str, 
-    response: Response, 
+    user_in: UserCreate,
+    invite_code: str,
+    response: Response,
     request: Request,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+    # Request オブジェクトはスレッドセーフでないため、スレッドプール実行前に値を抽出する
+    ip_address = get_client_ip(request)
+    user_agent = request.headers.get("user-agent")
 
-    # Normalize invite code to uppercase to handle case-insensitive input
-    invite_code = invite_code.upper()
-    family = db.query(Family).filter(Family.invite_code == invite_code).first()
-    if not family:
-        raise HTTPException(status_code=404, detail="Invalid invite code")
-    if family.invite_code_expires_at and family.invite_code_expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        raise HTTPException(status_code=410, detail="Invite code has expired")
+    def _do_join(password_hash):
+        existing_user = db.query(User).filter(func.lower(User.username) == user_in.username.lower()).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Username already registered")
 
-    new_user = User(
-        username=user_in.username.lower(),
-        hashed_password=await get_password_hash_async(user_in.password),
-    )
-    db.add(new_user)
-    try:
+        # Normalize invite code to uppercase to handle case-insensitive input
+        normalized_invite_code = invite_code.upper()
+        family = db.query(Family).filter(Family.invite_code == normalized_invite_code).first()
+        if not family:
+            raise HTTPException(status_code=404, detail="Invalid invite code")
+        if family.invite_code_expires_at and ensure_aware(family.invite_code_expires_at) < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Invite code has expired")
+
+        new_user = User(
+            username=user_in.username.lower(),
+            hashed_password=password_hash,
+        )
+        db.add(new_user)
+        try:
+            db.flush()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(status_code=400, detail="Username already registered")
+
+        family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
+        db.add(family_user)
         db.flush()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Username already registered")
 
-    family_user = FamilyUser(family_id=family.id, user_id=new_user.id, role=UserRole.VIEWER)
-    db.add(family_user)
-    db.flush()
+        token = _create_session(db, new_user.id, ip_address, user_agent)
+        db.commit()  # FINAL ATOMIC COMMIT
+        db.refresh(new_user)
+        return new_user, family, token
 
-    token = _create_session(db, new_user.id, request)
+    password_hash = await get_password_hash_async(user_in.password)
+    new_user, family, token = await run_in_threadpool(_do_join, password_hash)
+
     response.set_cookie(
         key="access_token",
         value=token,
@@ -233,9 +270,6 @@ async def join_family(
         details={"family_id": family.id, "family_name": family.name},
         ip_address=get_client_ip(request)
     )
-    
-    db.commit() # FINAL ATOMIC COMMIT
-    db.refresh(new_user)
     
     return UserResponse(
         id=new_user.id,
@@ -255,7 +289,16 @@ async def login(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(func.lower(User.username) == login_request.username.lower()).first()
+    def _get_user_and_role():
+        user = db.query(User).filter(func.lower(User.username) == login_request.username.lower()).first()
+        if not user:
+            return None, None
+        
+        family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user.id).first()
+        role = family_user.role if family_user else None
+        return user, role
+
+    user, role = await run_in_threadpool(_get_user_and_role)
 
     # Timing Attack Mitigation:
     # Verify password against dummy hash if user not found to equalize response time
@@ -266,10 +309,17 @@ async def login(
     if not await verify_password_async(login_request.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == user.id).first()
-    role = family_user.role if family_user else None
+    # Request オブジェクトはスレッドセーフでないため、スレッドプール実行前に値を抽出する
+    ip_address = get_client_ip(request)
+    user_agent = request.headers.get("user-agent")
 
-    token = _create_session(db, user.id, request)
+    def _finalize_login():
+        token = _create_session(db, user.id, ip_address, user_agent)
+        db.commit()  # FINAL ATOMIC COMMIT
+        return token
+
+    token = await run_in_threadpool(_finalize_login)
+
     response.set_cookie(
         key="access_token",
         value=token,
@@ -286,8 +336,6 @@ async def login(
         user_id=user.id,
         ip_address=get_client_ip(request)
     )
-    
-    db.commit() # FINAL ATOMIC COMMIT
     
     return UserResponse(
         id=user.id,

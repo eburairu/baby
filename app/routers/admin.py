@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks, Response
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, select
 from typing import List, Optional
@@ -6,10 +6,11 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 import logging
 import secrets
-from app.core.constants import MAX_PAGINATION_LIMIT
+from app.core.constants import MAX_PAGINATION_LIMIT, RATE_LIMIT_ADMIN_REQUESTS, RATE_LIMIT_ADMIN_WINDOW
 
 from app.database import SessionLocal
 from app.dependencies import get_db, get_current_superadmin
+from app.utils.rate_limit import RateLimiter
 from app.models.user import User, UserSession
 from app.models.family import Family, FamilyUser
 from app.models.baby import Baby
@@ -34,11 +35,17 @@ from app.schemas.admin import (
 )
 from app.utils.audit import log_event, get_client_ip
 
+admin_action_limiter = RateLimiter(
+    requests_limit=RATE_LIMIT_ADMIN_REQUESTS,
+    time_window=RATE_LIMIT_ADMIN_WINDOW,
+    error_message="Too many admin requests. Please try again later."
+)
+
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 logger = logging.getLogger(__name__)
 
-@router.get("/stats", response_model=AdminStats)
+@router.get("/stats", response_model=AdminStats, dependencies=[Depends(admin_action_limiter)])
 def get_admin_stats(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin)
@@ -75,7 +82,7 @@ def get_admin_stats(
         active_users_last_24h=counts.active_users
     )
 
-@router.get("/families", response_model=List[FamilyAdminResponse])
+@router.get("/families", response_model=List[FamilyAdminResponse], dependencies=[Depends(admin_action_limiter)])
 def get_admin_families(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
@@ -115,7 +122,7 @@ def get_admin_families(
         ))
     return result
 
-@router.post("/families", response_model=FamilyCreateResponseAdmin)
+@router.post("/families", response_model=FamilyCreateResponseAdmin, dependencies=[Depends(admin_action_limiter)])
 def create_admin_family(
     family_in: FamilyCreateAdmin,
     request: Request,
@@ -157,7 +164,37 @@ def create_admin_family(
         created_at=new_family.created_at
     )
 
-@router.get("/families/{family_id}", response_model=FamilyDetailResponse)
+@router.delete("/families/{family_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_action_limiter)])
+def delete_admin_family(
+    family_id: int,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_superadmin)
+):
+    family = db.query(Family).filter(Family.id == family_id, Family.is_deleted == False).first()
+    if not family:
+        raise HTTPException(status_code=404, detail="Family not found")
+
+    from app.services.family import soft_delete_family
+    
+    soft_delete_family(db, family)
+
+    background_tasks.add_task(
+        log_event,
+        action="ADMIN_DELETE_FAMILY",
+        user_id=admin.id,
+        details={
+            "family_id": family_id,
+            "family_name": family.name
+        },
+        ip_address=get_client_ip(request)
+    )
+
+    logger.info("Family deleted by Admin: family_id=%s, by admin_id=%s", family_id, admin.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.get("/families/{family_id}", response_model=FamilyDetailResponse, dependencies=[Depends(admin_action_limiter)])
 def get_admin_family_detail(
     family_id: int,
     db: Session = Depends(get_db),
@@ -206,7 +243,7 @@ def get_admin_family_detail(
         babies=babies
     )
 
-@router.get("/users", response_model=List[UserResponse])
+@router.get("/users", response_model=List[UserResponse], dependencies=[Depends(admin_action_limiter)])
 def get_admin_users(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
@@ -217,7 +254,7 @@ def get_admin_users(
     users = db.query(User).offset(skip).limit(limit).all()
     return users
 
-@router.patch("/users/{user_id}/superadmin", response_model=UserResponse)
+@router.patch("/users/{user_id}/superadmin", response_model=UserResponse, dependencies=[Depends(admin_action_limiter)])
 def toggle_superadmin(
     user_id: int,
     request_data: SuperAdminToggleRequest,
@@ -254,7 +291,7 @@ def toggle_superadmin(
     logger.info("SuperAdmin status updated: target_user_id=%s, new_status=%s, by admin_id=%s", user.id, request_data.is_superadmin, admin.id)
     return user
 
-@router.get("/audit-logs", response_model=List[AuditLogResponse])
+@router.get("/audit-logs", response_model=List[AuditLogResponse], dependencies=[Depends(admin_action_limiter)])
 def get_audit_logs(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_superadmin),
@@ -283,7 +320,7 @@ def get_audit_logs(
         ))
     return result
 
-@router.post("/audit-logs/cleanup")
+@router.post("/audit-logs/cleanup", dependencies=[Depends(admin_action_limiter)])
 def trigger_audit_log_cleanup(
     background_tasks: BackgroundTasks,
     days: int = Query(90, ge=1, le=3650),

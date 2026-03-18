@@ -164,7 +164,8 @@ def db():
         yield session
     finally:
         session.close()
-        transaction.rollback()
+        if transaction.is_active:
+            transaction.rollback()
         connection.close()
         _current_connection = None
 

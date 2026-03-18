@@ -33,7 +33,16 @@ def get_achievements(
     for row in rows:
         defn = ACHIEVEMENTS.get(row.achievement_id)
         if defn is None:
-            continue  # 削除済み実績は無視
+            # 削除済み実績に対するフォールバック処理
+            from app.achievements.definitions import AchievementDef
+            defn = AchievementDef(
+                name="レガシー実績",
+                icon="❓",
+                description="現在は取得できない実績です",
+                category="funny",
+                rarity="common",
+            )
+            
         result.append(BabyAchievementResponse(
             id=row.id,
             baby_id=row.baby_id,

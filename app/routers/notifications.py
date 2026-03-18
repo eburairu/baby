@@ -17,7 +17,7 @@ from app.schemas.notification import (
 
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 
-test_notification_limiter = RateLimiter(
+notification_rate_limiter = RateLimiter(
     requests_limit=constants.RATE_LIMIT_NOTIFICATION_REQUESTS,
     time_window=constants.RATE_LIMIT_NOTIFICATION_WINDOW,
     error_message="Too many test notifications requested. Please try again later.",
@@ -192,7 +192,7 @@ def send_test_notification(
     current_user: User = Depends(get_current_user)
 ):
     """テスト通知を自分自身に送信する"""
-    test_notification_limiter.check(f"user_{current_user.id}")
+    notification_rate_limiter.check(f"user_{current_user.id}")
     from app.utils.notifications import send_push_notification
 
     subscriptions = db.query(PushSubscription).filter(

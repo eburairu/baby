@@ -50,9 +50,6 @@ def create_or_get_daily_summary(
     current_user: User = Depends(get_current_user),
 ):
     """日誌を生成（upsert）。is_edited=True なら既存をそのまま返す。"""
-    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレート制限
-    daily_summary_limiter.check(f"user_{current_user.id}")
-
     baby = verify_baby_access(db, baby_id, current_user.id, require_write=True)
 
     # 未来日付チェック（JST基準）
@@ -77,9 +74,13 @@ def create_or_get_daily_summary(
         .first()
     )
 
-    # 編集済みの場合は再生成せず既存を返す
+    # 編集済みの場合は再生成せず既存を返す（AI呼び出し不要のためレート制限も不要）
     if existing and existing.is_edited:
         return existing
+
+    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレート制限
+    # 実際にAI生成が必要な場合のみチェックする
+    daily_summary_limiter.check(f"user_{current_user.id}")
 
     try:
         generated_content, model_name = generate_daily_summary(
