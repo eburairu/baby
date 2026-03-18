@@ -1,3 +1,4 @@
+from starlette.concurrency import run_in_threadpool
 import os
 import uuid
 import logging
@@ -61,7 +62,7 @@ async def upload_image(
     # Enforce rate limiting per user
     upload_limiter.check(f"user_{current_user.id}")
 
-    verify_write_access(db, current_user.id)
+    await run_in_threadpool(verify_write_access, db, current_user.id)
 
     # Check Content-Type header as a preliminary filter, but do not rely on it
     if not file.content_type or not file.content_type.startswith("image/"):
@@ -107,9 +108,8 @@ async def upload_image(
     object_key = f"{uuid.uuid4()}{detected_extension}"
 
     bucket_name = os.getenv("R2_BUCKET_NAME", "baby-app-images")
-    public_endpoint = os.getenv("R2_PUBLIC_ENDPOINT", "")
 
-    try:
+    def _do_upload():
         client = _get_r2_client()
         client.put_object(
             Bucket=bucket_name,
@@ -117,6 +117,9 @@ async def upload_image(
             Body=content,
             ContentType=detected_mime_type,  # Use detected MIME type
         )
+
+    try:
+        await run_in_threadpool(_do_upload)
     except ClientError as e:
         logger.error("R2 upload failed: %s", e)
         raise HTTPException(
@@ -125,7 +128,7 @@ async def upload_image(
         )
 
     # 署名付きURLを生成（デフォルト1時間）
-    signed_url = generate_presigned_url(object_key)
+    signed_url = await run_in_threadpool(generate_presigned_url, object_key)
     if not signed_url:
         # フォールバック（通常は起こらないはずだが、設定ミスなどの場合）
         public_endpoint = os.getenv("R2_PUBLIC_ENDPOINT", "")
