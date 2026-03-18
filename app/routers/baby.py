@@ -164,11 +164,12 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Baby not found")
 
     from app.services.baby import soft_delete_baby
-    
+
     deleted_baby_id = baby.id
     deleted_baby_family_id = baby.family_id
 
     soft_delete_baby(db, baby)
+    db.commit()
 
     logger.info("Baby deleted: baby_id=%s, family_id=%s, by user_id=%s", deleted_baby_id, deleted_baby_family_id, current_user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
