@@ -75,6 +75,7 @@ interface AISettings {
   llm_model: string;
   llm_temperature: number;
   llm_max_tokens: number;
+  llm_reasoning_effort: string;
   ai_enabled_chat: boolean;
   ai_enabled_summary: boolean;
   ai_enabled_feedback: boolean;
