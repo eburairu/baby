@@ -15,6 +15,7 @@ import {
 import { api } from "@/lib/api"
 import { useClipboard } from "@/hooks/useClipboard"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { SettingsCard } from "./SettingsCard"
 
 interface Props {
     inviteCode: string
@@ -45,7 +46,7 @@ export function InviteCodeCard({ inviteCode, isAdmin, onRegenerated }: Props) {
     if (!isAdmin) return null
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
+        <SettingsCard>
             <div className="flex items-center gap-2 mb-3">
                 <span className="text-violet-600 dark:text-violet-400 font-semibold text-sm">🔑 招待コード</span>
             </div>
@@ -92,6 +93,6 @@ export function InviteCodeCard({ inviteCode, isAdmin, onRegenerated }: Props) {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-        </div>
+        </SettingsCard>
     )
 }

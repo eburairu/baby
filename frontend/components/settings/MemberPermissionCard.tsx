@@ -3,6 +3,7 @@
 import { AlertTriangle } from "lucide-react"
 import type { MemberPermissions } from "@/hooks/usePermissionsPage"
 import { BabyAccessRow } from "./BabyAccessRow"
+import { SettingsCard } from "./SettingsCard"
 
 const ROLE_LABELS: Record<string, string> = {
   member: "メンバー",
@@ -24,7 +25,7 @@ export function MemberPermissionCard({ member, onSaved }: Props) {
   )
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 space-y-3">
+    <SettingsCard className="space-y-3">
       {/* メンバー名・ロール */}
       <div className="flex items-center justify-between border-b border-gray-100 dark:border-zinc-800 pb-2">
         <div>
@@ -66,6 +67,6 @@ export function MemberPermissionCard({ member, onSaved }: Props) {
           </p>
         )}
       </div>
-    </div>
+    </SettingsCard>
   )
 }

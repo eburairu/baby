@@ -17,6 +17,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUser } from "@/hooks/useAuth"
@@ -135,7 +136,7 @@ function RegisterForm() {
                                         <FormItem>
                                             <FormLabel>パスワード</FormLabel>
                                             <FormControl>
-                                                <Input type="password" {...field} />
+                                                <PasswordInput {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -206,7 +207,7 @@ function RegisterForm() {
                                         <FormItem>
                                             <FormLabel>パスワード</FormLabel>
                                             <FormControl>
-                                                <Input type="password" {...field} />
+                                                <PasswordInput {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

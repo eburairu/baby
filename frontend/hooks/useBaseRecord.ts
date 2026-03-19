@@ -43,7 +43,12 @@ export function useBaseRecord<T, TCreate, TUpdate>(
     }
 
     const newRecord = await api.post<T, TCreate>(`/${endpoint}/`, record);
-    mutate();
+    // 楽観的更新: 新レコードを即座にキャッシュ先頭に追加してチャートを即時更新し、
+    // バックグラウンドで再検証して最新データを取得する
+    await mutate(
+      (current: T[] | undefined) => (newRecord ? [newRecord, ...(current ?? [])] : (current ?? [])),
+      { revalidate: true }
+    );
     // 実績解除があれば通知
     const r = newRecord as Record<string, unknown> | undefined;
     if (r && Array.isArray(r.unlocked_achievements) && r.unlocked_achievements.length > 0) {

@@ -40,6 +40,7 @@ Botoro の現在の設計思想に基づき、**システム全体のデフォ�
 - `ai_enabled_feedback`: `"true"`
 - `llm_temperature`: `"0.7"`
 - `llm_max_tokens`: `"800"`
+- `llm_reasoning_effort`: `"none"`
 
 ## 3. バックエンド設計
 
@@ -74,9 +75,11 @@ interface AISettings {
   llm_model: string;
   llm_temperature: number;
   llm_max_tokens: number;
+  llm_reasoning_effort: string;
   ai_enabled_chat: boolean;
   ai_enabled_summary: boolean;
   ai_enabled_feedback: boolean;
+  llm_reasoning_effort: string;
 }
 
 interface AISettingsSummary {
