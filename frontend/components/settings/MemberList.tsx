@@ -20,6 +20,7 @@ import { formatDate } from "@/lib/dateUtils"
 import { UserRole } from "@/lib/constants"
 import { FamilyMember } from "@/types/family"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { SettingsCard } from "./SettingsCard"
 
 interface Props {
     members: FamilyMember[]
@@ -50,7 +51,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
     }
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
+        <SettingsCard>
             <div className="flex items-center gap-2 mb-3">
                 <span className="text-violet-600 dark:text-violet-400 font-semibold text-sm">
                     👥 メンバー ({members.length}名)
@@ -145,6 +146,6 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </SettingsCard>
     )
 }
