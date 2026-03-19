@@ -19,7 +19,7 @@ export function BreastFeedingFields({ form, setLeftSeconds, setRightSeconds }: B
                     <FormItem>
                         <FormLabel className="text-xs">左 (分)</FormLabel>
                         <FormControl>
-                            <Input type="number" min="0" {...field} onChange={e => {
+                            <Input aria-label="左 (分)" type="number" min="0" {...field} onChange={e => {
                                 field.onChange(e)
                                 const val = parseInt(e.target.value) || 0
                                 setLeftSeconds(val * 60)
@@ -36,7 +36,7 @@ export function BreastFeedingFields({ form, setLeftSeconds, setRightSeconds }: B
                     <FormItem>
                         <FormLabel className="text-xs">右 (分)</FormLabel>
                         <FormControl>
-                            <Input type="number" min="0" {...field} onChange={e => {
+                            <Input aria-label="右 (分)" type="number" min="0" {...field} onChange={e => {
                                 field.onChange(e)
                                 const val = parseInt(e.target.value) || 0
                                 setRightSeconds(val * 60)
