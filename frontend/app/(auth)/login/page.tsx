@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
 import { api, getErrorMessage } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +17,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useUser } from "@/hooks/useAuth"
 import { ErrorMessage } from "@/components/ui/error-message"
@@ -31,7 +31,6 @@ export default function LoginPage() {
     const router = useRouter()
     const { mutate } = useUser()
     const [error, setError] = useState<string | null>(null)
-    const [showPassword, setShowPassword] = useState(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -82,28 +81,9 @@ export default function LoginPage() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>パスワード</FormLabel>
-                                    <div className="relative">
-                                        <FormControl>
-                                            <Input
-                                                type={showPassword ? "text" : "password"}
-                                                className="pr-10"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                                            aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
-                                            title={showPassword ? "パスワードを隠す" : "パスワードを表示"}
-                                        >
-                                            {showPassword ? (
-                                                <EyeOff className="h-4 w-4" />
-                                            ) : (
-                                                <Eye className="h-4 w-4" />
-                                            )}
-                                        </button>
-                                    </div>
+                                    <FormControl>
+                                        <PasswordInput {...field} />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
