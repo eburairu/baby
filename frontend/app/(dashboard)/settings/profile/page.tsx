@@ -4,6 +4,7 @@ import { useState } from "react"
 import { User, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import { useUser, User as UserType } from "@/hooks/useAuth"
 import { api, getErrorMessage } from "@/lib/api"
@@ -181,9 +182,8 @@ export default function ProfileSettingsPage() {
                             <div className="space-y-3">
                                 <div className="space-y-1">
                                     <Label htmlFor="currentPassword" className="text-xs text-gray-500 dark:text-zinc-500">現在のパスワード</Label>
-                                    <Input
+                                    <PasswordInput
                                         id="currentPassword"
-                                        type="password"
                                         value={currentPassword}
                                         onChange={(e) => setCurrentPassword(e.target.value)}
                                         autoFocus
@@ -192,9 +192,8 @@ export default function ProfileSettingsPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <Label htmlFor="newPassword" className="text-xs text-gray-500 dark:text-zinc-500">新しいパスワード（8文字以上、英字・数字を含む）</Label>
-                                    <Input
+                                    <PasswordInput
                                         id="newPassword"
-                                        type="password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
@@ -202,9 +201,8 @@ export default function ProfileSettingsPage() {
                                 </div>
                                 <div className="space-y-1">
                                     <Label htmlFor="confirmPassword" className="text-xs text-gray-500 dark:text-zinc-500">新しいパスワード（確認）</Label>
-                                    <Input
+                                    <PasswordInput
                                         id="confirmPassword"
-                                        type="password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
