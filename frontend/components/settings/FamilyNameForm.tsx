@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { SettingsCard } from "./SettingsCard"
 
 interface Props {
     name: string
@@ -44,7 +45,7 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
     }
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-4 transition-colors">
+        <SettingsCard>
             <div className="flex items-center gap-2 mb-3">
                 <span className="text-violet-600 dark:text-violet-400 font-semibold text-sm">👨‍👩‍👧 家族名</span>
             </div>
@@ -83,6 +84,6 @@ export function FamilyNameForm({ name, isAdmin, onUpdated }: Props) {
                     )}
                 </div>
             )}
-        </div>
+        </SettingsCard>
     )
 }
