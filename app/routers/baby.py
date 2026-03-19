@@ -366,8 +366,7 @@ def get_records(
                 for rt, rid, count in counts:
                     comment_counts[(rt, rid)] = count
             except Exception as e:
-                # In case table doesn't exist or query fails
-                pass
+                logger.warning("Failed to fetch comment counts for baby %s: %s", baby_id, e)
 
     # User を一括取得してマップを作成（truncatedされたレコード群のみ）
     user_ids = {r[2] for r in truncated_records if r[2] is not None}

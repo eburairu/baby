@@ -13,19 +13,32 @@ def get_client_ip(request: Request) -> Optional[str]:
     """
     Safely extract the client IP address from the request.
     Handles X-Forwarded-For headers from proxies like Render.
+
+    Uses the rightmost IP in X-Forwarded-For to prevent spoofing:
+    clients can inject arbitrary values at the start of the header,
+    but the trusted proxy (Render) always appends the real client IP
+    at the end. Set TRUSTED_PROXY_COUNT to the number of proxy hops
+    (default 1) to pick the correct entry from the right.
     """
+    import os
     x_forwarded_for = request.headers.get("X-Forwarded-For")
     if x_forwarded_for:
-        # X-Forwarded-For can be a comma-separated list of IPs.
-        # The first one is typically the original client IP.
-        client_ip = x_forwarded_for.split(",")[0].strip()
-        if client_ip:
-            return client_ip
-            
+        ips = [ip.strip() for ip in x_forwarded_for.split(",") if ip.strip()]
+        if ips:
+            try:
+                trusted_proxy_count = int(os.environ.get("TRUSTED_PROXY_COUNT", "1"))
+            except ValueError:
+                trusted_proxy_count = 1
+            # The client IP is at index -(trusted_proxy_count) from the right.
+            # With 1 trusted proxy, the last entry was appended by that proxy
+            # and reflects the real client.
+            idx = max(0, len(ips) - trusted_proxy_count)
+            return ips[idx]
+
     # Fallback to standard client host
     if request.client and request.client.host:
         return request.client.host
-        
+
     return None
 
 def log_event(
@@ -55,7 +68,7 @@ def log_event(
         db.add(audit_entry)
         db.commit()
     except Exception as e:
-        logger.error(f"Failed to record audit log: {e}")
+        logger.error("Failed to record audit log: %s", e)
     finally:
         db.close()
 
@@ -66,9 +79,9 @@ def cleanup_old_audit_logs(db: Session, days: int = 90) -> int:
     """
     try:
         threshold_date = datetime.now(timezone.utc) - timedelta(days=days)
-        
+
         deleted_count = db.query(AuditLog).filter(AuditLog.created_at < threshold_date).delete(synchronize_session=False)
         return deleted_count
     except Exception as e:
-        logger.error(f"Failed to cleanup old audit logs: {e}")
+        logger.error("Failed to cleanup old audit logs: %s", e)
         return 0

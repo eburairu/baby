@@ -1,9 +1,12 @@
+import logging
 import os
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from google import genai
 from app.models.system_settings import SystemSetting
 from app.core.constants import AI_MAX_TOKENS, AI_TEMPERATURE
+
+logger = logging.getLogger(__name__)
 
 
 def get_ai_config(db: Session) -> Dict[str, Any]:
@@ -63,7 +66,7 @@ def get_available_llm_models() -> List[Dict[str, str]]:
                 })
         return models
     except Exception as e:
-        print(f"Error fetching models: {e}")
+        logger.warning("Error fetching available LLM models: %s", e)
         # フォールバックとして主要なモデルを返す
         return [
             {"id": "gemini-2.5-pro", "name": "Gemini 2.5 Pro", "description": "Highly capable model"},
