@@ -15,6 +15,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/ai", tags=["ai-settings"])
 
+# 書き込み可能なAI設定キーの許可リスト
+ALLOWED_AI_SETTING_KEYS = {
+    "ai_enabled_summary",
+    "ai_enabled_chat",
+    "ai_enabled_feedback",
+    "llm_model",
+    "llm_temperature",
+    "llm_max_tokens",
+    "llm_reasoning_effort",
+}
+
 ai_settings_limiter = RateLimiter(
     requests_limit=RATE_LIMIT_AI_SETTINGS_REQUESTS,
     time_window=RATE_LIMIT_AI_SETTINGS_WINDOW,
@@ -26,7 +37,7 @@ def verify_admin_access(db: Session, user: User):
     ユーザーが SuperAdmin であるか検証する。
     """
     if not user.is_superadmin:
-        logger.warning(f"Unauthorized superadmin access attempt by user {user.id}")
+        logger.warning("Unauthorized superadmin access attempt by user %s", user.id)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="SuperAdmin access required"
@@ -64,6 +75,14 @@ def update_ai_settings(
     """
     verify_admin_access(db, current_user)
     
+    # 許可リストにないキーは拒否
+    unknown_keys = set(payload.settings.keys()) - ALLOWED_AI_SETTING_KEYS
+    if unknown_keys:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Unknown setting keys: {', '.join(sorted(unknown_keys))}",
+        )
+
     updated_keys = []
     for key, value in payload.settings.items():
         # 既存の設定を確認
