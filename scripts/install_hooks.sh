@@ -21,6 +21,7 @@ HOOK_FILE="$HOOKS_DIR/pre-commit"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHECK_SCRIPT="$SCRIPT_DIR/check_staged_files.sh"
 CHECK_OPENAPI_SCRIPT="$SCRIPT_DIR/check_openapi_hook.sh"
+CHECK_COMMIT_MSG_SCRIPT="$SCRIPT_DIR/check_commit_msg.sh"
 
 if [ ! -f "$CHECK_SCRIPT" ]; then
   echo "Error: $CHECK_SCRIPT が見つかりません。"
@@ -29,6 +30,11 @@ fi
 
 if [ ! -f "$CHECK_OPENAPI_SCRIPT" ]; then
   echo "Error: $CHECK_OPENAPI_SCRIPT が見つかりません。"
+  exit 1
+fi
+
+if [ ! -f "$CHECK_COMMIT_MSG_SCRIPT" ]; then
+  echo "Error: $CHECK_COMMIT_MSG_SCRIPT が見つかりません。"
   exit 1
 fi
 
@@ -44,3 +50,14 @@ EOF
 
 chmod +x "$HOOK_FILE"
 echo "✅ pre-commit hook をインストールしました: $HOOK_FILE"
+
+# commit-msg フック
+COMMIT_MSG_HOOK_FILE="$HOOKS_DIR/commit-msg"
+cat > "$COMMIT_MSG_HOOK_FILE" <<EOF
+#!/bin/bash
+# commit-msg hook: コミットメッセージの禁止パターンをチェック
+sh "$CHECK_COMMIT_MSG_SCRIPT" "\$1"
+EOF
+
+chmod +x "$COMMIT_MSG_HOOK_FILE"
+echo "✅ commit-msg hook をインストールしました: $COMMIT_MSG_HOOK_FILE"
