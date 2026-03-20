@@ -14,14 +14,14 @@
 | 目的 | アプリを開いた際の通知インボックス | デバイスへのバックグラウンドプッシュ |
 | 保存先 | `app_notifications` テーブル | `push_subscriptions` テーブル（配信先情報のみ） |
 | 設定管理 | `notification_settings` テーブルを共通参照 | 同上 |
-| 生成元 | `notification_service.py` が一元管理 | 同上 |
+| 生成元 | `utils/notifications.py` が一元管理 | 同上 |
 
 **統合フロー（通知生成の流れ）**:
 
 ```
 トリガー（記録追加・コメント等）
     ↓
-notification_service.py の notify_*() を呼び出す
+utils/notifications.py の notify_*() を呼び出す
     ↓
 ① app_notifications テーブルに通知を INSERT（常時）
     ↓
@@ -242,49 +242,53 @@ self.addEventListener('push', (event) => {
 
 ### 6.1 通知生成サービス
 
-`app/services/notification_service.py` に通知生成ユーティリティを集約する。
-アプリ内通知（`app_notifications`）の INSERT と PWA プッシュ送信（`pywebpush`）の両方をこのサービスから行う。
+`app/utils/notifications.py` に通知生成ユーティリティを集約する。
+FastAPI の `BackgroundTasks` を利用し、レスポンスをブロックせずに同期関数としてアプリ内通知の INSERT と PWA プッシュ送信（将来予定）を行う。
 
 ```python
-async def notify_family_record(
-    db: AsyncSession,
-    actor_user_id: int,  # 記録を追加したユーザー
-    baby_id: int,
-    record_type: str,    # 'feeding' | 'diaper' | 'sleep' | 'growth' | 'temperature' ...
-    record_url: str,     # 遷移先 URL
-) -> None:
+def notify_family_members_bg(
+    background_tasks: BackgroundTasks,
+    family_id: int,
+    exclude_user_id: int,
+    title: str,
+    body: str,
+    url: str = "/",
+    category: str = "family_record"
+):
     """
-    1. 同ファミリーの記録者以外のメンバーを取得
-    2. 各メンバーの notification_settings を確認
-    3. family_record_enabled = True のメンバーのみ app_notifications に INSERT
-    4. （PWA 実装後）push_subscriptions を参照してプッシュ通知を送信
-    """
-    ...
-
-async def notify_comment(
-    db: AsyncSession,
-    record_owner_id: int,
-    commenter_user_id: int,
-    record_url: str,
-) -> None:
-    """
-    記録オーナーに comment 通知を送信。
-    オーナー == コメント投稿者の場合はスキップ。
+    1. バックグラウンドタスクとして実行
+    2. 同ファミリーの記録者以外のメンバーを取得
+    3. 各メンバーの notification_settings を確認
+    4. category (例: family_record_enabled) = True のメンバーのみ app_notifications に INSERT
+    5. （PWA 実装後）push_subscriptions を参照してプッシュ通知を送信
     """
     ...
 
-async def notify_reminder(
-    db: AsyncSession,
+def notify_user(
+    db: Session,
     user_id: int,
-    reminder_type: str,  # 'feeding_reminder' | 'diaper_reminder'
-) -> None:
+    title: str,
+    body: str,
+    url: str = "/",
+    category: str = "system"
+):
     """
-    リマインダー通知を生成。
-    notification_settings の feeding_reminder_enabled / diaper_reminder_enabled を確認。
+    特定のユーザー（例: コメント通知なら記録オーナー、リマインダーなら対象ユーザー）に通知を送信。
+    """
+    ...
+
+def notify_achievements_bg(
+    background_tasks: BackgroundTasks,
+    family_id: int,
+    baby_name: str,
+    baby_id: int,
+    unlocked: list[dict],
+):
+    """
+    実績（アチーブメント）解除時に同ファミリーの全メンバーに通知を送信。
     """
     ...
 ```
-
 ### 6.2 通知が生成されるトリガー
 
 | トリガー | 通知 type | 通知受信者 | 除外条件 |
@@ -299,7 +303,7 @@ async def notify_reminder(
 
 ### 6.3 各ルーターからの呼び出し
 
-記録保存の各エンドポイント（`app/routers/feeding.py` 等）において、DB へのコミット後に `notify_family_record()` を非同期で呼び出す。
+記録保存の各エンドポイント（`app/routers/feeding.py` 等）において、DB へのコミット後に `notify_family_members_bg()` を非同期で呼び出す。
 
 ### 6.4 通知 URL 設計
 
@@ -337,7 +341,7 @@ async def notify_reminder(
 
 1. **DB マイグレーション**: `app_notifications` テーブルを作成する Alembic マイグレーションを生成する。
 2. **バックエンドモデル・スキーマ**: `app/models/app_notification.py`、`app/schemas/notification.py` を作成する。
-3. **通知サービス**: `app/services/notification_service.py` を作成する。
+3. **通知サービス**: `app/utils/notifications.py` を作成する。
 4. **API エンドポイント**: `app/routers/notifications.py` を作成し、`app/main.py` に登録する。
 5. **OpenAPI 型生成**: `python scripts/export_openapi.py` を実行し、フロントエンドの型を更新する。
 6. **フロントエンドコンポーネント**: `NotificationBell` / `NotificationDropdown` / `NotificationItem` を実装する。
@@ -347,7 +351,7 @@ async def notify_reminder(
 ### フェーズ 2: PWA プッシュ通知との統合（`pwa_notifications.md` 実装時）
 
 9. **DB マイグレーション**: `push_subscriptions`、`notification_settings` テーブルを追加する。
-10. **プッシュ送信処理**: `notification_service.py` の `notify_*()` にプッシュ送信ロジックを追加する。
+10. **プッシュ送信処理**: `utils/notifications.py` の `notify_*()` にプッシュ送信ロジックを追加する。
 11. **Service Worker 更新**: `sw.js` に BroadcastChannel 送信処理を追加して通知センターのリアルタイム更新を実現する。
 12. **通知設定 UI**: `/settings/notifications` ページを作成し、`notification_settings` の編集機能を実装する。
 
