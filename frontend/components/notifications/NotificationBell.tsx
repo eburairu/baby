@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useUnreadCount, useNotifications, markAllAsRead } from "@/hooks/useNotifications"
 import { NotificationItem } from "./NotificationItem"
+import { useAsyncAction } from "@/hooks/useAsyncAction"
 
 export function NotificationBell() {
     const [open, setOpen] = useState(false)
-    const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false)
     const { count, mutate: mutateCount } = useUnreadCount()
     const { notifications, mutate: mutateList, isLoading } = useNotifications()
+    const { loading: isMarkingAllAsRead, execute } = useAsyncAction()
     const panelRef = useRef<HTMLDivElement>(null)
 
     // パネル外クリックまたはEscapeキーで閉じる
@@ -52,13 +53,10 @@ export function NotificationBell() {
 
     const handleReadAll = async () => {
         if (isMarkingAllAsRead) return
-        setIsMarkingAllAsRead(true)
-        try {
+        await execute(async () => {
             await markAllAsRead()
             await Promise.all([mutateList(), mutateCount()])
-        } finally {
-            setIsMarkingAllAsRead(false)
-        }
+        })
     }
 
     const displayCount = count > 99 ? "99+" : count > 0 ? String(count) : null
