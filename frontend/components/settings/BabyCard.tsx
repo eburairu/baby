@@ -49,6 +49,7 @@ export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
                             variant="outline"
                             onClick={() => onEdit(baby)}
                             className="text-xs h-8 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                            aria-label={`${baby.name}の情報を編集`}
                         >
                             <Pencil className="h-3 w-3 mr-1" />
                             編集
@@ -57,6 +58,7 @@ export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
                             size="sm"
                             onClick={() => onDelete(baby)}
                             className="text-xs h-8 bg-red-500 hover:bg-red-600 text-white shadow-none"
+                            aria-label={`${baby.name}の情報を削除`}
                         >
                             <Trash2 className="h-3 w-3 mr-1" />
                             削除
