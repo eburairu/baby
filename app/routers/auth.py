@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.dependencies import get_db, get_current_user
-from app.schemas.auth import LoginRequest, LogoutRequest
+from app.schemas.auth import LoginRequest, LogoutRequest, WithdrawRequest
 from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, PasswordChangeRequest
 from app.models.user import User, UserSession
@@ -371,6 +371,38 @@ def logout(request: Request, response: Response, background_tasks: BackgroundTas
             db.commit()
     response.delete_cookie("access_token")
     return {"message": "Logged out"}
+
+
+@router.post("/withdraw", status_code=204)
+async def withdraw_user(
+    req: WithdrawRequest,
+    response: Response,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    ユーザーのアカウントを論理削除し、すべてのセッションを無効化する。
+    """
+    if not await verify_password_async(req.password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    from app.services.user_service import soft_delete_user
+    
+    # セッション削除と論理削除を同一トランザクションで実行
+    soft_delete_user(db, current_user)
+    db.commit()
+
+    background_tasks.add_task(
+        log_event,
+        action="WITHDRAWAL",
+        user_id=current_user.id,
+        ip_address=get_client_ip(request)
+    )
+
+    response.delete_cookie("access_token")
+    return Response(status_code=204)
 
 
 @router.get("/me", response_model=UserResponse)

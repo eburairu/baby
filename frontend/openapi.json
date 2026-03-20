@@ -4274,6 +4274,20 @@
         ],
         "title": "VersionResponse",
         "type": "object"
+      },
+      "WithdrawRequest": {
+        "properties": {
+          "password": {
+            "maxLength": 128,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ],
+        "title": "WithdrawRequest",
+        "type": "object"
       }
     }
   },
@@ -5118,6 +5132,41 @@
           }
         },
         "summary": "Join Family",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/withdraw": {
+      "post": {
+        "description": "ユーザーのアカウントを論理削除し、すべてのセッションを無効化する。",
+        "operationId": "withdraw_user_api_auth_withdraw_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Withdraw User",
         "tags": [
           "auth"
         ]

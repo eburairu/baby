@@ -9,3 +9,7 @@ class LoginRequest(BaseModel):
 
 class LogoutRequest(BaseModel):
     endpoint: Optional[str] = None
+
+
+class WithdrawRequest(BaseModel):
+    password: str = Field(..., max_length=128)
