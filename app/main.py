@@ -51,7 +51,13 @@ app.add_middleware(
 app.add_middleware(SecurityHeadersMiddleware)
 
 # Trusted Host Middleware (Security Enhancement)
-allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
+_allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "*")
+if _allowed_hosts_env == "*":
+    logger.warning(
+        "ALLOWED_HOSTS is set to '*' — TrustedHostMiddleware is effectively disabled. "
+        "Set ALLOWED_HOSTS to a comma-separated list of allowed hostnames in production."
+    )
+allowed_hosts = _allowed_hosts_env.split(",")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 from app.routers import auth, family, baby, notifications, admin

@@ -82,24 +82,23 @@ async def change_password(
 ) -> None:
     if not await verify_password_async(req.current_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
-    current_user.hashed_password = await get_password_hash_async(req.new_password)
+
+    ip_address = get_client_ip(request)
     current_token = request.cookies.get("access_token")
     current_token_hash = hash_token(current_token) if current_token else None
-    
-    def logout_other_sessions():
-        db.query(UserSession).filter(
-            UserSession.user_id == current_user.id,
-            UserSession.token != current_token_hash,
-        ).delete()
-        db.commit()
 
-    await run_in_threadpool(logout_other_sessions)
-    
+    current_user.hashed_password = await get_password_hash_async(req.new_password)
+    db.query(UserSession).filter(
+        UserSession.user_id == current_user.id,
+        UserSession.token != current_token_hash,
+    ).delete()
+    db.commit()
+
     background_tasks.add_task(
         log_event,
-        action="PASSWORD_CHANGE", 
-        user_id=current_user.id, 
-        ip_address=get_client_ip(request)
+        action="PASSWORD_CHANGE",
+        user_id=current_user.id,
+        ip_address=ip_address,
     )
 
 
@@ -194,7 +193,7 @@ async def register_family(
         action="REGISTER_FAMILY",
         user_id=new_user.id,
         details={"family_id": new_family.id, "family_name": new_family.name},
-        ip_address=get_client_ip(request)
+        ip_address=ip_address,
     )
     
     return new_family
@@ -268,9 +267,9 @@ async def join_family(
         action="JOIN_FAMILY",
         user_id=new_user.id,
         details={"family_id": family.id, "family_name": family.name},
-        ip_address=get_client_ip(request)
+        ip_address=ip_address,
     )
-    
+
     return UserResponse(
         id=new_user.id,
         username=new_user.username,
@@ -334,7 +333,7 @@ async def login(
         log_event,
         action="LOGIN",
         user_id=user.id,
-        ip_address=get_client_ip(request)
+        ip_address=ip_address,
     )
     
     return UserResponse(

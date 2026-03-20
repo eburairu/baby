@@ -79,7 +79,6 @@ interface AISettings {
   ai_enabled_chat: boolean;
   ai_enabled_summary: boolean;
   ai_enabled_feedback: boolean;
-  llm_reasoning_effort: string;
 }
 
 interface AISettingsSummary {
