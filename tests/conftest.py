@@ -248,8 +248,9 @@ def disable_rate_limiter(request, monkeypatch):
     # If the test is marked to enable rate limiting, do nothing (let original code run)
     if request.node.get_closest_marker("enable_rate_limit"):
         # Still clear state to ensure isolation
-        from app.routers.auth import login_limiter
+        from app.routers.auth import login_limiter, register_limiter
         login_limiter.requests.clear()
+        register_limiter.requests.clear()
         return
 
     from app.utils.rate_limit import RateLimiter
