@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { vi, describe, it, expect } from 'vitest'
 import { DiaryEditDialog } from '@/components/diary/DiaryEditDialog'
+import { ApiError } from '@/lib/api'
 
 describe('DiaryEditDialog Optimistic Locking', () => {
     const mockSummary = {
@@ -21,9 +22,9 @@ describe('DiaryEditDialog Optimistic Locking', () => {
 
     it('shows conflict error message on 409 from onSave', async () => {
         // Create an onSave mock that throws 409
-        const mockOnSave = vi.fn().mockRejectedValue({
-            response: { status: 409 }
-        })
+        const mockOnSave = vi.fn().mockRejectedValue(
+            new ApiError('Conflict', { detail: 'Conflict' }, 409)
+        )
 
         const onOpenChange = vi.fn()
 

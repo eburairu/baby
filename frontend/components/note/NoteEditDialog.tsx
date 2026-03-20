@@ -35,7 +35,7 @@ interface NoteEditDialogProps {
 }
 
 import { ErrorMessage } from "@/components/ui/error-message"
-import { getErrorMessage } from "@/lib/api"
+import { getErrorMessage, isApiError } from "@/lib/api"
 
 export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEditDialogProps) {
     const { loading: submitting, error, execute } = useAsyncAction()
@@ -77,8 +77,7 @@ export function NoteEditDialog({ note, open, onOpenChange, onSuccess }: NoteEdit
                     onOpenChange(false)
                 },
                 errorMessage: (error: unknown) => {
-                    const err = error as { response?: { status?: number } };
-                    if (err?.response?.status === 409) {
+                    if (isApiError(error) && error.status === 409) {
                         return "他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。"
                     }
                     return "更新に失敗しました。時間をおいて再度お試しください。"
