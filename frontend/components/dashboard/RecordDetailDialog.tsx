@@ -12,7 +12,7 @@ import { useUser } from "@/hooks/useAuth"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { CommentSection } from "@/components/records/CommentSection"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
-import { api } from "@/lib/api"
+import { api, isApiError } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { RECORD_TYPE_LABELS } from "@/constants/ui"
@@ -89,8 +89,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
           onOpenChange(false)
         },
         errorMessage: (error: unknown) => {
-            const err = error as { response?: { status?: number } };
-            if (err?.response?.status === 409) {
+            if (isApiError(error) && error.status === 409) {
                 return "他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。"
             }
             return "更新に失敗しました"

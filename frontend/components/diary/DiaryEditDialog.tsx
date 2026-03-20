@@ -10,6 +10,7 @@ import { compressImage, ImageTooLargeError } from "@/lib/imageCompression"
 import { uploadImage } from "@/lib/uploadImage"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
+import { isApiError } from "@/lib/api"
 
 const MAX_IMAGES = 10
 
@@ -96,8 +97,7 @@ export function DiaryEditDialog({ summary, open, onOpenChange, onSave, canWrite 
             },
             {
                 onError: (error: unknown) => {
-                    const err = error as { response?: { status?: number } };
-                    if (err?.response?.status === 409) {
+                    if (isApiError(error) && error.status === 409) {
                         setSaveError("他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。")
                     } else {
                         setSaveError("保存に失敗しました。時間をおいて再度お試しください。")
