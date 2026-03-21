@@ -18,6 +18,7 @@ import { formatJapaneseDate } from "@/lib/dateUtils"
 import { usePermissions } from "@/hooks/usePermissions"
 import { AchievementTab } from "@/components/achievements/AchievementTab"
 import { cn } from "@/lib/utils"
+import { GENDER_LABELS } from "@/constants/ui"
 
 interface BabyForWidget {
   id: number
@@ -36,12 +37,6 @@ interface BabyInfoPopupProps {
   onOpenChange: (open: boolean) => void
   activeTab: TabId
   onActiveTabChange: (tab: TabId) => void
-}
-
-const genderLabel = (g: string | null | undefined): string => {
-  if (g === "boy") return "男の子"
-  if (g === "girl") return "女の子"
-  return "不明"
 }
 
 const formatBirthday = (birthday: string): string => {
@@ -109,7 +104,7 @@ export function BabyInfoPopup({ baby, open, onOpenChange, activeTab, onActiveTab
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">性別</span>
-              <span className="text-sm font-medium">{genderLabel(baby.gender)}</span>
+              <span className="text-sm font-medium">{baby.gender ? GENDER_LABELS[baby.gender] ?? "不明" : "不明"}</span>
             </div>
 
             {baby.characteristics && (
