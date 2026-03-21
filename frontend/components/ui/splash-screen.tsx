@@ -29,8 +29,6 @@ export function SplashScreen() {
         return () => clearTimeout(fallback)
     }, [])
 
-    if (!isMounted) return null
-
     return (
         <AnimatePresence>
             {isVisible && (
