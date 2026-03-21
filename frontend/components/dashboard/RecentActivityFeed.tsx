@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useCallback } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
 import { BabyRecord } from "@/types/record"
@@ -36,8 +37,6 @@ export const RecentActivityFeed = React.memo(function RecentActivityFeed({ recor
         threshold: 0.1
     })
 
-    // Handle record click to show detail dialog
-    // Optimized: Memoized to prevent re-rendering all ActivityItems when list grows
     const handleRecordClick = useCallback((record: BabyRecord) => {
         setSelectedRecord(record)
         setDialogOpen(true)
@@ -50,26 +49,38 @@ export const RecentActivityFeed = React.memo(function RecentActivityFeed({ recor
                     <CardTitle className="text-sm font-medium text-gray-700 dark:text-zinc-300">最近の記録</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? (
+                    {isLoading && recent.length === 0 ? (
                         <div className="flex justify-center py-8">
                             <BabyBottleLoading className="w-8 h-8 text-indigo-400" />
                         </div>
                     ) : recent.length > 0 ? (
                         <>
                             <ul className="space-y-3">
-                                {recent.map((record: BabyRecord, index: number) => (
-                                    <React.Fragment key={`${record.type}-${record.id}`}>
-                                        <ActivityItem
-                                            record={record}
-                                            onClick={handleRecordClick}
-                                        />
-                                        {(index + 1) % 10 === 0 && (
-                                            <li className="list-none">
-                                                <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID ?? ""} />
-                                            </li>
-                                        )}
-                                    </React.Fragment>
-                                ))}
+                                {/* initial={false}: マウント時の既存アイテムはアニメーションしない。新規追加分のみスライドイン */}
+                                <AnimatePresence initial={false} mode="popLayout">
+                                    {recent.map((record: BabyRecord, index: number) => (
+                                        <React.Fragment key={`${record.type}-${record.id}`}>
+                                            <motion.div
+                                                key={`motion-${record.type}-${record.id}`}
+                                                layout
+                                                initial={{ opacity: 0, y: -12 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                transition={{ duration: 0.22, ease: "easeOut" }}
+                                            >
+                                                <ActivityItem
+                                                    record={record}
+                                                    onClick={handleRecordClick}
+                                                />
+                                            </motion.div>
+                                            {(index + 1) % 10 === 0 && (
+                                                <li className="list-none">
+                                                    <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID ?? ""} />
+                                                </li>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </AnimatePresence>
                             </ul>
                             {hasMore ? (
                                 <div ref={sentinelRef} className="mt-3 flex justify-center py-1">
