@@ -25,6 +25,7 @@ import dynamic from "next/dynamic"
 import { resolveThreshold } from '@/lib/thresholdUtils'
 import { calcAge } from '@/lib/ageUtils'
 import { motion, AnimatePresence } from "framer-motion"
+import { DailyTipCard } from "@/components/dashboard/DailyTipCard"
 
 const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
     loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
@@ -188,6 +189,8 @@ export default function DashboardPage() {
                             </motion.div>
                         )}
                     </AnimatePresence>
+
+                    {born && <DailyTipCard ageMonths={ageMonths} />}
 
                     <RecentActivityFeed
                         babyId={actualBabyId}
