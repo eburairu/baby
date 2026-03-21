@@ -1695,6 +1695,12 @@ export interface components {
             diaper_type: components["schemas"]["DiaperType"];
             /** Notes */
             notes?: string | null;
+            /** Poop Amount */
+            poop_amount?: string | null;
+            /** Poop Color */
+            poop_color?: string | null;
+            /** Poop Consistency */
+            poop_consistency?: string | null;
         };
         /** DiaperResponse */
         DiaperResponse: {
@@ -1715,6 +1721,12 @@ export interface components {
             id: number;
             /** Notes */
             notes?: string | null;
+            /** Poop Amount */
+            poop_amount?: string | null;
+            /** Poop Color */
+            poop_color?: string | null;
+            /** Poop Consistency */
+            poop_consistency?: string | null;
             /** Recorded By Display Name */
             recorded_by_display_name?: string | null;
             /**
@@ -1737,6 +1749,12 @@ export interface components {
             diaper_type?: components["schemas"]["DiaperType"] | null;
             /** Notes */
             notes?: string | null;
+            /** Poop Amount */
+            poop_amount?: string | null;
+            /** Poop Color */
+            poop_color?: string | null;
+            /** Poop Consistency */
+            poop_consistency?: string | null;
         };
         /** FamilyAdminResponse */
         FamilyAdminResponse: {
