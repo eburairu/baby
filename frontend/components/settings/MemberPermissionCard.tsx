@@ -4,11 +4,7 @@ import { AlertTriangle } from "lucide-react"
 import type { MemberPermissions } from "@/hooks/usePermissionsPage"
 import { BabyAccessRow } from "./BabyAccessRow"
 import { SettingsCard } from "./SettingsCard"
-
-const ROLE_LABELS: Record<string, string> = {
-  member: "メンバー",
-  viewer: "閲覧者",
-}
+import { ROLE_LABELS } from "@/constants/ui"
 
 interface Props {
   member: MemberPermissions

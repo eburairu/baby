@@ -21,6 +21,7 @@ import { UserRole } from "@/lib/constants"
 import { FamilyMember } from "@/types/family"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { SettingsCard } from "./SettingsCard"
+import { ROLE_LABELS } from "@/constants/ui"
 
 interface Props {
     members: FamilyMember[]
@@ -73,7 +74,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                                 ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
                                                 : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400"}
                                     >
-                                        {member.role === UserRole.ADMIN ? "管理者" : member.role === UserRole.VIEWER ? "閲覧者" : "メンバー"}
+                                        {ROLE_LABELS[member.role] ?? member.role}
                                     </Badge>
                                 </div>
                                 <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">{formatDate(member.joined_at)}</p>
