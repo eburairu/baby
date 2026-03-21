@@ -12,17 +12,22 @@ interface TimerResponse {
   segment_start_time: string | null
 }
 
+const ACTIVE_INTERVAL_MS = 3000
+const IDLE_INTERVAL_MS = 15000
+
 /**
  * 授乳タイマーの状態をバックエンドから定期的に取得し、Zustand ストアに同期するフック。
+ * タイマー動作中は3秒、アイドル時は15秒でポーリングする。
  */
 export function useFeedingTimerSync(babyId: number | null) {
   const sync = useFeedingTimerStore((state) => state.sync)
+  const activeSide = useFeedingTimerStore((state) => state.activeSide)
 
   const { data, mutate, error } = useSWR<TimerResponse>(
     babyId ? `/babies/${babyId}/timer/feeding` : null,
     fetcher,
     {
-      refreshInterval: 3000,
+      refreshInterval: activeSide !== null ? ACTIVE_INTERVAL_MS : IDLE_INTERVAL_MS,
       revalidateOnFocus: true,
     }
   )
