@@ -43,7 +43,7 @@ export const HexagonWidgetCard = ({
     return (
         <div className={cn(
             "relative transition-all duration-300",
-            !isSkeleton && "hover:-translate-y-1",
+            !isSkeleton && "hover:-translate-y-1 active:scale-[0.95]",
             className
         )}>
             <Hexagon 
