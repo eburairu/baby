@@ -12,7 +12,7 @@ import { useTheme } from "next-themes"
 import { useMemo } from "react"
 import { formatDateLocal, subtractDays, isSameDay, formatMonthDaySlash } from "@/lib/dateUtils"
 import { StatsCard } from "@/components/ui/stats-card"
-import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
+import { ChartViewToggle, getChartViewTitle } from "@/components/charts/ChartViewToggle"
 import { RhythmChartView } from "@/components/charts/RhythmChartView"
 import { buildRhythmData, calcMedianIntervalMin } from "@/lib/rhythmUtils"
 import type { Sleep } from "@/types/sleep"
@@ -85,7 +85,7 @@ export function SleepChart({ sleeps }: SleepChartProps) {
         <StatsCard>
             <div className="mb-3 flex items-center justify-between">
                 <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
-                    {view === "trend" ? "7日間の推移" : "生活リズム（過去7日）"}
+                    {getChartViewTitle(view)}
                 </p>
                 <ChartViewToggle view={view} onChange={setView} />
             </div>
