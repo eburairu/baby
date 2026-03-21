@@ -36,6 +36,8 @@ class UnifiedRecord(BaseModel):
     timestamp: datetime
     details: dict
     comment_count: int = 0
+    has_ai_feedback: bool = False
+    has_ai_concern: bool = False
     recorded_by_display_name: Optional[str] = None
     updated_at: Optional[datetime] = None
 
@@ -337,6 +339,8 @@ def get_records(
 
     # Fetch comment counts ONLY for the truncated records
     comment_counts = {}
+    ai_feedback_set: set[tuple[str, int]] = set()
+    ai_concern_set: set[tuple[str, int]] = set()
     record_ids_by_type = defaultdict(list)
     for r in truncated_records:
         rec_id, rec_type = r[0], r[1]
@@ -365,6 +369,23 @@ def get_records(
 
                 for rt, rid, count in counts:
                     comment_counts[(rt, rid)] = count
+
+                            # AIフィードバック・AI警告フラグ: AIコメントが存在する記録を取得
+                ai_rows = db.query(
+                    RecordComment.record_type,
+                    RecordComment.record_id,
+                    RecordComment.ai_has_concern,
+                ).filter(
+                    RecordComment.baby_id == baby_id,
+                    RecordComment.is_ai_generated == True,
+                    RecordComment.is_deleted == False,
+                    or_(*conditions)
+                ).all()
+
+                for rt, rid, concern in ai_rows:
+                    ai_feedback_set.add((rt, rid))
+                    if concern:
+                        ai_concern_set.add((rt, rid))
             except Exception as e:
                 logger.warning("Failed to fetch comment counts for baby %s: %s", baby_id, e)
 
@@ -380,6 +401,8 @@ def get_records(
             timestamp=ts,
             details=details,
             comment_count=comment_counts.get((rec_type, rec_id), 0),
+            has_ai_feedback=(rec_type, rec_id) in ai_feedback_set,
+            has_ai_concern=(rec_type, rec_id) in ai_concern_set,
             recorded_by_display_name=user_map.get(user_id),
             updated_at=updated_at,
         )
