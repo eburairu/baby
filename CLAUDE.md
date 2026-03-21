@@ -22,23 +22,25 @@ Botoro — 家族単位で育児記録（授乳・睡眠・おむつ・成長等
 - 認証: Cookie ベース HttpOnly セッション（`UserSession` テーブル、7日有効）。`app/dependencies.py` の `get_current_user()` / `verify_baby_access()`
 - データ階層: `Family → User → Baby → Records`（Admin / Member ロール）
 
-## DB 接続（Neon）
+## DB 接続
 
-| ブランチ | 用途 | ID |
+| 環境 | 接続先 | 備考 |
 | --- | --- | --- |
-| `production` | 本番 | `br-restless-thunder-a1jvbo69` |
-| `develop` | ローカル開発 | `br-super-tooth-a1z3r2p7` |
+| ローカル開発 | Docker PostgreSQL (`localhost:5432`) | `docker compose up db` で起動 |
+| 本番 | Neon `production` ブランチ | `br-restless-thunder-a1jvbo69` |
 
-接続文字列は Neon MCP で取得:
+本番の接続文字列は Neon MCP で取得:
 
 ```text
-mcp__Neon__get_connection_string(projectId="still-feather-79533302", branchId="br-super-tooth-a1z3r2p7")
+mcp__Neon__get_connection_string(projectId="still-feather-79533302", branchId="br-restless-thunder-a1jvbo69")
 ```
 
 ## 環境起動
 
 ```bash
+docker compose up db -d          # ローカルDB起動
 source .venv/bin/activate && set -a && source .env && set +a
+npm run migrate                  # マイグレーション（初回・スキーマ変更時）
 uvicorn app.main:app --reload   # バックエンド（:8000）
 cd frontend && pnpm dev          # フロントエンド（:3000）
 ```
