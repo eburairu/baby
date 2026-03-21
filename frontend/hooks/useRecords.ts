@@ -33,7 +33,6 @@ export function useRecords(babyId: string | null) {
     // キャッシュをフォールバックデータとして渡すことで、初回ロード時もスケルトンをスキップできる
     const fallbackData = useMemo(
         () => (babyId ? readCache(babyId) : undefined),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         [babyId]
     )
 

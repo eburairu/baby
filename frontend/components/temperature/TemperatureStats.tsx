@@ -1,5 +1,5 @@
 import { Thermometer } from "lucide-react"
-import { Temperature, getFeverStatus, HIGH_FEVER_THRESHOLD, FEVER_THRESHOLD } from "@/types/temperature"
+import { Temperature, getFeverStatus } from "@/types/temperature"
 import { StatsCard } from "@/components/ui/stats-card"
 import { StatsBlock } from "@/components/ui/stats-block"
 import { formatElapsed } from "@/lib/ageUtils"
