@@ -46,7 +46,7 @@ export function WidgetCard({
     }
 
     return (
-        <Card className="clay-card hover:-translate-y-1 transition-all duration-300">
+        <Card className="clay-card hover:-translate-y-1 active:scale-[0.97] transition-all duration-300">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-sm font-medium flex items-center gap-1" data-sentry-unmask>
                     {title}

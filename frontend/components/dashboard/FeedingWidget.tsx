@@ -9,6 +9,7 @@ import { calcProgress, isOverThreshold } from "@/lib/indicatorUtils"
 import { AppIcons } from "@/constants/icons"
 import Link from "next/link"
 import { useTick } from "@/hooks/useTick"
+import { AnimatedNumber } from "@/components/ui/animated-number"
 
 export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isError, isLoading, size, thresholdMinutes }: BaseWidgetProps) {
     const tick = useTick()
@@ -44,7 +45,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
             >
                 <div className="flex flex-col items-center">
                     <span className="font-bold text-gray-800 dark:text-zinc-200">{lastElapsed}</span>
-                    <span className="text-[10px] text-gray-500 dark:text-zinc-500 mt-0.5">今日 {todayCount}回</span>
+                    <span className="text-[10px] text-gray-500 dark:text-zinc-500 mt-0.5">今日 <AnimatedNumber value={todayCount} />回</span>
                 </div>
             </HexagonWidgetCard>
         </Link>

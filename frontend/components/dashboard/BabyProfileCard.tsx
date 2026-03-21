@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useId } from "react"
+import { motion } from "framer-motion"
 import { Sparkles, ChevronDown } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { getPrenatalLabel } from "@/lib/babyUtils"
@@ -31,15 +32,20 @@ export const BabyProfileCard = React.memo(function BabyProfileCard({ babies, sel
         <div className="rounded-2xl p-4 transition-colors bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 shadow-sm border border-pink-100/50 dark:border-pink-900/20">
             <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-4">
-                    <Hexagon 
-                        size={60} 
-                        color="var(--primary)" 
-                        className="text-white"
-                        borderColor="var(--primary)"
-                        borderWidth={2}
+                    <motion.div
+                        animate={{ y: [0, -6, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                     >
-                        <span className="text-2xl font-bold">{initial}</span>
-                    </Hexagon>
+                        <Hexagon
+                            size={60}
+                            color="var(--primary)"
+                            className="text-white"
+                            borderColor="var(--primary)"
+                            borderWidth={2}
+                        >
+                            <span className="text-2xl font-bold">{initial}</span>
+                        </Hexagon>
+                    </motion.div>
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">{selected?.name}</h1>
                         {age ? (
