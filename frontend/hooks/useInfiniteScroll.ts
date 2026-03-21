@@ -34,7 +34,8 @@ export function useInfiniteScroll<T>(
 
         observer.observe(sentinel)
         return () => observer.disconnect()
-    }, [hasMore, visibleCount, step, threshold])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasMore, step, threshold])
 
     return {
         visibleItems,
