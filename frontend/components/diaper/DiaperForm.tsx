@@ -24,6 +24,7 @@ import { diaperSchema, DiaperFormValues } from "@/schemas/diaper"
 import { useBaseRecordForm } from "@/hooks/useBaseRecordForm"
 import { api } from "@/lib/api"
 import { PoopDetailsFields } from "./PoopDetailsFields"
+import { resolvePoopField } from "@/lib/diaperPoopUtils"
 
 
 interface Props {
@@ -32,26 +33,6 @@ interface Props {
     defaultDiaperType?: DiaperType
     onSuccess: (recordId?: number) => void
     onUpdate?: (id: number, data: DiaperUpdate) => Promise<Diaper | undefined>
-}
-
-function generateDiaperNotes(vals: DiaperFormValues, isEditing: boolean): string | null {
-    let finalNotes = vals.notes || ""
-    if (vals.diaper_type !== DiaperType.WET) {
-        const color = vals.poop_color === "その他" ? vals.custom_poop_color : vals.poop_color
-        const amount = vals.poop_amount === "その他" ? vals.custom_poop_amount : vals.poop_amount
-
-        if (!isEditing && (color || amount)) {
-            const prefixParts = []
-            if (color) prefixParts.push(`色: ${color}`)
-            if (amount) prefixParts.push(`量: ${amount}`)
-            const prefix = prefixParts.join("、")
-
-            if (prefix) {
-                finalNotes = prefix + (finalNotes ? "、" + finalNotes : "")
-            }
-        }
-    }
-    return finalNotes.trim() || null
 }
 
 interface DiaperTypeButtonProps {
@@ -81,6 +62,26 @@ function DiaperTypeButton({ type, selectedType, onClick, icon, label }: DiaperTy
     )
 }
 
+const EMPTY_POOP_VALUES = {
+    poop_color: "",
+    custom_poop_color: "",
+    poop_consistency: "",
+    custom_poop_consistency: "",
+    poop_amount: "",
+    custom_poop_amount: "",
+}
+
+function buildPoopPayload(vals: DiaperFormValues): { poop_color: string | null; poop_consistency: string | null; poop_amount: string | null } {
+    if (vals.diaper_type === DiaperType.WET) {
+        return { poop_color: null, poop_consistency: null, poop_amount: null }
+    }
+    return {
+        poop_color: resolvePoopField(vals.poop_color, vals.custom_poop_color),
+        poop_consistency: resolvePoopField(vals.poop_consistency, vals.custom_poop_consistency),
+        poop_amount: resolvePoopField(vals.poop_amount, vals.custom_poop_amount),
+    }
+}
+
 export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, onUpdate }: Props) {
     const isEditing = !!initialData
 
@@ -92,9 +93,11 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
                 ? formatDateTimeLocal(initialData.change_time)
                 : formatDateTimeLocal(new Date()),
             notes: initialData?.notes ?? "",
-            poop_color: "",
+            poop_color: initialData?.poop_color ?? "",
             custom_poop_color: "",
-            poop_amount: "",
+            poop_consistency: initialData?.poop_consistency ?? "",
+            custom_poop_consistency: "",
+            poop_amount: initialData?.poop_amount ?? "",
             custom_poop_amount: "",
         },
     })
@@ -110,10 +113,7 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
                     diaper_type: DiaperType.WET,
                     change_time: formatDateTimeLocal(new Date()),
                     notes: "",
-                    poop_color: "",
-                    custom_poop_color: "",
-                    poop_amount: "",
-                    custom_poop_amount: "",
+                    ...EMPTY_POOP_VALUES,
                 })
             }
             onSuccess((data as { id?: number })?.id)
@@ -128,20 +128,24 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
                 baby_id: Number(babyId),
                 diaper_type: vals.diaper_type,
                 change_time: new Date(vals.change_time).toISOString(),
-                notes: generateDiaperNotes(vals, isEditing),
+                notes: vals.notes?.trim() || null,
+                ...buildPoopPayload(vals),
             }),
             isEditing && initialData ? async (payload: DiaperCreate) => {
-                 const updatePayload: DiaperUpdate = {
-                     diaper_type: payload.diaper_type,
-                     change_time: payload.change_time,
-                     notes: payload.notes
-                 };
+                const updatePayload: DiaperUpdate = {
+                    diaper_type: payload.diaper_type,
+                    change_time: payload.change_time,
+                    notes: payload.notes,
+                    poop_color: payload.poop_color,
+                    poop_consistency: payload.poop_consistency,
+                    poop_amount: payload.poop_amount,
+                }
 
-                 if (onUpdate) {
-                     return await onUpdate(initialData.id, updatePayload)
-                 } else {
-                     return await api.put<Diaper>(`/diapers/${initialData.id}`, updatePayload)
-                 }
+                if (onUpdate) {
+                    return await onUpdate(initialData.id, updatePayload)
+                } else {
+                    return await api.put<Diaper>(`/diapers/${initialData.id}`, updatePayload)
+                }
             } : undefined)
         } catch (e) {
             // Error is handled by the hook
@@ -203,7 +207,7 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
                                 <FormItem>
                                     <FormLabel className="text-xs text-muted-foreground">メモ</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="色や量など..." {...field} />
+                                        <Input placeholder="その他のメモ..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

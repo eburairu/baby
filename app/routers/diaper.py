@@ -63,6 +63,9 @@ def create_diaper(
         change_time=diaper_in.change_time,
         diaper_type=diaper_in.diaper_type,
         notes=diaper_in.notes,
+        poop_color=diaper_in.poop_color,
+        poop_consistency=diaper_in.poop_consistency,
+        poop_amount=diaper_in.poop_amount,
     )
     db.add(new_diaper)
     db.flush()
@@ -131,6 +134,12 @@ def update_diaper(diaper_id: int, diaper_in: DiaperUpdate, db: Session = Depends
         diaper.diaper_type = diaper_in.diaper_type
     if diaper_in.notes is not None:
         diaper.notes = diaper_in.notes
+    if diaper_in.poop_color is not None:
+        diaper.poop_color = diaper_in.poop_color
+    if diaper_in.poop_consistency is not None:
+        diaper.poop_consistency = diaper_in.poop_consistency
+    if diaper_in.poop_amount is not None:
+        diaper.poop_amount = diaper_in.poop_amount
 
     db.commit()
     db.refresh(diaper)

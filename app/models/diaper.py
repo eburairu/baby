@@ -12,6 +12,9 @@ class Diaper(Base, SoftDeleteMixin, TimestampMixin):
     diaper_type = Column(Enum(DiaperType, name="diapertype"), nullable=False)
     notes = Column(String, nullable=True)
     baby_id = Column(Integer, ForeignKey("babies.id"), nullable=False)
+    poop_color = Column(String, nullable=True)
+    poop_consistency = Column(String, nullable=True)
+    poop_amount = Column(String, nullable=True)
 
     __table_args__ = (
         Index("idx_diaper_baby_time", "baby_id", "change_time"),
