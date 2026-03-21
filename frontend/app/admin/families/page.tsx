@@ -44,6 +44,7 @@ import { formatJapaneseDatePPP } from "@/lib/dateUtils";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useClipboard } from "@/hooks/useClipboard";
+import { ROLE_LABELS, GENDER_LABELS } from "@/constants/ui";
 
 interface FamilyAdminResponse {
   id: number;
@@ -83,18 +84,6 @@ interface FamilyDetailResponse {
   members: FamilyMemberResponse[];
   babies: BabyAdminResponse[];
 }
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: "管理者",
-  member: "メンバー",
-  viewer: "閲覧者",
-};
-
-const GENDER_LABELS: Record<string, string> = {
-  boy: "男の子",
-  girl: "女の子",
-  unknown: "不明",
-};
 
 function FamilyDetailSheet({
   familyId,

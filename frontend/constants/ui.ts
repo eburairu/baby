@@ -38,3 +38,15 @@ export const RECORD_TYPE_BG_COLORS = {
 } as const;
 
 export const RECORD_TYPE_LUCIDE_ICONS: Record<keyof typeof RECORD_TYPE_LABELS, LucideIcon> = RECORD_TYPE_ICONS;
+
+export const ROLE_LABELS: Record<string, string> = {
+  admin: '管理者',
+  member: 'メンバー',
+  viewer: '閲覧者',
+} as const;
+
+export const GENDER_LABELS: Record<string, string> = {
+  boy: '男の子',
+  girl: '女の子',
+  unknown: '不明',
+} as const;
