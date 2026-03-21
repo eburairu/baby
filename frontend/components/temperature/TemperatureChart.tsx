@@ -16,7 +16,7 @@ import { Temperature, FEVER_THRESHOLD, HIGH_FEVER_THRESHOLD, getFeverStatus } fr
 import { useMemo, useState } from "react"
 import { useTheme } from "next-themes"
 import { getChartGridColor, getChartTextColor, getChartTooltipStyle } from "@/components/charts/ChartStyles"
-import { formatDateTime, formatTime, subtractDays } from "@/lib/dateUtils"
+import { formatDateTime, subtractDays } from "@/lib/dateUtils"
 
 interface Props {
     temperatures: Temperature[]
