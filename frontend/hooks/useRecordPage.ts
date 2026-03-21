@@ -6,7 +6,7 @@ import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
 import { useHydratedStore } from "@/hooks/useHydratedStore"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 
 /**
  * 記録ページ共通のデータ解決および権限チェックフック
@@ -15,9 +15,18 @@ export function useRecordPage() {
     const searchParams = useSearchParams()
     const { babies, isLoading: babiesLoading } = useBabies()
     const selectedBabyId = useHydratedStore(useBabyStore, (s) => s.selectedBabyId, null)
+    const setSelectedBabyId = useBabyStore((s) => s.setSelectedBabyId)
     const { canWrite } = usePermissions()
 
     const paramBabyId = searchParams.get("baby_id")
+
+    // URLパラメータの baby_id をストアに同期する
+    // これにより記録ページからダッシュボードに戻っても選択状態が維持される
+    useEffect(() => {
+        if (paramBabyId) {
+            setSelectedBabyId(paramBabyId)
+        }
+    }, [paramBabyId, setSelectedBabyId])
     const commentRecordIdStr = searchParams.get("comment")
 
     // 赤ちゃんIDの解決ロジック:
