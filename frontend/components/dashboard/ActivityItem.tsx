@@ -3,7 +3,7 @@ import React from "react"
 import { BabyRecord } from "@/types/record"
 import { formatElapsed } from "@/lib/ageUtils"
 import { formatDateTime } from "@/lib/dateUtils"
-import { MessageCircle, User, StickyNote } from "lucide-react"
+import { MessageCircle, User, StickyNote, Bot, TriangleAlert } from "lucide-react"
 import { RECORD_TYPE_LABELS, RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_COLORS, RECORD_TYPE_BG_COLORS } from "@/constants/ui"
 import { AppIcons } from "@/constants/icons"
 import { Hexagon } from "@/components/ui/hexagon"
@@ -63,11 +63,26 @@ export const ActivityItem = React.memo(function ActivityItem({ record, onClick }
                                 {record.recorded_by_display_name}
                             </span>
                         ) : null}
+                        {record.has_ai_concern ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700">
+                                <TriangleAlert className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                                    AI要確認
+                                </span>
+                            </span>
+                        ) : record.has_ai_feedback ? (
+                            <span className="inline-flex items-center gap-1">
+                                <Bot className="w-3 h-3 text-indigo-400" />
+                                <span className="text-[10px] font-medium text-indigo-500 dark:text-indigo-400">
+                                    AIフィードバック
+                                </span>
+                            </span>
+                        ) : null}
                         {record.comment_count > 0 ? (
                             <span className="inline-flex items-center gap-1">
                                 <MessageCircle className="w-3 h-3 text-orange-400" />
                                 <span className="text-[10px] font-medium text-orange-500">
-                                    {record.comment_count}件のメッセージ
+                                    {record.comment_count}件
                                 </span>
                             </span>
                         ) : null}

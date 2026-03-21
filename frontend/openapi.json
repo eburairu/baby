@@ -3639,6 +3639,16 @@
             "title": "Details",
             "type": "object"
           },
+          "has_ai_concern": {
+            "default": false,
+            "title": "Has Ai Concern",
+            "type": "boolean"
+          },
+          "has_ai_feedback": {
+            "default": false,
+            "title": "Has Ai Feedback",
+            "type": "boolean"
+          },
           "id": {
             "title": "Id",
             "type": "integer"

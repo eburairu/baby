@@ -2476,6 +2476,16 @@ export interface components {
             details: {
                 [key: string]: unknown;
             };
+            /**
+             * Has Ai Concern
+             * @default false
+             */
+            has_ai_concern: boolean;
+            /**
+             * Has Ai Feedback
+             * @default false
+             */
+            has_ai_feedback: boolean;
             /** Id */
             id: number;
             /** Recorded By Display Name */
