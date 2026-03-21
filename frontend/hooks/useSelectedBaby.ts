@@ -7,6 +7,9 @@ export function useSelectedBaby() {
   const { babies, isLoading, isError, mutate } = useBabies()
   const selectedBabyId = useHydratedStore(useBabyStore, (s) => s.selectedBabyId, null)
   const setSelectedBabyId = useBabyStore((s) => s.setSelectedBabyId)
+  // ストアの生の値（ハイドレーション前でも localStorage から同期的に読み込まれる）
+  // useEffect 内のガード条件にのみ使用し、レンダリング出力には使わない
+  const rawSelectedBabyId = useBabyStore((s) => s.selectedBabyId)
 
   // storeに未保存でもbabiesが取得できていれば同期的にIDを確定させる。
   // useEffect経由のsetState→再レンダリング待ちをなくすことで、
@@ -14,12 +17,15 @@ export function useSelectedBaby() {
   const effectiveSelectedBabyId =
     selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
 
-  // storeへの永続化は引き続き行う（次回マウント時にuseEffect待ちを省くため）
+  // rawSelectedBabyId でガードすることで、ハイドレーション前に selectedBabyId が
+  // null になる期間に storeを上書きしてしまうバグを防ぐ
+  // （useHydratedStore はハイドレーション完了まで null を返すため、
+  //   selectedBabyId で判定すると記録ページで設定した値が消える）
   useEffect(() => {
-    if (babies && babies.length > 0 && !selectedBabyId) {
+    if (babies && babies.length > 0 && !rawSelectedBabyId) {
       setSelectedBabyId(String(babies[0].id))
     }
-  }, [babies, selectedBabyId, setSelectedBabyId])
+  }, [babies, rawSelectedBabyId, setSelectedBabyId])
 
   const selectedBaby = babies?.find(b => String(b.id) === effectiveSelectedBabyId)
 
