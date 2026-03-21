@@ -4,7 +4,7 @@
   "description": "家族で共有する育児記録アプリ",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#1a182a",
   "theme_color": "#4F46E5",
   "icons": [
     {
