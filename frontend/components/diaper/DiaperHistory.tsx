@@ -52,9 +52,28 @@ export function DiaperHistory({
                     </div>
                 );
             }}
-            renderDetails={(d) => d.notes ? (
-                <div className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">{d.notes}</div>
-            ) : null}
+            renderDetails={(d) => {
+                const tags = [d.poop_color, d.poop_consistency, d.poop_amount].filter(Boolean)
+                const hasTags = tags.length > 0
+                const hasNotes = !!d.notes
+                if (!hasTags && !hasNotes) return null
+                return (
+                    <div className="mt-0.5 space-y-1">
+                        {hasTags && (
+                            <div className="flex flex-wrap gap-1">
+                                {tags.map((tag) => (
+                                    <span key={tag} className="inline-block px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        {hasNotes && (
+                            <div className="text-xs text-gray-600 dark:text-zinc-400">{d.notes}</div>
+                        )}
+                    </div>
+                )
+            }}
             renderEditDialog={(target, open, setOpen) => (
                 <DiaperEditDialog
                     diaper={target}

@@ -138,6 +138,111 @@ def test_delete_diaper(client: TestClient, auth_client, db):
     assert record is not None
     assert record.is_deleted is True
 
+def test_create_diaper_with_poop_details(client: TestClient, auth_client):
+    """うんち詳細フィールド（色・状態・量）を持つDiaperの作成テスト"""
+    client = auth_client()
+    baby_res = client.post("/api/babies/", json={"name": "テスト赤ちゃん", "gender": "boy"})
+    assert baby_res.status_code == 200
+    baby_id = baby_res.json()["id"]
+
+    resp = client.post(
+        "/api/diapers/",
+        json={
+            "baby_id": baby_id,
+            "change_time": datetime.now(timezone.utc).isoformat(),
+            "diaper_type": "DIRTY",
+            "poop_color": "黄色",
+            "poop_consistency": "やわらかい",
+            "poop_amount": "普通",
+        }
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["poop_color"] == "黄色"
+    assert data["poop_consistency"] == "やわらかい"
+    assert data["poop_amount"] == "普通"
+
+
+def test_poop_details_null_for_wet(client: TestClient, auth_client):
+    """WETタイプのDiaperではpoop詳細がnullであることを確認"""
+    client = auth_client()
+    baby_res = client.post("/api/babies/", json={"name": "テスト赤ちゃん", "gender": "boy"})
+    baby_id = baby_res.json()["id"]
+
+    resp = client.post(
+        "/api/diapers/",
+        json={
+            "baby_id": baby_id,
+            "change_time": datetime.now(timezone.utc).isoformat(),
+            "diaper_type": "WET",
+        }
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["poop_color"] is None
+    assert data["poop_consistency"] is None
+    assert data["poop_amount"] is None
+
+
+def test_update_diaper_poop_details(client: TestClient, auth_client):
+    """DiaperのPUT APIでpoop詳細フィールドを更新できることを確認"""
+    client = auth_client()
+    baby_res = client.post("/api/babies/", json={"name": "テスト赤ちゃん", "gender": "boy"})
+    baby_id = baby_res.json()["id"]
+
+    resp = client.post(
+        "/api/diapers/",
+        json={
+            "baby_id": baby_id,
+            "change_time": datetime.now(timezone.utc).isoformat(),
+            "diaper_type": "DIRTY",
+        }
+    )
+    diaper_id = resp.json()["id"]
+
+    update_resp = client.put(
+        f"/api/diapers/{diaper_id}",
+        json={
+            "poop_color": "緑",
+            "poop_amount": "多量",
+            "poop_consistency": "水様",
+        }
+    )
+    assert update_resp.status_code == 200
+    data = update_resp.json()
+    assert data["poop_color"] == "緑"
+    assert data["poop_amount"] == "多量"
+    assert data["poop_consistency"] == "水様"
+
+
+def test_poop_details_in_list_response(client: TestClient, auth_client):
+    """GETのレスポンスにpoop詳細フィールドが含まれることを確認"""
+    client = auth_client()
+    baby_res = client.post("/api/babies/", json={"name": "テスト赤ちゃん", "gender": "boy"})
+    baby_id = baby_res.json()["id"]
+
+    client.post(
+        "/api/diapers/",
+        json={
+            "baby_id": baby_id,
+            "change_time": datetime.now(timezone.utc).isoformat(),
+            "diaper_type": "BOTH",
+            "poop_color": "茶色",
+            "poop_amount": "少量",
+        }
+    )
+
+    resp = client.get(f"/api/diapers/?baby_id={baby_id}")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) >= 1
+    assert "poop_color" in data[0]
+    assert "poop_consistency" in data[0]
+    assert "poop_amount" in data[0]
+    assert data[0]["poop_color"] == "茶色"
+    assert data[0]["poop_amount"] == "少量"
+
+
 def test_diaper_access_control(client: TestClient, auth_client):
     # ユーザー1が赤ちゃんを登録
     client1 = auth_client(username="user1", family_name="Family1")

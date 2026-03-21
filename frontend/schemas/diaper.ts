@@ -7,6 +7,8 @@ export const diaperSchema = z.object({
     notes: z.string().optional(),
     poop_color: z.string().optional(),
     custom_poop_color: z.string().optional(),
+    poop_consistency: z.string().optional(),
+    custom_poop_consistency: z.string().optional(),
     poop_amount: z.string().optional(),
     custom_poop_amount: z.string().optional(),
 })
