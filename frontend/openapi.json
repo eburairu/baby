@@ -1268,6 +1268,42 @@
               }
             ],
             "title": "Notes"
+          },
+          "poop_amount": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Amount"
+          },
+          "poop_color": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Color"
+          },
+          "poop_consistency": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Consistency"
           }
         },
         "required": [
@@ -1312,6 +1348,42 @@
               }
             ],
             "title": "Notes"
+          },
+          "poop_amount": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Amount"
+          },
+          "poop_color": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Color"
+          },
+          "poop_consistency": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Consistency"
           },
           "recorded_by_display_name": {
             "anyOf": [
@@ -1392,6 +1464,42 @@
               }
             ],
             "title": "Notes"
+          },
+          "poop_amount": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Amount"
+          },
+          "poop_color": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Color"
+          },
+          "poop_consistency": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poop Consistency"
           }
         },
         "title": "DiaperUpdate",

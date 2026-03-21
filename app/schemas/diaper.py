@@ -12,6 +12,9 @@ class DiaperCreate(BaseModel):
     change_time: datetime
     diaper_type: DiaperType
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
+    poop_color: Optional[str] = Field(None, max_length=50)
+    poop_consistency: Optional[str] = Field(None, max_length=50)
+    poop_amount: Optional[str] = Field(None, max_length=50)
 
     @field_validator('change_time', mode='before')
     @classmethod
@@ -23,6 +26,9 @@ class DiaperUpdate(BaseModel):
     change_time: Optional[datetime] = None
     diaper_type: Optional[DiaperType] = None
     notes: Optional[str] = Field(None, max_length=NOTE_MAX_LENGTH)
+    poop_color: Optional[str] = Field(None, max_length=50)
+    poop_consistency: Optional[str] = Field(None, max_length=50)
+    poop_amount: Optional[str] = Field(None, max_length=50)
 
     @field_validator('change_time', mode='before')
     @classmethod
