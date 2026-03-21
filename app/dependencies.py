@@ -52,11 +52,10 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
         response.delete_cookie("access_token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session invalidated due to User-Agent change")
 
-    # Sliding session: extend expiration if remaining time is less than threshold
-    # (e.g., if SESSION_EXPIRE_DAYS is 7, update only if less than 6 days remaining)
+    # Sliding session: extend expiration only when less than 1 day remaining
     expires_at = ensure_aware(session.expires_at)
-    
-    threshold = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS - 1)
+
+    threshold = datetime.now(timezone.utc) + timedelta(days=1)
     if expires_at < threshold:
         session.expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRE_DAYS)
         db.commit()

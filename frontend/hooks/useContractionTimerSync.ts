@@ -11,20 +11,25 @@ interface TimerResponse {
     start_time: string | null
 }
 
+const ACTIVE_INTERVAL_MS = 3000
+const IDLE_INTERVAL_MS = 15000
+
 /**
  * バックエンドの陣痛タイマー状態をポーリング同期するフック
- * 
+ * タイマー動作中は3秒、アイドル時は15秒でポーリングする。
+ *
  * @param babyId 赤ちゃんのID
  * @returns mutate: 手動更新関数, error: エラーオブジェクト
  */
 export function useContractionTimerSync(babyId: number | null) {
     const sync = useContractionTimer(state => state.sync)
+    const timerStatus = useContractionTimer(state => state.status)
 
     const { data, mutate, error } = useSWR<TimerResponse>(
         babyId ? `/babies/${babyId}/timer/contraction` : null,
         fetcher,
         {
-            refreshInterval: 3000,
+            refreshInterval: timerStatus === 'timing' ? ACTIVE_INTERVAL_MS : IDLE_INTERVAL_MS,
             revalidateOnFocus: true,
         }
     )
