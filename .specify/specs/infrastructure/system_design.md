@@ -100,6 +100,8 @@ baby-app/
 - **`timestamp`**: 記録の主たる日時
 - **`details`**: 種別ごとの詳細データ（`notes` など）を格納するオブジェクト
 - **`comment_count`**: 記録に対するコメント数
+- **`has_ai_feedback`**: AIからのフィードバックが存在するかどうか
+- **`has_ai_concern`**: AIからの懸念事項（受診勧奨など）が存在するかどうか
 - **`recorded_by_display_name`**: 記録者の表示名
 - **`updated_at`**: 記録の最終更新日時
 
