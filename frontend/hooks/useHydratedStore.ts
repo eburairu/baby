@@ -26,6 +26,7 @@ export function useHydratedStore<T, F>(
   const value = store(selector)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsHydrated(true)
   }, [])
 
