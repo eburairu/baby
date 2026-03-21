@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { ChevronDown, ChevronUp, Lightbulb } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./collapsible"
