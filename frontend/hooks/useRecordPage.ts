@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation"
 import { useBabies } from "@/hooks/useBabies"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useBabyStore } from "@/stores/babyStore"
+import { useHydratedStore } from "@/hooks/useHydratedStore"
 import { useRecordFeedback } from "@/hooks/useRecordFeedback"
 import { useMemo } from "react"
 
@@ -13,7 +14,7 @@ import { useMemo } from "react"
 export function useRecordPage() {
     const searchParams = useSearchParams()
     const { babies, isLoading: babiesLoading } = useBabies()
-    const { selectedBabyId } = useBabyStore()
+    const selectedBabyId = useHydratedStore(useBabyStore, (s) => s.selectedBabyId, null)
     const { canWrite } = usePermissions()
 
     const paramBabyId = searchParams.get("baby_id")
