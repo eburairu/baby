@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, with_loader_criteria, Session as ORMSession
+from sqlalchemy.pool import NullPool
 from app.models.base import SoftDeleteMixin
 
 import os
@@ -12,8 +13,7 @@ if not SQLALCHEMY_DATABASE_URL:
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"options": "-c timezone=Asia/Tokyo"},
-    pool_pre_ping=True,
-    pool_recycle=3600,
+    poolclass=NullPool,
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
