@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useSWRConfig } from 'swr'
 import { api } from '@/lib/api'
-import { useOfflineSyncStore } from '@/stores/offlineSyncStore'
+import { useOfflineSyncStore, type PendingOperation } from '@/stores/offlineSyncStore'
+import { useHydratedStore } from '@/hooks/useHydratedStore'
 
 /**
  * オフライン状態を検出し、復帰時にキューをフラッシュするフック。
@@ -11,7 +12,12 @@ export function useOfflineSync() {
     const [isOnline, setIsOnline] = useState(
         typeof navigator !== 'undefined' ? navigator.onLine : true
     )
-    const { pendingOps, removeOp } = useOfflineSyncStore()
+    const pendingOps = useHydratedStore(
+        useOfflineSyncStore,
+        (s) => s.pendingOps,
+        [] as PendingOperation[]
+    )
+    const removeOp = useOfflineSyncStore((s) => s.removeOp)
     const { mutate } = useSWRConfig()
 
     const flush = useCallback(async () => {

@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { useBabies } from '@/hooks/useBabies'
 import { useBabyStore } from '@/stores/babyStore'
+import { useHydratedStore } from '@/hooks/useHydratedStore'
 
 export function useSelectedBaby() {
   const { babies, isLoading, isError, mutate } = useBabies()
-  const { selectedBabyId, setSelectedBabyId } = useBabyStore()
+  const selectedBabyId = useHydratedStore(useBabyStore, (s) => s.selectedBabyId, null)
+  const setSelectedBabyId = useBabyStore((s) => s.setSelectedBabyId)
 
   // storeに未保存でもbabiesが取得できていれば同期的にIDを確定させる。
   // useEffect経由のsetState→再レンダリング待ちをなくすことで、
