@@ -185,6 +185,8 @@ interface UnifiedRecord {
   type: "feeding" | "sleep" | "diaper" | "growth" | "note" | "contraction";
   timestamp: string; // ISO 8601 (JST)
   comment_count: number;
+  has_ai_feedback: boolean;
+  has_ai_concern: boolean;
   recorded_by_display_name: string | null;
   updated_at: string | null;
   details: RecordDetails; // 各タイプに応じた詳細情報

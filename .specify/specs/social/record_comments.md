@@ -94,6 +94,8 @@ class UnifiedRecord(BaseModel):
     timestamp: datetime
     details: dict
     comment_count: int = 0  # 追加
+    has_ai_feedback: bool = False
+    has_ai_concern: bool = False
     recorded_by_display_name: Optional[str] = None
     updated_at: Optional[datetime] = None
 
