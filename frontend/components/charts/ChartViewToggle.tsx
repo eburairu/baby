@@ -2,6 +2,19 @@
 
 export type ChartView = "trend" | "rhythm" | "compare"
 
+export function getChartViewTitle(view: ChartView): string {
+    switch (view) {
+        case "trend":
+            return "7日間の推移"
+        case "rhythm":
+            return "生活リズム（過去7日）"
+        case "compare":
+            return "今日 vs 7日平均"
+        default:
+            return ""
+    }
+}
+
 const VIEWS: { key: ChartView; label: string }[] = [
     { key: "trend", label: "推移" },
     { key: "rhythm", label: "リズム" },

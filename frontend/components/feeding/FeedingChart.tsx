@@ -14,7 +14,7 @@ import { useTheme } from "next-themes"
 import { useMemo } from "react"
 import { formatDateLocal } from "@/lib/dateUtils"
 import { StatsCard } from "@/components/ui/stats-card"
-import { ChartViewToggle } from "@/components/charts/ChartViewToggle"
+import { ChartViewToggle, getChartViewTitle } from "@/components/charts/ChartViewToggle"
 import { RhythmChartView } from "@/components/charts/RhythmChartView"
 import { calculateDailyStats, normalizeFeedingFromEntity, buildFeedingHourlyComparison } from "@/lib/feedingUtils"
 import { buildRhythmData, calcMedianIntervalMin } from "@/lib/rhythmUtils"
@@ -106,7 +106,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
         <StatsCard>
             <div className="mb-3 flex items-center justify-between">
                 <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
-                    {view === "trend" ? "7日間の推移" : view === "rhythm" ? "生活リズム（過去7日）" : "今日 vs 7日平均"}
+                    {getChartViewTitle(view)}
                 </p>
                 <ChartViewToggle view={view} onChange={setView} />
             </div>
