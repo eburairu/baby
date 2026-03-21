@@ -85,6 +85,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                         variant="outline"
                                         className="text-xs dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                                         onClick={() => setRoleDialogTarget(member)}
+                                        aria-label={`${getDisplayName(member)}の権限を変更`}
                                     >
                                         ロール変更
                                     </Button>
@@ -92,6 +93,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                         size="sm"
                                         className="text-xs bg-red-500 hover:bg-red-600 text-white shadow-none"
                                         onClick={() => setDeleteTarget(member)}
+                                        aria-label={`${getDisplayName(member)}を家族から削除`}
                                     >
                                         削除
                                     </Button>
@@ -100,6 +102,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                         variant="outline"
                                         className="text-xs dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
                                         onClick={() => setPasswordResetTarget(member)}
+                                        aria-label={`${getDisplayName(member)}のパスワードを再発行`}
                                     >
                                         PW再発行
                                     </Button>

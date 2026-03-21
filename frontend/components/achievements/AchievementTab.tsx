@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import useSWR from "swr"
 import { fetcher } from "@/lib/api"
 import { RARITY_COLOR, RARITY_LABEL, CATEGORY_LABEL } from "@/lib/achievements"
@@ -33,6 +33,18 @@ export function AchievementTab({ babyId }: AchievementTabProps) {
     )
     const [selected, setSelected] = useState<BabyAchievementResponse | null>(null)
 
+    // カテゴリ別にグループ化
+    const grouped = useMemo(() => {
+        if (!data) return {}
+        return CATEGORY_ORDER.reduce<Record<string, BabyAchievementResponse[]>>(
+            (acc, cat) => {
+                acc[cat] = data.filter((a) => a.category === cat)
+                return acc
+            },
+            {}
+        )
+    }, [data])
+
     if (isLoading) {
         return (
             <div className="py-8 text-center text-sm text-gray-400 dark:text-zinc-500">
@@ -54,15 +66,6 @@ export function AchievementTab({ babyId }: AchievementTabProps) {
             </div>
         )
     }
-
-    // カテゴリ別にグループ化
-    const grouped = CATEGORY_ORDER.reduce<Record<string, BabyAchievementResponse[]>>(
-        (acc, cat) => {
-            acc[cat] = data.filter((a) => a.category === cat)
-            return acc
-        },
-        {}
-    )
 
     return (
         <>

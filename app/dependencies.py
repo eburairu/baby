@@ -72,9 +72,9 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
             max_age=SESSION_EXPIRE_DAYS * 24 * 3600
         )
 
-    user = db.query(User).filter(User.id == session.user_id).first()
+    user = db.query(User).filter(User.id == session.user_id, User.is_deleted == False).first()  # noqa: E712
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or account is deleted")
     return user
 
 

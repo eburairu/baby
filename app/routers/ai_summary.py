@@ -39,10 +39,40 @@ daily_summary_limiter = RateLimiter(
     error_message="Too many daily summary requests. Please try again later.",
 )
 
+
+def daily_summary_limit_check(
+    baby_id: int,
+    body: DailySummaryCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    AI日誌生成のレート制限チェック。
+    is_edited=True の既存レコードがある場合はAIを呼び出さないため、制限を消費しない。
+    """
+    existing = (
+        db.query(DailySummary)
+        .filter(
+            DailySummary.baby_id == baby_id,
+            DailySummary.summary_date == body.summary_date,
+        )
+        .first()
+    )
+    if existing and existing.is_edited:
+        return
+
+    daily_summary_limiter.check(f"user_{current_user.id}")
+
+
 router = APIRouter(prefix="/api/babies/{baby_id}/daily-summary", tags=["daily-summary"])
 
 
-@router.post("", response_model=DailySummaryResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=DailySummaryResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(daily_summary_limit_check)],
+)
 def create_or_get_daily_summary(
     baby_id: int,
     body: DailySummaryCreate,
@@ -77,10 +107,6 @@ def create_or_get_daily_summary(
     # 編集済みの場合は再生成せず既存を返す（AI呼び出し不要のためレート制限も不要）
     if existing and existing.is_edited:
         return existing
-
-    # AIエンドポイントへのDoS攻撃や、OpenAI APIの課金コスト枯渇を防ぐためのレート制限
-    # 実際にAI生成が必要な場合のみチェックする
-    daily_summary_limiter.check(f"user_{current_user.id}")
 
     try:
         generated_content, model_name = generate_daily_summary(
