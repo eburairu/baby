@@ -13,12 +13,12 @@ const HEX_R = 5
 const DAYS_BACK = 13
 
 const TYPE_COLORS: Record<string, string> = {
-    feeding:     "#f97316",
-    sleep:       "#6366f1",
-    diaper:      "#f59e0b",
-    growth:      "#22c55e",
-    note:        "#a855f7",
-    contraction: "#f43f5e",
+    feeding:     "#f43f5e",  // rose-500
+    sleep:       "#6366f1",  // indigo-500
+    diaper:      "#f59e0b",  // amber-500
+    growth:      "#10b981",  // emerald-500
+    note:        "#3b82f6",  // blue-500
+    contraction: "#f97316",  // orange-500
 }
 
 // --- 物理レイアウト計算 ---
