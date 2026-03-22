@@ -10,7 +10,8 @@ def test_join_family_lowercase_fails(client):
     invite_code = res.json()["invite_code"]
 
     # Verify invite code is uppercase (as per previous fix)
-    assert invite_code.isupper()
+    # isupper() は letter を含まない文字列（全数字 hex など）で False を返すため == upper() で比較する
+    assert invite_code == invite_code.upper()
 
     # 2. Join family with lowercase invite code
     # This should fail if the backend does not normalize input
