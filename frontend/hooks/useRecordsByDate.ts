@@ -9,14 +9,13 @@ export function useRecordsByDate(
     records: BabyRecord[] | undefined,
     date: Date
 ): BabyRecord[] {
+    const dateStr = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
     return useMemo(() => {
         if (!records) return []
-        const y = date.getFullYear()
-        const m = date.getMonth()
-        const d = date.getDate()
+        const [y, m, d] = dateStr.split("-").map(Number)
         return records.filter(r => {
             const t = new Date(r.timestamp)
             return t.getFullYear() === y && t.getMonth() === m && t.getDate() === d
         })
-    }, [records, date.getFullYear(), date.getMonth(), date.getDate()])
+    }, [records, dateStr])
 }

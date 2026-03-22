@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback } from "react"
 import dynamic from "next/dynamic"
 import { BabyRecord } from "@/types/record"
 import { useRecordsByDate } from "@/hooks/useRecordsByDate"
@@ -40,7 +40,7 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
     const [selectedDate, setSelectedDate] = useState<Date>(today)
     const [selectedRecord, setSelectedRecord] = useState<BabyRecord | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
-    const jarHandleRef = useRef<JarCanvasHandle | null>(null)
+    const [jarHandle, setJarHandle] = useState<JarCanvasHandle | null>(null)
 
     const dayRecords = useRecordsByDate(records, selectedDate)
 
@@ -48,11 +48,11 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
         date.setHours(0, 0, 0, 0)
         setSelectedDate(date)
         // 日付切り替え時にボディをクリア（JarCanvas 側は records 変化を検知して再投下）
-        jarHandleRef.current?.clearAll()
+        setJarHandle(prev => { prev?.clearAll(); return prev })
     }, [])
 
     const handleReady = useCallback((handle: JarCanvasHandle) => {
-        jarHandleRef.current = handle
+        setJarHandle(handle)
     }, [])
 
     const handleSelect = useCallback((record: BabyRecord) => {
@@ -79,7 +79,7 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
                     {/* Layer 3: DOM 六角形オーバーレイ */}
                     <JarHexTokenOverlay
                         records={dayRecords}
-                        jarHandle={jarHandleRef.current}
+                        jarHandle={jarHandle}
                         onSelect={handleSelect}
                     />
                 </div>
