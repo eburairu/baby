@@ -39,13 +39,13 @@ export function JarDateNav({ date, onChange }: Props) {
 
     return (
         <div className="flex items-center justify-between px-1 mb-2">
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prev}>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prev} aria-label="前日へ" title="前日へ">
                 <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-sm font-medium text-gray-600 dark:text-zinc-300 min-w-[4rem] text-center">
                 {formatDate(date)}
             </span>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled={isToday} onClick={next}>
+            <Button variant="ghost" size="icon" className="h-7 w-7" disabled={isToday} onClick={next} aria-label="翌日へ" title="翌日へ">
                 <ChevronRight className="h-4 w-4" />
             </Button>
         </div>
