@@ -28,6 +28,16 @@ export const RECORD_TYPE_COLORS = {
   [RECORD_TYPES.CONTRACTION]: 'text-orange-500 dark:text-orange-400',
 } as const;
 
+/** RECORD_TYPE_COLORS の hex 値版（SVG stroke / fill など CSS クラスが使えない箇所用） */
+export const RECORD_TYPE_HEX_COLORS: Record<string, string> = {
+  [RECORD_TYPES.FEEDING]:     '#f43f5e', // rose-500
+  [RECORD_TYPES.SLEEP]:       '#6366f1', // indigo-500
+  [RECORD_TYPES.DIAPER]:      '#f59e0b', // amber-500
+  [RECORD_TYPES.GROWTH]:      '#10b981', // emerald-500
+  [RECORD_TYPES.NOTE]:        '#3b82f6', // blue-500
+  [RECORD_TYPES.CONTRACTION]: '#f97316', // orange-500
+};
+
 export const RECORD_TYPE_BG_COLORS = {
   [RECORD_TYPES.FEEDING]: 'text-orange-100 dark:text-orange-950/40',
   [RECORD_TYPES.SLEEP]: 'text-indigo-100 dark:text-indigo-950/40',
