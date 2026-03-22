@@ -3,6 +3,7 @@
 import { useMemo, useEffect, useState } from "react"
 import { BabyRecord } from "@/types/record"
 import { useShelfRecords } from "@/hooks/useShelfRecords"
+import { RECORD_TYPE_HEX_COLORS } from "@/constants/ui"
 
 // ミニ瓶の寸法定数（物理・描画共通）
 const MINI_W = 68
@@ -11,15 +12,6 @@ const MINI_WALL = 6
 const MINI_NECK_H = 10
 const HEX_R = 5
 const DAYS_BACK = 13
-
-const TYPE_COLORS: Record<string, string> = {
-    feeding:     "#f43f5e",  // rose-500
-    sleep:       "#6366f1",  // indigo-500
-    diaper:      "#f59e0b",  // amber-500
-    growth:      "#10b981",  // emerald-500
-    note:        "#3b82f6",  // blue-500
-    contraction: "#f97316",  // orange-500
-}
 
 // --- 物理レイアウト計算 ---
 
@@ -214,9 +206,9 @@ function JarThumbnail({ date, records, selected, onClick }: JarThumbnailProps) {
                         <polygon
                             key={token.id}
                             points={hexPolygonPoints(token.x, token.y, HEX_R, token.angle)}
-                            fill={TYPE_COLORS[token.type] ?? "#9ca3af"}
+                            fill={RECORD_TYPE_HEX_COLORS[token.type] ?? "#9ca3af"}
                             fillOpacity={0.88}
-                            stroke={TYPE_COLORS[token.type] ?? "#9ca3af"}
+                            stroke={RECORD_TYPE_HEX_COLORS[token.type] ?? "#9ca3af"}
                             strokeOpacity={0.5}
                             strokeWidth={0.8}
                         />

@@ -5,7 +5,7 @@ import { type LucideIcon, StickyNote, HandHeart, Milk, Droplets, Biohazard, Smil
 import { BabyRecord } from "@/types/record"
 import { JarCanvasHandle, JAR_WIDTH, JAR_HEIGHT } from "./JarCanvas"
 import { Hexagon } from "@/components/ui/hexagon"
-import { RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_BG_COLORS, RECORD_TYPE_COLORS } from "@/constants/ui"
+import { RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_BG_COLORS, RECORD_TYPE_COLORS, RECORD_TYPE_HEX_COLORS } from "@/constants/ui"
 import { cn } from "@/lib/utils"
 
 // トークンサイズ（Hexagon size, pointy-top）
@@ -97,6 +97,7 @@ function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: Baby
     const icon = getRecordIcon(token.record)
     const bgClass = RECORD_TYPE_BG_COLORS[type] ?? "text-gray-100 dark:text-zinc-800"
     const colorClass = RECORD_TYPE_COLORS[type] ?? "text-muted-foreground"
+    const hexColor = RECORD_TYPE_HEX_COLORS[type] ?? "#9ca3af"
 
     // Hexagon size=HEX_SIZE の pointy-top: width = HEX_SIZE * √3/2, height = HEX_SIZE
     const hexW = HEX_SIZE * Math.sqrt(3) / 2
@@ -123,6 +124,8 @@ function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: Baby
                 size={HEX_SIZE}
                 cornerRadius={5}
                 pointy
+                borderColor={`${hexColor}80`}
+                borderWidth={1.5}
                 className={cn("shrink-0", bgClass)}
             >
                 {createElement(icon, { className: cn("h-4 w-4", colorClass), "aria-hidden": true })}
