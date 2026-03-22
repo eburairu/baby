@@ -4,7 +4,7 @@ Core constants for the application.
 
 # Pagination
 DEFAULT_PAGINATION_LIMIT = 20
-MAX_PAGINATION_LIMIT = 100
+MAX_PAGINATION_LIMIT = 500
 
 # API
 API_TIMEOUT_MS = 30000

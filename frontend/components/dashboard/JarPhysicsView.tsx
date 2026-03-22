@@ -91,7 +91,7 @@ export function JarPhysicsView({ babyId, records, isLoading, mutate }: Props) {
             )}
 
             <JarShelf
-                records={records}
+                babyId={babyId}
                 selectedDate={selectedDate}
                 onDateChange={handleDateChange}
             />
