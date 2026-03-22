@@ -10,7 +10,6 @@ from app.models.enums import UserRole
 from app.models.user import User, UserSession
 from app.utils.timezone import ensure_aware
 from app.utils.session import hash_token
-from app.utils.audit import get_client_ip
 from app.config import SESSION_EXPIRE_DAYS, COOKIE_SECURE
 
 
@@ -36,21 +35,6 @@ def get_current_user(request: Request, response: Response, db: db_dependency):
     ).first()
     if not session:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
-
-    current_ip = get_client_ip(request)
-    current_ua = request.headers.get("user-agent")
-
-    if session.ip_address and current_ip and session.ip_address != current_ip:
-        db.delete(session)
-        db.commit()
-        response.delete_cookie("access_token")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session invalidated due to IP change")
-
-    if session.user_agent and current_ua and session.user_agent != current_ua:
-        db.delete(session)
-        db.commit()
-        response.delete_cookie("access_token")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session invalidated due to User-Agent change")
 
     # Sliding session: extend expiration only when less than 1 day remaining
     expires_at = ensure_aware(session.expires_at)
