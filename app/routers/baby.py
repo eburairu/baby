@@ -227,6 +227,10 @@ def get_records(
     # (id, type, user_id, timestamp, details, comment_count_placeholder)
     raw_records: list[tuple] = []
 
+    # ⚡ Bolt Optimization:
+    # パフォーマンス課題: 各レコードタイプごとに最大500件(MAX_PAGINATION_LIMIT)取得すると、メモリ消費とDBからのデータ転送量が無駄に増大していた。
+    # 解決策: 返却に必要な最新 `limit` 件を満たすためには、各テーブルから降順で `limit` 件だけ取得すれば、結合後に最新 `limit` 件が必ず含まれるため正確性は保証される。
+    # 影響: 各クエリの fetch 件数が MAX(500) から要求された limit (デフォルト20) へ減少し、DB負荷およびアプリケーションメモリ消費を大幅に削減できる。
     if can_view_type("feeding"):
         # Select only necessary columns to avoid overhead of full ORM object creation
         feeding_q = db.query(
@@ -240,7 +244,7 @@ def get_records(
             feeding_q = feeding_q.filter(Feeding.feeding_time >= date_start)
             if date_end:
                 feeding_q = feeding_q.filter(Feeding.feeding_time < date_end)
-        for feeding in feeding_q.order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        for feeding in feeding_q.order_by(Feeding.feeding_time.desc()).limit(limit).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -264,7 +268,7 @@ def get_records(
             sleep_q = sleep_q.filter(Sleep.start_time >= date_start)
             if date_end:
                 sleep_q = sleep_q.filter(Sleep.start_time < date_end)
-        for sleep in sleep_q.order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        for sleep in sleep_q.order_by(Sleep.start_time.desc()).limit(limit).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
@@ -286,7 +290,7 @@ def get_records(
             diaper_q = diaper_q.filter(Diaper.change_time >= date_start)
             if date_end:
                 diaper_q = diaper_q.filter(Diaper.change_time < date_end)
-        for diaper in diaper_q.order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        for diaper in diaper_q.order_by(Diaper.change_time.desc()).limit(limit).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
@@ -309,7 +313,7 @@ def get_records(
             growth_q = growth_q.filter(Growth.date >= date_start.date())
             if date_end:
                 growth_q = growth_q.filter(Growth.date < date_end.date())
-        for growth in growth_q.order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        for growth in growth_q.order_by(Growth.date.desc()).limit(limit).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -334,7 +338,7 @@ def get_records(
             note_q = note_q.filter(Note.note_time >= date_start)
             if date_end:
                 note_q = note_q.filter(Note.note_time < date_end)
-        for note in note_q.order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        for note in note_q.order_by(Note.note_time.desc()).limit(limit).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
@@ -356,7 +360,7 @@ def get_records(
             contraction_q = contraction_q.filter(Contraction.start_time >= date_start)
             if date_end:
                 contraction_q = contraction_q.filter(Contraction.start_time < date_end)
-        for c in contraction_q.order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        for c in contraction_q.order_by(Contraction.start_time.desc()).limit(limit).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {
