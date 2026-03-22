@@ -22,6 +22,12 @@ export function SplashScreen() {
     }, [isMounted, isLoading])
 
     useEffect(() => {
+        // Reactマウント後に静的スプラッシュ（#initial-splash）を削除してReactスプラッシュに引き継ぐ
+        const el = document.getElementById('initial-splash')
+        if (el) el.remove()
+    }, [])
+
+    useEffect(() => {
         // ネットワーク障害等でローディングが永久にハングした場合のフォールバック
         const fallback = setTimeout(() => {
             setIsVisible(false)
