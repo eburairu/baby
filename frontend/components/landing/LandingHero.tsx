@@ -72,10 +72,13 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     className="relative mx-auto lg:mx-0 flex flex-col items-center gap-4"
                 >
                     {/* 切り替えタブ */}
-                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-900 rounded-full p-1 border border-slate-200 dark:border-zinc-800">
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-900 rounded-full p-1 border border-slate-200 dark:border-zinc-800" role="tablist" aria-label="プレビュー端末の切り替え">
                         <button
+                            role="tab"
+                            id="tab-desktop"
+                            aria-controls="panel-desktop"
                             onClick={() => setActiveView("desktop")}
-                            aria-pressed={activeView === "desktop"}
+                            aria-selected={activeView === "desktop"}
                             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
                                 activeView === "desktop"
                                     ? "bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-100 shadow-sm"
@@ -86,8 +89,11 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                             デスクトップ
                         </button>
                         <button
+                            role="tab"
+                            id="tab-mobile"
+                            aria-controls="panel-mobile"
                             onClick={() => setActiveView("mobile")}
-                            aria-pressed={activeView === "mobile"}
+                            aria-selected={activeView === "mobile"}
                             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
                                 activeView === "mobile"
                                     ? "bg-white dark:bg-zinc-800 text-slate-800 dark:text-slate-100 shadow-sm"
@@ -105,6 +111,9 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     {activeView === "desktop" && (
                         <motion.div
                             key="desktop"
+                            role="tabpanel"
+                            id="panel-desktop"
+                            aria-labelledby="tab-desktop"
                             initial={{ opacity: 0, scale: 0.97 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.25 }}
@@ -132,6 +141,9 @@ export function LandingHero({ isLoggedIn = false }: LandingHeroProps) {
                     {activeView === "mobile" && (
                         <motion.div
                             key="mobile"
+                            role="tabpanel"
+                            id="panel-mobile"
+                            aria-labelledby="tab-mobile"
                             initial={{ opacity: 0, scale: 0.97 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.25 }}
