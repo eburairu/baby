@@ -11,8 +11,8 @@ const JAR_INNER_W = JAR_WIDTH - WALL_THICK * 2
 export const DROP_X_CENTER = JAR_WIDTH / 2
 export const DROP_Y_START = 10
 
-// Hexagon size=36 (pointy-top) の外接円半径。height/2 = 18
-const HEX_RADIUS = 18
+// Hexagon size=44 (pointy-top) の外接円半径。height/2 = 22
+const HEX_RADIUS = 22
 
 type BodyMap = Map<number, Body>
 
