@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { BabyRecord } from "@/types/record"
 import { useRecordsByDate } from "@/hooks/useRecordsByDate"
 import { JarDateNav } from "./JarDateNav"
+import { JarShelf } from "./JarShelf"
 import type { JarCanvasHandle } from "./JarCanvas"
 import { JAR_WIDTH, JAR_HEIGHT } from "./JarCanvas"
 import { BabyBottleLoading } from "@/components/ui/baby-bottle-loading"
@@ -88,6 +89,12 @@ export function JarPhysicsView({ babyId, records, isLoading, mutate }: Props) {
             {dayRecords.length === 0 && !isLoading && !dateLoading && (
                 <p className="text-sm text-gray-400 dark:text-zinc-500 mt-3">この日の記録はありません</p>
             )}
+
+            <JarShelf
+                records={records}
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+            />
 
             <RecordDetailDialog
                 record={selectedRecord}
