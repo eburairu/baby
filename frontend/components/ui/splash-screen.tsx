@@ -22,9 +22,12 @@ export function SplashScreen() {
     }, [isMounted, isLoading])
 
     useEffect(() => {
-        // Reactマウント後に静的スプラッシュ（#initial-splash）を削除してReactスプラッシュに引き継ぐ
+        // Reactマウント後に静的スプラッシュ（#initial-splash）を非表示にしてReactスプラッシュに引き継ぐ。
+        // el.remove() はReact管理のDOMノードをfiberツリーの外から削除するため、
+        // 後続のinsertBefore呼び出し時にDOMExceptionを引き起こす。
+        // display:noneで非表示にすることでDOMに残したまま視覚的に隠す。
         const el = document.getElementById('initial-splash')
-        if (el) el.remove()
+        if (el) el.style.display = 'none'
     }, [])
 
     useEffect(() => {
