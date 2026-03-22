@@ -73,10 +73,36 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||((!t||t==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();`,
           }}
         />
+        <style dangerouslySetInnerHTML={{ __html: `
+          #initial-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: oklch(0.98 0.012 350);
+          }
+          .dark #initial-splash {
+            background-color: oklch(0.18 0.04 280);
+          }
+          #initial-splash-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #f472b6, #fb7185, #e879f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+        `}} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} antialiased`}
       >
+        <div id="initial-splash" aria-hidden="true">
+          <span id="initial-splash-title">Botoro</span>
+        </div>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
