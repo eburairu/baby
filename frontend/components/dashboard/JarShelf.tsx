@@ -1,25 +1,43 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useEffect, useState } from "react"
 import { BabyRecord } from "@/types/record"
+import { useShelfRecords } from "@/hooks/useShelfRecords"
 
-// ミニ瓶のサイズ定数
+// ミニ瓶の寸法定数（物理・描画共通）
 const MINI_W = 68
 const MINI_H = 96
 const MINI_WALL = 6
-const MINI_NECK_W = 22
 const MINI_NECK_H = 10
+const HEX_R = 5
+const DAYS_BACK = 13
 
-const TYPE_DOT_COLORS: Record<string, string> = {
-    feeding: "#f97316",   // orange-500
-    sleep: "#6366f1",     // indigo-500
-    diaper: "#f59e0b",    // amber-500
-    growth: "#22c55e",    // green-500
-    note: "#a855f7",      // purple-500
-    contraction: "#f43f5e", // rose-500
+const TYPE_COLORS: Record<string, string> = {
+    feeding:     "#f97316",
+    sleep:       "#6366f1",
+    diaper:      "#f59e0b",
+    growth:      "#22c55e",
+    note:        "#a855f7",
+    contraction: "#f43f5e",
 }
 
-// 線形合同法による再現性ある疑似乱数
+// --- 物理レイアウト計算 ---
+
+interface PhysicsToken {
+    id: number
+    type: BabyRecord["type"]
+    x: number
+    y: number
+    angle: number
+}
+
+function miniHexVertices(R: number) {
+    return Array.from({ length: 6 }, (_, i) => {
+        const a = (Math.PI / 3) * i - Math.PI / 2
+        return { x: R * Math.cos(a), y: R * Math.sin(a) }
+    })
+}
+
 function seededRng(seed: number) {
     let s = seed >>> 0
     return () => {
@@ -28,36 +46,94 @@ function seededRng(seed: number) {
     }
 }
 
-function calcDots(records: BabyRecord[]) {
+async function computePhysicsLayout(records: BabyRecord[]): Promise<PhysicsToken[]> {
+    if (records.length === 0) return []
+
+    const Matter = await import("matter-js")
+    const decomp = await import("poly-decomp")
+    Matter.Common.setDecomp(decomp.default ?? decomp)
+
+    const engine = Matter.Engine.create({ gravity: { y: 1.5 } })
+    const wallOpts = { isStatic: true, friction: 0.5, restitution: 0.05 }
+    const innerW = MINI_W - MINI_WALL * 2
+
+    Matter.Composite.add(engine.world, [
+        Matter.Bodies.rectangle(MINI_WALL / 2, MINI_H / 2, MINI_WALL, MINI_H, wallOpts),
+        Matter.Bodies.rectangle(MINI_W - MINI_WALL / 2, MINI_H / 2, MINI_WALL, MINI_H, wallOpts),
+        Matter.Bodies.rectangle(MINI_W / 2, MINI_H - MINI_WALL / 2, MINI_W, MINI_WALL, wallOpts),
+    ])
+
     const rng = seededRng(records.reduce((acc, r) => acc + r.id, 42))
-    const innerX = MINI_WALL + 2
-    const innerW = MINI_W - MINI_WALL * 2 - 4
-    const innerY = MINI_NECK_H + 2
-    const innerH = MINI_H - MINI_NECK_H - MINI_WALL - 4
-    return records.slice(0, 24).map(r => ({
-        x: innerX + rng() * innerW,
-        y: innerY + rng() * innerH,
-        color: TYPE_DOT_COLORS[r.type] ?? "#9ca3af",
-    }))
+    const hexVerts = miniHexVertices(HEX_R)
+    const bodyToRecord = new Map<number, BabyRecord>()
+
+    const sorted = [...records].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    )
+
+    for (const record of sorted) {
+        const x = MINI_WALL + HEX_R + rng() * (innerW - HEX_R * 2)
+        const y = MINI_NECK_H + HEX_R
+        const body = Matter.Bodies.fromVertices(x, y, [hexVerts], {
+            restitution: 0.08,
+            friction: 0.6,
+            density: 0.004,
+            frictionAir: 0.12,
+        }, true)
+        Matter.Body.setPosition(body, { x, y })
+        Matter.Composite.add(engine.world, body)
+        bodyToRecord.set(body.id, record)
+    }
+
+    const dt = 1000 / 60
+    for (let i = 0; i < 250; i++) {
+        Matter.Engine.update(engine, dt)
+    }
+
+    const result: PhysicsToken[] = []
+    for (const body of Matter.Composite.allBodies(engine.world)) {
+        if (body.isStatic) continue
+        const record = bodyToRecord.get(body.id)
+        if (record) {
+            result.push({
+                id: record.id,
+                type: record.type,
+                x: body.position.x,
+                y: body.position.y,
+                angle: body.angle,
+            })
+        }
+    }
+
+    Matter.Engine.clear(engine)
+    return result
 }
 
-interface MiniJarVisualProps {
-    selected: boolean
+// --- SVG 六角形ポリゴンのポイント計算 ---
+
+function hexPolygonPoints(cx: number, cy: number, r: number, angle: number): string {
+    return Array.from({ length: 6 }, (_, i) => {
+        const a = angle + (Math.PI / 3) * i - Math.PI / 2
+        return `${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`
+    }).join(" ")
 }
 
-function MiniJarVisual({ selected }: MiniJarVisualProps) {
+// --- ミニ瓶 SVG ビジュアル ---
+
+function MiniJarVisual({ selected }: { selected: boolean }) {
     const w = MINI_W
     const h = MINI_H
-    const neckX = (w - MINI_NECK_W) / 2
+    const neckW = 22
+    const neckX = (w - neckW) / 2
     const r = 4
 
     const path = [
         `M ${neckX} ${MINI_NECK_H}`,
         `L ${neckX} 2`,
         `Q ${neckX} 0 ${neckX + 2} 0`,
-        `L ${neckX + MINI_NECK_W - 2} 0`,
-        `Q ${neckX + MINI_NECK_W} 0 ${neckX + MINI_NECK_W} 2`,
-        `L ${neckX + MINI_NECK_W} ${MINI_NECK_H}`,
+        `L ${neckX + neckW - 2} 0`,
+        `Q ${neckX + neckW} 0 ${neckX + neckW} 2`,
+        `L ${neckX + neckW} ${MINI_NECK_H}`,
         `L ${w - r} ${MINI_NECK_H}`,
         `Q ${w} ${MINI_NECK_H} ${w} ${MINI_NECK_H + r}`,
         `L ${w} ${h - r}`,
@@ -70,12 +146,11 @@ function MiniJarVisual({ selected }: MiniJarVisualProps) {
     ].join(" ")
 
     const stroke = selected ? "rgba(99,102,241,0.85)" : "rgba(147,197,253,0.5)"
-    const fill = selected ? "rgba(199,210,254,0.18)" : "rgba(186,230,253,0.1)"
-    const strokeW = selected ? 1.5 : 1
+    const fill   = selected ? "rgba(199,210,254,0.18)" : "rgba(186,230,253,0.1)"
 
     return (
         <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
-            <path d={path} fill={fill} stroke={stroke} strokeWidth={strokeW} />
+            <path d={path} fill={fill} stroke={stroke} strokeWidth={selected ? 1.5 : 1} />
             <rect x={0} y={MINI_NECK_H} width={MINI_WALL} height={h - MINI_NECK_H} fill="rgba(186,230,253,0.08)" />
             <rect x={w - MINI_WALL} y={MINI_NECK_H} width={MINI_WALL} height={h - MINI_NECK_H} fill="rgba(186,230,253,0.08)" />
             <rect x={0} y={h - MINI_WALL} width={w} height={MINI_WALL} fill="rgba(186,230,253,0.08)" />
@@ -83,6 +158,8 @@ function MiniJarVisual({ selected }: MiniJarVisualProps) {
         </svg>
     )
 }
+
+// --- JarThumbnail ---
 
 interface JarThumbnailProps {
     date: Date
@@ -92,7 +169,18 @@ interface JarThumbnailProps {
 }
 
 function JarThumbnail({ date, records, selected, onClick }: JarThumbnailProps) {
-    const dots = useMemo(() => calcDots(records), [records])
+    const [tokens, setTokens] = useState<PhysicsToken[] | null>(null)
+
+    const recordKey = records.map(r => r.id).sort().join(",")
+
+    useEffect(() => {
+        let cancelled = false
+        computePhysicsLayout(records).then(result => {
+            if (!cancelled) setTokens(result)
+        })
+        return () => { cancelled = true }
+        // recordKey で変化を検知する
+    }, [recordKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const label = useMemo(() => {
         const today = new Date()
@@ -108,32 +196,47 @@ function JarThumbnail({ date, records, selected, onClick }: JarThumbnailProps) {
             onClick={onClick}
             className={[
                 "flex flex-col items-center gap-1 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded",
-                selected ? "scale-105" : "hover:scale-103 active:scale-95",
+                selected ? "scale-105" : "hover:scale-105 active:scale-95",
             ].join(" ")}
             aria-pressed={selected}
             title={`${date.getMonth() + 1}/${date.getDate()}の記録`}
         >
             <div style={{ position: "relative", width: MINI_W, height: MINI_H }}>
                 <MiniJarVisual selected={selected} />
+
                 <svg
                     width={MINI_W}
                     height={MINI_H}
                     style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
                     aria-hidden
                 >
-                    {dots.map((dot, i) => (
-                        <circle key={i} cx={dot.x} cy={dot.y} r={2.5} fill={dot.color} fillOpacity={0.85} />
+                    {tokens?.map(token => (
+                        <polygon
+                            key={token.id}
+                            points={hexPolygonPoints(token.x, token.y, HEX_R, token.angle)}
+                            fill={TYPE_COLORS[token.type] ?? "#9ca3af"}
+                            fillOpacity={0.88}
+                        />
                     ))}
+                    {tokens === null && records.length > 0 && (
+                        <text x={MINI_W / 2} y={MINI_H / 2 + 4} textAnchor="middle" fontSize={9} fill="rgba(147,197,253,0.6)">…</text>
+                    )}
                 </svg>
+
                 {records.length === 0 && (
                     <div
-                        style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: MINI_NECK_H }}
+                        style={{
+                            position: "absolute", inset: 0,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            paddingTop: MINI_NECK_H,
+                        }}
                         className="pointer-events-none"
                     >
                         <span className="text-[10px] text-gray-300 dark:text-zinc-600">空</span>
                     </div>
                 )}
             </div>
+
             <span className={`text-[10px] font-medium leading-none tabular-nums ${selected ? "text-indigo-500 dark:text-indigo-400" : "text-gray-400 dark:text-zinc-500"}`}>
                 {label}
             </span>
@@ -141,29 +244,29 @@ function JarThumbnail({ date, records, selected, onClick }: JarThumbnailProps) {
     )
 }
 
+// --- JarShelf ---
+
 interface JarShelfProps {
-    records: BabyRecord[] | undefined
+    babyId: string
     selectedDate: Date
     onDateChange: (date: Date) => void
-    daysBack?: number
 }
 
-export function JarShelf({ records, selectedDate, onDateChange, daysBack = 13 }: JarShelfProps) {
-    // 今日から daysBack 日前まで（新しい順: 今日が先頭）
+export function JarShelf({ babyId, selectedDate, onDateChange }: JarShelfProps) {
+    const { records } = useShelfRecords(babyId, DAYS_BACK)
+
     const dates = useMemo(() => {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        return Array.from({ length: daysBack + 1 }, (_, i) => {
+        return Array.from({ length: DAYS_BACK + 1 }, (_, i) => {
             const d = new Date(today)
             d.setDate(today.getDate() - i)
             return d
         })
-    }, [daysBack])
+    }, [])
 
-    // records を日付キーでグループ化
     const recordsByKey = useMemo(() => {
         const map = new Map<string, BabyRecord[]>()
-        if (!records) return map
         for (const r of records) {
             const t = new Date(r.timestamp)
             const key = `${t.getFullYear()}-${t.getMonth()}-${t.getDate()}`
@@ -180,7 +283,7 @@ export function JarShelf({ records, selectedDate, onDateChange, daysBack = 13 }:
         <div className="w-full mt-3">
             <div
                 className="flex gap-2.5 overflow-x-auto pb-3 px-3"
-                style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+                style={{ scrollbarWidth: "none" } as React.CSSProperties}
             >
                 {dates.map(date => {
                     const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
@@ -197,7 +300,6 @@ export function JarShelf({ records, selectedDate, onDateChange, daysBack = 13 }:
                     )
                 })}
             </div>
-            {/* 棚板 */}
             <div className="h-[2px] mx-3 rounded-full bg-gradient-to-r from-transparent via-sky-300/40 dark:via-sky-700/30 to-transparent" />
         </div>
     )
