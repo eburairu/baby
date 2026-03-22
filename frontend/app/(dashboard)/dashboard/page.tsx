@@ -27,7 +27,7 @@ import { calcAge } from '@/lib/ageUtils'
 import { motion, AnimatePresence } from "framer-motion"
 import { DailyTipCard } from "@/components/dashboard/DailyTipCard"
 
-const RecentActivityFeed = dynamic(() => import("@/components/dashboard/RecentActivityFeed").then(mod => mod.RecentActivityFeed), {
+const RecordViewTabs = dynamic(() => import("@/components/dashboard/RecordViewTabs").then(mod => mod.RecordViewTabs), {
     loading: () => <Skeleton className="h-64 w-full rounded-2xl" />,
     ssr: false
 })
@@ -192,7 +192,7 @@ export default function DashboardPage() {
 
                     {born && <DailyTipCard ageMonths={ageMonths} />}
 
-                    <RecentActivityFeed
+                    <RecordViewTabs
                         babyId={actualBabyId}
                         records={records}
                         isLoading={recordsLoading}
