@@ -31,8 +31,8 @@ def test_session_binding_success(client: TestClient):
     )
     assert response2.status_code == 200
 
-def test_session_binding_different_ip(client: TestClient):
-    # Register to get a user
+def test_session_valid_with_different_ip(client: TestClient):
+    """IPが変わってもセッションは有効なままであることを確認（ロードバランサー環境対応）"""
     client.post(
         "/api/auth/register/family",
         json={
@@ -43,7 +43,6 @@ def test_session_binding_different_ip(client: TestClient):
     )
     client.cookies.clear()
 
-    # Login
     response = client.post(
         "/api/auth/login",
         json={"username": "session_user_2", "password": "password123"},
@@ -51,17 +50,17 @@ def test_session_binding_different_ip(client: TestClient):
     )
     assert response.status_code == 200
     token = response.cookies.get("access_token")
-    
-    # Access with different IP
+
+    # 異なるIPでも認証が通ること（ロードバランサーノード変更を想定）
     client.cookies.set("access_token", token)
     response2 = client.get(
         "/api/auth/me",
         headers={"User-Agent": "TestBrowser/1.0", "X-Forwarded-For": "10.0.0.2"}
     )
-    assert response2.status_code == 401
+    assert response2.status_code == 200
 
-def test_session_binding_different_ua(client: TestClient):
-    # Register to get a user
+def test_session_valid_with_different_ua(client: TestClient):
+    """User-Agentが変わってもセッションは有効なままであることを確認（ブラウザ更新対応）"""
     client.post(
         "/api/auth/register/family",
         json={
@@ -72,7 +71,6 @@ def test_session_binding_different_ua(client: TestClient):
     )
     client.cookies.clear()
 
-    # Login
     response = client.post(
         "/api/auth/login",
         json={"username": "session_user_3", "password": "password123"},
@@ -80,11 +78,11 @@ def test_session_binding_different_ua(client: TestClient):
     )
     assert response.status_code == 200
     token = response.cookies.get("access_token")
-    
-    # Access with different User-Agent
+
+    # 異なるUser-Agentでも認証が通ること（ブラウザアップデート等を想定）
     client.cookies.set("access_token", token)
     response2 = client.get(
         "/api/auth/me",
-        headers={"User-Agent": "HackerBrowser/9.9", "X-Forwarded-For": "192.168.1.1"}
+        headers={"User-Agent": "TestBrowser/2.0", "X-Forwarded-For": "192.168.1.1"}
     )
-    assert response2.status_code == 401
+    assert response2.status_code == 200
