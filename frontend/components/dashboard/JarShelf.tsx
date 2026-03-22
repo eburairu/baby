@@ -216,6 +216,9 @@ function JarThumbnail({ date, records, selected, onClick }: JarThumbnailProps) {
                             points={hexPolygonPoints(token.x, token.y, HEX_R, token.angle)}
                             fill={TYPE_COLORS[token.type] ?? "#9ca3af"}
                             fillOpacity={0.88}
+                            stroke={TYPE_COLORS[token.type] ?? "#9ca3af"}
+                            strokeOpacity={0.5}
+                            strokeWidth={0.8}
                         />
                     ))}
                     {tokens === null && records.length > 0 && (
