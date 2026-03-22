@@ -181,14 +181,15 @@ def delete_baby(baby_id: int, db: Session = Depends(get_db), current_user: User 
 def get_records(
     baby_id: int,
     limit: int = Query(DEFAULT_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
-    date: Optional[str] = Query(None, description="YYYY-MM-DD形式の日付フィルタ"),
+    date: Optional[str] = Query(None, description="YYYY-MM-DD形式の日付フィルタ（1日分）"),
+    from_date: Optional[str] = Query(None, description="YYYY-MM-DD形式の開始日フィルタ（以降すべて）"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     # "baby" レベルのアクセスチェック（record_type="baby" はデフォルトなので変更不要）
     verify_baby_access(db, baby_id, current_user.id)
 
-    # date パラメータが指定された場合は当日の UTC 範囲に変換（JST 基準）
+    # date / from_date パラメータを JST 基準で日時範囲に変換
     date_start: Optional[datetime] = None
     date_end: Optional[datetime] = None
     if date:
@@ -196,6 +197,11 @@ def get_records(
         parsed = date_type.fromisoformat(date)
         date_start = datetime.combine(parsed, datetime.min.time()).replace(tzinfo=JST)
         date_end = date_start + timedelta(days=1)
+    elif from_date:
+        from datetime import date as date_type
+        parsed = date_type.fromisoformat(from_date)
+        date_start = datetime.combine(parsed, datetime.min.time()).replace(tzinfo=JST)
+        # date_end は None のままにして上限なしフィルタにする
 
     family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
     is_admin = (family_user and family_user.role == UserRole.ADMIN) or current_user.is_superadmin
@@ -231,7 +237,9 @@ def get_records(
             Feeding.is_deleted == False
         )
         if date_start:
-            feeding_q = feeding_q.filter(Feeding.feeding_time >= date_start, Feeding.feeding_time < date_end)
+            feeding_q = feeding_q.filter(Feeding.feeding_time >= date_start)
+            if date_end:
+                feeding_q = feeding_q.filter(Feeding.feeding_time < date_end)
         for feeding in feeding_q.order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
@@ -253,7 +261,9 @@ def get_records(
             Sleep.is_deleted == False
         )
         if date_start:
-            sleep_q = sleep_q.filter(Sleep.start_time >= date_start, Sleep.start_time < date_end)
+            sleep_q = sleep_q.filter(Sleep.start_time >= date_start)
+            if date_end:
+                sleep_q = sleep_q.filter(Sleep.start_time < date_end)
         for sleep in sleep_q.order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
@@ -273,7 +283,9 @@ def get_records(
             Diaper.is_deleted == False
         )
         if date_start:
-            diaper_q = diaper_q.filter(Diaper.change_time >= date_start, Diaper.change_time < date_end)
+            diaper_q = diaper_q.filter(Diaper.change_time >= date_start)
+            if date_end:
+                diaper_q = diaper_q.filter(Diaper.change_time < date_end)
         for diaper in diaper_q.order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
@@ -293,8 +305,10 @@ def get_records(
             Growth.baby_id == baby_id,
             Growth.is_deleted == False
         )
-        if date_start and date_end:
-            growth_q = growth_q.filter(Growth.date >= date_start.date(), Growth.date < date_end.date())
+        if date_start:
+            growth_q = growth_q.filter(Growth.date >= date_start.date())
+            if date_end:
+                growth_q = growth_q.filter(Growth.date < date_end.date())
         for growth in growth_q.order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
@@ -317,7 +331,9 @@ def get_records(
             Note.is_deleted == False
         )
         if date_start:
-            note_q = note_q.filter(Note.note_time >= date_start, Note.note_time < date_end)
+            note_q = note_q.filter(Note.note_time >= date_start)
+            if date_end:
+                note_q = note_q.filter(Note.note_time < date_end)
         for note in note_q.order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
@@ -337,7 +353,9 @@ def get_records(
             Contraction.is_deleted == False
         )
         if date_start:
-            contraction_q = contraction_q.filter(Contraction.start_time >= date_start, Contraction.start_time < date_end)
+            contraction_q = contraction_q.filter(Contraction.start_time >= date_start)
+            if date_end:
+                contraction_q = contraction_q.filter(Contraction.start_time < date_end)
         for c in contraction_q.order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
