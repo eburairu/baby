@@ -9,9 +9,10 @@ import { useHydratedStore } from '@/hooks/useHydratedStore'
  * アプリのルートに一度だけマウントすることを想定。
  */
 export function useOfflineSync() {
-    const [isOnline, setIsOnline] = useState(
-        typeof navigator !== 'undefined' ? navigator.onLine : true
-    )
+    // SSR安全: Node.js 21+ は navigator オブジェクトが存在するが navigator.onLine は undefined。
+    // サーバーで falsy になるとオフラインバナーがSSG HTMLに含まれてHydrationミスマッチが起きるため
+    // 初期値を true に固定し、マウント後のuseEffectで実際のオンライン状態を反映する。
+    const [isOnline, setIsOnline] = useState(true)
     const pendingOps = useHydratedStore(
         useOfflineSyncStore,
         (s) => s.pendingOps,
@@ -44,6 +45,9 @@ export function useOfflineSync() {
     }, [mutate])
 
     useEffect(() => {
+        // マウント直後に実際のオンライン状態を反映する（SSRとの差分を解消）
+        setIsOnline(navigator.onLine)
+
         const handleOnline = () => {
             setIsOnline(true)
             void flush()
