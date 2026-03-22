@@ -3,26 +3,13 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { BabyRecord } from "@/types/record"
 import { JarCanvasHandle, JAR_WIDTH, JAR_HEIGHT } from "./JarCanvas"
+import { Hexagon } from "@/components/ui/hexagon"
+import { RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_BG_COLORS, RECORD_TYPE_COLORS } from "@/constants/ui"
+import { StickyNote } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-const RECORD_COLORS: Record<BabyRecord["type"], string> = {
-    feeding: "bg-indigo-400",
-    sleep: "bg-blue-400",
-    diaper: "bg-amber-400",
-    growth: "bg-green-400",
-    note: "bg-purple-400",
-    contraction: "bg-rose-400",
-}
-
-const RECORD_ICONS: Record<BabyRecord["type"], string> = {
-    feeding: "🍼",
-    sleep: "😴",
-    diaper: "👶",
-    growth: "📏",
-    note: "📝",
-    contraction: "⏱",
-}
-
-const HEX_DISPLAY_SIZE = 36 // px（DOM六角形のサイズ）
+// 既存の Hexagon と同じ size 値（pointy-top の高さ = HEX_RADIUS * 2 = 36）
+const HEX_SIZE = 36
 
 interface HexToken {
     id: number
@@ -43,14 +30,12 @@ export function JarHexTokenOverlay({ records, jarHandle, onSelect }: Props) {
     const rafRef = useRef<number>(0)
     const recordMapRef = useRef<Map<number, BabyRecord>>(new Map())
 
-    // record map を最新に保つ
     useEffect(() => {
         const map = new Map<number, BabyRecord>()
         records.forEach(r => map.set(r.id, r))
         recordMapRef.current = map
     }, [records])
 
-    // RAF で物理ボディ座標を追従
     const startTracking = useCallback(() => {
         if (!jarHandle) return
         function tick() {
@@ -91,38 +76,44 @@ export function JarHexTokenOverlay({ records, jarHandle, onSelect }: Props) {
 }
 
 function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: BabyRecord) => void }) {
-    const colorClass = RECORD_COLORS[token.record.type] ?? "bg-gray-400"
-    const icon = RECORD_ICONS[token.record.type] ?? "●"
-    const half = HEX_DISPLAY_SIZE / 2
+    const type = token.record.type as keyof typeof RECORD_TYPE_LUCIDE_ICONS
+    const LucideIcon = RECORD_TYPE_LUCIDE_ICONS[type] ?? StickyNote
+    const bgClass = RECORD_TYPE_BG_COLORS[type] ?? "text-gray-100 dark:text-zinc-800"
+    const colorClass = RECORD_TYPE_COLORS[type] ?? "text-muted-foreground"
+
+    // Hexagon size=HEX_SIZE の pointy-top は: width = HEX_SIZE * √3/2, height = HEX_SIZE
+    const hexW = HEX_SIZE * Math.SQRT2 * 0.866 // ≈ HEX_SIZE * √3/2
+    const hexH = HEX_SIZE
 
     return (
         <button
             onClick={() => onSelect(token.record)}
-            onKeyDown={e => e.key === "Enter" && onSelect(token.record)}
             title={token.record.type}
             style={{
                 position: "absolute",
-                left: token.x - half,
-                top: token.y - half,
-                width: HEX_DISPLAY_SIZE,
-                height: HEX_DISPLAY_SIZE,
+                left: token.x - hexW / 2,
+                top: token.y - hexH / 2,
                 transform: `rotate(${token.angle}rad)`,
-                clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
                 pointerEvents: "auto",
                 cursor: "pointer",
                 border: "none",
                 padding: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 14,
-                lineHeight: 1,
+                background: "none",
             }}
-            className={`${colorClass} hover:brightness-110 active:brightness-125 transition-[filter]`}
+            className="hover:brightness-110 active:brightness-125 transition-[filter]"
         >
-            <span style={{ transform: `rotate(${-token.angle}rad)`, display: "block" }}>
-                {icon}
-            </span>
+            <Hexagon
+                size={HEX_SIZE}
+                cornerRadius={5}
+                pointy
+                className={cn("shrink-0", bgClass)}
+            >
+                <LucideIcon
+                    className={cn("h-3 w-3", colorClass)}
+                    style={{ transform: `rotate(${-token.angle}rad)` }}
+                    aria-hidden
+                />
+            </Hexagon>
         </button>
     )
 }

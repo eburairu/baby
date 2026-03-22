@@ -61,7 +61,7 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
     }, [])
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center pb-24">
             <JarDateNav date={selectedDate} onChange={handleDateChange} />
 
             {isLoading && !records ? (
