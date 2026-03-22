@@ -6013,6 +6013,24 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "description": "YYYY-MM-DD形式の日付フィルタ",
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "YYYY-MM-DD形式の日付フィルタ",
+              "title": "Date"
+            }
           }
         ],
         "responses": {

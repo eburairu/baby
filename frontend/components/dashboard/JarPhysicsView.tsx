@@ -33,7 +33,7 @@ interface Props {
     mutate?: () => void
 }
 
-export function JarPhysicsView({ records, isLoading, mutate }: Props) {
+export function JarPhysicsView({ babyId, records, isLoading, mutate }: Props) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
@@ -42,7 +42,7 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [jarHandle, setJarHandle] = useState<JarCanvasHandle | null>(null)
 
-    const dayRecords = useRecordsByDate(records, selectedDate)
+    const { dayRecords, isLoading: dateLoading } = useRecordsByDate(records, babyId, selectedDate)
 
     const handleDateChange = useCallback((date: Date) => {
         date.setHours(0, 0, 0, 0)
@@ -64,7 +64,7 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
         <div className="flex flex-col items-center pb-24">
             <JarDateNav date={selectedDate} onChange={handleDateChange} />
 
-            {isLoading && !records ? (
+            {(isLoading && !records) || dateLoading ? (
                 <div style={{ width: JAR_WIDTH, height: JAR_HEIGHT }} className="flex items-center justify-center">
                     <BabyBottleLoading className="w-8 h-8 text-indigo-400" />
                 </div>
@@ -85,7 +85,7 @@ export function JarPhysicsView({ records, isLoading, mutate }: Props) {
                 </div>
             )}
 
-            {dayRecords.length === 0 && !isLoading && (
+            {dayRecords.length === 0 && !isLoading && !dateLoading && (
                 <p className="text-sm text-gray-400 dark:text-zinc-500 mt-3">この日の記録はありません</p>
             )}
 
