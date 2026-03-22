@@ -3,10 +3,10 @@ import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SplashScreen } from "@/components/ui/splash-screen";
 import Script from "next/script";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { OfflineSyncIndicator } from "@/components/OfflineSyncIndicator";
+import { SplashScreenWrapper } from "@/components/ui/splash-screen-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -119,7 +119,7 @@ export default function RootLayout({
           )}
           <ServiceWorkerRegister />
           <OfflineSyncIndicator />
-          <SplashScreen />
+          <SplashScreenWrapper />
           {children}
           <Toaster />
         </ThemeProvider>
