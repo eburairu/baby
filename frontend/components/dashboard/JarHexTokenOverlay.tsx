@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, createElement } from "react"
 import { type LucideIcon, StickyNote, HandHeart, Milk, Droplets, Biohazard, Smile } from "lucide-react"
 import { BabyRecord } from "@/types/record"
 import { JarCanvasHandle, JAR_WIDTH, JAR_HEIGHT } from "./JarCanvas"
@@ -94,7 +94,7 @@ export function JarHexTokenOverlay({ records, jarHandle, onSelect }: Props) {
 
 function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: BabyRecord) => void }) {
     const type = token.record.type as keyof typeof RECORD_TYPE_LUCIDE_ICONS
-    const LucideIconComponent = getRecordIcon(token.record)
+    const icon = getRecordIcon(token.record)
     const bgClass = RECORD_TYPE_BG_COLORS[type] ?? "text-gray-100 dark:text-zinc-800"
     const colorClass = RECORD_TYPE_COLORS[type] ?? "text-muted-foreground"
 
@@ -125,10 +125,7 @@ function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: Baby
                 pointy
                 className={cn("shrink-0", bgClass)}
             >
-                <LucideIconComponent
-                    className={cn("h-4 w-4", colorClass)}
-                    aria-hidden
-                />
+                {createElement(icon, { className: cn("h-4 w-4", colorClass), "aria-hidden": true })}
             </Hexagon>
         </button>
     )
