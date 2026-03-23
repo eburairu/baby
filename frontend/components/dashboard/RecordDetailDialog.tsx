@@ -14,7 +14,7 @@ import { CommentSection } from "@/components/records/CommentSection"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api, isApiError } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { RECORD_TYPE_LABELS } from "@/constants/ui"
 
 interface Props {
@@ -98,34 +98,26 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
     )
   }
 
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-
-  const handleDelete = async () => {
-    if (!record) return
-
-    await execute(
-      async () => {
-        let endpoint = ""
-        switch (record.type) {
-          case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
-          case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${record.id}`; break
-          case RECORD_TYPES.DIAPER: endpoint = `/diapers/${record.id}`; break
-          case RECORD_TYPES.GROWTH: endpoint = `/growths/${record.id}`; break
-          case RECORD_TYPES.NOTE: endpoint = `/notes/${record.id}`; break
-          case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${record.id}`; break
-        }
-        await api.delete(endpoint)
-      },
-      {
-        onSuccess: () => {
-          setDeleteConfirmOpen(false)
-          onSuccess()
-          onOpenChange(false)
-        },
-        errorMessage: "削除に失敗しました"
+  const { setDeleteTargetId, ConfirmDeleteDialog, isDeleting } = useRecordDelete({
+    onDelete: async (id: number) => {
+      if (!record) return
+      let endpoint = ""
+      switch (record.type) {
+        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${id}`; break
+        case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${id}`; break
+        case RECORD_TYPES.DIAPER: endpoint = `/diapers/${id}`; break
+        case RECORD_TYPES.GROWTH: endpoint = `/growths/${id}`; break
+        case RECORD_TYPES.NOTE: endpoint = `/notes/${id}`; break
+        case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${id}`; break
       }
-    )
-  }
+      await api.delete(endpoint)
+    },
+    onSuccess: () => {
+      onSuccess()
+      onOpenChange(false)
+    },
+    resourceName: "記録",
+  })
 
   if (!record) return null
 
@@ -172,8 +164,8 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setDeleteConfirmOpen(true)}
-                  disabled={loading}
+                  onClick={() => setDeleteTargetId(record.id)}
+                  disabled={loading || isDeleting}
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 sm:mr-auto"
                 >
                   削除
@@ -211,22 +203,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
         </div>
       </EditDialogBase>
 
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
-            <AlertDialogDescription data-sentry-unmask>
-              この記録を削除しますか？この操作は取り消せません。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={loading} data-sentry-unmask>キャンセル</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" loading={loading}>
-              削除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDeleteDialog />
     </>
   )
 }
