@@ -161,6 +161,8 @@ Botoro のメイン画面（ホーム）となるダッシュボードの仕様�
 - **GET /api/babies/{baby_id}/records**
     - **Query Params**:
         - `limit`: 取得件数 (default: 20, min: 1, max: 100)
+        - `date`: YYYY-MM-DD形式の日付フィルタ（指定した1日分）
+        - `from_date`: YYYY-MM-DD形式の開始日フィルタ（以降すべて）
     - **Response**: `List[UnifiedRecord]`
 
 - **POST /api/babies/{baby_id}/records**
@@ -348,3 +350,4 @@ type RecordDetails =
 | 1.10 | 2026-03-01 | F7「マイクロアニメーション」 仕様追加。デザインコンセプトに登場アニメーションとアイコン反応を追加。 |
 | 1.11 | 2026-03-02 | 実装との乖離を修正（広告表示の追記、出生前表示の現状反映、陣痛タイマーの Future Work 移動）。 |
 | 1.12 | 2026-03-04 | F3「クイックアクション」授乳ボタン（ミルク・母乳）の動作を即時記録からモーダル表示（`FeedingQuickAddModal`）に変更。モーダル仕様を追記。 |
+| 1.13 | 2026-03-24 | API仕様の統合タイムライン (`GET /api/babies/{id}/records`) に `date`, `from_date` クエリパラメータを追記。 |
