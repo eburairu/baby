@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { BabyRecord } from "@/types/record"
 import type { Engine, Runner, Body } from "matter-js"
+import { hexVertices } from "@/lib/hexagonUtils"
 
 export const JAR_WIDTH = 220
 export const JAR_HEIGHT = 320
@@ -25,13 +26,6 @@ export interface JarCanvasHandle {
 interface Props {
     records: BabyRecord[]
     onReady?: (handle: JarCanvasHandle) => void
-}
-
-function hexVertices(R: number): { x: number; y: number }[] {
-    return Array.from({ length: 6 }, (_, i) => {
-        const angle = (Math.PI / 3) * i - Math.PI / 2
-        return { x: R * Math.cos(angle), y: R * Math.sin(angle) }
-    })
 }
 
 export function JarCanvas({ records, onReady }: Props) {
