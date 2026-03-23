@@ -240,7 +240,8 @@ def get_records(
             feeding_q = feeding_q.filter(Feeding.feeding_time >= date_start)
             if date_end:
                 feeding_q = feeding_q.filter(Feeding.feeding_time < date_end)
-        for feeding in feeding_q.order_by(Feeding.feeding_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        # ⚡ Bolt: Fetch only up to the requested `limit` from each table to significantly reduce memory footprint
+        for feeding in feeding_q.order_by(Feeding.feeding_time.desc()).limit(limit).all():
             raw_records.append((
                 feeding.id, "feeding", feeding.user_id, feeding.feeding_time,
                 {
@@ -264,7 +265,8 @@ def get_records(
             sleep_q = sleep_q.filter(Sleep.start_time >= date_start)
             if date_end:
                 sleep_q = sleep_q.filter(Sleep.start_time < date_end)
-        for sleep in sleep_q.order_by(Sleep.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        # ⚡ Bolt: Fetch only up to the requested `limit` from each table to significantly reduce memory footprint
+        for sleep in sleep_q.order_by(Sleep.start_time.desc()).limit(limit).all():
             raw_records.append((
                 sleep.id, "sleep", sleep.user_id, sleep.start_time,
                 {
@@ -286,7 +288,8 @@ def get_records(
             diaper_q = diaper_q.filter(Diaper.change_time >= date_start)
             if date_end:
                 diaper_q = diaper_q.filter(Diaper.change_time < date_end)
-        for diaper in diaper_q.order_by(Diaper.change_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        # ⚡ Bolt: Fetch only up to the requested `limit` from each table to significantly reduce memory footprint
+        for diaper in diaper_q.order_by(Diaper.change_time.desc()).limit(limit).all():
             raw_records.append((
                 diaper.id, "diaper", diaper.user_id, diaper.change_time,
                 {
@@ -309,7 +312,8 @@ def get_records(
             growth_q = growth_q.filter(Growth.date >= date_start.date())
             if date_end:
                 growth_q = growth_q.filter(Growth.date < date_end.date())
-        for growth in growth_q.order_by(Growth.date.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        # ⚡ Bolt: Fetch only up to the requested `limit` from each table to significantly reduce memory footprint
+        for growth in growth_q.order_by(Growth.date.desc()).limit(limit).all():
             raw_records.append((
                 growth.id, "growth", growth.user_id,
                 datetime.combine(growth.date, datetime.min.time()),
@@ -334,7 +338,8 @@ def get_records(
             note_q = note_q.filter(Note.note_time >= date_start)
             if date_end:
                 note_q = note_q.filter(Note.note_time < date_end)
-        for note in note_q.order_by(Note.note_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        # ⚡ Bolt: Fetch only up to the requested `limit` from each table to significantly reduce memory footprint
+        for note in note_q.order_by(Note.note_time.desc()).limit(limit).all():
             raw_records.append((
                 note.id, "note", note.user_id, note.note_time,
                 {
@@ -356,7 +361,8 @@ def get_records(
             contraction_q = contraction_q.filter(Contraction.start_time >= date_start)
             if date_end:
                 contraction_q = contraction_q.filter(Contraction.start_time < date_end)
-        for c in contraction_q.order_by(Contraction.start_time.desc()).limit(MAX_PAGINATION_LIMIT).all():
+        # ⚡ Bolt: Fetch only up to the requested `limit` from each table to significantly reduce memory footprint
+        for c in contraction_q.order_by(Contraction.start_time.desc()).limit(limit).all():
             raw_records.append((
                 c.id, "contraction", c.user_id, c.start_time,
                 {
