@@ -16,8 +16,7 @@ export const FeedingWidget = memo(function FeedingWidget({ babyId, records, isEr
 
     const { todayCount, lastElapsed, lastFeedingTime } = useMemo(() => {
         // tick に依存させることで1分ごとの更新を保証する
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        tick;
+        void tick;
         const feedingRecords = records
             ?.map(normalizeFeedingFromRecord)
             .filter((f): f is NormalizedFeeding => f !== null) ?? []
