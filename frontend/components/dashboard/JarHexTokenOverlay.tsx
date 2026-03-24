@@ -5,7 +5,7 @@ import { type LucideIcon, StickyNote, HandHeart, Milk, Droplets, Biohazard, Smil
 import { BabyRecord } from "@/types/record"
 import { JarCanvasHandle, JAR_WIDTH, JAR_HEIGHT } from "./JarCanvas"
 import { Hexagon } from "@/components/ui/hexagon"
-import { RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_BG_COLORS, RECORD_TYPE_COLORS, RECORD_TYPE_HEX_COLORS } from "@/constants/ui"
+import { RECORD_TYPE_LUCIDE_ICONS, RECORD_TYPE_BG_COLORS, RECORD_TYPE_COLORS, RECORD_TYPE_HEX_COLORS, RECORD_TYPE_LABELS } from "@/constants/ui"
 import { cn } from "@/lib/utils"
 
 // トークンサイズ（Hexagon size, pointy-top）
@@ -103,10 +103,13 @@ function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: Baby
     const hexW = HEX_SIZE * Math.sqrt(3) / 2
     const hexH = HEX_SIZE
 
+    const label = RECORD_TYPE_LABELS[type] ?? token.record.type
+
     return (
         <button
             onClick={() => onSelect(token.record)}
-            title={token.record.type}
+            title={`${label}の記録`}
+            aria-label={`${label}の記録を表示`}
             style={{
                 position: "absolute",
                 left: token.x - hexW / 2,
