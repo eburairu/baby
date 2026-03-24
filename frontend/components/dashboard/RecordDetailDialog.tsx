@@ -13,6 +13,7 @@ import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { CommentSection } from "@/components/records/CommentSection"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api, isApiError } from "@/lib/api"
+import { getRecordEndpoint } from "@/lib/recordUtils"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { RECORD_TYPE_LABELS } from "@/constants/ui"
@@ -46,38 +47,32 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
 
     await execute(
       async () => {
-        let endpoint = ""
+        const endpoint = getRecordEndpoint(record.type, record.id)
         const isoTimestamp = new Date(record.timestamp).toISOString()
         const body: Record<string, string | null> = { notes }
 
         switch (record.type) {
           case RECORD_TYPES.FEEDING:
-            endpoint = `/feedings/${record.id}`
             body.feeding_time = isoTimestamp
             await api.patch(endpoint, body)
             break
           case RECORD_TYPES.SLEEP:
-            endpoint = `/sleeps/${record.id}`
             body.start_time = isoTimestamp
             await api.patch(endpoint, body)
             break
           case RECORD_TYPES.DIAPER:
-            endpoint = `/diapers/${record.id}`
             body.change_time = isoTimestamp
             await api.put(endpoint, body)
             break
           case RECORD_TYPES.GROWTH:
-            endpoint = `/growths/${record.id}`
             // Use format to get YYYY-MM-DD in local time
             body.date = formatDateLocal(new Date(record.timestamp))
             await api.put(endpoint, body)
             break
           case RECORD_TYPES.NOTE:
-            endpoint = `/notes/${record.id}`
             await api.patch(endpoint, { content: notes, note_time: isoTimestamp, updated_at: record.updated_at })
             break
           case RECORD_TYPES.CONTRACTION:
-            endpoint = `/contractions/${record.id}`
             body.start_time = isoTimestamp
             await api.patch(endpoint, body)
             break
@@ -105,15 +100,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
 
     await execute(
       async () => {
-        let endpoint = ""
-        switch (record.type) {
-          case RECORD_TYPES.FEEDING: endpoint = `/feedings/${record.id}`; break
-          case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${record.id}`; break
-          case RECORD_TYPES.DIAPER: endpoint = `/diapers/${record.id}`; break
-          case RECORD_TYPES.GROWTH: endpoint = `/growths/${record.id}`; break
-          case RECORD_TYPES.NOTE: endpoint = `/notes/${record.id}`; break
-          case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${record.id}`; break
-        }
+        const endpoint = getRecordEndpoint(record.type, record.id)
         await api.delete(endpoint)
       },
       {
