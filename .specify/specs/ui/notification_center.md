@@ -297,7 +297,7 @@ def notify_achievements_bg(
     baby_name: str,
     baby_id: int,
     unlocked: list[dict],
-):
+) -> None:
     """
     実績（アチーブメント）解除時に同ファミリーの全メンバーに通知を送信。
     """
