@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 export function usePushNotification() {
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
@@ -108,10 +109,7 @@ export function usePushNotification() {
   const unsubscribeUser = async (sub: PushSubscription) => {
     try {
       await sub.unsubscribe();
-      await fetch(
-        `/api/notifications/unsubscribe?endpoint=${encodeURIComponent(sub.endpoint)}`,
-        { method: "POST" }
-      );
+      await api.post(`/notifications/unsubscribe?endpoint=${encodeURIComponent(sub.endpoint)}`, undefined);
       setSubscription(null);
     } catch (error) {
       console.error("Failed to unsubscribe:", error);
@@ -124,22 +122,12 @@ export function usePushNotification() {
     if (!keys || !keys.p256dh || !keys.auth) return;
 
     try {
-      const response = await fetch("/api/notifications/subscribe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          endpoint: subscription.endpoint,
-          p256dh: keys.p256dh,
-          auth: keys.auth,
-          user_agent: navigator.userAgent,
-        }),
+      await api.post("/notifications/subscribe", {
+        endpoint: subscription.endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+        user_agent: navigator.userAgent,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to send subscription to backend");
-      }
     } catch (error) {
       console.error("Error sending subscription to backend:", error);
     }

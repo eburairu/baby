@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR, { mutate } from "swr";
-import { fetcher } from "@/lib/api";
+import { api, fetcher } from "@/lib/api";
 import {
   Search,
   ChevronRight,
@@ -226,19 +226,9 @@ export default function AdminFamilies() {
 
     setIsCreating(true);
     try {
-      const res = await fetch("/api/admin/families", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: newFamilyName.trim() }),
+      const data = await api.post<FamilyCreateResponse>("/admin/families", {
+        name: newFamilyName.trim()
       });
-
-      if (!res.ok) {
-        throw new Error("家族の作成に失敗しました");
-      }
-
-      const data: FamilyCreateResponse = await res.json();
       setCreatedFamily(data);
       setNewFamilyName("");
       mutate(`/admin/families${searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ""}`);

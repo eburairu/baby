@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { fetcher } from "@/lib/api";
+import { api, fetcher } from "@/lib/api";
 
 export type AIModel = {
   id: string;
@@ -36,18 +36,5 @@ export function useAISettings() {
 }
 
 export async function updateAISettings(settings: Record<string, string>) {
-  const res = await fetch("/api/ai/settings", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ settings }),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.detail || "Failed to update AI settings");
-  }
-
-  return res.json();
+  return await api.patch<AISettingsSummary>("/ai/settings", { settings });
 }
