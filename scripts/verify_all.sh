@@ -59,9 +59,14 @@ ${YELLOW}--- [4/5] フロントエンド型定義の生成... ---${NC}"
 cd frontend
 pnpm types:generate
 
-# 5. フロントエンド Build（ESLint も内包）
+# 5. フロントエンド Lint
 echo -e "
-${YELLOW}--- [5/5] フロントエンド Build 実行中... ---${NC}"
+${YELLOW}--- [5/6] フロントエンド Lint 実行中... ---${NC}"
+pnpm lint
+
+# 6. フロントエンド Build
+echo -e "
+${YELLOW}--- [6/6] フロントエンド Build 実行中... ---${NC}"
 pnpm build
 
 echo -e "
