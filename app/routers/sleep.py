@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session
+from app.core.constants import MAX_PAGINATION_LIMIT
 from sqlalchemy import func
 from typing import List
 
@@ -24,9 +25,16 @@ def _build_sleep_response(record: Sleep, user_map: dict, comment_count_map: dict
 
 
 @router.get("/", response_model=List[SleepResponse])
-def get_sleeps(baby_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_sleeps(
+    baby_id: int,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(MAX_PAGINATION_LIMIT, ge=1, le=MAX_PAGINATION_LIMIT),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     verify_baby_access(db, baby_id, current_user.id, record_type="sleep")
-    records = db.query(Sleep).filter(Sleep.baby_id == baby_id, Sleep.is_deleted == False).order_by(Sleep.start_time.desc()).all()
+    # ⚡ Bolt: データベース呼び出しにおける大量データフェッチの回避 (ページネーションの追加)
+    records = db.query(Sleep).filter(Sleep.baby_id == baby_id, Sleep.is_deleted == False).order_by(Sleep.start_time.desc()).offset(skip).limit(limit).all()
     record_ids = [r.id for r in records]
     comment_count_map: dict = {}
     if record_ids:
