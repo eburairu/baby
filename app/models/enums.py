@@ -69,6 +69,22 @@ class VaccinationStatus(str, Enum):
     COMPLETED = "completed"
     POSTPONED = "postponed"
 
+class RelationshipType(str, Enum):
+    FATHER = "father"
+    MOTHER = "mother"
+    PATERNAL_GRANDFATHER = "paternal_grandfather"
+    PATERNAL_GRANDMOTHER = "paternal_grandmother"
+    MATERNAL_GRANDFATHER = "maternal_grandfather"
+    MATERNAL_GRANDMOTHER = "maternal_grandmother"
+    PATERNAL_UNCLE = "paternal_uncle"
+    PATERNAL_AUNT = "paternal_aunt"
+    MATERNAL_UNCLE = "maternal_uncle"
+    MATERNAL_AUNT = "maternal_aunt"
+    OLDER_BROTHER = "older_brother"
+    OLDER_SISTER = "older_sister"
+    YOUNGER_BROTHER = "younger_brother"
+    YOUNGER_SISTER = "younger_sister"
+
 class NotificationType(str, Enum):
     family_record = "family_record"
     comment = "comment"

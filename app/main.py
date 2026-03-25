@@ -66,6 +66,7 @@ from app.routers import version, vaccinations, milestones
 from app.routers import timer
 from app.routers import temperatures
 from app.routers import achievements
+from app.routers import relative as relative_router
 
 app.include_router(version.router)
 app.include_router(auth.router)
@@ -91,6 +92,7 @@ app.include_router(comments.router)
 app.include_router(timer.router)
 app.include_router(temperatures.router)
 app.include_router(achievements.router)
+app.include_router(relative_router.router)
 
 frontend_build_path = os.path.join(os.path.dirname(__file__), "../frontend/out")
 
