@@ -191,6 +191,7 @@ function JarThumbnail({ date, records, selected, onClick }: JarThumbnailProps) {
                 selected ? "scale-105" : "hover:scale-105 active:scale-95",
             ].join(" ")}
             aria-pressed={selected}
+            aria-label={`${date.getMonth() + 1}月${date.getDate()}日の記録を見る`}
             title={`${date.getMonth() + 1}/${date.getDate()}の記録`}
         >
             <div style={{ position: "relative", width: MINI_W, height: MINI_H }}>
