@@ -98,6 +98,7 @@ export function NotificationBell() {
                             <button
                                 onClick={handleReadAll}
                                 disabled={isMarkingAllAsRead}
+                                aria-label="すべての通知を既読にする"
                                 className={cn(
                                     "text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1",
                                     isMarkingAllAsRead && "opacity-70 cursor-wait"
