@@ -1,2 +1,0 @@
-1. **問題の特定**: `app/(dashboard)/dashboard/page.tsx` と `components/dashboard/DashboardSkeleton.tsx` の両方で、`useWindowSize` フックを使ってウィンドウ幅を取得し、`width < 640` であればモバイルサイズ（`DASHBOARD_UI.WIDGET_SIZE.MOBILE`）、そうでなければデスクトップサイズ（`DASHBOARD_UI.WIDGET_SIZE.DESKTOP`）を選択するロジックが重複しています。
-2. **解決策**: このロジックを共通化するため、`hooks/useHoneycombSize.ts`（あるいは `hooks/useWidgetSize.ts` など）という新しいカスタムフックを作成し、DRY（Don't Repeat Yourself）原則を適用します。
