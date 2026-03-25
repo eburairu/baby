@@ -1,8 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from datetime import datetime, time
 from enum import Enum
+from urllib.parse import urlparse
 from app.models.enums import NotificationType
+
+# Web Push サービスの許可ドメイン（完全ホスト名一致）
+ALLOWED_PUSH_ENDPOINT_HOSTS = {
+    "fcm.googleapis.com",
+    "push.services.mozilla.com",
+    "web.push.apple.com",
+}
 
 
 class AppNotificationResponse(BaseModel):
@@ -28,6 +36,20 @@ class PushSubscriptionCreate(BaseModel):
     p256dh: str
     auth: str
     user_agent: Optional[str] = None
+
+    @field_validator("endpoint")
+    @classmethod
+    def validate_endpoint(cls, v: str) -> str:
+        parsed = urlparse(v)
+        if parsed.scheme != "https":
+            raise ValueError("endpoint must use HTTPS")
+        host = parsed.hostname or ""
+        if host not in ALLOWED_PUSH_ENDPOINT_HOSTS:
+            raise ValueError(
+                f"endpoint host '{host}' is not an allowed push service. "
+                f"Allowed: {sorted(ALLOWED_PUSH_ENDPOINT_HOSTS)}"
+            )
+        return v
 
 
 class PushSubscriptionResponse(BaseModel):
