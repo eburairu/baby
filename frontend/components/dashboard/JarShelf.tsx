@@ -4,6 +4,7 @@ import { useMemo, useEffect, useState } from "react"
 import { BabyRecord } from "@/types/record"
 import { useShelfRecords } from "@/hooks/useShelfRecords"
 import { RECORD_TYPE_HEX_COLORS } from "@/constants/ui"
+import { hexVertices, hexPolygonPoints } from "@/lib/hexagonUtils"
 
 // ミニ瓶の寸法定数（物理・描画共通）
 const MINI_W = 68
@@ -21,13 +22,6 @@ interface PhysicsToken {
     x: number
     y: number
     angle: number
-}
-
-function miniHexVertices(R: number) {
-    return Array.from({ length: 6 }, (_, i) => {
-        const a = (Math.PI / 3) * i - Math.PI / 2
-        return { x: R * Math.cos(a), y: R * Math.sin(a) }
-    })
 }
 
 function seededRng(seed: number) {
@@ -56,7 +50,7 @@ async function computePhysicsLayout(records: BabyRecord[]): Promise<PhysicsToken
     ])
 
     const rng = seededRng(records.reduce((acc, r) => acc + r.id, 42))
-    const hexVerts = miniHexVertices(HEX_R)
+    const hexVerts = hexVertices(HEX_R)
     const bodyToRecord = new Map<number, BabyRecord>()
 
     const sorted = [...records].sort(
@@ -101,14 +95,6 @@ async function computePhysicsLayout(records: BabyRecord[]): Promise<PhysicsToken
     return result
 }
 
-// --- SVG 六角形ポリゴンのポイント計算 ---
-
-function hexPolygonPoints(cx: number, cy: number, r: number, angle: number): string {
-    return Array.from({ length: 6 }, (_, i) => {
-        const a = angle + (Math.PI / 3) * i - Math.PI / 2
-        return `${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`
-    }).join(" ")
-}
 
 // --- ミニ瓶 SVG ビジュアル ---
 

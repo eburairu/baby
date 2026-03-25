@@ -15,6 +15,7 @@ import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { api, isApiError } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
+import { getRecordEndpoint } from "@/lib/recordUtils"
 import { RECORD_TYPE_LABELS } from "@/constants/ui"
 
 interface Props {
@@ -101,16 +102,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
   const { setDeleteTargetId, ConfirmDeleteDialog, isDeleting } = useRecordDelete({
     onDelete: async (id: number) => {
       if (!record) return
-      let endpoint = ""
-      switch (record.type) {
-        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${id}`; break
-        case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${id}`; break
-        case RECORD_TYPES.DIAPER: endpoint = `/diapers/${id}`; break
-        case RECORD_TYPES.GROWTH: endpoint = `/growths/${id}`; break
-        case RECORD_TYPES.NOTE: endpoint = `/notes/${id}`; break
-        case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${id}`; break
-      }
-      await api.delete(endpoint)
+      await api.delete(getRecordEndpoint(record.type, id))
     },
     onSuccess: () => {
       onSuccess()

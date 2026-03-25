@@ -158,7 +158,7 @@ function RelativeForm({
             variant="destructive"
             size="sm"
             onClick={handleDelete}
-            disabled={isSubmitting}
+            loading={isSubmitting}
             className="mr-auto"
           >
             削除
@@ -167,7 +167,7 @@ function RelativeForm({
         <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
           キャンセル
         </Button>
-        <Button onClick={handleSubmit} disabled={isSubmitting}>
+        <Button onClick={handleSubmit} loading={isSubmitting}>
           {isEdit ? "保存" : "追加"}
         </Button>
       </DialogFooter>

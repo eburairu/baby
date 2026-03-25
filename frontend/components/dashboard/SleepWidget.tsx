@@ -15,8 +15,7 @@ export const SleepWidget = memo(function SleepWidget({ babyId, records, isError,
 
     const { isSleeping, todayTotal, elapsed, lastElapsed } = useMemo(() => {
         // tick に依存させることで1分ごとの更新を保 証する
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        tick;
+        void tick;
         return calculateSleepStats(records)
     }, [records, tick])
 

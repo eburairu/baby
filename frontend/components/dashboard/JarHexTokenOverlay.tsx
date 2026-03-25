@@ -109,7 +109,7 @@ function HexTokenItem({ token, onSelect }: { token: HexToken; onSelect: (r: Baby
         <button
             onClick={() => onSelect(token.record)}
             aria-label={`${recordLabel}の詳細を表示`}
-            title={token.record.type}
+            title={`${recordLabel}の記録`}
             style={{
                 position: "absolute",
                 left: token.x - hexW / 2,

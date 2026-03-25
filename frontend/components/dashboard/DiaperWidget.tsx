@@ -17,8 +17,7 @@ export const DiaperWidget = memo(function DiaperWidget({ babyId, records, isErro
 
     const { wetCount, dirtyCount, lastElapsed, lastDiaperTime } = useMemo(() => {
         // tick に依存させることで1分ごとの更新を保証する
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        tick;
+        void tick;
         const diaperRecords = records
             ?.map(normalizeDiaperFromRecord)
             .filter((d): d is NormalizedDiaper => d !== null) ?? []

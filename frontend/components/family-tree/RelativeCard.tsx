@@ -25,6 +25,7 @@ export function RelativeCard({
     return (
       <button
         onClick={onClick}
+        aria-label={`${label}を追加`}
         className="flex flex-col items-center gap-1 p-2 rounded-lg border border-dashed border-muted-foreground/30 hover:border-primary/50 hover:bg-accent/50 transition-colors min-w-[64px] text-muted-foreground/60 hover:text-muted-foreground"
       >
         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">+</div>
@@ -36,6 +37,7 @@ export function RelativeCard({
   return (
     <button
       onClick={onClick}
+      aria-label={`${relative.name} (${label}) の詳細を見る`}
       className={cn(
         "flex flex-col items-center gap-1 p-2 rounded-lg border bg-card hover:bg-accent/50 transition-colors min-w-[64px]",
         "border-border hover:border-primary/50"
