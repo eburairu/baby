@@ -264,6 +264,20 @@ def notify_family_members_bg(
     """
     ...
 
+def notify_family_members(
+    db: Session,
+    family_id: int,
+    exclude_user_id: int,
+    title: str,
+    body: str,
+    url: str = "/",
+    category: str = "family_record"
+):
+    """
+    同ファミリーの記録者以外のメンバーに通知を送信する（同期処理用）。
+    """
+    ...
+
 def notify_user(
     db: Session,
     user_id: int,
