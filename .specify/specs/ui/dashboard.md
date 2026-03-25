@@ -179,22 +179,22 @@ interface RecordCreate {
 }
 ```
 
-**レスポンススキーマ (`UnifiedRecord`)**
+**レスポンススキーマ (`BabyRecord`)**
 
 ```typescript
-interface UnifiedRecord {
+interface BabyRecord {
   id: number;
-  type: "feeding" | "sleep" | "diaper" | "growth" | "note" | "contraction";
+  type: 'feeding' | 'sleep' | 'diaper' | 'growth' | 'contraction' | 'note';
   timestamp: string; // ISO 8601 (JST)
-  comment_count: number;
-  has_ai_feedback: boolean;
-  has_ai_concern: boolean;
-  recorded_by_display_name: string | null;
-  updated_at: string | null;
   details: RecordDetails; // 各タイプに応じた詳細情報
+  comment_count: number;
+  has_ai_feedback?: boolean;
+  has_ai_concern?: boolean;
+  recorded_by_display_name?: string | null;
+  updated_at?: string; // ISO 8601 (JST)
 }
 
-// details の構造は type により異なる
+// details の構造は type により異なる (フロント側では [key: string]: unknown として扱われるが実態は以下)
 type RecordDetails =
   | { feeding_type: string; amount_ml: number | null; duration_minutes: number | null; notes: string | null } // feeding
   | { end_time: string | null; notes: string | null } // sleep
@@ -351,3 +351,4 @@ type RecordDetails =
 | 1.11 | 2026-03-02 | 実装との乖離を修正（広告表示の追記、出生前表示の現状反映、陣痛タイマーの Future Work 移動）。 |
 | 1.12 | 2026-03-04 | F3「クイックアクション」授乳ボタン（ミルク・母乳）の動作を即時記録からモーダル表示（`FeedingQuickAddModal`）に変更。モーダル仕様を追記。 |
 | 1.13 | 2026-03-24 | API仕様の統合タイムライン (`GET /api/babies/{id}/records`) に `date`, `from_date` クエリパラメータを追記。 |
+| 1.14 | 2026-03-25 | 統合APIのレスポンススキーマ (`UnifiedRecord`) をフロントエンドの実装 (`BabyRecord`) に合わせて修正。 |
