@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Baby } from "lucide-react"
+import { Check, ChevronDown, ChevronLeft, Settings, Menu, Home, Baby, GitBranch } from "lucide-react"
 import { AppIcons } from "@/constants/icons"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { cn, getDisplayName } from "@/lib/utils"
@@ -51,6 +51,7 @@ const ALL_NAV_ITEMS: {
     { label: "メモ",         href: "/note",        Icon: AppIcons.note, color: "text-blue-500",  prenatal: false, postnatal: true  },
     { label: "日誌",         href: "/diary",       Icon: AppIcons.diary,   color: "text-purple-500",  prenatal: false, postnatal: true  },
     { label: "陣痛タイマー", href: "/contraction", Icon: AppIcons.contraction,      color: "text-red-500",     prenatal: true,  postnatal: false },
+    { label: "家系図",       href: "/family-tree", Icon: GitBranch,                  color: "text-rose-500",    prenatal: true,  postnatal: true  },
 ]
 
 const BOTTOM_NAV_ITEMS: {

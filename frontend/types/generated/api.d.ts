@@ -480,6 +480,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/babies/{baby_id}/relatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Relatives */
+        get: operations["get_relatives_api_babies__baby_id__relatives_get"];
+        put?: never;
+        /** Create Relative */
+        post: operations["create_relative_api_babies__baby_id__relatives_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/babies/{baby_id}/relatives/{relative_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Relative */
+        delete: operations["delete_relative_api_babies__baby_id__relatives__relative_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Relative */
+        patch: operations["update_relative_api_babies__baby_id__relatives__relative_id__patch"];
+        trace?: never;
+    };
     "/api/babies/{baby_id}/timer/contraction": {
         parameters: {
             query?: never;
@@ -2315,6 +2351,52 @@ export interface components {
             /** Record Type */
             record_type: string;
         };
+        /**
+         * RelationshipType
+         * @enum {string}
+         */
+        RelationshipType: "father" | "mother" | "paternal_grandfather" | "paternal_grandmother" | "maternal_grandfather" | "maternal_grandmother" | "paternal_uncle" | "paternal_aunt" | "maternal_uncle" | "maternal_aunt" | "older_brother" | "older_sister" | "younger_brother" | "younger_sister";
+        /** RelativeCreate */
+        RelativeCreate: {
+            /** Name */
+            name: string;
+            /** Notes */
+            notes?: string | null;
+            relationship_type: components["schemas"]["RelationshipType"];
+            /** User Id */
+            user_id?: number | null;
+        };
+        /** RelativeResponse */
+        RelativeResponse: {
+            /** Baby Id */
+            baby_id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Notes */
+            notes?: string | null;
+            relationship_type: components["schemas"]["RelationshipType"];
+            /** User Display Name */
+            user_display_name?: string | null;
+            /** User Id */
+            user_id?: number | null;
+        };
+        /** RelativeUpdate */
+        RelativeUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Notes */
+            notes?: string | null;
+            relationship_type?: components["schemas"]["RelationshipType"] | null;
+            /** User Id */
+            user_id?: number | null;
+        };
         /** ScheduleCreate */
         ScheduleCreate: {
             /** Baby Id */
@@ -3826,6 +3908,10 @@ export interface operations {
         parameters: {
             query?: {
                 limit?: number;
+                /** @description YYYY-MM-DD形式の日付フィルタ（1日分） */
+                date?: string | null;
+                /** @description YYYY-MM-DD形式の開始日フィルタ（以降すべて） */
+                from_date?: string | null;
             };
             header?: never;
             path: {
@@ -3877,6 +3963,140 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnifiedRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_relatives_api_babies__baby_id__relatives_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RelativeResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_relative_api_babies__baby_id__relatives_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RelativeCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RelativeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_relative_api_babies__baby_id__relatives__relative_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+                relative_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_relative_api_babies__baby_id__relatives__relative_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                baby_id: number;
+                relative_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RelativeUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RelativeResponse"];
                 };
             };
             /** @description Validation Error */
