@@ -4758,6 +4758,8 @@ export interface operations {
         parameters: {
             query: {
                 baby_id: number;
+                skip?: number;
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -5652,6 +5654,8 @@ export interface operations {
         parameters: {
             query: {
                 baby_id: number;
+                skip?: number;
+                limit?: number;
             };
             header?: never;
             path?: never;

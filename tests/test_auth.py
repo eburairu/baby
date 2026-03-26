@@ -80,7 +80,7 @@ def test_logout_with_endpoint_deletes_push_subscription(client, db):
     assert res.status_code == 200
 
     # PushSubscription を登録
-    endpoint = "https://push.example.com/test-endpoint"
+    endpoint = "https://fcm.googleapis.com/fcm/send/test-endpoint"
     sub_res = client.post(
         "/api/notifications/subscribe",
         json={

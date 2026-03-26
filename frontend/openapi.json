@@ -7408,8 +7408,8 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 100,
-              "maximum": 100,
+              "default": 500,
+              "maximum": 500,
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
@@ -8615,8 +8615,8 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 100,
-              "maximum": 100,
+              "default": 500,
+              "maximum": 500,
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
