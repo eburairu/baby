@@ -162,3 +162,18 @@ export function formatMonthDaySlash(date: Date | string | number): string {
   const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
   return format(d, "M/d", { locale: ja });
 }
+
+/**
+ * 短い相対時間の文字列を返します（例："たった今"、"5分前"、"昨日"、"2日前"）。
+ */
+export function formatRelativeTime(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "たった今";
+  if (minutes < 60) return `${minutes}分前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}時間前`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "昨日";
+  return `${days}日前`;
+}

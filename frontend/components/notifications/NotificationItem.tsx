@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import type { AppNotification } from "@/hooks/useNotifications"
 import { markAsRead } from "@/hooks/useNotifications"
 import { Hexagon } from "@/components/ui/hexagon"
+import { formatRelativeTime } from "@/lib/dateUtils"
 
 const TYPE_ICON: Record<AppNotification["type"], React.ReactNode> = {
     family_record: <Baby className="h-4 w-4 text-rose-500" />,
@@ -15,18 +16,6 @@ const TYPE_ICON: Record<AppNotification["type"], React.ReactNode> = {
     diaper_reminder: <Clock className="h-4 w-4 text-orange-500" />,
     system: <Bell className="h-4 w-4 text-gray-400" />,
     achievement: <Trophy className="h-4 w-4 text-amber-500" />,
-}
-
-function formatRelativeTime(isoString: string): string {
-    const diff = Date.now() - new Date(isoString).getTime()
-    const minutes = Math.floor(diff / 60000)
-    if (minutes < 1) return "たった今"
-    if (minutes < 60) return `${minutes}分前`
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `${hours}時間前`
-    const days = Math.floor(hours / 24)
-    if (days === 1) return "昨日"
-    return `${days}日前`
 }
 
 type Props = {
