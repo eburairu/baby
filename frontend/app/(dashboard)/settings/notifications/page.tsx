@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { usePushNotification } from "@/hooks/usePushNotification";
 import { SettingsHeader } from "@/components/settings/SettingsHeader";
+import { api } from "@/lib/api";
 
 interface NotificationSettings {
   family_record_enabled: boolean;
@@ -32,12 +33,9 @@ export default function NotificationsPage() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch("/api/notifications/settings");
-      if (response.ok) {
-        const data = await response.json();
-        setSettings(data);
-        setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
-      }
+      const data = await api.get<NotificationSettings>("/notifications/settings");
+      setSettings(data);
+      setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
     } catch (error) {
       console.error("Failed to fetch settings:", error);
     } finally {
@@ -51,12 +49,7 @@ export default function NotificationsPage() {
       const newSettings = { ...settings!, dnd_start_time: null, dnd_end_time: null };
       setSettings(newSettings);
       try {
-        const res = await fetch("/api/notifications/settings", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dnd_start_time: null, dnd_end_time: null }),
-        });
-        if (!res.ok) throw new Error();
+        await api.patch("/notifications/settings", { dnd_start_time: null, dnd_end_time: null });
         toast.success("おやすみモードを無効にしました");
       } catch {
         toast.error("設定の更新に失敗しました");
@@ -68,12 +61,7 @@ export default function NotificationsPage() {
       const newSettings = { ...settings!, dnd_start_time: defaultStart, dnd_end_time: defaultEnd };
       setSettings(newSettings);
       try {
-        const res = await fetch("/api/notifications/settings", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dnd_start_time: defaultStart, dnd_end_time: defaultEnd }),
-        });
-        if (!res.ok) throw new Error();
+        await api.patch("/notifications/settings", { dnd_start_time: defaultStart, dnd_end_time: defaultEnd });
         toast.success("おやすみモードを有効にしました");
       } catch {
         toast.error("設定の更新に失敗しました");
@@ -89,12 +77,7 @@ export default function NotificationsPage() {
     setSettings(newSettings);
 
     try {
-      const response = await fetch("/api/notifications/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [key]: value }),
-      });
-      if (!response.ok) throw new Error();
+      await api.patch("/notifications/settings", { [key]: value });
       toast.success("設定を更新しました");
     } catch {
       toast.error("設定の更新に失敗しました");
@@ -188,10 +171,9 @@ export default function NotificationsPage() {
                   size="sm"
                   onClick={async () => {
                     try {
-                      const res = await fetch("/api/notifications/test", { method: "POST" });
-                      const data = await res.json();
+                      const data = await api.post<{ subscription_count: number; message?: string; results?: { success: boolean; subscription_id: number; error: string | null }[] }>("/notifications/test", {});
                       if (data.subscription_count === 0) {
-                        toast.error(data.message);
+                        toast.error(data.message || "購読がありません");
                       } else {
                         const failures = data.results?.filter((r: { success: boolean }) => !r.success) || [];
                         if (failures.length > 0) {

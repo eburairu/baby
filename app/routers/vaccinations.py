@@ -33,7 +33,10 @@ async def get_vaccinations(
     current_user: User = Depends(get_current_user)
 ):
     await run_in_threadpool(verify_baby_access, db, baby_id, current_user.id, record_type="vaccination")
-    return await run_in_threadpool(lambda: db.query(Vaccination).filter(Vaccination.baby_id == baby_id).order_by(Vaccination.scheduled_date.asc()).all())
+    return await run_in_threadpool(lambda: db.query(Vaccination).filter(
+        Vaccination.baby_id == baby_id,
+        Vaccination.is_deleted == False
+    ).order_by(Vaccination.scheduled_date.asc()).all())
 
 @router.post("/", response_model=VaccinationResponse, status_code=status.HTTP_201_CREATED)
 async def create_vaccination(
@@ -121,7 +124,10 @@ async def generate_vaccinations(
             raise HTTPException(status_code=400, detail="Baby not found or birthday not set")
         
         # Check if already generated
-        exists = db.query(Vaccination).filter(Vaccination.baby_id == baby_id).first()
+        exists = db.query(Vaccination).filter(
+            Vaccination.baby_id == baby_id,
+            Vaccination.is_deleted == False
+        ).first()
         if exists:
             raise HTTPException(status_code=400, detail="Vaccination schedule already exists for this baby")
             

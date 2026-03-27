@@ -59,11 +59,23 @@ export function SettingItem({
     )
 
     if (href) {
-        return <Link href={href}>{content}</Link>
+        return (
+            <Link href={href} className="block w-full text-left rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-indigo-400">
+                {content}
+            </Link>
+        )
     }
 
     if (onClick) {
-        return <div onClick={onClick}>{content}</div>
+        return (
+            <button
+                type="button"
+                onClick={onClick}
+                className="block w-full text-left rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-indigo-400"
+            >
+                {content}
+            </button>
+        )
     }
 
     return content

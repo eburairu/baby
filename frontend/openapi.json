@@ -3279,6 +3279,180 @@
         "title": "RecordFeedbackResponse",
         "type": "object"
       },
+      "RelationshipType": {
+        "enum": [
+          "father",
+          "mother",
+          "paternal_grandfather",
+          "paternal_grandmother",
+          "maternal_grandfather",
+          "maternal_grandmother",
+          "paternal_uncle",
+          "paternal_aunt",
+          "maternal_uncle",
+          "maternal_aunt",
+          "older_brother",
+          "older_sister",
+          "younger_brother",
+          "younger_sister"
+        ],
+        "title": "RelationshipType",
+        "type": "string"
+      },
+      "RelativeCreate": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "relationship_type": {
+            "$ref": "#/components/schemas/RelationshipType"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          }
+        },
+        "required": [
+          "name",
+          "relationship_type"
+        ],
+        "title": "RelativeCreate",
+        "type": "object"
+      },
+      "RelativeResponse": {
+        "properties": {
+          "baby_id": {
+            "title": "Baby Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "relationship_type": {
+            "$ref": "#/components/schemas/RelationshipType"
+          },
+          "user_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Display Name"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          }
+        },
+        "required": [
+          "id",
+          "baby_id",
+          "name",
+          "relationship_type",
+          "created_at"
+        ],
+        "title": "RelativeResponse",
+        "type": "object"
+      },
+      "RelativeUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "relationship_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RelationshipType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          }
+        },
+        "title": "RelativeUpdate",
+        "type": "object"
+      },
       "ScheduleCreate": {
         "properties": {
           "baby_id": {
@@ -6133,6 +6307,210 @@
         ]
       }
     },
+    "/api/babies/{baby_id}/relatives": {
+      "get": {
+        "operationId": "get_relatives_api_babies__baby_id__relatives_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RelativeResponse"
+                  },
+                  "title": "Response Get Relatives Api Babies  Baby Id  Relatives Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Relatives",
+        "tags": [
+          "relatives"
+        ]
+      },
+      "post": {
+        "operationId": "create_relative_api_babies__baby_id__relatives_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RelativeCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelativeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Relative",
+        "tags": [
+          "relatives"
+        ]
+      }
+    },
+    "/api/babies/{baby_id}/relatives/{relative_id}": {
+      "delete": {
+        "operationId": "delete_relative_api_babies__baby_id__relatives__relative_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "relative_id",
+            "required": true,
+            "schema": {
+              "title": "Relative Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Relative",
+        "tags": [
+          "relatives"
+        ]
+      },
+      "patch": {
+        "operationId": "update_relative_api_babies__baby_id__relatives__relative_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "baby_id",
+            "required": true,
+            "schema": {
+              "title": "Baby Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "relative_id",
+            "required": true,
+            "schema": {
+              "title": "Relative Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RelativeUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelativeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Relative",
+        "tags": [
+          "relatives"
+        ]
+      }
+    },
     "/api/babies/{baby_id}/timer/contraction": {
       "get": {
         "operationId": "get_contraction_timer_api_babies__baby_id__timer_contraction_get",
@@ -7011,6 +7389,29 @@
             "required": true,
             "schema": {
               "title": "Baby Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
               "type": "integer"
             }
           }
@@ -8195,6 +8596,29 @@
             "required": true,
             "schema": {
               "title": "Baby Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
               "type": "integer"
             }
           }

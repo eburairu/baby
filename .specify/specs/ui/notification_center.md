@@ -72,7 +72,7 @@ utils/notifications.py の notify_*() を呼び出す
 | type | トリガー | タイトル例 | アイコン |
 |------|----------|-----------|---------|
 | `family_record` | 家族が記録（授乳・おむつ・睡眠・成長・陣痛・メモ・体温）を追加 | 「パパが授乳を記録しました」 | `Baby` |
-| `comment` | 自分の記録に家族がコメント追加 | 「ママがコメントしました」 | `MessageCircle` |
+| `comment` | 家族が記録にコメントを追加 | 「ママがコメントしました」 | `MessageCircle` |
 | `daily_summary` | AI デイリーサマリーが生成完了 | 「今日の育児まとめができました」 | `Sparkles` |
 | `feeding_reminder` | 前回の授乳から一定時間経過 | 「授乳の時間かもしれません」 | `Clock` |
 | `diaper_reminder` | 前回のおむつ替えから一定時間経過 | 「おむつ替えの時間かもしれません」 | `Clock` |
@@ -264,6 +264,20 @@ def notify_family_members_bg(
     """
     ...
 
+def notify_family_members(
+    db: Session,
+    family_id: int,
+    exclude_user_id: int,
+    title: str,
+    body: str,
+    url: str = "/",
+    category: str = "family_record"
+):
+    """
+    同ファミリーの記録者以外のメンバーに通知を送信する（同期処理用）。
+    """
+    ...
+
 def notify_user(
     db: Session,
     user_id: int,
@@ -273,7 +287,7 @@ def notify_user(
     category: str = "system"
 ):
     """
-    特定のユーザー（例: コメント通知なら記録オーナー、リマインダーなら対象ユーザー）に通知を送信。
+    特定のユーザー（例: リマインダーなら対象ユーザー）に通知を送信。
     """
     ...
 
@@ -283,7 +297,7 @@ def notify_achievements_bg(
     baby_name: str,
     baby_id: int,
     unlocked: list[dict],
-):
+) -> None:
     """
     実績（アチーブメント）解除時に同ファミリーの全メンバーに通知を送信。
     """
@@ -294,7 +308,7 @@ def notify_achievements_bg(
 | トリガー | 通知 type | 通知受信者 | 除外条件 |
 |---------|----------|----------|---------|
 | 記録追加（授乳・おむつ・睡眠・成長・陣痛・メモ・体温） | `family_record` | 同ファミリーの**記録者以外**の全メンバー | 記録者自身は除外 |
-| コメント追加 | `comment` | **記録オーナー** | コメント投稿者と記録オーナーが同一の場合は除外 |
+| コメント追加 | `comment` | 同ファミリーの**コメント投稿者以外**の全メンバー | コメント投稿者自身は除外 |
 | デイリーサマリー生成 | `daily_summary` | 同ファミリーの**全メンバー** | なし |
 | 実績解除（バックグラウンド処理） | `achievement` | 同ファミリーの**全メンバー** | なし |
 | 授乳リマインダー（バッチ処理） | `feeding_reminder` | 対象ユーザー | `feeding_reminder_enabled = False` の場合はスキップ |
@@ -311,8 +325,8 @@ def notify_achievements_bg(
 
 | 通知 type | URL パターン | 遷移先の挙動 |
 |-----------|-------------|-------------|
-| `family_record` | `/{record_type}` | 該当の記録一覧ページへ遷移 |
-| `comment` | `/{record_type}?comment={record_id}` | 該当記録のコメントダイアログを自動起動 |
+| `family_record` | `/{record_type}?baby_id={id}` | 該当の記録一覧ページへ遷移 |
+| `comment` | `/{record_type}?comment={record_id}&baby_id={id}` | 該当記録のコメントダイアログを自動起動 |
 | `daily_summary` | `/diary` | AI 日誌ページへ遷移 |
 | `feeding_reminder` | `/feeding` | 授乳記録一覧ページへ遷移 |
 | `diaper_reminder` | `/diaper` | おむつ記録一覧ページへ遷移 |

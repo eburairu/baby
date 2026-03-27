@@ -154,5 +154,5 @@ AI に対し、以下の情報を元に特徴の抽出を依頼する。
 ## 参照先ドキュメント
 
 - `.specify/specs/tracking/daily_diary.md` — 育児日誌の基本仕様・UI
-- `.specify/specs/settings/ai_settings_admin.md` — AI 管理設定画面
+- `.specify/specs/settings/ai_settings.md` — AI 管理設定画面
 - `.specify/specs/tracking/general_memo.md` — 汎用メモとの連携
