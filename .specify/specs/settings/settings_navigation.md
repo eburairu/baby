@@ -39,9 +39,9 @@
 - **権限管理 (Admin のみ)**: メンバーの閲覧アクセス設定 (`/settings/permissions`)。
   - アイコン: `ShieldCheck` (Emerald)
   - 表示条件: ロールが `admin` または `is_superadmin` の場合。
-- **AI 設定 (Admin のみ)**: LLM モデルや生成パラメーターの調整 (`/settings/ai`)。
+- **AI 設定 (SuperAdmin のみ)**: LLM モデルや生成パラメーターの調整 (`/admin/ai`)。
   - アイコン: `Sparkles` (Amber)
-  - 表示条件: ロールが `admin` または `is_superadmin` の場合。
+  - 表示条件: `is_superadmin` が true の場合。
 - **ログアウト**: セッションを終了する。
   - アイコン: `LogOut` (Red/Destructive)
   - 挙動: クリック時に `AlertDialog` を表示して確認を行う。
