@@ -20,6 +20,28 @@ interface NotificationSettings {
   dnd_end_time: string | null;
 }
 
+function NotificationSettingItem({
+  title,
+  description,
+  checked,
+  onCheckedChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="space-y-0.5">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  );
+}
+
 export default function NotificationsPage() {
   const { permission, subscription, requestPermission, subscribeUser, unsubscribeUser, sendSubscriptionToBackend } = usePushNotification();
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
@@ -245,60 +267,36 @@ export default function NotificationsPage() {
             <CardDescription>受け取る通知の種類を選択してください</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">家族の記録</p>
-                <p className="text-xs text-muted-foreground">家族が新しい記録を追加したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.family_record_enabled}
-                onCheckedChange={(v) => updateSetting("family_record_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">授乳リマインダー</p>
-                <p className="text-xs text-muted-foreground">前回の授乳から時間が経過したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.feeding_reminder_enabled}
-                onCheckedChange={(v) => updateSetting("feeding_reminder_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">オムツリマインダー</p>
-                <p className="text-xs text-muted-foreground">前回のオムツ替えから時間が経過したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.diaper_reminder_enabled}
-                onCheckedChange={(v) => updateSetting("diaper_reminder_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">デイリーサマリー</p>
-                <p className="text-xs text-muted-foreground">AIによる1日のまとめが完成したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.daily_summary_enabled}
-                onCheckedChange={(v) => updateSetting("daily_summary_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">システム通知</p>
-                <p className="text-xs text-muted-foreground">重要なお知らせやアップデート情報を通知します</p>
-              </div>
-              <Switch
-                checked={settings?.system_notice_enabled}
-                onCheckedChange={(v) => updateSetting("system_notice_enabled", v)}
-              />
-            </div>
+            <NotificationSettingItem
+              title="家族の記録"
+              description="家族が新しい記録を追加したときに通知します"
+              checked={!!settings?.family_record_enabled}
+              onCheckedChange={(v) => updateSetting("family_record_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="授乳リマインダー"
+              description="前回の授乳から時間が経過したときに通知します"
+              checked={!!settings?.feeding_reminder_enabled}
+              onCheckedChange={(v) => updateSetting("feeding_reminder_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="オムツリマインダー"
+              description="前回のオムツ替えから時間が経過したときに通知します"
+              checked={!!settings?.diaper_reminder_enabled}
+              onCheckedChange={(v) => updateSetting("diaper_reminder_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="デイリーサマリー"
+              description="AIによる1日のまとめが完成したときに通知します"
+              checked={!!settings?.daily_summary_enabled}
+              onCheckedChange={(v) => updateSetting("daily_summary_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="システム通知"
+              description="重要なお知らせやアップデート情報を通知します"
+              checked={!!settings?.system_notice_enabled}
+              onCheckedChange={(v) => updateSetting("system_notice_enabled", v)}
+            />
           </CardContent>
         </Card>
 
