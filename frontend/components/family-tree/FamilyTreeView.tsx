@@ -5,9 +5,11 @@ import { RelativeCard } from "./RelativeCard"
 import { RelativeFormDialog } from "./RelativeFormDialog"
 import { TREE_LAYOUT, getRelativesByType } from "@/lib/relativeUtils"
 import type { Relative, RelativeCreate, RelativeUpdate, RelationshipType } from "@/types/relative"
+import type { Baby as BabyType } from "@/types/baby"
 
 interface Props {
   relatives: Relative[]
+  baby: BabyType | null
   canWrite: boolean
   onAdd: (data: RelativeCreate) => Promise<unknown>
   onUpdate: (id: number, data: RelativeUpdate) => Promise<unknown>
@@ -20,7 +22,7 @@ interface DialogState {
   defaultType?: RelationshipType
 }
 
-export function FamilyTreeView({ relatives, canWrite, onAdd, onUpdate, onDelete }: Props) {
+export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onDelete }: Props) {
   const [dialog, setDialog] = useState<DialogState>({ open: false, relative: null })
 
   const openAdd = (type: RelationshipType) => {
@@ -78,22 +80,28 @@ export function FamilyTreeView({ relatives, canWrite, onAdd, onUpdate, onDelete 
   const parentSlots = TREE_LAYOUT.filter((s) => s.row === "parents")
   const siblingSlots = TREE_LAYOUT.filter((s) => s.row === "siblings")
 
+  // 指定した順序でスロットを取得するヘルパー
+  const getSlotsOrdered = (types: RelationshipType[]) =>
+    types.map((t) => parentSlots.find((s) => s.relationshipType === t)).filter(
+      (s): s is (typeof TREE_LAYOUT)[number] => s !== undefined
+    )
+
   return (
     <>
       <div className="space-y-6 py-4">
-        {/* 祖父母行 */}
+        {/* 祖父母行: 左=母方、右=父方 */}
         <div className="flex justify-center gap-2">
-          {/* 父方祖父母 */}
-          <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-            {grandparentSlots
-              .filter((s) => s.relationshipType.startsWith("paternal"))
-              .map(renderSlot)}
-          </div>
-          <div className="w-8" />
           {/* 母方祖父母 */}
           <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
             {grandparentSlots
               .filter((s) => s.relationshipType.startsWith("maternal"))
+              .map(renderSlot)}
+          </div>
+          <div className="w-8" />
+          {/* 父方祖父母 */}
+          <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
+            {grandparentSlots
+              .filter((s) => s.relationshipType.startsWith("paternal"))
               .map(renderSlot)}
           </div>
         </div>
@@ -103,25 +111,19 @@ export function FamilyTreeView({ relatives, canWrite, onAdd, onUpdate, onDelete 
           <div className="w-px h-4 bg-border" />
         </div>
 
-        {/* 親・叔父叔母行 */}
+        {/* 親・叔父叔母行: 左=母方叔父叔母、中=母・父、右=父方叔父叔母 */}
         <div className="flex justify-center gap-2 flex-wrap">
-          {/* 父方叔父叔母 */}
-          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-            {parentSlots
-              .filter((s) => s.relationshipType === "paternal_uncle" || s.relationshipType === "paternal_aunt")
-              .map(renderSlot)}
-          </div>
-          {/* 父母 */}
-          <div className="flex gap-2 border border-border rounded-lg p-2 bg-primary/5">
-            {parentSlots
-              .filter((s) => s.relationshipType === "father" || s.relationshipType === "mother")
-              .map(renderSlot)}
-          </div>
           {/* 母方叔父叔母 */}
           <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-            {parentSlots
-              .filter((s) => s.relationshipType === "maternal_uncle" || s.relationshipType === "maternal_aunt")
-              .map(renderSlot)}
+            {getSlotsOrdered(["maternal_uncle", "maternal_aunt"]).map(renderSlot)}
+          </div>
+          {/* 父母（母→父の順） */}
+          <div className="flex gap-2 border border-border rounded-lg p-2 bg-primary/5">
+            {getSlotsOrdered(["mother", "father"]).map(renderSlot)}
+          </div>
+          {/* 父方叔父叔母 */}
+          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+            {getSlotsOrdered(["paternal_uncle", "paternal_aunt"]).map(renderSlot)}
           </div>
         </div>
 
@@ -144,7 +146,14 @@ export function FamilyTreeView({ relatives, canWrite, onAdd, onUpdate, onDelete 
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
               <Baby className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-[11px] font-semibold text-primary">赤ちゃん</span>
+            <span className="text-[11px] font-semibold text-primary truncate max-w-[72px]">
+              {baby?.name ?? "赤ちゃん"}
+            </span>
+            {baby?.birthday && (
+              <span className="text-[9px] text-muted-foreground leading-tight">
+                {new Date(baby.birthday).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}生
+              </span>
+            )}
           </div>
 
           {/* 弟妹 */}
