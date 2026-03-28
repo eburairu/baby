@@ -35,7 +35,6 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
 
   const closeDialog = () => setDialog((d) => ({ ...d, open: false }))
 
-  // グリッド列インデックス → 該当スロットのカードをレンダリング
   const renderSlot = (slot: (typeof TREE_LAYOUT)[number]) => {
     const items = getRelativesByType(relatives, slot.relationshipType)
 
@@ -51,7 +50,6 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
               onClick={() => openEdit(r)}
             />
           ))}
-          {/* 複数登録可能なので常に「追加」カードを表示 */}
           {canWrite && (
             <RelativeCard
               relative={null}
@@ -80,68 +78,93 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
   const parentSlots = TREE_LAYOUT.filter((s) => s.row === "parents")
   const siblingSlots = TREE_LAYOUT.filter((s) => s.row === "siblings")
 
-  // 指定した順序でスロットを取得するヘルパー
-  const getSlotsOrdered = (types: RelationshipType[]) =>
-    types.map((t) => parentSlots.find((s) => s.relationshipType === t)).filter(
-      (s): s is (typeof TREE_LAYOUT)[number] => s !== undefined
-    )
+  const slot = (type: RelationshipType) =>
+    parentSlots.find((s) => s.relationshipType === type) ??
+    grandparentSlots.find((s) => s.relationshipType === type)
 
   return (
     <>
-      <div className="space-y-6 py-4">
-        {/* 祖父母行: 左=母方、右=父方 */}
-        <div className="flex justify-center gap-2">
-          {/* 母方祖父母 */}
-          <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-            {grandparentSlots
-              .filter((s) => s.relationshipType.startsWith("maternal"))
-              .map(renderSlot)}
+      <div className="py-4 space-y-4">
+        {/*
+         * 2列構造: 左=母方, 右=父方
+         * 各列で祖父母と親を縦に並べることで、祖父母が対応する親の真上に来る
+         */}
+        <div className="flex items-end gap-2 justify-center">
+          {/* ===== 左列: 母方 ===== */}
+          <div className="flex flex-col items-center gap-2 flex-1 max-w-[200px]">
+            {/* 母方祖父母 */}
+            <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
+              {grandparentSlots
+                .filter((s) => s.relationshipType.startsWith("maternal"))
+                .map(renderSlot)}
+            </div>
+            <div className="w-px h-3 bg-border" />
+            {/* 母方叔父叔母 + 母 */}
+            <div className="flex gap-2 items-center justify-end w-full">
+              <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+                {(["maternal_uncle", "maternal_aunt"] as RelationshipType[]).flatMap((t) => {
+                  const s = slot(t)
+                  return s ? [renderSlot(s)] : []
+                })}
+              </div>
+              <div className="border border-border rounded-lg p-2 bg-primary/5">
+                {(() => {
+                  const s = slot("mother")
+                  return s ? renderSlot(s) : null
+                })()}
+              </div>
+            </div>
           </div>
-          <div className="w-8" />
-          {/* 父方祖父母 */}
-          <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-            {grandparentSlots
-              .filter((s) => s.relationshipType.startsWith("paternal"))
-              .map(renderSlot)}
+
+          {/* 中央の横線（父母のカップル接続） */}
+          <div className="flex-shrink-0 self-end pb-[18px]">
+            <div className="h-px w-6 bg-border" />
+          </div>
+
+          {/* ===== 右列: 父方 ===== */}
+          <div className="flex flex-col items-center gap-2 flex-1 max-w-[200px]">
+            {/* 父方祖父母 */}
+            <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
+              {grandparentSlots
+                .filter((s) => s.relationshipType.startsWith("paternal"))
+                .map(renderSlot)}
+            </div>
+            <div className="w-px h-3 bg-border" />
+            {/* 父 + 父方叔父叔母 */}
+            <div className="flex gap-2 items-center justify-start w-full">
+              <div className="border border-border rounded-lg p-2 bg-primary/5">
+                {(() => {
+                  const s = slot("father")
+                  return s ? renderSlot(s) : null
+                })()}
+              </div>
+              <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+                {(["paternal_uncle", "paternal_aunt"] as RelationshipType[]).flatMap((t) => {
+                  const s = slot(t)
+                  return s ? [renderSlot(s)] : []
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* 接続線 */}
-        <div className="flex justify-center">
-          <div className="w-px h-4 bg-border" />
-        </div>
-
-        {/* 親・叔父叔母行: 左=母方叔父叔母、中=母・父、右=父方叔父叔母 */}
-        <div className="flex justify-center gap-2 flex-wrap">
-          {/* 母方叔父叔母 */}
-          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-            {getSlotsOrdered(["maternal_uncle", "maternal_aunt"]).map(renderSlot)}
-          </div>
-          {/* 父母（母→父の順） */}
-          <div className="flex gap-2 border border-border rounded-lg p-2 bg-primary/5">
-            {getSlotsOrdered(["mother", "father"]).map(renderSlot)}
-          </div>
-          {/* 父方叔父叔母 */}
-          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-            {getSlotsOrdered(["paternal_uncle", "paternal_aunt"]).map(renderSlot)}
-          </div>
-        </div>
-
-        {/* 接続線 */}
+        {/* 接続線: 父母から赤ちゃんへ */}
         <div className="flex justify-center">
           <div className="w-px h-4 bg-border" />
         </div>
 
         {/* 兄弟姉妹 + 赤ちゃん行 */}
         <div className="flex justify-center items-end gap-2">
-          {/* 兄姉 */}
           <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
             {siblingSlots
-              .filter((s) => s.relationshipType === "older_brother" || s.relationshipType === "older_sister")
+              .filter(
+                (s) =>
+                  s.relationshipType === "older_brother" || s.relationshipType === "older_sister"
+              )
               .map(renderSlot)}
           </div>
 
-          {/* 赤ちゃん（中心） */}
+          {/* 赤ちゃん */}
           <div className="flex flex-col items-center gap-1 p-2 rounded-lg border-2 border-primary bg-primary/5 min-w-[64px]">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
               <Baby className="w-5 h-5 text-primary" />
@@ -151,15 +174,22 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
             </span>
             {baby?.birthday && (
               <span className="text-[9px] text-muted-foreground leading-tight">
-                {new Date(baby.birthday).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}生
+                {new Date(baby.birthday).toLocaleDateString("ja-JP", {
+                  month: "numeric",
+                  day: "numeric",
+                })}
+                生
               </span>
             )}
           </div>
 
-          {/* 弟妹 */}
           <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
             {siblingSlots
-              .filter((s) => s.relationshipType === "younger_brother" || s.relationshipType === "younger_sister")
+              .filter(
+                (s) =>
+                  s.relationshipType === "younger_brother" ||
+                  s.relationshipType === "younger_sister"
+              )
               .map(renderSlot)}
           </div>
         </div>
