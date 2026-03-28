@@ -19,8 +19,11 @@
 
 以下の主要なモデルに `is_deleted` を導入します。
 
-- **`Family`** (家族)
-- **`Baby`** (赤ちゃん)
+- **ユーザー・家族系モデル**:
+  - `User` (ユーザー)
+  - `Family` (家族)
+  - `Baby` (赤ちゃん)
+  - `Relative` (親戚)
 - **育児記録系モデル**:
   - `Feeding` (授乳)
   - `Sleep` (睡眠)
@@ -33,9 +36,10 @@
   - `Vaccination` (予防接種)
   - `Temperature` (体温)
 - **関連モデル**:
-  - `Comment` (記録へのコメント)
-  - `AISummary` (AIサマリー)
-  - `NotificationSubscription` (通知購読)
+  - `RecordComment` (記録へのコメント)
+  - `DailySummary` (AIサマリー)
+  - `AppNotification` (アプリ内通知)
+  - `PushSubscription` (プッシュ通知購読)
 
 ## 実装方針
 

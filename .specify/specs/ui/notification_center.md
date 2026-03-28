@@ -246,21 +246,20 @@ self.addEventListener('push', (event) => {
 FastAPI の `BackgroundTasks` を利用し、レスポンスをブロックせずに同期関数としてアプリ内通知の INSERT と PWA プッシュ送信（将来予定）を行う。
 
 ```python
-def notify_family_members_bg(
-    background_tasks: BackgroundTasks,
-    family_id: int,
-    exclude_user_id: int,
+def notify_user(
+    db: Session,
+    user_id: int,
     title: str,
     body: str,
     url: str = "/",
-    category: str = "family_record"
+    category: str = "system"
 ):
     """
-    1. バックグラウンドタスクとして実行
-    2. 同ファミリーの記録者以外のメンバーを取得
-    3. 各メンバーの notification_settings を確認
-    4. category (例: family_record_enabled) = True のメンバーのみ app_notifications に INSERT
-    5. （PWA 実装後）push_subscriptions を参照してプッシュ通知を送信
+    特定のユーザー（例: リマインダーなら対象ユーザー）に通知を送信。
+
+    1. notification_settings でカテゴリの ON/OFF を確認
+    2. app_notifications テーブルに INSERT（おやすみモードに関係なく常時）
+    3. おやすみモード中でなければ push_subscriptions を参照して PWA プッシュ通知も送信
     """
     ...
 
@@ -274,20 +273,21 @@ def notify_family_members(
     category: str = "family_record"
 ):
     """
-    同ファミリーの記録者以外のメンバーに通知を送信する（同期処理用）。
+    同ファミリーの記録者以外のメンバーを取得し、各メンバーに対して notify_user を呼び出す（同期処理用）。
     """
     ...
 
-def notify_user(
-    db: Session,
-    user_id: int,
+def notify_family_members_bg(
+    background_tasks: BackgroundTasks,
+    family_id: int,
+    exclude_user_id: int,
     title: str,
     body: str,
     url: str = "/",
-    category: str = "system"
+    category: str = "family_record"
 ):
     """
-    特定のユーザー（例: リマインダーなら対象ユーザー）に通知を送信。
+    notify_family_members をバックグラウンドタスクとして実行するラッパー関数。
     """
     ...
 
@@ -299,7 +299,7 @@ def notify_achievements_bg(
     unlocked: list[dict],
 ) -> None:
     """
-    実績（アチーブメント）解除時に同ファミリーの全メンバーに通知を送信。
+    実績（アチーブメント）解除時に同ファミリーの全メンバーに通知を送信（バックグラウンドタスク）。
     """
     ...
 ```
