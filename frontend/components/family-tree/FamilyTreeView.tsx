@@ -90,41 +90,45 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
          * 内側の flex-col により「祖父母」が対応する「親」の真上に来る。
          * items-end で叔父叔母と親が同じ高さに揃い、内側2列も同構造で同じ高さになる。
          */}
-        <div className="flex justify-center items-end gap-2 flex-wrap">
-          {/* 外側左: 母方叔父叔母 */}
-          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-            {renderSlot(ps("maternal_uncle"))}
-            {renderSlot(ps("maternal_aunt"))}
-          </div>
-
-          {/* 内側左: 母方祖父母 → 縦線 → 母 */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-              {renderSlot(gs("maternal_grandfather"))}
-              {renderSlot(gs("maternal_grandmother"))}
+        {/*
+         * overflow-x-auto で幅が足りない場合は横スクロール。
+         * 母方・父方を各1グループ(shrink-0)にまとめて折り返しを防ぐ。
+         */}
+        <div className="flex justify-center gap-4 overflow-x-auto pb-1">
+          {/* 母方グループ: [叔父叔母(外)] [祖父母→母(内)] */}
+          <div className="flex items-end gap-2 shrink-0">
+            <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+              {renderSlot(ps("maternal_uncle"))}
+              {renderSlot(ps("maternal_aunt"))}
             </div>
-            <div className="w-px h-3 bg-border" />
-            <div className="border border-border rounded-lg p-2 bg-primary/5">
-              {renderSlot(ps("mother"))}
-            </div>
-          </div>
-
-          {/* 内側右: 父方祖父母 → 縦線 → 父 */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-              {renderSlot(gs("paternal_grandfather"))}
-              {renderSlot(gs("paternal_grandmother"))}
-            </div>
-            <div className="w-px h-3 bg-border" />
-            <div className="border border-border rounded-lg p-2 bg-primary/5">
-              {renderSlot(ps("father"))}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
+                {renderSlot(gs("maternal_grandfather"))}
+                {renderSlot(gs("maternal_grandmother"))}
+              </div>
+              <div className="w-px h-3 bg-border" />
+              <div className="border border-border rounded-lg p-2 bg-primary/5">
+                {renderSlot(ps("mother"))}
+              </div>
             </div>
           </div>
 
-          {/* 外側右: 父方叔父叔母 */}
-          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-            {renderSlot(ps("paternal_uncle"))}
-            {renderSlot(ps("paternal_aunt"))}
+          {/* 父方グループ: [祖父母→父(内)] [叔父叔母(外)] */}
+          <div className="flex items-end gap-2 shrink-0">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
+                {renderSlot(gs("paternal_grandfather"))}
+                {renderSlot(gs("paternal_grandmother"))}
+              </div>
+              <div className="w-px h-3 bg-border" />
+              <div className="border border-border rounded-lg p-2 bg-primary/5">
+                {renderSlot(ps("father"))}
+              </div>
+            </div>
+            <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+              {renderSlot(ps("paternal_uncle"))}
+              {renderSlot(ps("paternal_aunt"))}
+            </div>
           </div>
         </div>
 
