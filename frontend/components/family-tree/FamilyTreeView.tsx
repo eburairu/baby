@@ -78,93 +78,93 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
   const parentSlots = TREE_LAYOUT.filter((s) => s.row === "parents")
   const siblingSlots = TREE_LAYOUT.filter((s) => s.row === "siblings")
 
-  const slot = (type: RelationshipType) =>
-    parentSlots.find((s) => s.relationshipType === type) ??
-    grandparentSlots.find((s) => s.relationshipType === type)
+  const findParentSlot = (type: RelationshipType) =>
+    parentSlots.find((s) => s.relationshipType === type)!
 
   return (
     <>
-      <div className="py-4 space-y-4">
+      <div className="py-4 space-y-2">
         {/*
-         * 2列構造: 左=母方, 右=父方
-         * 各列で祖父母と親を縦に並べることで、祖父母が対応する親の真上に来る
+         * レイアウト: 左=母方 / 右=父方 の2列で統一
+         * 祖父母行と親行を別の横行にして、同じ flex-1 幅で揃える
+         *   → 祖父母が常に祖父母段、親が常に親段に表示される
          */}
-        <div className="flex items-end gap-2 justify-center">
-          {/* ===== 左列: 母方 ===== */}
-          <div className="flex flex-col items-center gap-2 flex-1 max-w-[200px]">
-            {/* 母方祖父母 */}
+
+        {/* ── 祖父母行 ── */}
+        <div className="flex gap-4 justify-center">
+          {/* 母方祖父母 */}
+          <div className="flex-1 max-w-[200px] flex justify-center">
             <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
               {grandparentSlots
                 .filter((s) => s.relationshipType.startsWith("maternal"))
                 .map(renderSlot)}
             </div>
-            <div className="w-px h-3 bg-border" />
-            {/* 母方叔父叔母 + 母 */}
-            <div className="flex gap-2 items-center justify-end w-full">
-              <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-                {(["maternal_uncle", "maternal_aunt"] as RelationshipType[]).flatMap((t) => {
-                  const s = slot(t)
-                  return s ? [renderSlot(s)] : []
-                })}
-              </div>
-              <div className="border border-border rounded-lg p-2 bg-primary/5">
-                {(() => {
-                  const s = slot("mother")
-                  return s ? renderSlot(s) : null
-                })()}
-              </div>
-            </div>
           </div>
-
-          {/* 中央の横線（父母のカップル接続） */}
-          <div className="flex-shrink-0 self-end pb-[18px]">
-            <div className="h-px w-6 bg-border" />
-          </div>
-
-          {/* ===== 右列: 父方 ===== */}
-          <div className="flex flex-col items-center gap-2 flex-1 max-w-[200px]">
-            {/* 父方祖父母 */}
+          {/* 父方祖父母 */}
+          <div className="flex-1 max-w-[200px] flex justify-center">
             <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
               {grandparentSlots
                 .filter((s) => s.relationshipType.startsWith("paternal"))
                 .map(renderSlot)}
             </div>
+          </div>
+        </div>
+
+        {/* 接続線（祖父母 → 親） */}
+        <div className="flex gap-4 justify-center">
+          <div className="flex-1 max-w-[200px] flex justify-center">
             <div className="w-px h-3 bg-border" />
-            {/* 父 + 父方叔父叔母 */}
-            <div className="flex gap-2 items-center justify-start w-full">
-              <div className="border border-border rounded-lg p-2 bg-primary/5">
-                {(() => {
-                  const s = slot("father")
-                  return s ? renderSlot(s) : null
-                })()}
-              </div>
-              <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-                {(["paternal_uncle", "paternal_aunt"] as RelationshipType[]).flatMap((t) => {
-                  const s = slot(t)
-                  return s ? [renderSlot(s)] : []
-                })}
-              </div>
+          </div>
+          <div className="flex-1 max-w-[200px] flex justify-center">
+            <div className="w-px h-3 bg-border" />
+          </div>
+        </div>
+
+        {/* ── 親・叔父叔母行 ── */}
+        <div className="flex gap-2 justify-center items-center">
+          {/* 母方: 叔父叔母(外) → 母(内) */}
+          <div className="flex-1 max-w-[200px] flex justify-end items-center gap-2">
+            <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+              {renderSlot(findParentSlot("maternal_uncle"))}
+              {renderSlot(findParentSlot("maternal_aunt"))}
+            </div>
+            <div className="border border-border rounded-lg p-2 bg-primary/5">
+              {renderSlot(findParentSlot("mother"))}
+            </div>
+          </div>
+
+          {/* 中央の横線（父母カップル） */}
+          <div className="h-px w-6 bg-border flex-shrink-0" />
+
+          {/* 父方: 父(内) → 叔父叔母(外) */}
+          <div className="flex-1 max-w-[200px] flex justify-start items-center gap-2">
+            <div className="border border-border rounded-lg p-2 bg-primary/5">
+              {renderSlot(findParentSlot("father"))}
+            </div>
+            <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+              {renderSlot(findParentSlot("paternal_uncle"))}
+              {renderSlot(findParentSlot("paternal_aunt"))}
             </div>
           </div>
         </div>
 
-        {/* 接続線: 父母から赤ちゃんへ */}
+        {/* 接続線（親 → 赤ちゃん） */}
         <div className="flex justify-center">
           <div className="w-px h-4 bg-border" />
         </div>
 
-        {/* 兄弟姉妹 + 赤ちゃん行 */}
+        {/* ── 兄弟姉妹 + 赤ちゃん行 ── */}
         <div className="flex justify-center items-end gap-2">
           <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
             {siblingSlots
               .filter(
                 (s) =>
-                  s.relationshipType === "older_brother" || s.relationshipType === "older_sister"
+                  s.relationshipType === "older_brother" ||
+                  s.relationshipType === "older_sister"
               )
               .map(renderSlot)}
           </div>
 
-          {/* 赤ちゃん */}
           <div className="flex flex-col items-center gap-1 p-2 rounded-lg border-2 border-primary bg-primary/5 min-w-[64px]">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
               <Baby className="w-5 h-5 text-primary" />
