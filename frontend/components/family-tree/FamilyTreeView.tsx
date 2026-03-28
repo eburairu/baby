@@ -25,13 +25,11 @@ interface DialogState {
 export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onDelete }: Props) {
   const [dialog, setDialog] = useState<DialogState>({ open: false, relative: null })
 
-  const openAdd = (type: RelationshipType) => {
+  const openAdd = (type: RelationshipType) =>
     setDialog({ open: true, relative: null, defaultType: type })
-  }
 
-  const openEdit = (relative: Relative) => {
+  const openEdit = (relative: Relative) =>
     setDialog({ open: true, relative, defaultType: undefined })
-  }
 
   const closeDialog = () => setDialog((d) => ({ ...d, open: false }))
 
@@ -78,82 +76,64 @@ export function FamilyTreeView({ relatives, baby, canWrite, onAdd, onUpdate, onD
   const parentSlots = TREE_LAYOUT.filter((s) => s.row === "parents")
   const siblingSlots = TREE_LAYOUT.filter((s) => s.row === "siblings")
 
-  const findParentSlot = (type: RelationshipType) =>
-    parentSlots.find((s) => s.relationshipType === type)!
+  const ps = (type: RelationshipType) => parentSlots.find((s) => s.relationshipType === type)!
+  const gs = (type: RelationshipType) =>
+    grandparentSlots.find((s) => s.relationshipType === type)!
 
   return (
     <>
-      <div className="py-4 space-y-2">
+      <div className="py-4 space-y-4">
         {/*
-         * レイアウト: 左=母方 / 右=父方 の2列で統一
-         * 祖父母行と親行を別の横行にして、同じ flex-1 幅で揃える
-         *   → 祖父母が常に祖父母段、親が常に親段に表示される
+         * 構造:
+         *   [母方uncle/aunt 外] [母方祖父母→母 内] ... [父方祖父母→父 内] [父方uncle/aunt 外]
+         *
+         * 内側の flex-col により「祖父母」が対応する「親」の真上に来る。
+         * items-end で叔父叔母と親が同じ高さに揃い、内側2列も同構造で同じ高さになる。
          */}
+        <div className="flex justify-center items-end gap-2 flex-wrap">
+          {/* 外側左: 母方叔父叔母 */}
+          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+            {renderSlot(ps("maternal_uncle"))}
+            {renderSlot(ps("maternal_aunt"))}
+          </div>
 
-        {/* ── 祖父母行 ── */}
-        <div className="flex gap-4 justify-center">
-          {/* 母方祖父母 */}
-          <div className="flex-1 max-w-[200px] flex justify-center">
+          {/* 内側左: 母方祖父母 → 縦線 → 母 */}
+          <div className="flex flex-col items-center gap-2">
             <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-              {grandparentSlots
-                .filter((s) => s.relationshipType.startsWith("maternal"))
-                .map(renderSlot)}
+              {renderSlot(gs("maternal_grandfather"))}
+              {renderSlot(gs("maternal_grandmother"))}
+            </div>
+            <div className="w-px h-3 bg-border" />
+            <div className="border border-border rounded-lg p-2 bg-primary/5">
+              {renderSlot(ps("mother"))}
             </div>
           </div>
-          {/* 父方祖父母 */}
-          <div className="flex-1 max-w-[200px] flex justify-center">
+
+          {/* 内側右: 父方祖父母 → 縦線 → 父 */}
+          <div className="flex flex-col items-center gap-2">
             <div className="flex gap-2 border border-border rounded-lg p-2 bg-muted/30">
-              {grandparentSlots
-                .filter((s) => s.relationshipType.startsWith("paternal"))
-                .map(renderSlot)}
+              {renderSlot(gs("paternal_grandfather"))}
+              {renderSlot(gs("paternal_grandmother"))}
             </div>
-          </div>
-        </div>
-
-        {/* 接続線（祖父母 → 親） */}
-        <div className="flex gap-4 justify-center">
-          <div className="flex-1 max-w-[200px] flex justify-center">
             <div className="w-px h-3 bg-border" />
+            <div className="border border-border rounded-lg p-2 bg-primary/5">
+              {renderSlot(ps("father"))}
+            </div>
           </div>
-          <div className="flex-1 max-w-[200px] flex justify-center">
-            <div className="w-px h-3 bg-border" />
+
+          {/* 外側右: 父方叔父叔母 */}
+          <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
+            {renderSlot(ps("paternal_uncle"))}
+            {renderSlot(ps("paternal_aunt"))}
           </div>
         </div>
 
-        {/* ── 親・叔父叔母行 ── */}
-        <div className="flex gap-2 justify-center items-center">
-          {/* 母方: 叔父叔母(外) → 母(内) */}
-          <div className="flex-1 max-w-[200px] flex justify-end items-center gap-2">
-            <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-              {renderSlot(findParentSlot("maternal_uncle"))}
-              {renderSlot(findParentSlot("maternal_aunt"))}
-            </div>
-            <div className="border border-border rounded-lg p-2 bg-primary/5">
-              {renderSlot(findParentSlot("mother"))}
-            </div>
-          </div>
-
-          {/* 中央の横線（父母カップル） */}
-          <div className="h-px w-6 bg-border flex-shrink-0" />
-
-          {/* 父方: 父(内) → 叔父叔母(外) */}
-          <div className="flex-1 max-w-[200px] flex justify-start items-center gap-2">
-            <div className="border border-border rounded-lg p-2 bg-primary/5">
-              {renderSlot(findParentSlot("father"))}
-            </div>
-            <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
-              {renderSlot(findParentSlot("paternal_uncle"))}
-              {renderSlot(findParentSlot("paternal_aunt"))}
-            </div>
-          </div>
-        </div>
-
-        {/* 接続線（親 → 赤ちゃん） */}
+        {/* 親 → 赤ちゃん 接続線 */}
         <div className="flex justify-center">
           <div className="w-px h-4 bg-border" />
         </div>
 
-        {/* ── 兄弟姉妹 + 赤ちゃん行 ── */}
+        {/* 兄弟姉妹 + 赤ちゃん */}
         <div className="flex justify-center items-end gap-2">
           <div className="flex gap-2 border border-dashed border-border rounded-lg p-2">
             {siblingSlots
