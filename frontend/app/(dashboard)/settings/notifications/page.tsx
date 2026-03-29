@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Bell, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -9,16 +8,7 @@ import { toast } from "sonner";
 import { usePushNotification } from "@/hooks/usePushNotification";
 import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import { api } from "@/lib/api";
-
-interface NotificationSettings {
-  family_record_enabled: boolean;
-  feeding_reminder_enabled: boolean;
-  diaper_reminder_enabled: boolean;
-  daily_summary_enabled: boolean;
-  system_notice_enabled: boolean;
-  dnd_start_time: string | null;
-  dnd_end_time: string | null;
-}
+import { useNotificationSettings, NotificationSettings } from "@/hooks/useNotificationSettings";
 
 function NotificationSettingItem({
   title,
@@ -44,67 +34,33 @@ function NotificationSettingItem({
 
 export default function NotificationsPage() {
   const { permission, subscription, requestPermission, subscribeUser, unsubscribeUser, sendSubscriptionToBackend } = usePushNotification();
-  const [settings, setSettings] = useState<NotificationSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dndInputsVisible, setDndInputsVisible] = useState(false);
+  const { settings, isLoading, updateSettings } = useNotificationSettings();
+
   const dndEnabled = !!(settings?.dnd_start_time && settings?.dnd_end_time);
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const data = await api.get<NotificationSettings>("/notifications/settings");
-      setSettings(data);
-      setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
-    } catch (error) {
-      console.error("Failed to fetch settings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const dndInputsVisible = dndEnabled;
 
   const handleDndToggle = async (enabled: boolean) => {
-    setDndInputsVisible(enabled);
     if (!enabled) {
-      const newSettings = { ...settings!, dnd_start_time: null, dnd_end_time: null };
-      setSettings(newSettings);
       try {
-        await api.patch("/notifications/settings", { dnd_start_time: null, dnd_end_time: null });
+        await updateSettings({ dnd_start_time: null, dnd_end_time: null }, { showToast: false });
         toast.success("おやすみモードを無効にしました");
       } catch {
-        toast.error("設定の更新に失敗しました");
-        fetchSettings();
+        // useNotificationSettings handles the error toast
       }
     } else {
       const defaultStart = "21:00";
       const defaultEnd = "08:00";
-      const newSettings = { ...settings!, dnd_start_time: defaultStart, dnd_end_time: defaultEnd };
-      setSettings(newSettings);
       try {
-        await api.patch("/notifications/settings", { dnd_start_time: defaultStart, dnd_end_time: defaultEnd });
+        await updateSettings({ dnd_start_time: defaultStart, dnd_end_time: defaultEnd }, { showToast: false });
         toast.success("おやすみモードを有効にしました");
       } catch {
-        toast.error("設定の更新に失敗しました");
-        fetchSettings();
+        // useNotificationSettings handles the error toast
       }
     }
   };
 
   const updateSetting = async (key: keyof NotificationSettings, value: boolean | string | null) => {
-    if (!settings) return;
-
-    const newSettings = { ...settings, [key]: value };
-    setSettings(newSettings);
-
-    try {
-      await api.patch("/notifications/settings", { [key]: value });
-      toast.success("設定を更新しました");
-    } catch {
-      toast.error("設定の更新に失敗しました");
-      fetchSettings(); // ロールバック
-    }
+    await updateSettings({ [key]: value });
   };
 
   const handleEnableNotifications = async () => {
@@ -153,7 +109,7 @@ export default function NotificationsPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">読み込み中...</div>;
+  if (isLoading) return <div className="p-8 text-center">読み込み中...</div>;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
