@@ -59,6 +59,64 @@ Browser → FastAPI (:8000)
 - 全 API は `/api` プレフィックス
 - Cookie ベースのセッション管理（HttpOnly）
 
+### システム構成図
+
+```mermaid
+graph TB
+    subgraph Client["クライアント"]
+        Browser["ブラウザ / PWA"]
+    end
+
+    subgraph Render["Render (Docker)"]
+        subgraph SingleService["シングルサービス :8000"]
+            Static["静的ファイル配信\nfrontend/out/\n/* ルート"]
+            API["FastAPI\n/api/* ルート"]
+            subgraph Layers["レイヤー"]
+                Routers["Routers\n認証/家族/赤ちゃん/記録 etc."]
+                Services["Services\nビジネスロジック"]
+                Models["SQLAlchemy Models"]
+                Deps["dependencies.py\nget_current_user / verify_baby_access"]
+            end
+        end
+    end
+
+    subgraph External["外部サービス"]
+        Neon["PostgreSQL\nNeon Serverless"]
+        R2["Cloudflare R2\n画像ストレージ"]
+        OpenAI["OpenAI API\nAI日誌生成"]
+        WebPush["Web Push\nVAPID通知"]
+    end
+
+    Browser -->|"HTTP Cookie セッション"| SingleService
+    Static -->|"HTML/JS/CSS"| Browser
+    Browser -->|"/api/*"| API
+    API --> Routers --> Services --> Models
+    Routers --> Deps
+    Models -->|"SQLAlchemy 2.0"| Neon
+    Services -->|"画像アップロード"| R2
+    Services -->|"日誌生成リクエスト"| OpenAI
+    API -->|"プッシュ通知"| WebPush
+    WebPush --> Browser
+```
+
+### データフロー（認証）
+
+```mermaid
+sequenceDiagram
+    participant B as ブラウザ
+    participant F as FastAPI
+    participant D as PostgreSQL
+
+    B->>F: POST /api/auth/login
+    F->>D: UserSession 作成（7日有効）
+    F-->>B: Set-Cookie: session_id (HttpOnly)
+
+    B->>F: GET /api/babies/ (Cookie 付き)
+    F->>F: get_current_user() でセッション検証
+    F->>D: UserSession / User 取得
+    F-->>B: 赤ちゃん一覧 JSON
+```
+
 ## ディレクトリ構成
 
 ```text
