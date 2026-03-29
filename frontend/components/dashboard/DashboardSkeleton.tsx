@@ -1,14 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoneycombGrid } from "@/components/ui/honeycomb-grid"
-import { useWindowSize } from "@/hooks/useWindowSize"
+import { useWidgetSize } from "@/hooks/useWidgetSize"
 import { HexagonWidgetCard } from "./HexagonWidgetCard"
 import { DASHBOARD_UI } from "@/constants/dashboard"
 
 export function DashboardSkeleton() {
-    const { width } = useWindowSize()
-    const honeycombSize = (width && width < 640) 
-        ? DASHBOARD_UI.WIDGET_SIZE.MOBILE 
-        : DASHBOARD_UI.WIDGET_SIZE.DESKTOP
+    const honeycombSize = useWidgetSize()
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 transition-colors pb-24">
