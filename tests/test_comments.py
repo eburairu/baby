@@ -1,6 +1,37 @@
 import pytest
 from app.models.family import UserRole
 
+
+def test_comment_on_temperature_record(auth_client, db):
+    """体温記録に対してコメントの取得・投稿ができること（#1225）"""
+    client = auth_client()
+
+    # 赤ちゃん作成
+    res = client.post("/api/babies/", json={"name": "Baby Temp"})
+    assert res.status_code == 200
+    baby_id = res.json()["id"]
+
+    # 体温記録作成
+    res = client.post("/api/temperatures/", json={
+        "baby_id": baby_id,
+        "measured_at": "2024-03-20T10:00:00Z",
+        "temperature": 36.5,
+        "method": "AXILLARY",
+    })
+    assert res.status_code == 200
+    record_id = res.json()["id"]
+
+    # コメント投稿 → 400 ではなく 200 であること
+    res = client.post(f"/api/records/temperature/{record_id}/comments", json={"content": "正常な体温です"})
+    assert res.status_code == 200
+    assert res.json()["content"] == "正常な体温です"
+
+    # コメント取得 → 400 ではなく 200 であること
+    res = client.get(f"/api/records/temperature/{record_id}/comments")
+    assert res.status_code == 200
+    assert len(res.json()) == 1
+    assert res.json()[0]["content"] == "正常な体温です"
+
 def test_viewer_can_comment(client, auth_client, db):
     # 1. Admin が家族を作成
     admin_client = auth_client(username="admin_user", family_name="Happy Family")
