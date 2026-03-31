@@ -27,17 +27,7 @@ import { diaryTips } from "@/lib/tips-data"
 import { DailySummary } from "@/types/dailySummary"
 import { getErrorMessage } from "@/lib/api"
 import { RecordPageLayout } from "@/components/ui/record-page-layout"
-
-function getTodayJST(): string {
-    return new Intl.DateTimeFormat("ja-JP", {
-        timeZone: "Asia/Tokyo",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    })
-        .format(new Date())
-        .replace(/\//g, "-")
-}
+import { formatDateLocal } from "@/lib/dateUtils"
 
 export default function DiaryPage() {
     const { babies, isLoading: babiesLoading } = useBabies()
@@ -50,7 +40,7 @@ export default function DiaryPage() {
 
     const { summaries, isLoading: summariesLoading, error: summariesError, mutate } = useDailySummaries(babyId)
 
-    const todayStr = getTodayJST()
+    const todayStr = formatDateLocal(new Date())
     const [selectedDate, setSelectedDate] = useState<string>(todayStr)
     const [isGenerating, setIsGenerating] = useState(false)
     const [generateError, setGenerateError] = useState<string | null>(null)
