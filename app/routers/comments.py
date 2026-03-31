@@ -14,6 +14,7 @@ from app.models.growth import Growth
 from app.models.contraction import Contraction
 from app.models.schedule import Schedule
 from app.models.note import Note
+from app.models.temperature import TemperatureRecord
 from app.schemas.comment import CommentCreate, CommentResponse
 from app.utils.notifications import notify_family_members
 from app.models.baby import Baby
@@ -40,6 +41,7 @@ def get_record_baby_id(db: Session, record_type: str, record_id: int) -> int:
         "contraction": Contraction,
         "schedule": Schedule,
         "note": Note,
+        "temperature": TemperatureRecord,
     }
     model = model_map.get(record_type)
     if not model:
