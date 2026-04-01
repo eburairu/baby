@@ -54,9 +54,11 @@ def soft_delete_baby(db: Session, baby: Baby):
     ]
 
     for model in models_to_soft_delete:
-        records = db.query(model).filter(model.baby_id == baby.id).all()
-        for record in records:
-            record.is_deleted = True
+        # ⚡ Bolt: Use bulk update instead of fetching all records to memory and looping.
+        # This prevents N+1-like memory overhead and significantly speeds up soft deletion.
+        db.query(model).filter(model.baby_id == baby.id).update(
+            {"is_deleted": True}, synchronize_session=False
+        )
 
     # 赤ちゃん自身を論理削除
     baby.is_deleted = True
