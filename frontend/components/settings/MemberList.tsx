@@ -23,6 +23,12 @@ import { useAsyncAction } from "@/hooks/useAsyncAction"
 import { SettingsCard } from "./SettingsCard"
 import { ROLE_LABELS } from "@/constants/ui"
 
+const ROLE_BADGE_CLASSES: Record<string, string> = {
+    [UserRole.ADMIN]: "bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300",
+    [UserRole.VIEWER]: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+    default: "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400"
+}
+
 interface Props {
     members: FamilyMember[]
     currentUserId: number
@@ -68,11 +74,7 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                                     <span className="font-medium text-gray-900 dark:text-zinc-100">{getDisplayName(member)}</span>
                                     <Badge
                                         variant="secondary"
-                                        className={member.role === UserRole.ADMIN
-                                            ? "bg-violet-100 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300"
-                                            : member.role === UserRole.VIEWER
-                                                ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
-                                                : "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400"}
+                                        className={ROLE_BADGE_CLASSES[member.role] || ROLE_BADGE_CLASSES.default}
                                     >
                                         {ROLE_LABELS[member.role] ?? member.role}
                                     </Badge>
