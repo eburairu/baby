@@ -1,4 +1,5 @@
 import useSWR from "swr"
+import { useMemo } from "react"
 import { fetcher } from "@/lib/api"
 import { BabyRecord } from "@/types/record"
 
@@ -36,15 +37,17 @@ export function useRecordsByDate(
         { revalidateOnFocus: false }
     )
 
+    // クライアント側フィルタ
+    const filteredRecords = useMemo(() => {
+        return (records ?? []).filter(r => {
+            const t = new Date(r.timestamp)
+            return t.getFullYear() === y && t.getMonth() === m && t.getDate() === d
+        })
+    }, [records, y, m, d])
+
     if (needsFetch) {
         return { dayRecords: fetchedRecords ?? [], isLoading }
     }
 
-    // クライアント側フィルタ
-    const dayRecords = (records ?? []).filter(r => {
-        const t = new Date(r.timestamp)
-        return t.getFullYear() === y && t.getMonth() === m && t.getDate() === d
-    })
-
-    return { dayRecords, isLoading: false }
+    return { dayRecords: filteredRecords, isLoading: false }
 }
