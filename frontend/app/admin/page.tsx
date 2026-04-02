@@ -13,6 +13,7 @@ import {
   Clock
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { formatJapaneseDateTimeWithSeconds } from "@/lib/dateUtils";
 import { 
   Table, 
   TableBody, 
@@ -211,13 +212,7 @@ export default function AdminDashboard() {
                               <TableCell className="font-medium text-xs md:text-sm text-muted-foreground whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
                                   <Clock className="h-3 w-3" />
-                                  {new Date(log.created_at).toLocaleString("ja-JP", {
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit"
-                                  })}
+                                  {formatJapaneseDateTimeWithSeconds(log.created_at)}
                                 </div>
                               </TableCell>
                               <TableCell className="text-xs md:text-sm font-semibold">
