@@ -2,16 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog"
 
 interface UseRecordDeleteProps {
     onDelete: (id: number) => Promise<void>
@@ -40,22 +31,18 @@ export function useRecordDelete({ onDelete, onSuccess, resourceName }: UseRecord
     }
 
     const ConfirmDeleteDialog = () => (
-        <AlertDialog open={deleteTargetId !== null} onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle data-sentry-unmask>記録の削除</AlertDialogTitle>
-                    <AlertDialogDescription data-sentry-unmask>
-                        この{resourceName}を削除しますか？この操作は取り消せません。
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting} data-sentry-unmask>キャンセル</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} data-sentry-unmask className="bg-red-600 hover:bg-red-700" loading={isDeleting}>
-                        削除
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmAlertDialog
+            open={deleteTargetId !== null}
+            onOpenChange={(open) => { if (!open) setDeleteTargetId(null) }}
+            title={<span data-sentry-unmask>記録の削除</span>}
+            description={<span data-sentry-unmask>この{resourceName}を削除しますか？この操作は取り消せません。</span>}
+            confirmText="削除"
+            onConfirm={handleDelete}
+            loading={isDeleting}
+            confirmButtonClass="bg-red-600 hover:bg-red-700"
+            cancelButtonProps={{ "data-sentry-unmask": true } as React.ComponentProps<"button">}
+            confirmButtonProps={{ "data-sentry-unmask": true } as React.ComponentProps<"button">}
+        />
     )
 
     return {
