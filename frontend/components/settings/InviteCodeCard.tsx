@@ -82,10 +82,11 @@ export function InviteCodeCard({ inviteCode, isAdmin, onRegenerated }: Props) {
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                            <AlertDialogCancel disabled={regenerating}>キャンセル</AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={handleRegenerate}
                                 className="bg-indigo-600 hover:bg-indigo-700"
+                                loading={regenerating}
                             >
                                 再生成する
                             </AlertDialogAction>
