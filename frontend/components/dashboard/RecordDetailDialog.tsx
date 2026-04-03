@@ -16,6 +16,7 @@ import { api, isApiError } from "@/lib/api"
 import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
 import { useRecordDelete } from "@/hooks/useRecordDelete"
 import { RECORD_TYPE_LABELS } from "@/constants/ui"
+import { getRecordEndpoint } from "@/lib/recordUtils"
 
 interface Props {
   record: BabyRecord | null
@@ -46,38 +47,32 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
 
     await execute(
       async () => {
-        let endpoint = ""
+        const endpoint = getRecordEndpoint(record.type, record.id)
         const isoTimestamp = new Date(record.timestamp).toISOString()
         const body: Record<string, string | null> = { notes }
 
         switch (record.type) {
           case RECORD_TYPES.FEEDING:
-            endpoint = `/feedings/${record.id}`
             body.feeding_time = isoTimestamp
             await api.patch(endpoint, body)
             break
           case RECORD_TYPES.SLEEP:
-            endpoint = `/sleeps/${record.id}`
             body.start_time = isoTimestamp
             await api.patch(endpoint, body)
             break
           case RECORD_TYPES.DIAPER:
-            endpoint = `/diapers/${record.id}`
             body.change_time = isoTimestamp
             await api.put(endpoint, body)
             break
           case RECORD_TYPES.GROWTH:
-            endpoint = `/growths/${record.id}`
             // Use format to get YYYY-MM-DD in local time
             body.date = formatDateLocal(new Date(record.timestamp))
             await api.put(endpoint, body)
             break
           case RECORD_TYPES.NOTE:
-            endpoint = `/notes/${record.id}`
             await api.patch(endpoint, { content: notes, note_time: isoTimestamp, updated_at: record.updated_at })
             break
           case RECORD_TYPES.CONTRACTION:
-            endpoint = `/contractions/${record.id}`
             body.start_time = isoTimestamp
             await api.patch(endpoint, body)
             break
@@ -101,15 +96,7 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
   const { setDeleteTargetId, ConfirmDeleteDialog, isDeleting } = useRecordDelete({
     onDelete: async (id: number) => {
       if (!record) return
-      let endpoint = ""
-      switch (record.type) {
-        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${id}`; break
-        case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${id}`; break
-        case RECORD_TYPES.DIAPER: endpoint = `/diapers/${id}`; break
-        case RECORD_TYPES.GROWTH: endpoint = `/growths/${id}`; break
-        case RECORD_TYPES.NOTE: endpoint = `/notes/${id}`; break
-        case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${id}`; break
-      }
+      const endpoint = getRecordEndpoint(record.type, id)
       await api.delete(endpoint)
     },
     onSuccess: () => {
