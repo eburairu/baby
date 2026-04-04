@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { POOP_COLORS, POOP_AMOUNTS, POOP_CONSISTENCIES } from "@/constants/diaper"
+import { POOP_CONSISTENCIES } from "@/constants/diaper"
 import { resolvePoopField } from "@/lib/diaperPoopUtils"
 
 describe("POOP_CONSISTENCIES定数", () => {
