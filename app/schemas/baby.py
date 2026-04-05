@@ -12,6 +12,7 @@ class BabyBase(BaseModel):
     characteristics: Optional[str] = Field(None, max_length=1000)
     feeding_threshold_minutes: Optional[int] = None
     diaper_threshold_minutes: Optional[int] = None
+    instagram_username: Optional[str] = Field(None, max_length=30)
 
 
 class BabyCreate(BabyBase):
@@ -26,6 +27,7 @@ class BabyUpdate(BaseModel):
     characteristics: Optional[str] = Field(None, max_length=1000)
     feeding_threshold_minutes: Optional[int] = None
     diaper_threshold_minutes: Optional[int] = None
+    instagram_username: Optional[str] = Field(None, max_length=30)
 
     @field_validator('name')
     @classmethod

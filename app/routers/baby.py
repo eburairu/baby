@@ -110,6 +110,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         characteristics=baby_in.characteristics,
         feeding_threshold_minutes=baby_in.feeding_threshold_minutes,
         diaper_threshold_minutes=baby_in.diaper_threshold_minutes,
+        instagram_username=baby_in.instagram_username,
     )
     db.add(new_baby)
     db.commit()

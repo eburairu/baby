@@ -27,6 +27,7 @@ const babySchema = z.object({
     characteristics: z.string().optional(),
     feeding_threshold_minutes: z.preprocess((val) => (val === "" ? null : val), z.coerce.number().min(0).nullable()).optional() as z.ZodType<number | null | undefined>,
     diaper_threshold_minutes: z.preprocess((val) => (val === "" ? null : val), z.coerce.number().min(0).nullable()).optional() as z.ZodType<number | null | undefined>,
+    instagram_username: z.string().max(30).optional(),
 })
 
 export type BabyFormData = z.infer<typeof babySchema>
@@ -58,6 +59,7 @@ export function BabyForm({
             characteristics: "",
             feeding_threshold_minutes: null,
             diaper_threshold_minutes: null,
+            instagram_username: "",
             ...defaultValues,
         },
         values: defaultValues ? {
@@ -68,6 +70,7 @@ export function BabyForm({
             characteristics: defaultValues.characteristics || "",
             feeding_threshold_minutes: defaultValues.feeding_threshold_minutes ?? null,
             diaper_threshold_minutes: defaultValues.diaper_threshold_minutes ?? null,
+            instagram_username: defaultValues.instagram_username || "",
         } : undefined,
     })
 
@@ -183,6 +186,26 @@ export function BabyForm({
                                     {...field}
                                 />
                             </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="instagram_username"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Instagramアカウント名</FormLabel>
+                            <FormControl>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-gray-400 text-sm select-none">@</span>
+                                    <Input placeholder="username" {...field} />
+                                </div>
+                            </FormControl>
+                            <FormDescription>
+                                設定するとプロフィールページにInstagramへのリンクが表示されます。
+                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}

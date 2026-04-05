@@ -33,6 +33,7 @@ export function AddBabyDialog({ open, onClose, onAdded }: Props) {
                     characteristics: data.characteristics || null,
                     feeding_threshold_minutes: data.feeding_threshold_minutes,
                     diaper_threshold_minutes: data.diaper_threshold_minutes,
+                    instagram_username: data.instagram_username || null,
                 })
                 onAdded()
                 handleClose()
