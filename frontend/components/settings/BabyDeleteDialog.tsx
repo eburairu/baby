@@ -11,11 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { api } from "@/lib/api"
 import { useAsyncAction } from "@/hooks/useAsyncAction"
-
-interface Baby {
-    id: number
-    name: string
-}
+import { Baby } from "@/types/baby"
 
 interface Props {
     baby: Baby | null
