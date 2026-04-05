@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { Baby as BabyIcon, Pencil, Trash2 } from "lucide-react"
+import { Baby as BabyIcon, Pencil, Trash2, ExternalLink } from "lucide-react"
 import { calcAge } from "@/lib/ageUtils"
 import { SettingsCard } from "./SettingsCard"
 
@@ -34,6 +34,17 @@ export function BabyCard({ baby, isAdmin, onEdit, onDelete }: Props) {
                     )}
                     {baby.due_date && (
                         <p className="text-xs text-gray-500 dark:text-zinc-500">予定日: {formatDate(baby.due_date)}</p>
+                    )}
+                    {baby.instagram_username && (
+                        <a
+                            href={`https://www.instagram.com/${baby.instagram_username}/`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-pink-500 dark:text-pink-400 hover:underline mt-1"
+                        >
+                            <ExternalLink className="w-3 h-3" />
+                            @{baby.instagram_username}
+                        </a>
                     )}
                     {baby.characteristics && (
                         <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800">

@@ -1453,6 +1453,8 @@ export interface components {
             /** Feeding Threshold Minutes */
             feeding_threshold_minutes?: number | null;
             gender?: components["schemas"]["Gender"] | null;
+            /** Instagram Username */
+            instagram_username?: string | null;
             /** Name */
             name: string;
         };
@@ -1508,6 +1510,8 @@ export interface components {
             gender?: components["schemas"]["Gender"] | null;
             /** Id */
             id: number;
+            /** Instagram Username */
+            instagram_username?: string | null;
             /** Name */
             name: string;
         };
@@ -1524,6 +1528,8 @@ export interface components {
             /** Feeding Threshold Minutes */
             feeding_threshold_minutes?: number | null;
             gender?: components["schemas"]["Gender"] | null;
+            /** Instagram Username */
+            instagram_username?: string | null;
             /** Name */
             name?: string | null;
         };

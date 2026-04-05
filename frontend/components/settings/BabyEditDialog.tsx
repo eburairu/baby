@@ -36,6 +36,7 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
                     characteristics: data.characteristics || null,
                     feeding_threshold_minutes: data.feeding_threshold_minutes,
                     diaper_threshold_minutes: data.diaper_threshold_minutes,
+                    instagram_username: data.instagram_username || null,
                 })
                 onUpdated()
                 handleClose()
@@ -56,6 +57,7 @@ export function BabyEditDialog({ baby, open, onClose, onUpdated }: Props) {
         characteristics: baby.characteristics ?? "",
         feeding_threshold_minutes: baby.feeding_threshold_minutes ?? null,
         diaper_threshold_minutes: baby.diaper_threshold_minutes ?? null,
+        instagram_username: baby.instagram_username ?? "",
     } : undefined
 
     return (
