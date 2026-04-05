@@ -29,8 +29,12 @@ export function areRecordsEqual(prevRecords: BabyRecord[] | undefined, nextRecor
 
     // Check details deeply for ALL records to ensure correctness.
     // Even if historical records change (e.g., editing notes or amounts), the widget should reflect the new state.
-    // Performance impact is negligible for typical list sizes on dashboard.
-    if (JSON.stringify(p.details) !== JSON.stringify(n.details)) return false
+    // Use updated_at for O(1) comparison to avoid expensive JSON.stringify if available.
+    if (p.updated_at && n.updated_at) {
+        if (p.updated_at !== n.updated_at) return false
+    } else {
+        if (JSON.stringify(p.details) !== JSON.stringify(n.details)) return false
+    }
   }
 
   return true
