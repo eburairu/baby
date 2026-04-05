@@ -16,6 +16,7 @@ class Baby(Base, SoftDeleteMixin):
     characteristics = Column(String, nullable=True)  # AIが生成・更新する「赤ちゃんの特徴・傾向」
     feeding_threshold_minutes = Column(Integer, nullable=True)
     diaper_threshold_minutes = Column(Integer, nullable=True)
+    instagram_username = Column(String, nullable=True)
 
     family = relationship("Family", backref="babies")
 

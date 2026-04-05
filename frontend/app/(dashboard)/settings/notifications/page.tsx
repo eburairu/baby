@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Bell, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -9,80 +8,59 @@ import { toast } from "sonner";
 import { usePushNotification } from "@/hooks/usePushNotification";
 import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import { api } from "@/lib/api";
+import { useNotificationSettings, NotificationSettings } from "@/hooks/useNotificationSettings";
 
-interface NotificationSettings {
-  family_record_enabled: boolean;
-  feeding_reminder_enabled: boolean;
-  diaper_reminder_enabled: boolean;
-  daily_summary_enabled: boolean;
-  system_notice_enabled: boolean;
-  dnd_start_time: string | null;
-  dnd_end_time: string | null;
+function NotificationSettingItem({
+  title,
+  description,
+  checked,
+  onCheckedChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="space-y-0.5">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  );
 }
 
 export default function NotificationsPage() {
   const { permission, subscription, requestPermission, subscribeUser, unsubscribeUser, sendSubscriptionToBackend } = usePushNotification();
-  const [settings, setSettings] = useState<NotificationSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dndInputsVisible, setDndInputsVisible] = useState(false);
+  const { settings, isLoading, updateSettings } = useNotificationSettings();
+
   const dndEnabled = !!(settings?.dnd_start_time && settings?.dnd_end_time);
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const data = await api.get<NotificationSettings>("/notifications/settings");
-      setSettings(data);
-      setDndInputsVisible(!!(data.dnd_start_time && data.dnd_end_time));
-    } catch (error) {
-      console.error("Failed to fetch settings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const dndInputsVisible = dndEnabled;
 
   const handleDndToggle = async (enabled: boolean) => {
-    setDndInputsVisible(enabled);
     if (!enabled) {
-      const newSettings = { ...settings!, dnd_start_time: null, dnd_end_time: null };
-      setSettings(newSettings);
       try {
-        await api.patch("/notifications/settings", { dnd_start_time: null, dnd_end_time: null });
+        await updateSettings({ dnd_start_time: null, dnd_end_time: null }, { showToast: false });
         toast.success("おやすみモードを無効にしました");
       } catch {
-        toast.error("設定の更新に失敗しました");
-        fetchSettings();
+        // useNotificationSettings handles the error toast
       }
     } else {
       const defaultStart = "21:00";
       const defaultEnd = "08:00";
-      const newSettings = { ...settings!, dnd_start_time: defaultStart, dnd_end_time: defaultEnd };
-      setSettings(newSettings);
       try {
-        await api.patch("/notifications/settings", { dnd_start_time: defaultStart, dnd_end_time: defaultEnd });
+        await updateSettings({ dnd_start_time: defaultStart, dnd_end_time: defaultEnd }, { showToast: false });
         toast.success("おやすみモードを有効にしました");
       } catch {
-        toast.error("設定の更新に失敗しました");
-        fetchSettings();
+        // useNotificationSettings handles the error toast
       }
     }
   };
 
   const updateSetting = async (key: keyof NotificationSettings, value: boolean | string | null) => {
-    if (!settings) return;
-
-    const newSettings = { ...settings, [key]: value };
-    setSettings(newSettings);
-
-    try {
-      await api.patch("/notifications/settings", { [key]: value });
-      toast.success("設定を更新しました");
-    } catch {
-      toast.error("設定の更新に失敗しました");
-      fetchSettings(); // ロールバック
-    }
+    await updateSettings({ [key]: value });
   };
 
   const handleEnableNotifications = async () => {
@@ -131,7 +109,7 @@ export default function NotificationsPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">読み込み中...</div>;
+  if (isLoading) return <div className="p-8 text-center">読み込み中...</div>;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950">
@@ -245,60 +223,36 @@ export default function NotificationsPage() {
             <CardDescription>受け取る通知の種類を選択してください</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">家族の記録</p>
-                <p className="text-xs text-muted-foreground">家族が新しい記録を追加したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.family_record_enabled}
-                onCheckedChange={(v) => updateSetting("family_record_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">授乳リマインダー</p>
-                <p className="text-xs text-muted-foreground">前回の授乳から時間が経過したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.feeding_reminder_enabled}
-                onCheckedChange={(v) => updateSetting("feeding_reminder_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">オムツリマインダー</p>
-                <p className="text-xs text-muted-foreground">前回のオムツ替えから時間が経過したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.diaper_reminder_enabled}
-                onCheckedChange={(v) => updateSetting("diaper_reminder_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">デイリーサマリー</p>
-                <p className="text-xs text-muted-foreground">AIによる1日のまとめが完成したときに通知します</p>
-              </div>
-              <Switch
-                checked={settings?.daily_summary_enabled}
-                onCheckedChange={(v) => updateSetting("daily_summary_enabled", v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">システム通知</p>
-                <p className="text-xs text-muted-foreground">重要なお知らせやアップデート情報を通知します</p>
-              </div>
-              <Switch
-                checked={settings?.system_notice_enabled}
-                onCheckedChange={(v) => updateSetting("system_notice_enabled", v)}
-              />
-            </div>
+            <NotificationSettingItem
+              title="家族の記録"
+              description="家族が新しい記録を追加したときに通知します"
+              checked={!!settings?.family_record_enabled}
+              onCheckedChange={(v) => updateSetting("family_record_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="授乳リマインダー"
+              description="前回の授乳から時間が経過したときに通知します"
+              checked={!!settings?.feeding_reminder_enabled}
+              onCheckedChange={(v) => updateSetting("feeding_reminder_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="オムツリマインダー"
+              description="前回のオムツ替えから時間が経過したときに通知します"
+              checked={!!settings?.diaper_reminder_enabled}
+              onCheckedChange={(v) => updateSetting("diaper_reminder_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="デイリーサマリー"
+              description="AIによる1日のまとめが完成したときに通知します"
+              checked={!!settings?.daily_summary_enabled}
+              onCheckedChange={(v) => updateSetting("daily_summary_enabled", v)}
+            />
+            <NotificationSettingItem
+              title="システム通知"
+              description="重要なお知らせやアップデート情報を通知します"
+              checked={!!settings?.system_notice_enabled}
+              onCheckedChange={(v) => updateSetting("system_notice_enabled", v)}
+            />
           </CardContent>
         </Card>
 

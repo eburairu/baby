@@ -3,7 +3,7 @@ import { useCallback } from "react"
 import { useRecords } from "@/hooks/useRecords"
 import { useSelectedBaby } from "@/hooks/useSelectedBaby"
 import { usePermissions } from "@/hooks/usePermissions"
-import { useWindowSize } from "@/hooks/useWindowSize"
+import { useWidgetSize } from "@/hooks/useWidgetSize"
 import { FeedingWidget } from "@/components/dashboard/FeedingWidget"
 import { SleepWidget } from "@/components/dashboard/SleepWidget"
 import { DiaperWidget } from "@/components/dashboard/DiaperWidget"
@@ -33,7 +33,7 @@ const RecordViewTabs = dynamic(() => import("@/components/dashboard/RecordViewTa
 })
 
 export default function DashboardPage() {
-    const { width } = useWindowSize()
+    const honeycombSize = useWidgetSize()
     const { babies, isLoading, isError: babiesError, mutate: mutateBabies, selectedBabyId } = useSelectedBaby()
     const { canWrite, isAdmin } = usePermissions()
 
@@ -71,9 +71,6 @@ export default function DashboardPage() {
     }
 
     const born = isBorn(selectedBaby.birthday)
-    const honeycombSize = (width && width < 640) 
-        ? DASHBOARD_UI.WIDGET_SIZE.MOBILE 
-        : DASHBOARD_UI.WIDGET_SIZE.DESKTOP
 
     const ageMonths = selectedBaby?.birthday
         ? calcAge(selectedBaby.birthday).months

@@ -110,6 +110,7 @@ def create_baby(baby_in: BabyCreate, db: Session = Depends(get_db), current_user
         characteristics=baby_in.characteristics,
         feeding_threshold_minutes=baby_in.feeding_threshold_minutes,
         diaper_threshold_minutes=baby_in.diaper_threshold_minutes,
+        instagram_username=baby_in.instagram_username,
     )
     db.add(new_baby)
     db.commit()
@@ -187,7 +188,7 @@ def get_records(
     current_user: User = Depends(get_current_user)
 ):
     # "baby" レベルのアクセスチェック（record_type="baby" はデフォルトなので変更不要）
-    verify_baby_access(db, baby_id, current_user.id)
+    baby = verify_baby_access(db, baby_id, current_user.id)
 
     # date / from_date パラメータを JST 基準で日時範囲に変換
     date_start: Optional[datetime] = None
@@ -203,7 +204,10 @@ def get_records(
         date_start = datetime.combine(parsed, datetime.min.time()).replace(tzinfo=JST)
         # date_end は None のままにして上限なしフィルタにする
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
     is_admin = (family_user and family_user.role == UserRole.ADMIN) or current_user.is_superadmin
 
     # Pre-fetch permissions ONLY if not admin

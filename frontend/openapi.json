@@ -441,6 +441,18 @@
               }
             ]
           },
+          "instagram_username": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Username"
+          },
           "name": {
             "maxLength": 100,
             "title": "Name",
@@ -599,6 +611,18 @@
             "title": "Id",
             "type": "integer"
           },
+          "instagram_username": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Username"
+          },
           "name": {
             "maxLength": 100,
             "title": "Name",
@@ -683,6 +707,18 @@
                 "type": "null"
               }
             ]
+          },
+          "instagram_username": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram Username"
           },
           "name": {
             "anyOf": [

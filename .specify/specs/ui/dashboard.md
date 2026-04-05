@@ -160,7 +160,7 @@ Botoro のメイン画面（ホーム）となるダッシュボードの仕様�
 
 - **GET /api/babies/{baby_id}/records**
     - **Query Params**:
-        - `limit`: 取得件数 (default: 20, min: 1, max: 100)
+        - `limit`: 取得件数 (default: 20, min: 1, max: 500)
         - `date`: YYYY-MM-DD形式の日付フィルタ（指定した1日分）
         - `from_date`: YYYY-MM-DD形式の開始日フィルタ（以降すべて）
     - **Response**: `List[UnifiedRecord]`
