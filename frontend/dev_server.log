@@ -17,43 +17,62 @@
   · optimizePackageImports
 
 ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
-✓ Ready in 5.9s
-○ Compiling /test-tips ...
-⨯ ./frontend/app/test-tips/page.tsx:2:1
-Export TIPS_DATA doesn't exist in target module
-[0m [90m 1 |[39m [36mimport[39m { [33mTipsCard[39m } [36mfrom[39m [32m"@/components/ui/tips-card"[39m
-[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { [33mTIPS_DATA[39m } [36mfrom[39m [32m"@/lib/tips-data"[39m
- [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 3 |[39m
- [90m 4 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mTestPage[39m() {
- [90m 5 |[39m   [36mreturn[39m ([0m
-
-The export TIPS_DATA was not found in module [project]/frontend/lib/tips-data.ts [app-rsc] (ecmascript).
-Did you mean to import noteTips?
-All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
-
-
- GET /test-tips 500 in 11.8s (compile: 11.5s, render: 309ms)
-⨯ ./frontend/app/test-tips/page.tsx:2:1
-Export TIPS_DATA doesn't exist in target module
-[0m [90m 1 |[39m [36mimport[39m { [33mTipsCard[39m } [36mfrom[39m [32m"@/components/ui/tips-card"[39m
-[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { [33mTIPS_DATA[39m } [36mfrom[39m [32m"@/lib/tips-data"[39m
- [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
- [90m 3 |[39m
- [90m 4 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mTestPage[39m() {
- [90m 5 |[39m   [36mreturn[39m ([0m
-
-The export TIPS_DATA was not found in module [project]/frontend/lib/tips-data.ts [app-rsc] (ecmascript).
-Did you mean to import noteTips?
-All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
-
-
- GET /test-tips 500 in 43ms (compile: 13ms, render: 30ms)
-✓ Compiled in 118ms
- GET /test-tips 200 in 1125ms (compile: 273ms, render: 852ms)
- GET /api/auth/me 404 in 1842ms (compile: 1757ms, render: 84ms)
+✓ Ready in 8.1s
+ GET /dashboard 200 in 4.5s (compile: 2.5s, render: 1970ms)
+ GET /dashboard 200 in 332ms (compile: 39ms, render: 294ms)
+ GET /api/notifications/unread-count 404 in 530ms (compile: 387ms, render: 143ms)
+ GET /api/version 404 in 517ms (compile: 244ms, render: 273ms)
+ GET /api/notifications 404 in 528ms (compile: 430ms, render: 99ms)
+ GET /api/auth/me 404 in 524ms (compile: 163ms, render: 361ms)
+ GET /api/notifications/unread-count 404 in 514ms (compile: 11ms, render: 503ms)
+ GET /api/notifications 404 in 432ms (compile: 30ms, render: 402ms)
+ GET /api/version 404 in 320ms (compile: 63ms, render: 257ms)
+ GET /api/auth/me 404 in 355ms (compile: 27ms, render: 328ms)
+ GET /api/babies 404 in 146ms (compile: 11ms, render: 135ms)
+ GET /dashboard 200 in 141ms (compile: 8ms, render: 133ms)
+ GET /api/notifications/unread-count 404 in 314ms (compile: 36ms, render: 278ms)
+ GET /api/notifications 404 in 357ms (compile: 68ms, render: 289ms)
+ GET /api/auth/me 404 in 374ms (compile: 105ms, render: 269ms)
+ GET /api/version 404 in 333ms (compile: 112ms, render: 220ms)
+ GET /api/babies 404 in 135ms (compile: 10ms, render: 125ms)
+○ Compiling /diaper ...
+ GET /api/version 404 in 97ms (compile: 12ms, render: 85ms)
+ GET /diaper 200 in 9.1s (compile: 8.5s, render: 598ms)
+ GET /api/notifications/unread-count 404 in 387ms (compile: 26ms, render: 361ms)
+ GET /api/notifications 404 in 381ms (compile: 49ms, render: 332ms)
+ GET /api/auth/me 404 in 383ms (compile: 125ms, render: 258ms)
+ GET /api/version 404 in 210ms (compile: 45ms, render: 164ms)
+ GET /api/babies 404 in 111ms (compile: 18ms, render: 94ms)
+ GET /dashboard 200 in 150ms (compile: 11ms, render: 139ms)
+ GET /api/auth/me 404 in 240ms (compile: 113ms, render: 127ms)
+ GET /api/version 404 in 191ms (compile: 122ms, render: 69ms)
+ GET /api/notifications/unread-count 404 in 259ms (compile: 21ms, render: 238ms)
+ GET /api/notifications 404 in 255ms (compile: 69ms, render: 186ms)
+ GET /dashboard 200 in 498ms (compile: 17ms, render: 481ms)
+ GET /api/notifications 404 in 358ms (compile: 73ms, render: 285ms)
+ GET /api/notifications/unread-count 404 in 370ms (compile: 12ms, render: 358ms)
+ GET /api/auth/me 404 in 297ms (compile: 63ms, render: 234ms)
+ GET /api/version 404 in 241ms (compile: 94ms, render: 147ms)
+ GET /api/babies 404 in 93ms (compile: 11ms, render: 82ms)
+ GET /diaper 200 in 178ms (compile: 8ms, render: 170ms)
+ GET /diaper 200 in 318ms (compile: 20ms, render: 298ms)
+ GET /api/notifications/unread-count 404 in 267ms (compile: 86ms, render: 181ms)
+ GET /api/version 404 in 425ms (compile: 100ms, render: 325ms)
+ GET /api/notifications/unread-count 404 in 440ms (compile: 33ms, render: 407ms)
+ GET /api/notifications 404 in 440ms (compile: 72ms, render: 368ms)
+ GET /api/babies 404 in 200ms (compile: 36ms, render: 165ms)
+ GET /diaper 200 in 116ms (compile: 8ms, render: 108ms)
+ GET /diaper 200 in 146ms (compile: 7ms, render: 139ms)
+ GET /api/notifications 404 in 123ms (compile: 46ms, render: 77ms)
+ GET /api/notifications/unread-count 404 in 128ms (compile: 20ms, render: 108ms)
+ GET /api/notifications/unread-count 404 in 277ms (compile: 17ms, render: 260ms)
+ GET /api/notifications 404 in 219ms (compile: 27ms, render: 192ms)
+ GET /api/version 404 in 216ms (compile: 66ms, render: 151ms)
+ GET /api/babies 404 in 106ms (compile: 21ms, render: 85ms)
+ GET /diaper 200 in 147ms (compile: 11ms, render: 136ms)
+ GET /diaper 200 in 164ms (compile: 15ms, render: 149ms)
+ GET /api/notifications/unread-count 404 in 79ms (compile: 19ms, render: 61ms)
+ GET /api/notifications/unread-count 404 in 300ms (compile: 21ms, render: 278ms)
+ GET /api/notifications 404 in 299ms (compile: 47ms, render: 252ms)
+ GET /api/version 404 in 184ms (compile: 39ms, render: 145ms)
+ GET /api/babies 404 in 162ms (compile: 64ms, render: 98ms)
