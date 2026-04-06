@@ -42,8 +42,13 @@ function getStartTime(range: QuickRange, now: Date): Date | null {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function CustomDot(props: any) {
+interface CustomDotProps {
+    cx?: number;
+    cy?: number;
+    payload?: { temperature: number };
+}
+
+function CustomDot(props: CustomDotProps) {
     const { cx, cy, payload } = props
     if (!payload || cx == null || cy == null) return null
     const status = getFeverStatus(payload.temperature)
