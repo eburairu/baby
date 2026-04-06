@@ -122,10 +122,11 @@ export function CommentItem({ comment, currentUserId, onDelete, isDeleting }: Co
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>キャンセル</AlertDialogCancel>
+              <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => onDelete(comment.id)}
                 className="bg-red-500 hover:bg-red-600 focus-visible:ring-red-600"
+                loading={isDeleting}
               >
                 削除する
               </AlertDialogAction>

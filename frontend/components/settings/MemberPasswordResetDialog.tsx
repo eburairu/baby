@@ -122,7 +122,7 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
                 </AlertDialogHeader>
                 {error && <p className="text-red-500 text-sm px-1">{error}</p>}
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={handleClose}>キャンセル</AlertDialogCancel>
+                    <AlertDialogCancel onClick={handleClose} disabled={resetting}>キャンセル</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleReset}
                         loading={resetting}

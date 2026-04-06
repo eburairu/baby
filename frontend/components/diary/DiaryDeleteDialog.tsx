@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,6 +22,8 @@ interface DiaryDeleteDialogProps {
 }
 
 export function DiaryDeleteDialog({ summary, open, onOpenChange, onConfirm }: DiaryDeleteDialogProps) {
+    const [isDeleting, setIsDeleting] = useState(false)
+
     const dateLabel = summary
         ? new Date(summary.summary_date + "T00:00:00").toLocaleDateString("ja-JP", {
               year: "numeric",
@@ -30,8 +34,13 @@ export function DiaryDeleteDialog({ summary, open, onOpenChange, onConfirm }: Di
 
     const handleConfirm = async () => {
         if (!summary) return
-        await onConfirm(summary.summary_date)
-        onOpenChange(false)
+        setIsDeleting(true)
+        try {
+            await onConfirm(summary.summary_date)
+            onOpenChange(false)
+        } finally {
+            setIsDeleting(false)
+        }
     }
 
     return (
@@ -44,10 +53,11 @@ export function DiaryDeleteDialog({ summary, open, onOpenChange, onConfirm }: Di
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                    <AlertDialogCancel disabled={isDeleting}>キャンセル</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleConfirm}
                         className="bg-red-500 hover:bg-red-600"
+                        loading={isDeleting}
                     >
                         削除
                     </AlertDialogAction>
