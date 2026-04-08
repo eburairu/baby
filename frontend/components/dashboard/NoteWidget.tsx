@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import { createWidgetMemoComparison } from "@/lib/memoUtils"
 import { formatElapsed } from "@/lib/ageUtils"
 import { AppIcons } from "@/constants/icons"
@@ -9,9 +9,15 @@ import { BaseWidgetProps } from "@/types/widget"
 import Link from "next/link"
 
 export const NoteWidget = memo(function NoteWidget({ babyId, records, isLoading, isError, size }: BaseWidgetProps) {
-  const noteRecords = records?.filter(r => r.type === 'note') ?? []
-  const lastNote = noteRecords[0]
-  const elapsed = lastNote ? formatElapsed(lastNote.timestamp) : null
+  // パフォーマンス最適化: レコードのフィルタリングとパース処理をメモ化し、再レンダリング時の不要な計算を抑止
+  const { lastNote, elapsed } = useMemo(() => {
+    const noteRecords = records?.filter(r => r.type === 'note') ?? []
+    const last = noteRecords[0]
+    return {
+      lastNote: last,
+      elapsed: last ? formatElapsed(last.timestamp) : null
+    }
+  }, [records])
 
   return (
     <Link href={`/note?baby_id=${babyId}`} className="block">
