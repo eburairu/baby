@@ -1,15 +1,6 @@
 "use client"
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog"
 import { DailySummary } from "@/types/dailySummary"
 
 interface DiaryDeleteDialogProps {
@@ -35,24 +26,14 @@ export function DiaryDeleteDialog({ summary, open, onOpenChange, onConfirm }: Di
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>育児日誌を削除しますか？</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        {dateLabel} の育児日誌を削除します。この操作は元に戻せません。
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={handleConfirm}
-                        className="bg-red-500 hover:bg-red-600"
-                    >
-                        削除
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmAlertDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="育児日誌を削除しますか？"
+            description={`${dateLabel} の育児日誌を削除します。この操作は元に戻せません。`}
+            confirmText="削除"
+            onConfirm={handleConfirm}
+            confirmButtonClass="bg-red-500 hover:bg-red-600"
+        />
     )
 }

@@ -1,16 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Copy, Check } from "lucide-react"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog"
 import { DialogFooter } from "@/components/ui/dialog"
 import { EditDialogBase } from "@/components/records/EditDialogBase"
 import { Button } from "@/components/ui/button"
@@ -111,27 +102,24 @@ export function MemberPasswordResetDialog({ member, open, onClose }: Props) {
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={(v) => { if (!v) handleClose() }}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>{displayName} のパスワードを再発行しますか？</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        現在のパスワードは無効になり、新しい仮パスワードが発行されます。
+        <>
+            <ConfirmAlertDialog
+                open={open}
+                onOpenChange={(v) => { if (!v) handleClose() }}
+                title={`${displayName} のパスワードを再発行しますか？`}
+                description={
+                    <>
+                        現在のパスワードは無効になり、新しい仮パスワードが発行されます。<br />
                         発行された仮パスワードを本人に伝えてください。
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                {error && <p className="text-red-500 text-sm px-1">{error}</p>}
-                <AlertDialogFooter>
-                    <AlertDialogCancel onClick={handleClose}>キャンセル</AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={handleReset}
-                        loading={resetting}
-                        className="bg-indigo-600 hover:bg-indigo-700"
-                    >
-                        再発行する
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                    </>
+                }
+                confirmText="再発行する"
+                onConfirm={handleReset}
+                loading={resetting}
+                confirmButtonClass="bg-indigo-600 hover:bg-indigo-700"
+                cancelText="キャンセル"
+            />
+        </>
     )
 }

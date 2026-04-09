@@ -2,16 +2,7 @@
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog"
 import { MemberRoleDialog } from "./MemberRoleDialog"
 import { MemberPasswordResetDialog } from "./MemberPasswordResetDialog"
 import { api } from "@/lib/api"
@@ -130,26 +121,16 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
             />
 
             {/* 削除確認ダイアログ */}
-            <AlertDialog open={!!deleteTarget} onOpenChange={(v) => { if (!v) setDeleteTarget(null) }}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>{deleteTarget ? getDisplayName(deleteTarget) : ""} を削除しますか？</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            このメンバーを家族グループから削除します。この操作は元に戻せません。
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDelete}
-                            disabled={deleting}
-                            className="bg-red-500 hover:bg-red-600"
-                        >
-                            削除する
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <ConfirmAlertDialog
+                open={!!deleteTarget}
+                onOpenChange={(v) => { if (!v) setDeleteTarget(null) }}
+                title={`${deleteTarget ? getDisplayName(deleteTarget) : ""} を削除しますか？`}
+                description="このメンバーを家族グループから削除します。この操作は元に戻せません。"
+                confirmText="削除する"
+                onConfirm={handleDelete}
+                loading={deleting}
+                confirmButtonClass="bg-red-500 hover:bg-red-600"
+            />
         </SettingsCard>
     )
 }
