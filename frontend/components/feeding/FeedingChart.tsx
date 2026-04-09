@@ -119,6 +119,7 @@ export function FeedingChart({ feedings }: FeedingChartProps) {
                                 key={key}
                                 onClick={() => setCompareMetric(key)}
                                 aria-pressed={compareMetric === key}
+                                aria-label={`比較指標: ${label}`}
                                 className={[
                                     "rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 dark:focus-visible:ring-offset-zinc-900",
                                     compareMetric === key
