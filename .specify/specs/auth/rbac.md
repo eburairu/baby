@@ -9,11 +9,11 @@ Botoro は、家族単位での育児記録の共同管理を前提としたア�
 
 ## ロール定義
 
-| ロール | 説明 | 割り当てタイミング |
-| :--- | :--- | :--- |
-| **ADMIN** | 家族の管理者。すべての操作が可能 | 家族新規作成時、作成者に自動付与 |
-| **MEMBER** | 一般メンバー。記録の閲覧・作成・編集・削除が可能 | ADMIN が VIEWER から昇格させた場合 |
-| **VIEWER** | 閲覧者。記録の閲覧のみ可能 | 招待コードで家族に参加した際のデフォルト |
+| ロール     | 説明                                             | 割り当てタイミング                       |
+| :--------- | :----------------------------------------------- | :--------------------------------------- |
+| **ADMIN**  | 家族の管理者。すべての操作が可能                 | 家族新規作成時、作成者に自動付与         |
+| **MEMBER** | 一般メンバー。記録の閲覧・作成・編集・削除が可能 | ADMIN が VIEWER から昇格させた場合       |
+| **VIEWER** | 閲覧者。記録の閲覧のみ可能                       | 招待コードで家族に参加した際のデフォルト |
 
 ### ロール値
 
@@ -31,76 +31,78 @@ class UserRole(str, enum.Enum):
 
 ### 機能別権限
 
-| 操作カテゴリ | 具体的な操作 | ADMIN | MEMBER | VIEWER |
-| :--- | :--- | :---: | :---: | :---: |
-| **記録の閲覧** | 授乳・睡眠・おむつ・成長・陣痛・スケジュール・メモ・AIサマリーの閲覧 | ✅ | ✅ | ✅ |
-| **記録の書き込み** | 上記の記録の作成・編集・削除 | ✅ | ✅ | ❌ |
-| **画像アップロード** | 記録への画像添付 | ✅ | ✅ | ❌ |
-| **コメント投稿** | 記録へのコメント（応援メッセージ） | ✅ | ✅ | ✅ |
-| **コメント削除** | 自分のコメントの削除 | ✅ | ✅ | ✅ |
-| **他者コメント削除** | 他ユーザーのコメントを削除 | ✅ | ❌ | ❌ |
-| **赤ちゃん管理** | 赤ちゃんの追加・編集・削除 | ✅ | ❌ | ❌ |
-| **ファミリー管理** | ファミリー名の変更 | ✅ | ❌ | ❌ |
-| **招待コード** | 招待コードの再生成 | ✅ | ❌ | ❌ |
-| **メンバー管理** | メンバーのロール変更・削除 | ✅ | ❌ | ❌ |
-| **アクセス権限設定** | BabyPermission（赤ちゃん別の閲覧制限）の管理 | ✅ | ❌ | ❌ |
-| **プロフィール管理** | 自分の表示名の変更 | ✅ | ✅ | ✅ |
-| **通知設定** | プッシュ通知の購読・設定変更・テスト送信 | ✅ | ✅ | ✅ |
+| 操作カテゴリ         | 具体的な操作                                                         | ADMIN | MEMBER | VIEWER |
+| :------------------- | :------------------------------------------------------------------- | :---: | :----: | :----: |
+| **記録の閲覧**       | 授乳・睡眠・おむつ・成長・陣痛・スケジュール・メモ・AIサマリーの閲覧 |  ✅   |   ✅   |   ✅   |
+| **記録の書き込み**   | 上記の記録の作成・編集・削除                                         |  ✅   |   ✅   |   ❌   |
+| **画像アップロード** | 記録への画像添付                                                     |  ✅   |   ✅   |   ❌   |
+| **コメント投稿**     | 記録へのコメント（応援メッセージ）                                   |  ✅   |   ✅   |   ✅   |
+| **コメント削除**     | 自分のコメントの削除                                                 |  ✅   |   ✅   |   ✅   |
+| **他者コメント削除** | 他ユーザーのコメントを削除                                           |  ✅   |   ❌   |   ❌   |
+| **赤ちゃん管理**     | 赤ちゃんの追加・編集・削除                                           |  ✅   |   ❌   |   ❌   |
+| **ファミリー管理**   | ファミリー名の変更                                                   |  ✅   |   ❌   |   ❌   |
+| **招待コード**       | 招待コードの再生成                                                   |  ✅   |   ❌   |   ❌   |
+| **メンバー管理**     | メンバーのロール変更・削除                                           |  ✅   |   ❌   |   ❌   |
+| **パスワード再発行** | メンバーのパスワードの再発行                                         |  ✅   |   ❌   |   ❌   |
+| **アクセス権限設定** | BabyPermission（赤ちゃん別の閲覧制限）の管理                         |  ✅   |   ❌   |   ❌   |
+| **プロフィール管理** | 自分の表示名の変更                                                   |  ✅   |   ✅   |   ✅   |
+| **通知設定**         | プッシュ通知の購読・設定変更・テスト送信                             |  ✅   |   ✅   |   ✅   |
 
 ### エンドポイント別権限
 
-| エンドポイント | メソッド | ADMIN | MEMBER | VIEWER |
-| :--- | :--- | :---: | :---: | :---: |
-| **赤ちゃん** | | | | |
-| `/api/babies/` | GET | ✅ | ✅ ※1 | ✅ ※1 |
-| `/api/babies/` | POST | ✅ | ❌ | ❌ |
-| `/api/babies/{id}` | PATCH, DELETE | ✅ | ❌ | ❌ |
-| `/api/babies/{id}/records` | GET | ✅ | ✅ ※1 | ✅ ※1 |
-| `/api/babies/{id}/records` | POST | ✅ | ✅ | ❌ |
-| **記録系** | | | | |
-| `/api/feedings/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/feedings/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
-| `/api/sleeps/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/sleeps/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
-| `/api/diapers/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/diapers/` | POST, PUT, DELETE | ✅ | ✅ | ❌ |
-| `/api/growth/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/growth/` | POST, PUT, DELETE | ✅ | ✅ | ❌ |
-| `/api/contractions/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/contractions/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
-| `/api/contractions/{id}/stop` | PATCH | ✅ | ✅ | ❌ |
-| `/api/schedules/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/schedules/` | POST, DELETE | ✅ | ✅ | ❌ |
-| `/api/notes/` | GET | ✅ | ✅ ※2 | ✅ ※2 |
-| `/api/notes/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
-| `/api/ai_summary/` | GET | ✅ | ✅ | ✅ |
-| `/api/ai_summary/` | POST, PATCH, DELETE | ✅ | ✅ | ❌ |
-| **コメント** | | | | |
-| `/api/records/{type}/{id}/comments` | GET | ✅ | ✅ | ✅ |
-| `/api/records/{type}/{id}/comments` | POST | ✅ | ✅ | ✅ |
-| `/api/comments/{id}` | DELETE | ✅ ※3 | ✅ ※4 | ✅ ※4 |
-| **ファイル** | | | | |
-| `/api/upload/image` | POST | ✅ | ✅ | ❌ |
-| **ファミリー管理** | | | | |
-| `/api/family/` | GET | ✅ | ✅ | ✅ |
-| `/api/family/` | PATCH | ✅ | ❌ | ❌ |
-| `/api/family/invite_code/regenerate` | POST | ✅ | ❌ | ❌ |
-| `/api/family/members` | GET | ✅ | ✅ | ✅ |
-| `/api/family/members/{id}/role` | PATCH | ✅ | ❌ | ❌ |
-| `/api/family/members/{id}` | DELETE | ✅ | ❌ | ❌ |
-| `/api/babies/{id}/permissions` | GET, PUT | ✅ | ❌ | ❌ |
-| **認証・プロフィール** | | | | |
-| `/api/auth/register/family` | POST | — ※5 | — | — |
-| `/api/auth/register/join` | POST | — ※5 | — | — |
-| `/api/auth/login` | POST | — ※5 | — | — |
-| `/api/auth/logout` | POST | ✅ | ✅ | ✅ |
-| `/api/auth/me` | GET | ✅ | ✅ | ✅ |
-| `/api/auth/me` | PATCH | ✅ | ✅ | ✅ |
-| **通知** | | | | |
-| `/api/notifications/subscribe` | POST | ✅ | ✅ | ✅ |
-| `/api/notifications/unsubscribe` | POST | ✅ | ✅ | ✅ |
-| `/api/notifications/settings` | GET, PATCH | ✅ | ✅ | ✅ |
-| `/api/notifications/test` | POST | ✅ | ✅ | ✅ |
+| エンドポイント                            | メソッド            | ADMIN | MEMBER | VIEWER |
+| :---------------------------------------- | :------------------ | :---: | :----: | :----: |
+| **赤ちゃん**                              |                     |       |        |        |
+| `/api/babies/`                            | GET                 |  ✅   | ✅ ※1  | ✅ ※1  |
+| `/api/babies/`                            | POST                |  ✅   |   ❌   |   ❌   |
+| `/api/babies/{id}`                        | PATCH, DELETE       |  ✅   |   ❌   |   ❌   |
+| `/api/babies/{id}/records`                | GET                 |  ✅   | ✅ ※1  | ✅ ※1  |
+| `/api/babies/{id}/records`                | POST                |  ✅   |   ✅   |   ❌   |
+| **記録系**                                |                     |       |        |        |
+| `/api/feedings/`                          | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/feedings/`                          | POST, PATCH, DELETE |  ✅   |   ✅   |   ❌   |
+| `/api/sleeps/`                            | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/sleeps/`                            | POST, PATCH, DELETE |  ✅   |   ✅   |   ❌   |
+| `/api/diapers/`                           | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/diapers/`                           | POST, PUT, DELETE   |  ✅   |   ✅   |   ❌   |
+| `/api/growth/`                            | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/growth/`                            | POST, PUT, DELETE   |  ✅   |   ✅   |   ❌   |
+| `/api/contractions/`                      | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/contractions/`                      | POST, PATCH, DELETE |  ✅   |   ✅   |   ❌   |
+| `/api/contractions/{id}/stop`             | PATCH               |  ✅   |   ✅   |   ❌   |
+| `/api/schedules/`                         | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/schedules/`                         | POST, DELETE        |  ✅   |   ✅   |   ❌   |
+| `/api/notes/`                             | GET                 |  ✅   | ✅ ※2  | ✅ ※2  |
+| `/api/notes/`                             | POST, PATCH, DELETE |  ✅   |   ✅   |   ❌   |
+| `/api/ai_summary/`                        | GET                 |  ✅   |   ✅   |   ✅   |
+| `/api/ai_summary/`                        | POST, PATCH, DELETE |  ✅   |   ✅   |   ❌   |
+| **コメント**                              |                     |       |        |        |
+| `/api/records/{type}/{id}/comments`       | GET                 |  ✅   |   ✅   |   ✅   |
+| `/api/records/{type}/{id}/comments`       | POST                |  ✅   |   ✅   |   ✅   |
+| `/api/comments/{id}`                      | DELETE              | ✅ ※3 | ✅ ※4  | ✅ ※4  |
+| **ファイル**                              |                     |       |        |        |
+| `/api/upload/image`                       | POST                |  ✅   |   ✅   |   ❌   |
+| **ファミリー管理**                        |                     |       |        |        |
+| `/api/family/`                            | GET                 |  ✅   |   ✅   |   ✅   |
+| `/api/family/`                            | PATCH               |  ✅   |   ❌   |   ❌   |
+| `/api/family/invite_code/regenerate`      | POST                |  ✅   |   ❌   |   ❌   |
+| `/api/family/members`                     | GET                 |  ✅   |   ✅   |   ✅   |
+| `/api/family/members/{id}/role`           | PATCH               |  ✅   |   ❌   |   ❌   |
+| `/api/family/members/{id}`                | DELETE              |  ✅   |   ❌   |   ❌   |
+| `/api/family/members/{id}/reset-password` | POST                |  ✅   |   ❌   |   ❌   |
+| `/api/babies/{id}/permissions`            | GET, PUT            |  ✅   |   ❌   |   ❌   |
+| **認証・プロフィール**                    |                     |       |        |        |
+| `/api/auth/register/family`               | POST                | — ※5  |   —    |   —    |
+| `/api/auth/register/join`                 | POST                | — ※5  |   —    |   —    |
+| `/api/auth/login`                         | POST                | — ※5  |   —    |   —    |
+| `/api/auth/logout`                        | POST                |  ✅   |   ✅   |   ✅   |
+| `/api/auth/me`                            | GET                 |  ✅   |   ✅   |   ✅   |
+| `/api/auth/me`                            | PATCH               |  ✅   |   ✅   |   ✅   |
+| **通知**                                  |                     |       |        |        |
+| `/api/notifications/subscribe`            | POST                |  ✅   |   ✅   |   ✅   |
+| `/api/notifications/unsubscribe`          | POST                |  ✅   |   ✅   |   ✅   |
+| `/api/notifications/settings`             | GET, PATCH          |  ✅   |   ✅   |   ✅   |
+| `/api/notifications/test`                 | POST                |  ✅   |   ✅   |   ✅   |
 
 > [!NOTE]
 >
@@ -163,13 +165,13 @@ def _require_admin(family_user: FamilyUser) -> None:
 
 ### 権限チェックの適用箇所
 
-| チェック関数 | 適用エンドポイント |
-| :--- | :--- |
-| `verify_baby_access(require_write=True)` | 全記録系（feeding / sleep / diaper / growth / contraction / schedule / note / ai_summary）のミューテーション操作 |
-| `verify_baby_access()` | 全記録系の GET 操作 |
-| `verify_write_access()` | `/api/upload/image` (POST) |
-| `_require_admin()` | `/api/family/` (PATCH), `/api/family/invite_code/regenerate`, `/api/family/members/{id}/role`, `/api/family/members/{id}` (DELETE), `/api/babies/{id}/permissions` |
-| `baby.py` 内の直接チェック | `/api/babies/` (POST, PATCH, DELETE) — `family_user.role != UserRole.ADMIN` で拒否 |
+| チェック関数                             | 適用エンドポイント                                                                                                                                                                                                   |
+| :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `verify_baby_access(require_write=True)` | 全記録系（feeding / sleep / diaper / growth / contraction / schedule / note / ai_summary）のミューテーション操作                                                                                                     |
+| `verify_baby_access()`                   | 全記録系の GET 操作                                                                                                                                                                                                  |
+| `verify_write_access()`                  | `/api/upload/image` (POST)                                                                                                                                                                                           |
+| `_require_admin()`                       | `/api/family/` (PATCH), `/api/family/invite_code/regenerate`, `/api/family/members/{id}/role`, `/api/family/members/{id}` (DELETE), `/api/family/members/{id}/reset-password` (POST), `/api/babies/{id}/permissions` |
+| `baby.py` 内の直接チェック               | `/api/babies/` (POST, PATCH, DELETE) — `family_user.role != UserRole.ADMIN` で拒否                                                                                                                                   |
 
 ### ロール変更・メンバー管理の制約
 
@@ -187,21 +189,21 @@ def _require_admin(family_user: FamilyUser) -> None:
 ```typescript
 // frontend/hooks/usePermissions.ts
 export function usePermissions() {
-    const { user } = useUser();
-    const isAdmin = user?.role === UserRole.ADMIN;
-    const isViewer = user?.role === UserRole.VIEWER;
-    const isMember = user?.role === UserRole.MEMBER;
-    const canWrite = isAdmin || isMember;
-    return { isAdmin, isViewer, isMember, canWrite };
+  const { user } = useUser();
+  const isAdmin = user?.role === UserRole.ADMIN;
+  const isViewer = user?.role === UserRole.VIEWER;
+  const isMember = user?.role === UserRole.MEMBER;
+  const canWrite = isAdmin || isMember;
+  return { isAdmin, isViewer, isMember, canWrite };
 }
 ```
 
 ### UI での表示制御
 
-| ロール | UI 要素の状態 |
-| :--- | :--- |
-| **ADMIN** | すべての操作ボタン・メニューを表示 |
-| **MEMBER** | 記録の作成・編集・削除ボタンを表示。ファミリー管理・赤ちゃん管理ボタンは非表示 |
+| ロール     | UI 要素の状態                                                                   |
+| :--------- | :------------------------------------------------------------------------------ |
+| **ADMIN**  | すべての操作ボタン・メニューを表示                                              |
+| **MEMBER** | 記録の作成・編集・削除ボタンを表示。ファミリー管理・赤ちゃん管理ボタンは非表示  |
 | **VIEWER** | FAB（記録ボタン）非表示、編集・削除メニュー非表示、設定画面の管理系ボタン非表示 |
 
 ### VIEWER におけるUI制御の具体的な適用箇所
