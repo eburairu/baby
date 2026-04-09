@@ -42,6 +42,14 @@ export function formatJapaneseDateTime(date: Date | string | number): string {
 }
 
 /**
+ * Formats a date to "M月d日 HH:mm:ss" (e.g., 1月23日 14:30:45).
+ */
+export function formatJapaneseDateTimeWithSeconds(date: Date | string | number): string {
+  const d = typeof date === "string" || typeof date === "number" ? new Date(date) : date;
+  return format(d, "M月d日 HH:mm:ss", { locale: ja });
+}
+
+/**
  * Formats a date to "yyyy年M月d日" (e.g., 2024年1月23日).
  */
 export function formatJapaneseDate(date: Date | string | number): string {
