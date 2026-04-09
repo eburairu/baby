@@ -139,10 +139,10 @@ export function MemberList({ members, currentUserId, isAdmin, onUpdated }: Props
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                        <AlertDialogCancel disabled={deleting}>キャンセル</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            disabled={deleting}
+                            loading={deleting}
                             className="bg-red-500 hover:bg-red-600"
                         >
                             削除する
