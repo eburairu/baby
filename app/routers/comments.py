@@ -149,7 +149,10 @@ def create_record_comment(
             category="comment",
         )
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    family_user_query = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id)
+    if baby:
+        family_user_query = family_user_query.filter(FamilyUser.family_id == baby.family_id)
+    family_user = family_user_query.first()
     return CommentResponse(
         id=new_comment.id,
         user_id=new_comment.user_id,
@@ -173,9 +176,12 @@ def delete_comment(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
 
     # コメントに紐づく baby へのアクセス権を検証（ファミリー間の分離を保証）
-    verify_baby_access(db, comment.baby_id, current_user.id)
+    baby = verify_baby_access(db, comment.baby_id, current_user.id)
 
-    family_user = db.query(FamilyUser).filter(FamilyUser.user_id == current_user.id).first()
+    family_user = db.query(FamilyUser).filter(
+        FamilyUser.user_id == current_user.id,
+        FamilyUser.family_id == baby.family_id
+    ).first()
     if comment.user_id != current_user.id and (family_user is None or family_user.role != UserRole.ADMIN):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
 
