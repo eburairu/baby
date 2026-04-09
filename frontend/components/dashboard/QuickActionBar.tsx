@@ -86,6 +86,21 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
 
     const isLoading = loadingAction !== null
 
+    const buttons = [
+        // 上段
+        { variant: "rose", icon: <AppIcons.feedingBreast className="h-5 w-5" />, onClick: () => handleFeedingModal("BREAST"), ariaLabel: "母乳を記録", ariaHasPopup: "dialog" as const, animationType: "tilt" },
+        { variant: "rose", icon: <AppIcons.feedingBottle className="h-5 w-5" />, onClick: () => handleFeedingModal("BOTTLE"), ariaLabel: "ミルクを記録", ariaHasPopup: "dialog" as const, animationType: "tilt" },
+        // 中段
+        { variant: "amber", icon: <AppIcons.diaperWet className="h-5 w-5" />, onClick: () => handleDiaperModal(DiaperType.WET), ariaLabel: "おしっこを記録", ariaHasPopup: "dialog" as const, animationType: "bounce" },
+        { variant: "amber", icon: <AppIcons.diaperDirty className="h-5 w-5" />, onClick: () => handleDiaperModal(DiaperType.DIRTY), ariaLabel: "うんちを記録", ariaHasPopup: "dialog" as const, animationType: "bounce" },
+        { variant: "amber", icon: <span className="flex gap-0.5"><AppIcons.diaperWet className="h-4 w-4" /><AppIcons.diaperDirty className="h-4 w-4" /></span>, onClick: () => handleDiaperModal(DiaperType.BOTH), ariaLabel: "おしっこ・うんちを記録", ariaHasPopup: "dialog" as const, animationType: "bounce" },
+        // 下段
+        { variant: "indigo", icon: activeSleep ? <AppIcons.sleepActive className="h-6 w-6" /> : <AppIcons.sleep className="h-6 w-6" />, active: !!activeSleep, onClick: handleSleep, loading: loadingAction === "sleep", ariaLabel: activeSleep ? "睡眠終了を記録" : "睡眠開始を記録", ariaHasPopup: undefined, animationType: "tilt" },
+        { variant: "emerald", icon: <AppIcons.growth className="h-5 w-5" />, onClick: () => router.push(`/growth`), ariaLabel: "成長記録ページへ", ariaHasPopup: undefined, animationType: "bounce" },
+        { variant: "blue", icon: <AppIcons.note className="h-5 w-5" />, onClick: () => setNoteDialogOpen(true), ariaLabel: "メモを追加", ariaHasPopup: "dialog" as const, animationType: "tilt" },
+        { variant: "purple", icon: <AppIcons.diary className="h-5 w-5" />, onClick: () => router.push(`/diary`), ariaLabel: "日誌ページへ", ariaHasPopup: undefined, animationType: "tilt" }
+    ] as const;
+
     return (
         <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none w-full max-w-[360px]">
             <div className="pointer-events-auto">
@@ -99,105 +114,21 @@ export function QuickActionBar({ babyId, mutateRecords, records }: Props) {
                         [5, 6, 7, 8]  // 下段: 睡眠, 成長, メモ, 日誌
                     ]}
                 >
-                    {/* 上段: 授乳 */}
-                    <HexagonButton
-                        variant="rose"
-                        icon={<AppIcons.feedingBreast className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => handleFeedingModal("BREAST")}
-                        disabled={isLoading}
-                        aria-label="母乳を記録"
-                        aria-haspopup="dialog"
-                        animationType="tilt"
-                    />
-                    {/* 上段: ミルク */}
-                    <HexagonButton
-                        variant="rose"
-                        icon={<AppIcons.feedingBottle className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => handleFeedingModal("BOTTLE")}
-                        disabled={isLoading}
-                        aria-label="ミルクを記録"
-                        aria-haspopup="dialog"
-                        animationType="tilt"
-                    />
-                    {/* 中段: おしっこ */}
-                    <HexagonButton
-                        variant="amber"
-                        icon={<AppIcons.diaperWet className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => handleDiaperModal(DiaperType.WET)}
-                        disabled={isLoading}
-                        aria-label="おしっこを記録"
-                        aria-haspopup="dialog"
-                        animationType="bounce"
-                    />
-                    {/* 中段: うんち */}
-                    <HexagonButton
-                        variant="amber"
-                        icon={<AppIcons.diaperDirty className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => handleDiaperModal(DiaperType.DIRTY)}
-                        disabled={isLoading}
-                        aria-label="うんちを記録"
-                        aria-haspopup="dialog"
-                        animationType="bounce"
-                    />
-                    {/* 中段: おしっこ/うんち */}
-                    <HexagonButton
-                        variant="amber"
-                        icon={<span className="flex gap-0.5"><AppIcons.diaperWet className="h-4 w-4" /><AppIcons.diaperDirty className="h-4 w-4" /></span>}
-                        size={BUTTON_SIZE}
-                        onClick={() => handleDiaperModal(DiaperType.BOTH)}
-                        disabled={isLoading}
-                        aria-label="おしっこ・うんちを記録"
-                        aria-haspopup="dialog"
-                        animationType="bounce"
-                    />
-                    {/* 下段: 睡眠 */}
-                    <HexagonButton
-                        variant="indigo"
-                        icon={activeSleep ? <AppIcons.sleepActive className="h-6 w-6" /> : <AppIcons.sleep className="h-6 w-6" />}
-                        size={BUTTON_SIZE}
-                        active={!!activeSleep}
-                        onClick={handleSleep}
-                        loading={loadingAction === "sleep"}
-                        disabled={isLoading}
-                        aria-label={activeSleep ? "睡眠終了を記録" : "睡眠開始を記録"}
-                        animationType="tilt"
-                    />
-                    {/* 下段: 成長 */}
-                    <HexagonButton
-                        variant="emerald"
-                        icon={<AppIcons.growth className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => router.push(`/growth`)}
-                        disabled={isLoading}
-                        aria-label="成長記録ページへ"
-                        animationType="bounce"
-                    />
-                    {/* 下段: メモ */}
-                    <HexagonButton
-                        variant="blue"
-                        icon={<AppIcons.note className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => setNoteDialogOpen(true)}
-                        disabled={isLoading}
-                        aria-label="メモを追加"
-                        aria-haspopup="dialog"
-                        animationType="tilt"
-                    />
-                    {/* 下段: 日誌 */}
-                    <HexagonButton
-                        variant="purple"
-                        icon={<AppIcons.diary className="h-5 w-5" />}
-                        size={BUTTON_SIZE}
-                        onClick={() => router.push(`/diary`)}
-                        disabled={isLoading}
-                        aria-label="日誌ページへ"
-                        animationType="tilt"
-                    />
-
+                    {buttons.map((btn, index) => (
+                        <HexagonButton
+                            key={index}
+                            variant={btn.variant}
+                            icon={btn.icon}
+                            size={BUTTON_SIZE}
+                            active={'active' in btn ? btn.active : undefined}
+                            onClick={btn.onClick}
+                            loading={'loading' in btn ? btn.loading : undefined}
+                            disabled={isLoading}
+                            aria-label={btn.ariaLabel}
+                            aria-haspopup={btn.ariaHasPopup}
+                            animationType={btn.animationType as "tilt" | "bounce"}
+                        />
+                    ))}
                 </HoneycombGrid>
             </div>
 
