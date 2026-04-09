@@ -49,6 +49,7 @@ function DiaperTypeButton({ type, selectedType, onClick, icon, label }: DiaperTy
             type="button"
             onClick={onClick}
             aria-pressed={selectedType === type}
+            aria-label={`おむつの種類: ${label}`}
             className={cn(
                 "h-20 w-full flex flex-col items-center justify-center gap-1 rounded-xl border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 selectedType === type
