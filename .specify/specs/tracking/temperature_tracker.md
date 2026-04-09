@@ -160,6 +160,7 @@ interface TemperatureResponse extends TemperatureCreate {
   user_id: number
   recorded_by_display_name: string | null
   comment_count: number
+  unlocked_achievements: UnlockedAchievementInfo[]
 }
 ```
 
