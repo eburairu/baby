@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 
-from app.dependencies import get_db, get_current_user
+from app.dependencies import get_db, get_current_superadmin
 from app.models.user import User
 from app.models.system_settings import SystemSetting
 from app.utils.rate_limit import RateLimiter
@@ -32,28 +32,14 @@ ai_settings_limiter = RateLimiter(
     error_message="Too many requests to AI settings. Please try again later."
 )
 
-def verify_admin_access(db: Session, user: User):
-    """
-    ユーザーが SuperAdmin であるか検証する。
-    """
-    if not user.is_superadmin:
-        logger.warning("Unauthorized superadmin access attempt by user %s", user.id)
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="SuperAdmin access required"
-        )
-    return True
-
-
 @router.get("/settings", response_model=AISettingsSummary, dependencies=[Depends(ai_settings_limiter)])
 def get_ai_settings(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    admin: User = Depends(get_current_superadmin)
 ):
     """
     現在の AI 設定と利用可能なモデルリストを取得する。
     """
-    verify_admin_access(db, current_user)
     
     config = get_ai_config(db)
     models = get_available_llm_models()
@@ -68,12 +54,11 @@ def get_ai_settings(
 def update_ai_settings(
     payload: AISettingsPatch,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    admin: User = Depends(get_current_superadmin)
 ):
     """
     AI 設定を更新する。
     """
-    verify_admin_access(db, current_user)
     
     # 許可リストにないキーは拒否
     unknown_keys = set(payload.settings.keys()) - ALLOWED_AI_SETTING_KEYS
@@ -102,10 +87,9 @@ def update_ai_settings(
 @router.get("/available-models", response_model=List[AIModel], dependencies=[Depends(ai_settings_limiter)])
 def list_available_models(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    admin: User = Depends(get_current_superadmin)
 ):
     """
     利用可能な LLM モデルを外部 API から取得する。
     """
-    verify_admin_access(db, current_user)
     return get_available_llm_models()
