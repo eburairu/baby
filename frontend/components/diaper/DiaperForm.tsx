@@ -123,34 +123,29 @@ export function DiaperForm({ babyId, initialData, defaultDiaperType, onSuccess, 
     })
 
     const onSubmit = async (values: DiaperFormValues) => {
-        try {
-            await submitRecord<DiaperCreate, Diaper | undefined>(values, (vals) => ({
-                baby_id: Number(babyId),
-                diaper_type: vals.diaper_type,
-                change_time: new Date(vals.change_time).toISOString(),
-                notes: vals.notes?.trim() || null,
-                ...buildPoopPayload(vals),
-            }),
-            isEditing && initialData ? async (payload: DiaperCreate) => {
-                const updatePayload: DiaperUpdate = {
-                    diaper_type: payload.diaper_type,
-                    change_time: payload.change_time,
-                    notes: payload.notes,
-                    poop_color: payload.poop_color,
-                    poop_consistency: payload.poop_consistency,
-                    poop_amount: payload.poop_amount,
-                }
+        await submitRecord<DiaperCreate, Diaper | undefined>(values, (vals) => ({
+            baby_id: Number(babyId),
+            diaper_type: vals.diaper_type,
+            change_time: new Date(vals.change_time).toISOString(),
+            notes: vals.notes?.trim() || null,
+            ...buildPoopPayload(vals),
+        }),
+        isEditing && initialData ? async (payload: DiaperCreate) => {
+            const updatePayload: DiaperUpdate = {
+                diaper_type: payload.diaper_type,
+                change_time: payload.change_time,
+                notes: payload.notes,
+                poop_color: payload.poop_color,
+                poop_consistency: payload.poop_consistency,
+                poop_amount: payload.poop_amount,
+            }
 
-                if (onUpdate) {
-                    return await onUpdate(initialData.id, updatePayload)
-                } else {
-                    return await api.put<Diaper>(`/diapers/${initialData.id}`, updatePayload)
-                }
-            } : undefined)
-        } catch (e) {
-            // Error is handled by the hook
-            console.error(e)
-        }
+            if (onUpdate) {
+                return await onUpdate(initialData.id, updatePayload)
+            } else {
+                return await api.put<Diaper>(`/diapers/${initialData.id}`, updatePayload)
+            }
+        } : undefined)
     }
 
     return (

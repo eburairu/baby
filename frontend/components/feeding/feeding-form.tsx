@@ -137,53 +137,48 @@ export function FeedingForm({ babyId, onAdd, onUpdate, initialData, onSuccess, l
     })
 
     const onSubmit = useCallback(async (values: FeedingFormValues) => {
-        try {
-            if (isEditing && initialData && onUpdate) {
-                // Update case
-                await submitRecord(
-                    values,
-                    (vals) => buildFeedingPayload({
-                        babyId,
-                        values: vals,
-                        activeTab,
-                        feedingCompletion,
-                        bottleContentType: vals.bottle_content_type ?? null,
-                        burped
-                    }),
-                    (payload) => onUpdate(initialData.id, payload)
-                )
-            } else if (onAdd) {
-                // Create case with custom onAdd (needed for triggerFeedback etc)
-                await submitRecord(
-                    values,
-                    (vals) => buildFeedingPayload({
-                        babyId,
-                        values: vals,
-                        activeTab,
-                        feedingCompletion,
-                        bottleContentType: vals.bottle_content_type ?? null,
-                        burped,
-                        reset_timer: true
-                    }),
-                    onAdd
-                )
-            } else {
-                // Default create case (standard POST)
-                await submitRecord(values, (vals) => {
-                    return buildFeedingPayload({
-                        babyId,
-                        values: vals,
-                        activeTab,
-                        feedingCompletion,
-                        bottleContentType: vals.bottle_content_type ?? null,
-                        burped,
-                        reset_timer: true
-                    })
+        if (isEditing && initialData && onUpdate) {
+            // Update case
+            await submitRecord(
+                values,
+                (vals) => buildFeedingPayload({
+                    babyId,
+                    values: vals,
+                    activeTab,
+                    feedingCompletion,
+                    bottleContentType: vals.bottle_content_type ?? null,
+                    burped
+                }),
+                (payload) => onUpdate(initialData.id, payload)
+            )
+        } else if (onAdd) {
+            // Create case with custom onAdd (needed for triggerFeedback etc)
+            await submitRecord(
+                values,
+                (vals) => buildFeedingPayload({
+                    babyId,
+                    values: vals,
+                    activeTab,
+                    feedingCompletion,
+                    bottleContentType: vals.bottle_content_type ?? null,
+                    burped,
+                    reset_timer: true
+                }),
+                onAdd
+            )
+        } else {
+            // Default create case (standard POST)
+            await submitRecord(values, (vals) => {
+                return buildFeedingPayload({
+                    babyId,
+                    values: vals,
+                    activeTab,
+                    feedingCompletion,
+                    bottleContentType: vals.bottle_content_type ?? null,
+                    burped,
+                    reset_timer: true
                 })
-            }
-        } catch (error) {
-            console.error(error)
-            // Error handling is mostly done by the hook, but we catch to avoid unhandled rejections
+            })
         }
     }, [activeTab, babyId, burped, feedingCompletion, isEditing, initialData, onAdd, onUpdate, submitRecord])
 
