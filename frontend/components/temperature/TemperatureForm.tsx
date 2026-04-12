@@ -70,38 +70,34 @@ export function TemperatureForm({ babyId, initialData, onSuccess, onUpdate }: Pr
     })
 
     const onSubmit = async (values: TemperatureFormValues) => {
-        try {
-            await submitRecord<TemperatureCreate, Temperature | undefined>(
-                values,
-                (vals) => ({
-                    baby_id: Number(babyId),
-                    measured_at: new Date(vals.measured_at).toISOString(),
-                    temperature: parseFloat(vals.temperature),
-                    method: vals.method,
-                    notes: vals.notes?.trim() || null,
-                }),
-                isEditing && initialData
-                    ? async (payload: TemperatureCreate) => {
-                          const updatePayload: TemperatureUpdate = {
-                              measured_at: payload.measured_at,
-                              temperature: payload.temperature,
-                              method: payload.method,
-                              notes: payload.notes,
-                          }
-                          if (onUpdate) {
-                              return await onUpdate(initialData.id, updatePayload)
-                          } else {
-                              return await api.put<Temperature>(
-                                  `/temperatures/${initialData.id}`,
-                                  updatePayload
-                              )
-                          }
+        await submitRecord<TemperatureCreate, Temperature | undefined>(
+            values,
+            (vals) => ({
+                baby_id: Number(babyId),
+                measured_at: new Date(vals.measured_at).toISOString(),
+                temperature: parseFloat(vals.temperature),
+                method: vals.method,
+                notes: vals.notes?.trim() || null,
+            }),
+            isEditing && initialData
+                ? async (payload: TemperatureCreate) => {
+                      const updatePayload: TemperatureUpdate = {
+                          measured_at: payload.measured_at,
+                          temperature: payload.temperature,
+                          method: payload.method,
+                          notes: payload.notes,
                       }
-                    : undefined
-            )
-        } catch (e) {
-            console.error(e)
-        }
+                      if (onUpdate) {
+                          return await onUpdate(initialData.id, updatePayload)
+                      } else {
+                          return await api.put<Temperature>(
+                              `/temperatures/${initialData.id}`,
+                              updatePayload
+                          )
+                      }
+                  }
+                : undefined
+        )
     }
 
     return (
