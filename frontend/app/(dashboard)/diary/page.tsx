@@ -15,10 +15,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useBabies } from "@/hooks/useBabies"
-import { useBabyStore } from "@/stores/babyStore"
 import { useDailySummaries, generateDailySummary, editDailySummary, deleteDailySummary } from "@/hooks/useDailySummary"
-import { usePermissions } from "@/hooks/usePermissions"
+import { useRecordPage } from "@/hooks/useRecordPage"
 import { DiarySummaryCard } from "@/components/diary/DiarySummaryCard"
 import { DiaryEditDialog } from "@/components/diary/DiaryEditDialog"
 import { DiaryDeleteDialog } from "@/components/diary/DiaryDeleteDialog"
@@ -30,13 +28,8 @@ import { RecordPageLayout } from "@/components/ui/record-page-layout"
 import { formatDateLocal } from "@/lib/dateUtils"
 
 export default function DiaryPage() {
-    const { babies, isLoading: babiesLoading } = useBabies()
-    const { selectedBabyId } = useBabyStore()
-    const { canWrite } = usePermissions()
-
-    const effectiveBabyIdStr =
-        selectedBabyId ?? (babies && babies.length > 0 ? String(babies[0].id) : null)
-    const babyId = effectiveBabyIdStr ? parseInt(effectiveBabyIdStr, 10) : null
+    const { babyId: babyIdStr, isLoading: babiesLoading, canWrite } = useRecordPage()
+    const babyId = babyIdStr ? parseInt(babyIdStr, 10) : null
 
     const { summaries, isLoading: summariesLoading, error: summariesError, mutate } = useDailySummaries(babyId)
 
@@ -116,7 +109,7 @@ export default function DiaryPage() {
             isLoading={babiesLoading}
             isDataLoading={summariesLoading}
             apiError={summariesError}
-            babyId={effectiveBabyIdStr ?? undefined}
+            babyId={babyIdStr ?? undefined}
             onRefresh={handleRefresh}
         >
             <TipsCard {...diaryTips} />
