@@ -1,145 +1,158 @@
-"use client"
-import { RECORD_TYPES } from '@/types/enums';
+"use client";
+import { RECORD_TYPES } from "@/types/enums";
 
-
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { BabyRecord } from "@/types/record"
-import { usePermissions } from "@/hooks/usePermissions"
-import { useUser } from "@/hooks/useAuth"
-import { useAsyncAction } from "@/hooks/useAsyncAction"
-import { CommentSection } from "@/components/records/CommentSection"
-import { EditDialogBase } from "@/components/records/EditDialogBase"
-import { api, isApiError } from "@/lib/api"
-import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils"
-import { useRecordDelete } from "@/hooks/useRecordDelete"
-import { RECORD_TYPE_LABELS } from "@/constants/ui"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { BabyRecord } from "@/types/record";
+import { usePermissions } from "@/hooks/usePermissions";
+import { useUser } from "@/hooks/useAuth";
+import { useAsyncAction } from "@/hooks/useAsyncAction";
+import { CommentSection } from "@/components/records/CommentSection";
+import { EditDialogBase } from "@/components/records/EditDialogBase";
+import { api, isApiError } from "@/lib/api";
+import { formatJapaneseDateTime, formatDateLocal } from "@/lib/dateUtils";
+import { useRecordDelete } from "@/hooks/useRecordDelete";
+import { RECORD_TYPE_LABELS } from "@/constants/ui";
+import { getRecordEndpoint } from "@/lib/recordUtils";
 
 interface Props {
-  record: BabyRecord | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
+  record: BabyRecord | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
-export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Props) {
-  const { canWrite } = usePermissions()
-  const { user } = useUser()
-  const { loading, execute } = useAsyncAction()
-  const [notes, setNotes] = useState("")
+export function RecordDetailDialog({
+  record,
+  open,
+  onOpenChange,
+  onSuccess,
+}: Props) {
+  const { canWrite } = usePermissions();
+  const { user } = useUser();
+  const { loading, execute } = useAsyncAction();
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (open && record) {
       // openのタイミングで初期化してcascading rendersを回避するためにsetTimeoutを使用
       const timerId = setTimeout(() => {
-        setNotes(record.details.notes || "")
-      }, 0)
-      return () => clearTimeout(timerId)
+        setNotes(record.details.notes || "");
+      }, 0);
+      return () => clearTimeout(timerId);
     }
-  }, [open, record])
+  }, [open, record]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!record) return
+    e.preventDefault();
+    if (!record) return;
 
     await execute(
       async () => {
-        let endpoint = ""
-        const isoTimestamp = new Date(record.timestamp).toISOString()
-        const body: Record<string, string | null> = { notes }
+        let endpoint = "";
+        const isoTimestamp = new Date(record.timestamp).toISOString();
+        const body: Record<string, string | null> = { notes };
 
         switch (record.type) {
           case RECORD_TYPES.FEEDING:
-            endpoint = `/feedings/${record.id}`
-            body.feeding_time = isoTimestamp
-            await api.patch(endpoint, body)
-            break
+            endpoint = `/feedings/${record.id}`;
+            body.feeding_time = isoTimestamp;
+            await api.patch(endpoint, body);
+            break;
           case RECORD_TYPES.SLEEP:
-            endpoint = `/sleeps/${record.id}`
-            body.start_time = isoTimestamp
-            await api.patch(endpoint, body)
-            break
+            endpoint = `/sleeps/${record.id}`;
+            body.start_time = isoTimestamp;
+            await api.patch(endpoint, body);
+            break;
           case RECORD_TYPES.DIAPER:
-            endpoint = `/diapers/${record.id}`
-            body.change_time = isoTimestamp
-            await api.put(endpoint, body)
-            break
+            endpoint = `/diapers/${record.id}`;
+            body.change_time = isoTimestamp;
+            await api.put(endpoint, body);
+            break;
           case RECORD_TYPES.GROWTH:
-            endpoint = `/growths/${record.id}`
+            endpoint = `/growths/${record.id}`;
             // Use format to get YYYY-MM-DD in local time
-            body.date = formatDateLocal(new Date(record.timestamp))
-            await api.put(endpoint, body)
-            break
+            body.date = formatDateLocal(new Date(record.timestamp));
+            await api.put(endpoint, body);
+            break;
           case RECORD_TYPES.NOTE:
-            endpoint = `/notes/${record.id}`
-            await api.patch(endpoint, { content: notes, note_time: isoTimestamp, updated_at: record.updated_at })
-            break
+            endpoint = `/notes/${record.id}`;
+            await api.patch(endpoint, {
+              content: notes,
+              note_time: isoTimestamp,
+              updated_at: record.updated_at,
+            });
+            break;
           case RECORD_TYPES.CONTRACTION:
-            endpoint = `/contractions/${record.id}`
-            body.start_time = isoTimestamp
-            await api.patch(endpoint, body)
-            break
+            endpoint = `/contractions/${record.id}`;
+            body.start_time = isoTimestamp;
+            await api.patch(endpoint, body);
+            break;
         }
       },
       {
         onSuccess: () => {
-          onSuccess()
-          onOpenChange(false)
+          onSuccess();
+          onOpenChange(false);
         },
         errorMessage: (error: unknown) => {
-            if (isApiError(error) && error.status === 409) {
-                return "他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。"
-            }
-            return "更新に失敗しました"
-        }
-      }
-    )
-  }
+          if (isApiError(error) && error.status === 409) {
+            return "他のユーザーによってデータが更新されました。画面を更新して最新のデータを取得してください。";
+          }
+          return "更新に失敗しました";
+        },
+      },
+    );
+  };
 
-  const { setDeleteTargetId, ConfirmDeleteDialog, isDeleting } = useRecordDelete({
-    onDelete: async (id: number) => {
-      if (!record) return
-      let endpoint = ""
-      switch (record.type) {
-        case RECORD_TYPES.FEEDING: endpoint = `/feedings/${id}`; break
-        case RECORD_TYPES.SLEEP: endpoint = `/sleeps/${id}`; break
-        case RECORD_TYPES.DIAPER: endpoint = `/diapers/${id}`; break
-        case RECORD_TYPES.GROWTH: endpoint = `/growths/${id}`; break
-        case RECORD_TYPES.NOTE: endpoint = `/notes/${id}`; break
-        case RECORD_TYPES.CONTRACTION: endpoint = `/contractions/${id}`; break
-      }
-      await api.delete(endpoint)
-    },
-    onSuccess: () => {
-      onSuccess()
-      onOpenChange(false)
-    },
-    resourceName: "記録",
-  })
+  const { setDeleteTargetId, ConfirmDeleteDialog, isDeleting } =
+    useRecordDelete({
+      onDelete: async (id: number) => {
+        if (!record) return;
+        const endpoint = getRecordEndpoint(record.type, id);
+        await api.delete(endpoint);
+      },
+      onSuccess: () => {
+        onSuccess();
+        onOpenChange(false);
+      },
+      resourceName: "記録",
+    });
 
-  if (!record) return null
+  if (!record) return null;
 
   return (
     <>
       <EditDialogBase
         open={open}
         onOpenChange={onOpenChange}
-        title={<span>{RECORD_TYPE_LABELS[record.type as keyof typeof RECORD_TYPE_LABELS] || record.type}の記録</span>}
+        title={
+          <span>
+            {RECORD_TYPE_LABELS[
+              record.type as keyof typeof RECORD_TYPE_LABELS
+            ] || record.type}
+            の記録
+          </span>
+        }
       >
         <div className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-zinc-300">日時</Label>
               <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
-                {record.timestamp ? formatJapaneseDateTime(new Date(record.timestamp)) : "-"}
+                {record.timestamp
+                  ? formatJapaneseDateTime(new Date(record.timestamp))
+                  : "-"}
               </div>
             </div>
 
             {record.recorded_by_display_name && (
               <div className="space-y-2">
-                <Label className="text-gray-700 dark:text-zinc-300">記録者</Label>
+                <Label className="text-gray-700 dark:text-zinc-300">
+                  記録者
+                </Label>
                 <div className="text-sm p-2 bg-gray-50 dark:bg-zinc-800 rounded-md border border-gray-100 dark:border-zinc-700 text-gray-600 dark:text-zinc-400">
                   {record.recorded_by_display_name}
                 </div>
@@ -147,7 +160,12 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-gray-700 dark:text-zinc-300">メモ</Label>
+              <Label
+                htmlFor="notes"
+                className="text-gray-700 dark:text-zinc-300"
+              >
+                メモ
+              </Label>
               <Textarea
                 id="notes"
                 value={notes}
@@ -172,17 +190,17 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
                 </Button>
               )}
               <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => onOpenChange(false)}
                   className="dark:border-zinc-700"
                 >
                   {canWrite ? "キャンセル" : "閉じる"}
                 </Button>
                 {canWrite && (
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     loading={loading}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
@@ -205,5 +223,5 @@ export function RecordDetailDialog({ record, open, onOpenChange, onSuccess }: Pr
 
       <ConfirmDeleteDialog />
     </>
-  )
+  );
 }
