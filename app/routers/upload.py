@@ -71,12 +71,19 @@ async def upload_image(
             detail="画像ファイルのみアップロードできます。",
         )
 
-    content = await file.read()
-    if len(content) > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"ファイルサイズが大きすぎます（上限 5MB）。",
-        )
+    # メモリ枯渇（DoS）を防ぐため、ファイルをチャンクごとに読み込んでサイズを検証する
+    content_bytearray = bytearray()
+    while True:
+        chunk = await file.read(1024 * 1024)  # 1MB chunk
+        if not chunk:
+            break
+        content_bytearray.extend(chunk)
+        if len(content_bytearray) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="ファイルサイズが大きすぎます（上限 5MB）。",
+            )
+    content = bytes(content_bytearray)
 
     # Validate magic bytes and determine correct MIME type and extension
     # This prevents users from uploading malicious files (e.g., HTML/PHP) with fake extensions
